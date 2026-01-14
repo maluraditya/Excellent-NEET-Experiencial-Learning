@@ -7,12 +7,14 @@ import { Subject } from '../types';
 
 interface DashboardProps {
   onSelectTopic: (topicId: string) => void;
+  activeSubject: Subject;
+  setActiveSubject: (subject: Subject) => void;
   images: Record<string, string>;
   setImages: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages }) => {
-  const [activeSubject, setActiveSubject] = useState<Subject>('Chemistry');
+const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, setActiveSubject, images, setImages }) => {
+  // Local state removed, using props
   const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
   const loadingRef = useRef<Record<string, boolean>>({});
   const attemptedRef = useRef<Record<string, boolean>>({});
@@ -32,7 +34,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
         loadingRef.current[topic.id] = true;
         attemptedRef.current[topic.id] = true;
         setLoadingState(prev => ({ ...prev, [topic.id]: true }));
-        
+
         try {
           const generatedUrl = await generateTopicThumbnail(topic.title, topic.description);
           if (generatedUrl) {
@@ -56,7 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
   const filteredTopics = TOPICS.filter(t => t.subject === activeSubject);
 
   const getIcon = (iconName: string) => {
-    switch(iconName) {
+    switch (iconName) {
       case 'activity': return <Activity size={80} className="text-brand-primary/20" />;
       case 'zap': return <Zap size={80} className="text-brand-secondary/80" />;
       case 'box': return <Box size={80} className="text-brand-primary/20" />;
@@ -72,13 +74,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
   };
 
   const SubjectTab = ({ subject, icon: Icon, color }: { subject: Subject, icon: any, color: string }) => (
-    <button 
+    <button
       onClick={() => setActiveSubject(subject)}
-      className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-300 ${
-        activeSubject === subject 
-          ? `bg-white border-${color} shadow-xl scale-105` 
-          : 'bg-white/50 border-transparent hover:border-slate-300 opacity-60 hover:opacity-100'
-      }`}
+      className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 transition-all duration-300 ${activeSubject === subject
+        ? `bg-white border-${color} shadow-xl scale-105`
+        : 'bg-white/50 border-transparent hover:border-slate-300 opacity-60 hover:opacity-100'
+        }`}
     >
       <div className={`p-4 rounded-xl ${activeSubject === subject ? `bg-${color}/10 text-${color}` : 'bg-slate-100 text-slate-400'}`}>
         <Icon size={32} />
@@ -105,13 +106,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
 
       {/* Subject Category Layer */}
       <div className="flex flex-wrap justify-center gap-6 mb-16">
-        <button 
+        <button
           onClick={() => setActiveSubject('Physics')}
-          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${
-            activeSubject === 'Physics' 
-              ? 'bg-white border-blue-500 shadow-xl scale-105' 
-              : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
-          }`}
+          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${activeSubject === 'Physics'
+            ? 'bg-white border-blue-500 shadow-xl scale-105'
+            : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
+            }`}
         >
           <div className={`p-4 rounded-2xl transition-colors ${activeSubject === 'Physics' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-500'}`}>
             <Wind size={32} />
@@ -119,13 +119,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
           <span className="font-display font-bold text-slate-800">Physics</span>
         </button>
 
-        <button 
+        <button
           onClick={() => setActiveSubject('Chemistry')}
-          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${
-            activeSubject === 'Chemistry' 
-              ? 'bg-white border-brand-primary shadow-xl scale-105' 
-              : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
-          }`}
+          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${activeSubject === 'Chemistry'
+            ? 'bg-white border-brand-primary shadow-xl scale-105'
+            : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
+            }`}
         >
           <div className={`p-4 rounded-2xl transition-colors ${activeSubject === 'Chemistry' ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-red-100 group-hover:text-brand-primary'}`}>
             <FlaskConical size={32} />
@@ -133,13 +132,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
           <span className="font-display font-bold text-slate-800">Chemistry</span>
         </button>
 
-        <button 
+        <button
           onClick={() => setActiveSubject('Biology')}
-          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${
-            activeSubject === 'Biology' 
-              ? 'bg-white border-green-500 shadow-xl scale-105' 
-              : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
-          }`}
+          className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${activeSubject === 'Biology'
+            ? 'bg-white border-green-500 shadow-xl scale-105'
+            : 'bg-white/50 border-transparent hover:border-slate-200 opacity-70'
+            }`}
         >
           <div className={`p-4 rounded-2xl transition-colors ${activeSubject === 'Biology' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-green-100 group-hover:text-green-500'}`}>
             <Microscope size={32} />
@@ -152,16 +150,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
       {filteredTopics.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {filteredTopics.map((topic) => (
-            <div 
+            <div
               key={topic.id}
               onClick={() => onSelectTopic(topic.id)}
               className="group relative bg-white rounded-3xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden border border-slate-100 flex flex-col h-[520px]"
             >
               <div className="h-56 w-full bg-slate-100 relative overflow-hidden">
-                {images[topic.id] ? (
-                  <img 
-                    src={images[topic.id]} 
-                    alt={topic.title} 
+                {topic.coverImage || images[topic.id] ? (
+                  <img
+                    src={topic.coverImage || images[topic.id]}
+                    alt={topic.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
@@ -172,7 +170,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
                         <span className="text-xs font-medium tracking-widest uppercase">Generating AI Illustration...</span>
                       </div>
                     ) : (
-                       getIcon(topic.thumbnailIcon)
+                      getIcon(topic.thumbnailIcon)
                     )}
                   </div>
                 )}
@@ -193,13 +191,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
                   </p>
                 </div>
                 <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-100">
-                   <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                      <PlayCircle size={16} className="text-brand-secondary" /> 
-                      {topic.youtubeVideoIds.length} Video Lessons
-                   </div>
-                   <button className="bg-brand-primary text-white px-4 py-2 rounded-full font-medium shadow-md text-sm group-hover:bg-brand-secondary group-hover:text-brand-dark transition-colors flex items-center gap-2">
-                     Open <BookOpen size={14} />
-                   </button>
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <PlayCircle size={16} className="text-brand-secondary" />
+                    {topic.youtubeVideoIds.length} Video Lessons
+                  </div>
+                  <button className="bg-brand-primary text-white px-4 py-2 rounded-full font-medium shadow-md text-sm group-hover:bg-brand-secondary group-hover:text-brand-dark transition-colors flex items-center gap-2">
+                    Open <BookOpen size={14} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -212,7 +210,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, images, setImages 
           </div>
           <h3 className="text-2xl font-display font-bold text-slate-400 mb-2">Coming Soon!</h3>
           <p className="text-slate-500">We are currently developing high-fidelity {activeSubject} simulations.</p>
-          <button 
+          <button
             onClick={() => setActiveSubject('Chemistry')}
             className="mt-6 text-brand-primary font-bold hover:underline"
           >

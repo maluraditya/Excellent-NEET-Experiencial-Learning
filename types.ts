@@ -38,13 +38,15 @@ export interface Topic {
   id: string;
   title: string;
   subject: Subject;
+  category?: string; // Optional sub-category
   chapter: string;
   description: string;
-  thumbnailIcon: string; 
+  thumbnailIcon: string;
   imageUrl?: string; // For AI generated image
+  coverImage?: string; // Static override
   youtubeVideoIds: string[]; // For embedded videos
-  
+
   // Tags
-  branch: 'Physical Chemistry' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Mechanics' | 'Electromagnetism' | 'Genetics' | 'Botany' | 'Zoology';
+  branch: 'Physical Chemistry' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Mechanics' | 'Electromagnetism' | 'Genetics' | 'Botany' | 'Zoology' | 'Optics' | 'Modern Physics' | 'Electronics';
   unit: string;
 }
