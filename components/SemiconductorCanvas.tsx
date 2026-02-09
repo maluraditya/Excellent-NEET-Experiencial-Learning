@@ -19,7 +19,7 @@ const SemiconductorCanvas: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(true);
     const [showForces, setShowForces] = useState(false);
     const [showAnalogy, setShowAnalogy] = useState(false);
-    const [phase, setPhase] = useState<'initial' | 'diffusion' | 'depletion' | 'equilibrium'>('initial');
+    const [phase, setPhase] = useState<'initial' | 'diffusion' | 'depletion' | 'efield' | 'equilibrium'>('initial');
     const [depletionWidth, setDepletionWidth] = useState(0);
     const [time, setTime] = useState(0);
 
@@ -338,46 +338,64 @@ const SemiconductorCanvas: React.FC = () => {
                 return p.x > centerX - depletionWidth - 50;
             });
 
-            // --- Force Arrows (Toggle) ---
-            if (showForces && depletionWidth > 30) {
-                const arrowY1 = 70;
-                const arrowY2 = 100;
+            // --- Force Arrows (Toggle) - Always visible after joining if toggled ---
+            if (showForces && joined) {
+                // Force arrows background panel
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillRect(centerX - 130, 55, 260, 70);
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(centerX - 130, 55, 260, 70);
 
-                // Diffusion force arrow (→)
-                ctx.strokeStyle = '#22c55e';
-                ctx.fillStyle = '#22c55e';
-                ctx.lineWidth = 3;
+                const arrowY1 = 75;
+                const arrowY2 = 105;
+
+                // Diffusion force arrow (→) - Green, always strong
+                ctx.strokeStyle = '#16a34a';
+                ctx.fillStyle = '#16a34a';
+                ctx.lineWidth = 4;
                 ctx.beginPath();
-                ctx.moveTo(centerX - 80, arrowY1);
-                ctx.lineTo(centerX + 60, arrowY1);
+                ctx.moveTo(centerX - 100, arrowY1);
+                ctx.lineTo(centerX + 70, arrowY1);
                 ctx.stroke();
+                // Arrow head
                 ctx.beginPath();
-                ctx.moveTo(centerX + 70, arrowY1);
-                ctx.lineTo(centerX + 55, arrowY1 - 8);
-                ctx.lineTo(centerX + 55, arrowY1 + 8);
+                ctx.moveTo(centerX + 85, arrowY1);
+                ctx.lineTo(centerX + 65, arrowY1 - 10);
+                ctx.lineTo(centerX + 65, arrowY1 + 10);
                 ctx.closePath();
                 ctx.fill();
-                ctx.font = 'bold 12px sans-serif';
+                ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText('Diffusion →', centerX + 80, arrowY1 + 4);
+                ctx.fillText('DIFFUSION →', centerX + 90, arrowY1 + 4);
 
-                // E-field force arrow (←)
-                const eFieldStrength = Math.min(depletionWidth / 80, 1);
-                ctx.strokeStyle = '#ef4444';
-                ctx.fillStyle = '#ef4444';
+                // E-field force arrow (←) - Red, grows with depletion
+                const eFieldStrength = Math.max(0.2, Math.min(depletionWidth / 80, 1));
+                ctx.strokeStyle = '#dc2626';
+                ctx.fillStyle = '#dc2626';
+                ctx.lineWidth = 4;
                 ctx.beginPath();
-                ctx.moveTo(centerX + 80, arrowY2);
-                ctx.lineTo(centerX - 60 * eFieldStrength, arrowY2);
+                ctx.moveTo(centerX + 100, arrowY2);
+                ctx.lineTo(centerX - 70 * eFieldStrength, arrowY2);
                 ctx.stroke();
+                // Arrow head
                 ctx.beginPath();
-                ctx.moveTo(centerX - 70 * eFieldStrength, arrowY2);
-                ctx.lineTo(centerX - 55 * eFieldStrength, arrowY2 - 8);
-                ctx.lineTo(centerX - 55 * eFieldStrength, arrowY2 + 8);
+                ctx.moveTo(centerX - 85 * eFieldStrength, arrowY2);
+                ctx.lineTo(centerX - 65 * eFieldStrength, arrowY2 - 10);
+                ctx.lineTo(centerX - 65 * eFieldStrength, arrowY2 + 10);
                 ctx.closePath();
                 ctx.fill();
-                ctx.font = 'bold 12px sans-serif';
+                ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'right';
-                ctx.fillText('← E-field (Drift)', centerX - 90 * eFieldStrength, arrowY2 + 4);
+                ctx.fillText('← E-FIELD (Drift)', centerX - 90 * eFieldStrength - 5, arrowY2 + 4);
+
+                // Equilibrium indicator when forces balance
+                if (depletionWidth > 60) {
+                    ctx.fillStyle = '#7c3aed';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('⚖️ EQUILIBRIUM: Net Current = 0', centerX, 140);
+                }
             }
 
             // --- Labels ---
@@ -514,7 +532,8 @@ const SemiconductorCanvas: React.FC = () => {
             setJoined(true);
             setPhase('diffusion');
             setTimeout(() => setPhase('depletion'), 2000);
-            setTimeout(() => setPhase('equilibrium'), 5000);
+            setTimeout(() => setPhase('efield'), 4000);  // Phase C: Electric Field
+            setTimeout(() => setPhase('equilibrium'), 6000);
         } else {
             handleReset();
         }
@@ -554,14 +573,16 @@ const SemiconductorCanvas: React.FC = () => {
 
                 {/* Phase Indicator */}
                 <span className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${phase === 'initial' ? 'bg-gray-500 text-white' :
-                    phase === 'diffusion' ? 'bg-green-500 text-white' :
-                        phase === 'depletion' ? 'bg-yellow-500 text-black' :
-                            'bg-blue-500 text-white'
+                        phase === 'diffusion' ? 'bg-green-500 text-white' :
+                            phase === 'depletion' ? 'bg-yellow-500 text-black' :
+                                phase === 'efield' ? 'bg-orange-500 text-white' :
+                                    'bg-blue-500 text-white'
                     }`}>
                     {phase === 'initial' ? '⏸ Ready' :
                         phase === 'diffusion' ? '🔀 Phase A: Diffusion' :
                             phase === 'depletion' ? '⚡ Phase B: Depletion' :
-                                '⚖️ Phase D: Equilibrium'}
+                                phase === 'efield' ? '🔋 Phase C: E-Field & Drift' :
+                                    '⚖️ Phase D: Equilibrium'}
                 </span>
 
                 <div className="flex items-center gap-2">
