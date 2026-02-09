@@ -37,51 +37,107 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
   if (topicId === 'emi') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electromagnetic Induction: Faraday’s Law & AC Generator</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Inductive Spark: Faraday's Law & AC Generator</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          Changing magnetic fields can create electric currents. This phenomenon, discovered by Michael Faraday, is the basis for how we generate almost all electricity today.
+          Relative motion between a magnet and a coil induces an electric current. This discovery by Michael Faraday powers our modern world.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Faraday's Law</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Faraday's Law of Induction</h3>
         <p>
-          The induced EMF (Electromotive Force) in a coil is equal to the negative rate of change of magnetic flux through it.
+          The induced EMF in a coil equals the negative rate of change of magnetic flux through it:
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">ϵ = -dΦ<sub>B</sub> / dt</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">The negative sign (Lenz's Law) means the induced current opposes the change that produced it.</p>
+          <p className="font-mono text-xl text-brand-primary text-center">ε = -dΦ<sub>B</sub> / dt</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">The negative sign (Lenz's Law) means induced current <strong>opposes</strong> the change.</p>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The AC Generator</h3>
+        <div className="grid md:grid-cols-3 gap-4 my-6">
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <h4 className="font-bold text-gray-800 mb-2">⏸️ Stationary (v=0)</h4>
+            <p className="text-sm">No flux change → No EMF → No current</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+            <h4 className="font-bold text-green-800 mb-2">→ Approaching (v&gt;0)</h4>
+            <p className="text-sm">Flux increasing → Current opposes (pushes back)</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+            <h4 className="font-bold text-red-800 mb-2">← Receding (v&lt;0)</h4>
+            <p className="text-sm">Flux decreasing → Current reverses direction</p>
+          </div>
+        </div>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">🏠 The Reluctant Roommate Analogy</h4>
+          <p className="text-sm">
+            Nature hates change! Imagine a roommate who hates temperature changes:
+            <br /><br />
+            <strong>• Open window (magnet enters):</strong> They turn on the heater (current pushes back)
+            <br />
+            <strong>• Close window (magnet leaves):</strong> They turn on the AC (current reverses)
+            <br />
+            <strong>• Window still (magnet stationary):</strong> They do nothing!
+            <br /><br />
+            <em>The faster you change, the stronger their reaction!</em>
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The AC Generator (Dynamo)</h3>
         <p>
-          A coil rotating in a uniform magnetic field continuously changes the angle (θ) between the area vector and magnetic field lines.
+          A rotating coil continuously changes the angle between its area vector and the magnetic field.
         </p>
-        <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Magnetic Flux:</strong> Φ = BA cos(ωt)</li>
-          <li><strong>Induced EMF:</strong> ϵ = NBAω sin(ωt)</li>
-          <li>This produces a sinusoidal alternating voltage.</li>
-        </ul>
+
+        <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-300">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-bold text-purple-800 mb-2">Magnetic Flux</h4>
+              <p className="font-mono text-lg">Φ = BA cos(ωt)</p>
+              <p className="text-xs text-purple-600 mt-1">Cosine wave - MAX when coil is vertical</p>
+            </div>
+            <div>
+              <h4 className="font-bold text-purple-800 mb-2">Induced EMF</h4>
+              <p className="font-mono text-lg">ε = ε₀ sin(ωt)</p>
+              <p className="text-xs text-purple-600 mt-1">Sine wave - ZERO when coil is vertical</p>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-white rounded-lg">
+            <h5 className="font-bold text-slate-700 text-sm">⚡ Phase Relationship</h5>
+            <p className="text-xs text-slate-600">Flux and EMF are 90° out of phase. When rate of flux change is maximum, EMF is maximum!</p>
+          </div>
+        </div>
 
         <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500 my-6">
-          <h4 className="font-bold text-blue-900 mb-2">Analogy: The Water Pump</h4>
+          <h4 className="font-bold text-blue-900 mb-2">🚴 The Pedaling Cyclist Analogy</h4>
           <p className="text-sm">
-            Imagine a water pump handle (the Coil) that you push up and down (Rotation).
+            Imagine pedals pumping an air bellows:
             <br /><br />
-            - <strong>DC (Battery):</strong> Like a river flowing one way.
+            <strong>• Circular motion:</strong> Your feet go up and down as you pedal
             <br />
-            - <strong>AC (Generator):</strong> Like water sloshing back and forth in a pipe as you pump. The electrons vibrate in place, transmitting energy without flowing to the end of the wire!
+            <strong>• Air pressure:</strong> Not steady - pushes out and pulls in rhythmically (AC!)
+            <br />
+            <strong>• Faster pedaling (ω):</strong> More frequent and stronger puffs
+            <br /><br />
+            <em>Higher ω = Higher frequency AND higher voltage!</em>
           </p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
             <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
-            Real World Application
+            Real World Applications
           </h3>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h4 className="font-bold text-slate-800 mb-2">Wireless Charging</h4>
-            <p className="text-slate-600">
-              Your phone's wireless charger uses a coil to create a rapidly changing magnetic field. A second coil inside your phone "catches" this field, inducing a current that charges the battery—transferring energy through thin air!
-            </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">📱 Wireless Charging</h4>
+              <p className="text-sm text-slate-600">
+                Your phone's charger creates a rapidly changing magnetic field. A coil inside your phone catches this field, inducing current to charge the battery!
+              </p>
+            </div>
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">🔌 Power Grids</h4>
+              <p className="text-sm text-slate-600">
+                All power plants use rotating generators (turbines) to convert mechanical energy to electrical. The grid runs on 50Hz AC (50 rotations/sec)!
+              </p>
+            </div>
           </div>
         </div>
         <VideoSection />

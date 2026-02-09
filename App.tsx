@@ -1082,20 +1082,11 @@ const App: React.FC = () => {
               <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Magnet size={18} className="text-brand-secondary" /> AC Generator
+                    <Magnet size={18} className="text-brand-secondary" /> Faraday's Law & AC Generator
                   </h3>
                 </div>
-                <div className="relative h-[400px] bg-slate-900">
-                  <ElectromagneticInductionCanvas angularSpeed={emiSpeed} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200">
-                  <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Angular Speed (ω)</label>
-                  <input
-                    type="range" min="1" max="10" step="0.5"
-                    value={emiSpeed}
-                    onChange={(e) => setEmiSpeed(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-primary"
-                  />
+                <div className="relative h-[650px] bg-slate-900 rounded-b-xl overflow-hidden">
+                  <ElectromagneticInductionCanvas />
                 </div>
               </div>
             </div>
