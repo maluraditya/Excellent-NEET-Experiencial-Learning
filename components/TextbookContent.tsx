@@ -388,41 +388,100 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
   if (topicId === 'semiconductors') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Semiconductors: The P-N Junction</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Birth of a Diode: P-N Junction Formation</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          Semiconductors are the brain of modern electronics. By joining P-type (Holes) and N-type (Electrons) materials, we create a device that controls current direction.
+          When P-type and N-type semiconductors merge, a remarkable phenomenon occurs that forms the foundation of all modern electronics.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Diode Valve</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase A: Diffusion</h3>
         <p>
-          A P-N junction acts as a one-way valve for electricity.
+          When P-type and N-type materials are joined, a <strong>concentration gradient</strong> exists at the junction:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Forward Bias:</strong> Current flows easily (Switch ON).</li>
-          <li><strong>Reverse Bias:</strong> Current is blocked (Switch OFF).</li>
+          <li><strong>Electrons</strong> from N-side diffuse towards P-side (high → low concentration)</li>
+          <li><strong>Holes</strong> from P-side diffuse towards N-side (high → low concentration)</li>
+          <li>When electrons meet holes, they <strong>recombine</strong> and annihilate</li>
         </ul>
 
-        <div className="bg-teal-50 p-6 rounded-xl border-l-4 border-teal-500 my-6">
-          <h4 className="font-bold text-teal-900 mb-2">Analogy: The Turnstile</h4>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase B: Depletion Region Formation</h3>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+            <h4 className="font-bold text-blue-800 mb-2">P-Side Border</h4>
+            <p className="text-sm">Holes leave → Immobile <strong>negative acceptor ions (−)</strong> are exposed</p>
+          </div>
+          <div className="bg-pink-50 p-4 rounded-xl border border-pink-200">
+            <h4 className="font-bold text-pink-800 mb-2">N-Side Border</h4>
+            <p className="text-sm">Electrons leave → Immobile <strong>positive donor ions (+)</strong> are exposed</p>
+          </div>
+        </div>
+        <p>
+          This creates the <strong>Depletion Region</strong> — a "no-man's land" containing only fixed ions with no mobile carriers.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase C: Electric Field & Drift Current</h3>
+        <p>
+          The exposed ions create an <strong>internal electric field (E)</strong> pointing from N (+) to P (−).
+        </p>
+        <div className="bg-red-50 p-4 rounded-xl border-l-4 border-red-500 my-4">
           <p className="text-sm">
-            A Diode is like a subway turnstile.
-            <br />
-            - <strong>Forward Bias:</strong> You push the correct way. The bar moves. You pass.
-            <br />
-            - <strong>Reverse Bias:</strong> You try to push the wrong way. The bar locks. You are stuck (Depletion Region widens).
+            <strong>Drift Current:</strong> If a minority carrier (e.g., a thermally generated hole on N-side)
+            wanders into the depletion zone, the E-field "sweeps" it across to the P-side. This is <strong>drift current</strong>.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase D: Equilibrium</h3>
+        <p>
+          The electric field opposes further diffusion. As the depletion region widens:
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-4">
+          <li><strong>Diffusion Current</strong> (→) decreases (fewer carriers can cross)</li>
+          <li><strong>Drift Current</strong> (←) opposes it due to E-field</li>
+          <li>At equilibrium: <strong>Net current = 0</strong></li>
+        </ul>
+
+        <div className="bg-purple-50 p-6 rounded-xl border-l-4 border-purple-500 my-6">
+          <h4 className="font-bold text-purple-900 mb-2">Barrier Potential (V₀)</h4>
+          <p className="text-sm">
+            The potential difference across the depletion region is called the <strong>Barrier Potential</strong>:
+          </p>
+          <ul className="text-sm mt-2 list-disc pl-5">
+            <li>Silicon: V₀ ≈ 0.7V</li>
+            <li>Germanium: V₀ ≈ 0.3V</li>
+          </ul>
+          <p className="text-sm mt-2 italic">
+            "Electrons must climb this energy hill to diffuse; the hill is now too high to cross without extra energy."
+          </p>
+        </div>
+
+        <div className="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-500 my-6">
+          <h4 className="font-bold text-yellow-900 mb-2">🤖 Analogy: Robots & Balloons</h4>
+          <p className="text-sm">
+            <strong>N-Room:</strong> Full of Robots (Electrons) on movable carpets.<br />
+            <strong>P-Room:</strong> Full of Balloons (Holes) tied to heavy chairs.<br /><br />
+            When the wall opens, Robots rush to P-room, Balloons float to N-room (<strong>Diffusion</strong>).
+            But each Robot leaves behind a heavy <strong>+</strong> ion, each Balloon leaves behind a heavy <strong>−</strong> ion.
+            Soon, the doorway is blocked by ions (<strong>Depletion Region</strong>) — the furniture "hill" prevents crossing (<strong>Barrier Potential</strong>).
           </p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
             <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
-            Real World Application
+            Real World Applications
           </h3>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h4 className="font-bold text-slate-800 mb-2">LEDs (Light Emitting Diodes)</h4>
-            <p className="text-slate-600">
-              When electrons fall into holes at the junction, they release energy. In Silicon, this energy is heat. In Gallium Arsenide (GaAs), this energy is released as visible Light!
-            </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">💡 LEDs</h4>
+              <p className="text-sm text-slate-600">
+                When electrons recombine with holes, they release energy. In GaAs, this is visible light!
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">☀️ Solar Cells</h4>
+              <p className="text-sm text-slate-600">
+                Light creates electron-hole pairs; the E-field in depletion region separates them → electricity!
+              </p>
+            </div>
           </div>
         </div>
         <VideoSection />
