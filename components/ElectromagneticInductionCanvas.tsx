@@ -23,7 +23,7 @@ const ElectromagneticInductionCanvas: React.FC = () => {
     const [bulbBrightness, setBulbBrightness] = useState(0);
 
     // AC Generator mode state
-    const [angularSpeed, setAngularSpeed] = useState(3);
+    const [angularSpeed, setAngularSpeed] = useState(1);
     const [coilAngle, setCoilAngle] = useState(0);
     const fluxHistory = useRef<number[]>([]);
     const emfHistory = useRef<number[]>([]);
@@ -355,7 +355,7 @@ const ElectromagneticInductionCanvas: React.FC = () => {
             const centerY = h / 2 - 30;
 
             // Update coil angle
-            setCoilAngle(prev => prev + angularSpeed * 0.03);
+            setCoilAngle(prev => prev + angularSpeed * 0.005);
 
             // Calculate flux and EMF
             const flux = Math.cos(coilAngle);
