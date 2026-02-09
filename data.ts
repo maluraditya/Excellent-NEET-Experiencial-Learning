@@ -96,7 +96,7 @@ export const TOPICS: Topic[] = [
     title: 'Formation of P-N Junction',
     description: 'Join p-type and n-type materials. Watch diffusion create a Depletion Region and Barrier Potential that controls current flow.',
     thumbnailIcon: 'grid',
-    youtubeVideoIds: ['Yg4hQzI57cI', 'lD4o_S9_rB0'],
+    youtubeVideoIds: ['BHA4teZmwT0'],
     coverImage: '/images/semiconductors_cover.png'
   },
 
