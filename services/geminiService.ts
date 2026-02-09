@@ -1,37 +1,47 @@
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || '';
+// Vite uses import.meta.env for environment variables
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 // Initialize only if key exists, otherwise we handle error gracefully in UI
 const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
 export const getGeminiResponse = async (
-  userMessage: string, 
+  userMessage: string,
   context: string
 ): Promise<string> => {
   if (!ai) {
-    return "AI Tutor is offline. Please configure the API Key.";
+    return "AI Tutor is offline. Please add VITE_GEMINI_API_KEY to your .env file.";
   }
 
   try {
     const model = ai.models;
     const response = await model.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: `
-        Context: The user is a 12th-grade student or teacher using a simulation about Chemical Kinetics, 
-        specifically Collision Theory and Activation Energy.
-        Current Simulation State: ${context}
-        
-        Question: ${userMessage}
-        
-        Answer nicely, briefly, and conceptually. Use analogies if possible.
+You are an expert NCERT-focused AI tutor for Class 11-12 students preparing for NEET/JEE.
+
+CURRENT CONTEXT:
+${context}
+
+STUDENT'S QUESTION:
+${userMessage}
+
+INSTRUCTIONS:
+- Answer based on NCERT textbooks (Physics, Chemistry, Biology)
+- Be concise but comprehensive (2-4 paragraphs max)
+- Use simple language with analogies when helpful
+- Include relevant formulas in LaTeX-like format when applicable
+- If asked about the simulation, explain what they're seeing
+- For numerical problems, show step-by-step solution
+- Relate concepts to real-world applications when relevant
       `,
     });
-    
+
     return response.text || "I couldn't generate a response.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Sorry, I encountered an error connecting to the AI tutor.";
+    return "Sorry, I encountered an error connecting to the AI tutor. Please check your API key.";
   }
 };
 

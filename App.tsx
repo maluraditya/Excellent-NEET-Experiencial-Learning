@@ -172,6 +172,26 @@ const App: React.FC = () => {
         Mode: ${defectMode}.
         Concept: Schottky reduces density (Vacancy). Frenkel maintains density (Dislocation).
       `;
+    } else if (activeTopicId === 'atoms') {
+      return `
+        Topic: Atoms - Rutherford's Alpha Scattering Experiment (NCERT Class 12 Physics, Unit VIII)
+        Simulation: Alpha particles being fired at Gold (Au, Z=79) or Aluminum (Al, Z=13) nucleus.
+        
+        Key NCERT Concepts:
+        1. Geiger-Marsden Experiment (1909): Fired α-particles at thin gold foil
+        2. Observations: 
+           - Most particles passed straight through (atom is mostly empty space)
+           - Some deflected at small angles (positive charge concentrated somewhere)
+           - ~1 in 20,000 bounced back at θ > 90° (tiny, dense, positive nucleus)
+        3. Rutherford Scattering Formula: N(θ) ∝ 1/sin⁴(θ/2)
+        4. Why electrons don't deflect α-particles: α mass ≈ 7300 × electron mass
+        5. Nuclear Model: Nucleus is 10⁻¹⁵ m, atom is 10⁻¹⁰ m (1:100,000 ratio)
+        6. Electron shells visualized - electrons orbit but cannot deflect heavy α-particles
+        7. Football Stadium Analogy: Nucleus = marble at center, Electrons = flies in stands
+        
+        The student is viewing the alpha scattering simulation with electron shells.
+        Answer based on NCERT Class 12 Physics Chapter on Atoms.
+      `;
     }
     return "User is on the curriculum dashboard.";
   }, [activeTopicId, kineticsConfig, reactionCount, externalVoltage, isomerConfig, selectedIon, haloConfig, polyMode, solidClassConfig, unitCellConfig, defectMode]);
