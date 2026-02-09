@@ -168,31 +168,43 @@ const AtomsCanvas: React.FC = () => {
         ctx.fill();
 
         // --- Draw Electron Shells ---
-        // Gold (Au, Z=79) has electrons in shells: K(2), L(8), M(18), N(32), O(18), P(1)
-        // Aluminum (Al, Z=13) has electrons in shells: K(2), L(8), M(3)
-        // We'll visualize 3-4 key shells for clarity
+        // Gold (Au, Z=79): 1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁶ 4d¹⁰ 4f¹⁴ 5s² 5p⁶ 5d¹⁰ 6s¹
+        // Shell distribution: K(2), L(8), M(18), N(32), O(18), P(1) = 79
+        // Aluminum (Al, Z=13): 1s² 2s² 2p⁶ 3s² 3p¹
+        // Shell distribution: K(2), L(8), M(3) = 13
+        // Showing simplified shells for visual clarity
 
         const electronShells = targetZ === AU_Z
             ? [
-                { radius: 35, electrons: 8, color: 'rgba(59, 130, 246, 0.6)', speed: 0.02 },   // Inner
-                { radius: 55, electrons: 12, color: 'rgba(59, 130, 246, 0.5)', speed: 0.015 }, // Middle
-                { radius: 75, electrons: 16, color: 'rgba(59, 130, 246, 0.4)', speed: 0.01 },  // Outer
-                { radius: 95, electrons: 8, color: 'rgba(59, 130, 246, 0.3)', speed: 0.008 },  // Valence
+                { radius: 25, electrons: 2, color: 'rgba(59, 130, 246, 0.8)', speed: 0.03, label: 'K (2)' },     // K shell: 1s²
+                { radius: 40, electrons: 8, color: 'rgba(59, 130, 246, 0.7)', speed: 0.022, label: 'L (8)' },    // L shell: 2s² 2p⁶
+                { radius: 55, electrons: 18, color: 'rgba(59, 130, 246, 0.6)', speed: 0.016, label: 'M (18)' },  // M shell: 3s² 3p⁶ 3d¹⁰
+                { radius: 75, electrons: 18, color: 'rgba(59, 130, 246, 0.5)', speed: 0.012, label: 'N (32)*' }, // N shell (showing 18 of 32 for visibility)
+                { radius: 92, electrons: 18, color: 'rgba(59, 130, 246, 0.4)', speed: 0.009, label: 'O (18)' },  // O shell: 5s² 5p⁶ 5d¹⁰
+                { radius: 108, electrons: 1, color: 'rgba(250, 204, 21, 0.9)', speed: 0.006, label: 'P (1)' },   // P shell: 6s¹ (valence - gold color)
             ]
             : [
-                { radius: 30, electrons: 2, color: 'rgba(147, 197, 253, 0.6)', speed: 0.025 }, // K shell
-                { radius: 50, electrons: 8, color: 'rgba(147, 197, 253, 0.5)', speed: 0.018 }, // L shell
-                { radius: 70, electrons: 3, color: 'rgba(147, 197, 253, 0.4)', speed: 0.012 }, // M shell (valence)
+                { radius: 25, electrons: 2, color: 'rgba(147, 197, 253, 0.8)', speed: 0.03, label: 'K (2)' },   // K shell: 1s²
+                { radius: 45, electrons: 8, color: 'rgba(147, 197, 253, 0.6)', speed: 0.02, label: 'L (8)' },   // L shell: 2s² 2p⁶
+                { radius: 65, electrons: 3, color: 'rgba(250, 204, 21, 0.8)', speed: 0.015, label: 'M (3)' },   // M shell: 3s² 3p¹ (valence - gold color)
             ];
 
-        // Draw orbital paths (dotted circles)
-        electronShells.forEach(shell => {
+        // Draw orbital paths (dotted circles) with labels
+        electronShells.forEach((shell, index) => {
             ctx.strokeStyle = shell.color;
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 6]);
             ctx.beginPath();
             ctx.arc(nucX, nucY, shell.radius, 0, Math.PI * 2);
             ctx.stroke();
+
+            // Add shell label on the right side
+            if (showLabels) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(shell.label, nucX + shell.radius + 5, nucY - 3);
+            }
         });
         ctx.setLineDash([]);
 
