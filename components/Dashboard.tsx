@@ -1,7 +1,6 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { BookOpen, Activity, Zap, PlayCircle, Loader2, Box, Magnet, FlaskConical, Layers, Cuboid, Grid, Percent, AlertTriangle, Atom, Microscope, Wind } from 'lucide-react';
-import { generateTopicThumbnail } from '../services/geminiService';
 import { TOPICS } from '../data';
 import { Subject } from '../types';
 
@@ -14,47 +13,8 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, setActiveSubject, images, setImages }) => {
-  // Local state removed, using props
+  // Using cover images from data.ts, no dynamic generation needed
   const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
-  const loadingRef = useRef<Record<string, boolean>>({});
-  const attemptedRef = useRef<Record<string, boolean>>({});
-
-  useEffect(() => {
-    TOPICS.forEach(async (topic) => {
-      if (images[topic.id]) return;
-      if (loadingRef.current[topic.id]) return;
-      if (attemptedRef.current[topic.id]) return;
-
-      const storageKey = `topic_img_${topic.id}`;
-      const cachedImage = localStorage.getItem(storageKey);
-
-      if (cachedImage) {
-        setImages(prev => ({ ...prev, [topic.id]: cachedImage }));
-      } else {
-        loadingRef.current[topic.id] = true;
-        attemptedRef.current[topic.id] = true;
-        setLoadingState(prev => ({ ...prev, [topic.id]: true }));
-
-        try {
-          const generatedUrl = await generateTopicThumbnail(topic.title, topic.description);
-          if (generatedUrl) {
-            setImages(prev => ({ ...prev, [topic.id]: generatedUrl }));
-            try {
-              localStorage.setItem(storageKey, generatedUrl);
-            } catch (e) {
-              console.warn(`Could not save image for ${topic.id} to local storage`, e);
-            }
-          }
-        } catch (error) {
-          console.error(`Failed to generate image for ${topic.id}`, error);
-        } finally {
-          loadingRef.current[topic.id] = false;
-          setLoadingState(prev => ({ ...prev, [topic.id]: false }));
-        }
-      }
-    });
-  }, [images, setImages]);
-
   const filteredTopics = TOPICS.filter(t => t.subject === activeSubject);
 
   const getIcon = (iconName: string) => {
