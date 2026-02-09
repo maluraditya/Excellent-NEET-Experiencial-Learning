@@ -82,12 +82,10 @@ const ElectromagneticInductionCanvas: React.FC = () => {
         if (!isPlaying) return;
 
         const canvas = canvasRef.current;
-        const graphCanvas = graphCanvasRef.current;
-        if (!canvas || !graphCanvas) return;
+        if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
-        const graphCtx = graphCanvas.getContext('2d');
-        if (!ctx || !graphCtx) return;
+        if (!ctx) return;
 
         const width = canvas.width;
         const height = canvas.height;
@@ -99,7 +97,14 @@ const ElectromagneticInductionCanvas: React.FC = () => {
                 renderFaradayMode(ctx, width, height);
             } else {
                 renderACGeneratorMode(ctx, width, height);
-                renderGraphs(graphCtx, graphCanvas.width, graphCanvas.height);
+                // Render graphs only if graphCanvas exists
+                const graphCanvas = graphCanvasRef.current;
+                if (graphCanvas) {
+                    const graphCtx = graphCanvas.getContext('2d');
+                    if (graphCtx) {
+                        renderGraphs(graphCtx, graphCanvas.width, graphCanvas.height);
+                    }
+                }
             }
 
             animationRef.current = requestAnimationFrame(render);
@@ -617,8 +622,8 @@ const ElectromagneticInductionCanvas: React.FC = () => {
                     <button
                         onClick={() => { setMode('faraday'); handleReset(); }}
                         className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${mode === 'faraday'
-                                ? 'bg-white text-amber-700'
-                                : 'bg-white/20 text-white hover:bg-white/30'
+                            ? 'bg-white text-amber-700'
+                            : 'bg-white/20 text-white hover:bg-white/30'
                             }`}
                     >
                         <Zap size={14} className="inline mr-1" />
@@ -627,8 +632,8 @@ const ElectromagneticInductionCanvas: React.FC = () => {
                     <button
                         onClick={() => { setMode('acgenerator'); handleReset(); }}
                         className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${mode === 'acgenerator'
-                                ? 'bg-white text-amber-700'
-                                : 'bg-white/20 text-white hover:bg-white/30'
+                            ? 'bg-white text-amber-700'
+                            : 'bg-white/20 text-white hover:bg-white/30'
                             }`}
                     >
                         <Activity size={14} className="inline mr-1" />
