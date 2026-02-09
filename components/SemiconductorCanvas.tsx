@@ -521,34 +521,79 @@ const SemiconductorCanvas: React.FC = () => {
     };
 
     return (
-        <div className="relative w-full h-full flex flex-col bg-slate-900 rounded-xl overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 flex items-center justify-between">
-                <div>
-                    <h3 className="text-white font-bold text-lg">P-N Junction Formation</h3>
-                    <p className="text-indigo-200 text-xs">Diffusion, Drift & Equilibrium</p>
+        <div className="relative w-full h-full flex flex-col bg-slate-900 overflow-hidden">
+            {/* Top Control Bar - Always Visible */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleJoin}
+                        className={`px-5 py-2 rounded-full font-bold text-sm shadow-lg transition-all ${joined
+                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                            : 'bg-green-500 hover:bg-green-600 text-white animate-pulse'
+                            }`}
+                    >
+                        {joined ? '↻ Reset' : '▶ Join P-N Junction'}
+                    </button>
+
+                    <button
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-colors"
+                        title={isPlaying ? 'Pause' : 'Play'}
+                    >
+                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                    </button>
+
+                    <button
+                        onClick={handleReset}
+                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-colors"
+                        title="Reset"
+                    >
+                        <RotateCcw size={18} />
+                    </button>
                 </div>
+
+                {/* Phase Indicator */}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${phase === 'initial' ? 'bg-gray-500 text-white' :
+                    phase === 'diffusion' ? 'bg-green-500 text-white' :
+                        phase === 'depletion' ? 'bg-yellow-500 text-black' :
+                            'bg-blue-500 text-white'
+                    }`}>
+                    {phase === 'initial' ? '⏸ Ready' :
+                        phase === 'diffusion' ? '🔀 Phase A: Diffusion' :
+                            phase === 'depletion' ? '⚡ Phase B: Depletion' :
+                                '⚖️ Phase D: Equilibrium'}
+                </span>
+
                 <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${phase === 'initial' ? 'bg-gray-500 text-white' :
-                            phase === 'diffusion' ? 'bg-green-500 text-white' :
-                                phase === 'depletion' ? 'bg-yellow-500 text-black' :
-                                    'bg-blue-500 text-white'
-                        }`}>
-                        {phase === 'initial' ? 'Ready' :
-                            phase === 'diffusion' ? 'Phase A: Diffusion' :
-                                phase === 'depletion' ? 'Phase B: Depletion' :
-                                    'Phase D: Equilibrium'}
-                    </span>
+                    <button
+                        onClick={() => setShowForces(!showForces)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${showForces
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-white/20 text-white hover:bg-white/30'
+                            }`}
+                    >
+                        {showForces ? <Eye size={14} /> : <EyeOff size={14} />}
+                        Forces
+                    </button>
+
+                    <button
+                        onClick={() => setShowAnalogy(!showAnalogy)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 rounded-full text-yellow-900 text-xs font-bold transition-colors"
+                    >
+                        <HelpCircle size={14} />
+                        Analogy
+                    </button>
                 </div>
             </div>
 
-            {/* Main Canvas */}
-            <div className="flex-1 relative">
+            {/* Main Canvas - Takes remaining space */}
+            <div className="flex-1 relative min-h-0">
                 <canvas
                     ref={canvasRef}
                     width={800}
                     height={400}
-                    className="w-full h-full object-contain bg-white"
+                    className="w-full h-full bg-white"
+                    style={{ objectFit: 'contain' }}
                 />
 
                 {/* Analogy Popup */}
@@ -590,89 +635,40 @@ const SemiconductorCanvas: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Legend - repositioned */}
+                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-xs shadow-lg">
+                    <div className="font-bold text-slate-700 mb-1 text-[10px]">Legend</div>
+                    <div className="space-y-0.5">
+                        <div className="flex items-center gap-1">
+                            <div className="w-2.5 h-2.5 rounded-full border-2 border-blue-800"></div>
+                            <span className="text-[10px]">Hole (h⁺)</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <div className="w-2.5 h-2.5 rounded-full bg-pink-700"></div>
+                            <span className="text-[10px]">Electron (e⁻)</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <span className="text-blue-800 font-bold text-[10px]">⊖</span>
+                            <span className="text-[10px]">Acceptor</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <span className="text-red-600 font-bold text-[10px]">⊕</span>
+                            <span className="text-[10px]">Donor</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Graph Canvas */}
-            <div className="h-28 bg-slate-50 border-t border-slate-200">
+            <div className="h-24 bg-slate-50 border-t border-slate-200 flex-shrink-0">
                 <canvas
                     ref={graphCanvasRef}
                     width={800}
-                    height={100}
-                    className="w-full h-full object-contain"
+                    height={90}
+                    className="w-full h-full"
+                    style={{ objectFit: 'contain' }}
                 />
-            </div>
-
-            {/* Controls */}
-            <div className="bg-slate-800 px-4 py-3 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleJoin}
-                        className={`px-5 py-2 rounded-full font-bold text-sm shadow-lg transition-all ${joined
-                                ? 'bg-red-500 hover:bg-red-600 text-white'
-                                : 'bg-green-500 hover:bg-green-600 text-white'
-                            }`}
-                    >
-                        {joined ? 'Reset Junction' : 'Join P-N Junction'}
-                    </button>
-
-                    <button
-                        onClick={() => setIsPlaying(!isPlaying)}
-                        className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white transition-colors"
-                    >
-                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                    </button>
-
-                    <button
-                        onClick={handleReset}
-                        className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white transition-colors"
-                    >
-                        <RotateCcw size={18} />
-                    </button>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setShowForces(!showForces)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${showForces
-                                ? 'bg-purple-500 text-white'
-                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                            }`}
-                    >
-                        {showForces ? <Eye size={16} /> : <EyeOff size={16} />}
-                        Show Forces
-                    </button>
-
-                    <button
-                        onClick={() => setShowAnalogy(!showAnalogy)}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white text-sm font-medium transition-colors"
-                    >
-                        <HelpCircle size={16} />
-                        Analogy
-                    </button>
-                </div>
-            </div>
-
-            {/* Legend */}
-            <div className="absolute top-16 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 text-xs shadow-lg">
-                <div className="font-bold text-slate-700 mb-2">Legend</div>
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full border-2 border-blue-800"></div>
-                        <span>Hole (h⁺)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-pink-700"></div>
-                        <span>Electron (e⁻)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-blue-800 font-bold">⊖</span>
-                        <span>Fixed Acceptor</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-red-600 font-bold">⊕</span>
-                        <span>Fixed Donor</span>
-                    </div>
-                </div>
             </div>
         </div>
     );

@@ -1341,7 +1341,7 @@ const App: React.FC = () => {
                     <Grid size={18} className="text-brand-secondary" /> P-N Junction
                   </h3>
                 </div>
-                <div className="relative h-[400px] bg-slate-50">
+                <div className="relative h-[650px] bg-slate-900 rounded-xl overflow-hidden">
                   <SemiconductorCanvas />
                 </div>
               </div>
