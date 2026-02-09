@@ -277,27 +277,108 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Atoms: The Nuclear Model</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          The atom is mostly empty space. Rutherford discovered this by firing alpha particles at gold foil.
+          The atom is mostly empty space. Rutherford's groundbreaking experiment in 1911 shattered the "Plum Pudding" model and revealed the true structure of matter.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Alpha Scattering Experiment</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Historical Context</h3>
+        <p>
+          Before Rutherford, J.J. Thomson proposed that atoms were a uniform sphere of positive charge with electrons embedded like "plums in a pudding." This model couldn't explain why some alpha particles bounced BACK from thin gold foil.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Alpha Scattering Experiment (Geiger-Marsden, 1909)</h3>
+        <p>
+          Hans Geiger and Ernest Marsden, under Rutherford's direction, fired high-energy alpha particles (He²⁺, from radioactive Bismuth-214) at an extremely thin gold foil (~400 atoms thick).
+        </p>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <h4 className="font-bold text-slate-800 mb-3">Experimental Setup</h4>
+          <ul className="list-disc pl-5 space-y-2 text-sm">
+            <li><strong>Alpha Source:</strong> Radioactive material emitting α-particles at ~5.5 MeV</li>
+            <li><strong>Target:</strong> Thin gold foil (Au, Z=79) or Aluminum (Al, Z=13)</li>
+            <li><strong>Detector:</strong> ZnS screen that produces scintillations when hit</li>
+            <li><strong>Collimator:</strong> Lead shield with narrow slit for parallel beam</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Key Observations</h3>
+        <div className="grid md:grid-cols-1 gap-4 my-6">
+          <div className="bg-green-50 p-4 rounded-xl border-l-4 border-green-500">
+            <h4 className="font-bold text-green-900">Observation 1: ~99% passed straight through</h4>
+            <p className="text-sm text-green-800 mt-1">
+              <strong>Conclusion:</strong> The atom is mostly empty space. Electrons are too light to deflect the heavy α-particles.
+            </p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-xl border-l-4 border-yellow-500">
+            <h4 className="font-bold text-yellow-900">Observation 2: Some deflected at small angles (1-10°)</h4>
+            <p className="text-sm text-yellow-800 mt-1">
+              <strong>Conclusion:</strong> There's a concentrated positive charge somewhere that repels the positive α-particles. Closer passes = larger deflection.
+            </p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-xl border-l-4 border-red-500">
+            <h4 className="font-bold text-red-900">Observation 3: ~1 in 20,000 bounced back (θ &gt; 90°)</h4>
+            <p className="text-sm text-red-800 mt-1">
+              <strong>Conclusion:</strong> A tiny, dense, positively charged nucleus exists at the center. Head-on collisions cause 180° backscattering!
+            </p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. The Physics: Coulomb Scattering</h3>
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <h4 className="font-bold text-blue-900 mb-2">Rutherford Scattering Formula</h4>
+          <p className="font-mono text-lg text-blue-800 text-center my-3">
+            N(θ) ∝ 1 / sin⁴(θ/2)
+          </p>
+          <ul className="list-disc ml-6 text-sm text-blue-800">
+            <li><strong>Force:</strong> Coulomb repulsion F = kq₁q₂/r² between α⁺² and nucleus⁺ᶻ</li>
+            <li><strong>Impact Parameter (b):</strong> Distance of closest approach determines scattering angle</li>
+            <li><strong>Small b:</strong> Particle passes close to nucleus → Large deflection</li>
+            <li><strong>Large b:</strong> Particle is far from nucleus → Passes through undeflected</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Why Electrons Don't Deflect Alpha Particles</h3>
+        <p>
+          Despite passing through electron clouds, alpha particles are NOT deflected by electrons because:
+        </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Observation 1:</strong> Most particles went straight through (Atom is hollow).</li>
-          <li><strong>Observation 2:</strong> Some deflected slightly.</li>
-          <li><strong>Observation 3:</strong> 1 in 20,000 bounced BACK (Nucleus is tiny, heavy, and positive).</li>
+          <li><strong>Mass Ratio:</strong> α-particle mass ≈ 7,300 × electron mass</li>
+          <li><strong>Analogy:</strong> Like a bowling ball hitting ping-pong balls—the electrons scatter, but the alpha continues straight</li>
+          <li>Electrons get ionized (knocked out), but the α-particle's trajectory is essentially unchanged</li>
         </ul>
 
         <div className="bg-rose-50 p-6 rounded-xl border-l-4 border-rose-500 my-6">
-          <h4 className="font-bold text-rose-900 mb-2">Analogy: The Football Stadium</h4>
-          <p className="text-sm">
+          <h4 className="font-bold text-rose-900 mb-2">🏟️ Analogy: The Football Stadium</h4>
+          <p className="text-sm text-rose-800">
             If an Atom were the size of a football stadium:
-            <br />
-            - The <strong>Nucleus</strong> would be a marble on the center kickoff spot.
-            <br />
-            - The <strong>Electrons</strong> would be tiny flies buzzing in the top stands.
-            <br />
-            - Everything else? Empty space!
+            <br /><br />
+            • The <strong>Nucleus</strong> would be a marble at the center kickoff spot<br />
+            • The <strong>Electrons</strong> would be tiny flies buzzing in the upper stands<br />
+            • <strong>Everything else?</strong> Completely empty space!
+            <br /><br />
+            This explains why most α-particles pass through—they're shooting through the stands where there's nothing but flies!
           </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. The Nuclear Model of the Atom</h3>
+        <p>Rutherford concluded:</p>
+        <ul className="list-disc pl-5 space-y-2 mb-4">
+          <li><strong>Nucleus:</strong> Tiny (10⁻¹⁵ m), dense, positively charged center containing protons (and later, neutrons)</li>
+          <li><strong>Electrons:</strong> Orbit the nucleus at relatively large distances (10⁻¹⁰ m)</li>
+          <li><strong>Size Ratio:</strong> Nucleus : Atom ≈ 1 : 100,000 (like a marble in a stadium!)</li>
+          <li><strong>Mass:</strong> 99.9% of atom's mass is in the nucleus</li>
+        </ul>
+
+        <div className="mt-12 pt-8 border-t border-slate-200">
+          <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            Real World Applications
+          </h3>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Rutherford Backscattering Spectrometry (RBS)</h4>
+            <p className="text-slate-600">
+              Scientists today use the same principle! By firing ion beams at materials and measuring scattering angles, they can determine the elemental composition and thickness of thin films—essential for semiconductor manufacturing and materials science research.
+            </p>
+          </div>
         </div>
         <VideoSection />
       </div>

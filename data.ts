@@ -84,7 +84,7 @@ export const TOPICS: Topic[] = [
     title: 'Alpha Scattering Experiment',
     description: 'Recreate Rutherford’s gold foil experiment. Fire alpha particles at a nucleus and observe deflection angles based on impact parameter.',
     thumbnailIcon: 'atom',
-    youtubeVideoIds: ['R9j6pS5L10Y', 'rW3k_9jN2y0'],
+    youtubeVideoIds: ['0uyxHVHNrdw'],
     coverImage: '/images/atoms_cover.png'
   },
   {

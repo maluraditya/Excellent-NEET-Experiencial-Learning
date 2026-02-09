@@ -1293,14 +1293,14 @@ const App: React.FC = () => {
                     <Box size={18} className="text-brand-secondary" /> Alpha Scattering (Rutherford)
                   </h3>
                 </div>
-                <div className="relative h-[400px] bg-slate-900">
+                <div className="relative h-[700px] bg-slate-900">
                   <AtomsCanvas />
                 </div>
               </div>
             </div>
             <div className="lg:col-span-5 relative">
               <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
                   <TextbookContent topicId="atoms" />
                 </div>
               </div>
