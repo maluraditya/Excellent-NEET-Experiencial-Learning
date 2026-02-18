@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
 import { BookOpen, Activity, Zap, PlayCircle, Loader2, Box, Magnet, FlaskConical, Layers, Cuboid, Grid, Percent, AlertTriangle, Atom, Microscope, Wind } from 'lucide-react';
-import { TOPICS } from '../data';
-import { Subject } from '../types';
+import { Subject, Topic } from '../types';
 
 interface DashboardProps {
   onSelectTopic: (topicId: string) => void;
@@ -10,12 +9,13 @@ interface DashboardProps {
   setActiveSubject: (subject: Subject) => void;
   images: Record<string, string>;
   setImages: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  topics: Topic[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, setActiveSubject, images, setImages }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, setActiveSubject, images, setImages, topics }) => {
   // Using cover images from data.ts, no dynamic generation needed
   const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
-  const filteredTopics = TOPICS.filter(t => t.subject === activeSubject);
+  const filteredTopics = topics.filter(t => t.subject === activeSubject);
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -57,15 +57,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
     <div className="max-w-7xl mx-auto p-6 md:p-12">
       <div className="text-center mb-12 space-y-4">
         <h2 className="text-5xl font-display font-bold text-brand-primary">
-          Experience Science in 3D
+          Don’t Just Study Science. Experience It.
         </h2>
         <p className="text-xl text-slate-500 max-w-2xl mx-auto font-sans">
-          Select a subject to begin your immersive learning journey through high-fidelity simulations.
+          Explore every NCERT concept through immersive simulations that make learning intuitive, clear, and unforgettable.
         </p>
       </div>
 
       {/* Subject Category Layer */}
-      <div className="flex flex-wrap justify-center gap-6 mb-16">
+      <div className="flex flex-wrap justify-center gap-6 mb-16" id="tour-subject-tabs">
         <button
           onClick={() => setActiveSubject('Physics')}
           className={`group flex flex-col items-center gap-3 px-8 py-6 rounded-3xl border-2 transition-all duration-300 ${activeSubject === 'Physics'

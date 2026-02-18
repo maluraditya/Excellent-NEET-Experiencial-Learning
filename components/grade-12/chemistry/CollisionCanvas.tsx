@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Particle, MoleculeState, SimulationConfig } from '../types';
+import { Particle, MoleculeState, SimulationConfig } from '../../../types';
 
 interface CollisionCanvasProps {
   config: SimulationConfig;

@@ -1,23 +1,20 @@
 import React from 'react';
-import { TOPICS } from '../data';
+import { Topic } from '../types';
 
 interface TextbookContentProps {
-  topicId: string;
+  topic: Topic | undefined;
 }
 
-const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
-
-  // Find topic to get video IDs
-  const topicData = TOPICS.find(t => t.id === topicId);
+const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
 
   const VideoSection = () => (
-    <div className="mt-12 mb-12">
+    <div className="mt-12 mb-12" id="tour-videos">
       <h3 className="text-xl font-display font-bold text-brand-primary mb-6 flex items-center">
         <span className="w-1 h-8 bg-brand-secondary mr-3 rounded-full"></span>
         Video Resources
       </h3>
       <div className="grid gap-8">
-        {topicData?.youtubeVideoIds.map((vid) => (
+        {topic?.youtubeVideoIds.map((vid) => (
           <div key={vid} className="rounded-xl overflow-hidden shadow-lg border border-slate-200 bg-black aspect-video relative">
             <iframe
               className="absolute top-0 left-0 w-full h-full"
@@ -32,11 +29,56 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     </div>
   );
 
+  // --- CLASS 11 TOPICS ---
+
+  if (topic?.id === 'mechanical-properties-solids') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Mechanical Properties of Solids</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Explore how materials deform under stress and the fundamental laws governing elasticity.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Elasticity & Hooke's Law</h3>
+        <p>
+          <strong>Elasticity</strong> is the property of a body to regain its original size and shape when a deforming force is removed.
+          <br />
+          <strong>Stress (σ)</strong> = Restoring Force / Area (F/A)
+          <br />
+          <strong>Strain (ε)</strong> = Change in Dimension / Original Dimension (ΔL/L)
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">Hooke's Law: σ = Y × ε</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">For small deformations, stress is directly proportional to strain. Y is Young's Modulus.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Stress-Strain Curve</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Proportional Limit (A):</strong> Hooke's Law is valid. Linear region.</li>
+          <li><strong>Yield Point (B):</strong> Max stress for elastic recovery. Beyond this, permanent set occurs.</li>
+          <li><strong>Ultimate Tensile Strength (D):</strong> Max stress the material can withstand.</li>
+          <li><strong>Fracture Point (E):</strong> Material breaks.</li>
+        </ul>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6" id="tour-real-world">
+          <h4 className="font-bold text-amber-900 mb-2">🏗️ Real-World Analogy: Cranes & Mountains</h4>
+          <p className="text-sm">
+            <strong>Cranes:</strong> Use steel ropes because steel has a high Yield Strength. If the load exceeds this limit, the rope stretches permanently and becomes unsafe.
+            <br /><br />
+            <strong>mountains:</strong> Why aren't mountains higher than 10km? Because the sheer weight of the rock would exceed its elastic limit at the base, causing it to flow and sink!
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
-  if (topicId === 'emi') {
+  if (topic?.id === 'emi') {
     return (
-      <div className="prose prose-slate prose-lg max-w-none font-sans">
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Inductive Spark: Faraday's Law & AC Generator</h1>
         <p className="lead text-xl text-slate-600 mb-8">
           Relative motion between a magnet and a coil induces an electric current. This discovery by Michael Faraday powers our modern world.
@@ -66,7 +108,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
           </div>
         </div>
 
-        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6" id="tour-real-world">
           <h4 className="font-bold text-amber-900 mb-2">🏠 The Reluctant Roommate Analogy</h4>
           <p className="text-sm">
             Nature hates change! Imagine a roommate who hates temperature changes:
@@ -145,7 +187,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'ac') {
+  if (topic?.id === 'ac') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Alternating Current & The Transformer</h1>
@@ -184,7 +226,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'em_waves') {
+  if (topic?.id === 'em_waves') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electromagnetic Waves</h1>
@@ -223,7 +265,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'ray_optics') {
+  if (topic?.id === 'ray_optics') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Ray Optics: Lenses & Instruments</h1>
@@ -250,7 +292,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'wave_optics') {
+  if (topic?.id === 'wave_optics') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Wave Optics: Interference</h1>
@@ -280,7 +322,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'dual_nature') {
+  if (topic?.id === 'dual_nature') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Dual Nature: The Photoelectric Effect</h1>
@@ -328,7 +370,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'atoms') {
+  if (topic?.id === 'atoms') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Atoms: The Nuclear Model</h1>
@@ -441,7 +483,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'semiconductors') {
+  if (topic?.id === 'semiconductors') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Birth of a Diode: P-N Junction Formation</h1>
@@ -547,7 +589,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
 
   // --- UNIT 1: SOLID STATE TOPICS ---
 
-  if (topicId === 'solids_classification') {
+  if (topic?.id === 'solids_classification') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Classification of Crystalline Solids</h1>
@@ -578,7 +620,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'unit_cells') {
+  if (topic?.id === 'unit_cells') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Unit Cells & Atomic Calculation</h1>
@@ -606,7 +648,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'packing') {
+  if (topic?.id === 'packing') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Packing Efficiency</h1>
@@ -649,7 +691,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'defects') {
+  if (topic?.id === 'defects') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Point Defects in Solids</h1>
@@ -678,7 +720,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
 
   // --- EXISTING TOPICS ---
 
-  if (topicId === 'kinetics') {
+  if (topic?.id === 'kinetics') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Collision Theory and Activation Energy</h1>
@@ -739,7 +781,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'electrochemistry') {
+  if (topic?.id === 'electrochemistry') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Functioning of Galvanic and Electrolytic Cells</h1>
@@ -823,7 +865,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'stereochemistry') {
+  if (topic?.id === 'stereochemistry') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Stereoisomerism in Coordination Compounds</h1>
@@ -889,7 +931,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'dblock') {
+  if (topic?.id === 'dblock') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Magnetic Properties and Color Formation</h1>
@@ -946,7 +988,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'haloalkanes') {
+  if (topic?.id === 'haloalkanes') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Haloalkanes and Haloarenes: SN1 vs SN2</h1>
@@ -994,7 +1036,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'polymers') {
+  if (topic?.id === 'polymers') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Polymerization and Conductive Polymers</h1>
@@ -1044,7 +1086,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
 
   // --- BIOLOGY TOPICS ---
 
-  if (topicId === 'genetics_linkage') {
+  if (topic?.id === 'genetics_linkage') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Linkage & Recombination</h1>
@@ -1081,7 +1123,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'transcription') {
+  if (topic?.id === 'transcription') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Transcription: Prokaryotes vs Eukaryotes</h1>
@@ -1124,7 +1166,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'lac_operon') {
+  if (topic?.id === 'lac_operon') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Gene Regulation: The Lac Operon</h1>
@@ -1155,7 +1197,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'replication_fork') {
+  if (topic?.id === 'replication_fork') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Machinery of Replication</h1>
@@ -1200,7 +1242,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'rnai') {
+  if (topic?.id === 'rnai') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">RNA Interference: The Cell's Antivirus</h1>
@@ -1232,7 +1274,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topicId }) => {
     );
   }
 
-  if (topicId === 'ti_plasmid') {
+  if (topic?.id === 'ti_plasmid') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Agrobacterium: Nature's Genetic Engineer</h1>

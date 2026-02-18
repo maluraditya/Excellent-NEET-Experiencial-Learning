@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight, Home } from 'lucide-react';
 import { Screen, Subject } from '../types';
-import { TOPICS } from '../data';
+import { ALL_TOPICS } from '../data';
 
 interface BreadcrumbsProps {
     screen: Screen;
@@ -12,7 +12,7 @@ interface BreadcrumbsProps {
 }
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ screen, topicId, onNavigate, activeSubject, onNavigateSubject }) => {
-    const currentTopic = topicId ? TOPICS.find((t) => t.id === topicId) : null;
+    const currentTopic = topicId ? ALL_TOPICS.find((t) => t.id === topicId) : null;
     const subject = currentTopic ? currentTopic.subject : activeSubject;
 
     return (
