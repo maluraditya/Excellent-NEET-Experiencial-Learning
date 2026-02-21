@@ -432,6 +432,60 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'standing-waves') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Superposition, Reflection &amp; Standing Waves</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When two identical waves travel in opposite directions, their superposition creates a <strong>standing wave</strong> — a pattern that oscillates in place, with fixed nodes and vibrating antinodes.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Principle of Superposition</h3>
+        <p className="text-sm">The net displacement at any point is the algebraic sum of individual wave displacements: <strong>y = y₁ + y₂</strong>. Each wave travels as if the others are not present.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Reflection of Waves</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>Fixed end:</strong> Phase change of π — reflected wave is inverted. y<sub>r</sub> = −a sin(kx + ωt)</li>
+          <li><strong>Free end:</strong> No phase change — reflected wave is upright. y<sub>r</sub> = a sin(kx + ωt)</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Standing Wave Equation</h3>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
+          <p className="font-mono text-lg text-purple-700">y(x,t) = [2a sin(kx)] cos(ωt)</p>
+          <p className="text-sm text-slate-600 mt-1">Amplitude varies with position — kx and ωt are separate!</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Nodes &amp; Antinodes</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>Nodes:</strong> sin(kx) = 0 → x = 0, λ/2, λ, ... (particles never move). Distance = λ/2.</li>
+          <li><strong>Antinodes:</strong> |sin(kx)| = 1 → x = λ/4, 3λ/4, ... (maximum amplitude 2a). Distance = λ/2.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Normal Modes (Harmonics)</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
+          <p className="font-mono text-lg text-brand-primary">ν<sub>n</sub> = nv/(2L)   where v = √(T/μ)</p>
+          <p className="text-sm text-slate-600 mt-1">n = 1 (fundamental), 2, 3, ... Each gives n loops with n+1 nodes.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🎸 Musical Instruments</h4>
+          <p className="text-sm">Guitar and sitar strings vibrate in standing wave patterns. The combination of fundamental and higher harmonics determines the instrument&apos;s timbre (tonal quality).</p>
+        </div>
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🌊 Resonance in Bays</h4>
+          <p className="text-sm">Tides entering a partially enclosed bay reflect off the coast, creating standing water waves. When the bay&apos;s natural frequency matches the tidal frequency, massive resonant antinodes form.</p>
+        </div>
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">🎵 Organ Pipes</h4>
+          <p className="text-sm">Wind instruments use standing waves in air columns. A pipe closed at one end creates a displacement node there, restricting frequencies to odd harmonics: ν<sub>n</sub> = nv/(4L) for n = 1, 3, 5...</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {

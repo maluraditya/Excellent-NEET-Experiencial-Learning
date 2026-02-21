@@ -13,6 +13,7 @@ import ThermodynamicProcessesLab from './components/grade-11/physics/Thermodynam
 import KineticTheoryLab from './components/grade-11/physics/KineticTheoryLab';
 import EquipartitionLab from './components/grade-11/physics/EquipartitionLab';
 import SHMLab from './components/grade-11/physics/SHMLab';
+import WavesLab from './components/grade-11/physics/WavesLab';
 
 // Grade 12 - Physics
 import ElectromagneticInductionCanvas from './components/grade-12/physics/ElectromagneticInductionCanvas';
@@ -269,6 +270,13 @@ const App: React.FC = () => {
         Concept: F = −kx, x(t) = A cos(ωt), ω = √(k/m), T = 2π√(m/k).
         Phase: v leads x by π/2, a leads x by π. Energy: KE + PE = ½kA² = constant.
         Simulation: Spring-block on table, velocity/acceleration vectors, 3 sync graphs, energy bars.
+      `;
+    } else if (activeTopicId === 'standing-waves') {
+      return `
+        Topic: Superposition, Reflection & Standing Waves (NCERT Class 11, Chapter 14)
+        Concept: y = [2a sin(kx)] cos(ωt). Nodes at sin(kx)=0, antinodes at |sin(kx)|=1.
+        Normal modes: νn = nv/(2L), v = √(T/μ). Fixed end → π phase reversal. Free end → no reversal.
+        Simulation: Driven string with frequency/tension sliders, node/antinode markers, superposition graphs.
       `;
     } else if (activeTopicId === 'atoms') {
       return `
@@ -694,6 +702,34 @@ const App: React.FC = () => {
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <SHMLab />
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== STANDING WAVES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'standing-waves' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> Standing Waves Lab
+                  </h3>
+                </div>
+                <div className="relative h-[500px] bg-slate-900">
+                  <WavesLab />
                 </div>
               </div>
             </div>

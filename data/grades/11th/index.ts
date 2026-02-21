@@ -96,5 +96,17 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Oscillations',
         grade: '11th',
         youtubeVideoIds: []
+    },
+    {
+        id: 'standing-waves',
+        title: 'Superposition, Reflection & Standing Waves',
+        subject: 'Physics',
+        unit: 'Chapter 14',
+        chapter: 'Waves',
+        description: 'Drive a string at different frequencies. Watch incident and reflected waves superpose into standing waves. Discover nodes, antinodes, and harmonic modes when resonance is hit.',
+        thumbnailIcon: 'Activity',
+        branch: 'Oscillations',
+        grade: '11th',
+        youtubeVideoIds: []
     }
 ];
