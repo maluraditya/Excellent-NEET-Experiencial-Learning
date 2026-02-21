@@ -300,29 +300,68 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Degrees of Freedom and Equipartition of Energy</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          Every independent way a molecule can store energy is a "degree of freedom." The Law of Equipartition says energy distributes equally — ½k<sub>B</sub>T per DOF.
+          The number of independent ways a molecule can absorb energy is termed its <strong>degrees of freedom (f)</strong>. Every independent coordinate or velocity component required to specify the motion of the molecule represents a degree of freedom.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Types of Degrees of Freedom</h3>
-        <table className="w-full text-sm">
-          <thead><tr className="border-b"><th className="text-left py-2">Gas Type</th><th>Trans.</th><th>Rot.</th><th>Vib.</th><th>Total f</th></tr></thead>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Translational, Rotational &amp; Vibrational DOF</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>Monatomic (He, Ar):</strong> Single atom — only translational motion in x, y, z. <strong>f = 3</strong>.</li>
+          <li><strong>Rigid Diatomic (O₂, N₂):</strong> 3 translational + 2 rotational axes (perpendicular to bond axis). <strong>f = 5</strong>.</li>
+          <li><strong>Vibrating Diatomic (CO at high T):</strong> Atoms oscillate along the bond axis like a spring — adds 2 vibrational modes (KE + PE). <strong>f = 7</strong>.</li>
+          <li><strong>Polyatomic (CH₄):</strong> 3 translational + 3 rotational + f<sub>vib</sub> vibrational modes. <strong>f = 6 + f<sub>vib</sub></strong>.</li>
+        </ul>
+
+        <table className="w-full text-sm mt-4">
+          <thead><tr className="border-b"><th className="text-left py-2">Gas Type</th><th>Trans.</th><th>Rot.</th><th>Vib.</th><th>f</th></tr></thead>
           <tbody>
-            <tr><td className="py-1"><strong>Monatomic</strong> (He, Ne)</td><td className="text-center">3</td><td className="text-center">0</td><td className="text-center">0</td><td className="text-center font-bold">3</td></tr>
-            <tr><td className="py-1"><strong>Rigid Diatomic</strong> (O₂, N₂)</td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">0</td><td className="text-center font-bold">5</td></tr>
-            <tr><td className="py-1"><strong>Vibrating Diatomic</strong> (CO at high T)</td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">2</td><td className="text-center font-bold">7</td></tr>
-            <tr><td className="py-1"><strong>Polyatomic</strong> (CH₄)</td><td className="text-center">3</td><td className="text-center">3</td><td className="text-center">f</td><td className="text-center font-bold">6+f</td></tr>
+            <tr><td className="py-1"><strong>Monatomic</strong></td><td className="text-center">3</td><td className="text-center">0</td><td className="text-center">0</td><td className="text-center font-bold">3</td></tr>
+            <tr><td className="py-1"><strong>Rigid Diatomic</strong></td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">0</td><td className="text-center font-bold">5</td></tr>
+            <tr><td className="py-1"><strong>Vibrating Diatomic</strong></td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">2</td><td className="text-center font-bold">7</td></tr>
+            <tr><td className="py-1"><strong>Polyatomic</strong></td><td className="text-center">3</td><td className="text-center">3</td><td className="text-center">f<sub>v</sub></td><td className="text-center font-bold">6+f<sub>v</sub></td></tr>
           </tbody>
         </table>
 
-        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">U = (f/2) RT per mole</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">C<sub>v</sub> = (f/2)R,  C<sub>p</sub> = (f/2 + 1)R,  γ = C<sub>p</sub>/C<sub>v</sub></p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Law of Equipartition of Energy</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm text-slate-700 text-center mb-2">
+            First proved by Maxwell: in thermal equilibrium at temperature T, the total energy is distributed <strong>equally</strong> across all available modes.
+          </p>
+          <p className="font-mono text-lg text-brand-primary text-center">Each translational &amp; rotational DOF → ½k<sub>B</sub>T</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Each vibrational mode → k<sub>B</sub>T (KE + PE)</p>
         </div>
 
-        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
-          <h4 className="font-bold text-amber-900 mb-2">🏭 Engineering: Why γ Matters for Engines</h4>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Internal Energy &amp; Specific Heat</h3>
+        <p className="text-sm mb-4">Using R = k<sub>B</sub>N<sub>A</sub>, for one mole of gas:</p>
+        <table className="w-full text-sm">
+          <thead><tr className="border-b"><th className="text-left py-2">Gas</th><th>U</th><th>C<sub>v</sub></th><th>C<sub>p</sub></th><th>γ</th></tr></thead>
+          <tbody>
+            <tr><td className="py-1"><strong>Monatomic</strong></td><td className="text-center">3/2 RT</td><td className="text-center">3/2 R</td><td className="text-center">5/2 R</td><td className="text-center font-bold">1.67</td></tr>
+            <tr><td className="py-1"><strong>Rigid Diatomic</strong></td><td className="text-center">5/2 RT</td><td className="text-center">5/2 R</td><td className="text-center">7/2 R</td><td className="text-center font-bold">1.40</td></tr>
+            <tr><td className="py-1"><strong>Vibrating Diatomic</strong></td><td className="text-center">7/2 RT</td><td className="text-center">7/2 R</td><td className="text-center">9/2 R</td><td className="text-center font-bold">1.29</td></tr>
+            <tr><td className="py-1"><strong>Polyatomic (f<sub>v</sub> modes)</strong></td><td className="text-center">(3+f<sub>v</sub>)RT</td><td className="text-center">(3+f<sub>v</sub>)R</td><td className="text-center">(4+f<sub>v</sub>)R</td><td className="text-center font-bold">{'<'}1.33</td></tr>
+          </tbody>
+        </table>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Analogies</h3>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">💼 Corporate Budgeting Analogy</h4>
           <p className="text-sm">
-            Diatomic N₂ and O₂ have higher C<sub>v</sub> (5/2 R) than monatomic He (3/2 R) because heat is partitioned into rotational modes. The ratio γ = C<sub>p</sub>/C<sub>v</sub> dictates adiabatic expansion — critical for engine efficiency.
+            Imagine a company (the gas) with a fixed budget (thermal energy). Equipartition says the budget must be distributed <em>equally</em> among all departments (DOF). A simple company (monatomic) has 3 departments, so each gets a large slice. A complex company (polyatomic) has many departments — the same budget is split thinner. To raise overall activity (temperature) of a complex company by 1 degree, you need much more total money (heat), because every department demands its equal share. This is why C<sub>v</sub> is higher for complex molecules.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">🏭 Engine Coolants &amp; Gas Turbines</h4>
+          <p className="text-sm">
+            Engineers select specific gases for thermodynamic cycles. Diatomic gases like N₂ and O₂ have C<sub>p</sub> = 7/2 R (higher than monatomic He with 5/2 R) because supplied heat is partitioned into rotational modes. This affects the adiabatic ratio γ = C<sub>p</sub>/C<sub>v</sub>, which directly dictates engine efficiency. Monatomic gases (γ = 1.67) undergo steeper adiabatic curves than diatomic gases (γ = 1.40).
+          </p>
+        </div>
+
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🌍 Atmospheric Warming</h4>
+          <p className="text-sm">
+            Our atmosphere&apos;s specific heat is dictated by the diatomic nature of N₂ and O₂. When sunlight heats the Earth, thermal energy causes air molecules not only to move faster (translation) but also to tumble and spin (rotation). This effectively stores more heat without increasing temperature as drastically as a monatomic atmosphere would — a natural temperature buffer for our planet.
           </p>
         </div>
 
