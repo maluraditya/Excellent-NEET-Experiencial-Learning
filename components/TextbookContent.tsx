@@ -203,6 +203,47 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
       </div>
     );
   }
+  if (topic?.id === 'thermodynamic-processes') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">First Law of Thermodynamics and Thermodynamic Processes</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The First Law of Thermodynamics is the principle of conservation of energy applied to thermodynamic systems: the heat supplied to a system goes partly to increase its internal energy and partly to do work on the environment.
+        </p>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">ΔQ = ΔU + ΔW</p>
+          <p className="text-sm text-slate-600 mt-3 text-center">
+            Heat (ΔQ) = Change in Internal Energy (ΔU) + Work Done by gas (ΔW = PΔV)
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Four Special Thermodynamic Processes</h3>
+        <ol className="list-decimal pl-6 space-y-4">
+          <li><strong>Isothermal (T = const):</strong> Temperature doesn't change → ΔU = 0 → ΔQ = ΔW. All heat converts to work. The P-V curve follows PV = nRT = constant (Boyle's Law).</li>
+          <li><strong>Adiabatic (Q = 0):</strong> No heat enters or leaves (insulated) → ΔU = −ΔW. Expansion cools the gas; compression heats it. Follows PV<sup>γ</sup> = constant, a steeper curve than isothermal.</li>
+          <li><strong>Isochoric (V = const):</strong> Volume doesn't change → ΔW = 0 → ΔQ = ΔU. All heat goes to changing internal energy. The P-V "curve" is a vertical line.</li>
+          <li><strong>Isobaric (P = const):</strong> Pressure stays constant. Heat goes partly to work (PΔV) and partly to ΔU. The P-V curve is a horizontal line.</li>
+        </ol>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">☁️ Nature: Cloud Formation (Adiabatic Cooling)</h4>
+          <p className="text-sm">
+            Rising warm air expands as atmospheric pressure drops. Since this happens quickly and air is a poor conductor, the process is nearly adiabatic (ΔQ ≈ 0). The expanding air does work on its surroundings, its internal energy drops, and temperature falls until water vapour condenses — forming clouds.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🚗 Engineering: Internal Combustion Engine</h4>
+          <p className="text-sm">
+            In a car engine, fuel-air mixture is compressed adiabatically (temperature rises), ignited (rapid isochoric heating at near-constant volume), expands adiabatically doing work on the piston, then exhausts at constant volume. Each step demonstrates a different thermodynamic process governed by the First Law.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
 
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 

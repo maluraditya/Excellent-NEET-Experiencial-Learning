@@ -48,5 +48,17 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Mechanics',
         grade: '11th',
         youtubeVideoIds: []
+    },
+    {
+        id: 'thermodynamic-processes',
+        title: 'First Law of Thermodynamics and Thermodynamic Processes',
+        subject: 'Physics',
+        unit: 'Chapter 11',
+        chapter: 'Thermodynamics',
+        description: 'Perform isothermal, adiabatic, isobaric, and isochoric processes on an interactive gas cylinder. Observe how Heat (Q), Work (W), and Internal Energy (ΔU) relate through the First Law.',
+        thumbnailIcon: 'Activity',
+        branch: 'Mechanics',
+        grade: '11th',
+        youtubeVideoIds: []
     }
 ];

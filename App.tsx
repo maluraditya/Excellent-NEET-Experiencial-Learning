@@ -9,6 +9,7 @@ import TensileTestCanvas from './components/grade-11/physics/TensileTestCanvas';
 import FluidDynamicsLab from './components/grade-11/physics/FluidDynamicsLab';
 import HydraulicBrakeLab from './components/grade-11/physics/HydraulicBrakeLab';
 import CarnotEngineLab from './components/grade-11/physics/CarnotEngineLab';
+import ThermodynamicProcessesLab from './components/grade-11/physics/ThermodynamicProcessesLab';
 
 // Grade 12 - Physics
 import ElectromagneticInductionCanvas from './components/grade-12/physics/ElectromagneticInductionCanvas';
@@ -239,6 +240,12 @@ const App: React.FC = () => {
         Topic: Carnot Engine and Carnot Cycle (NCERT Class 11, Chapter 11)
         State: T1=${carnotConfig.t1}K, T2=${carnotConfig.t2}K, Efficiency=${((1 - carnotConfig.t2 / carnotConfig.t1) * 100).toFixed(1)}%.
         Concept: Carnot cycle has 4 steps: isothermal expansion, adiabatic expansion, isothermal compression, adiabatic compression. Efficiency = 1 - T2/T1. No engine can exceed Carnot efficiency.
+      `;
+    } else if (activeTopicId === 'thermodynamic-processes') {
+      return `
+        Topic: First Law of Thermodynamics and Thermodynamic Processes (NCERT Class 11, Chapter 11)
+        Concept: ΔQ = ΔU + ΔW. Four process modes: Isothermal (T const, ΔU=0, ΔQ=ΔW), Adiabatic (Q=0, ΔU=-ΔW), Isochoric (V const, ΔW=0, ΔQ=ΔU), Isobaric (P const, ΔW=PΔV).
+        Simulation: Interactive gas cylinder with P-V diagram and energy balance bars.
       `;
     } else if (activeTopicId === 'atoms') {
       return `
@@ -552,6 +559,34 @@ const App: React.FC = () => {
                     </span>
                     <span className="text-xs text-slate-400 ml-2">= 1 − {carnotConfig.t2}/{carnotConfig.t1}</span>
                   </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== THERMODYNAMIC PROCESSES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'thermodynamic-processes' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> First Law of Thermodynamics Lab
+                  </h3>
+                </div>
+                <div className="relative h-[420px] bg-slate-900">
+                  <ThermodynamicProcessesLab />
                 </div>
               </div>
             </div>
