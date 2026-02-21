@@ -396,11 +396,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Virtual Wind Tunnel
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-100 flex flex-col">
                   <FluidDynamicsLab
@@ -459,11 +466,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Hydraulic Brake Interactor
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-900 flex flex-col">
                   <HydraulicBrakeLab
@@ -551,11 +565,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Carnot Engine P-V Diagram Builder
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <CarnotEngineLab t1={carnotConfig.t1} t2={carnotConfig.t2} />
@@ -612,11 +633,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> First Law of Thermodynamics Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <ThermodynamicProcessesLab />
@@ -640,11 +668,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Kinetic Theory — Molecular Pressure Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <KineticTheoryLab />
@@ -668,11 +703,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Equipartition of Energy Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <EquipartitionLab />
@@ -696,11 +738,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Spring-Mass SHM Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-900">
                   <SHMLab />
@@ -778,11 +827,18 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Cuboid size={18} className="text-brand-secondary" /> Virtual Lab: Solids Properties
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-100">
                   <SolidStateCanvas
@@ -839,11 +895,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Grid size={18} className="text-brand-secondary" /> Unit Cell Visualizer
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-100">
                   <SolidStateCanvas
@@ -896,11 +959,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Percent size={18} className="text-brand-secondary" /> Packing Efficiency
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-100">
                   <SolidStateCanvas
@@ -940,11 +1010,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <AlertTriangle size={18} className="text-brand-secondary" /> Crystal Defect Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-100">
                   <SolidStateCanvas
@@ -984,7 +1061,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Virtual Lab: Molecular Collisions
@@ -1067,7 +1144,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Battery size={18} className="text-brand-secondary" /> Virtual Lab: Electrochemical Cells
@@ -1075,6 +1152,14 @@ const App: React.FC = () => {
                   <div className={`text-xs font-mono font-bold px-2 py-1 rounded ${externalVoltage < 1.1 ? 'bg-green-100 text-green-700' : (externalVoltage > 1.1 ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-700')}`}>
                     {externalVoltage < 1.1 ? 'GALVANIC MODE' : (externalVoltage > 1.1 ? 'ELECTROLYTIC MODE' : 'EQUILIBRIUM')}
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[450px] bg-white">
                   <ElectrochemistryCanvas externalVoltage={externalVoltage} />
@@ -1129,7 +1214,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Box size={18} className="text-brand-secondary" /> 3D Molecular Geometry
@@ -1137,6 +1222,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded flex items-center gap-2">
                     <span className="animate-pulse w-2 h-2 rounded-full bg-green-500"></span> Live 3D Render
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[450px] bg-slate-900">
                   <StereochemistryCanvas
@@ -1216,7 +1309,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Magnet size={18} className="text-brand-secondary" /> Crystal Field Theory Lab
@@ -1224,6 +1317,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Octahedral Field
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[450px] bg-white">
                   <DBlockCanvas metalIon={selectedIon} />
@@ -1266,7 +1367,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <FlaskConical size={18} className="text-brand-secondary" /> Organic Mechanism Simulator
@@ -1274,6 +1375,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     {haloConfig.mechanism} Reaction
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-white">
                   <HaloalkaneCanvas mechanism={haloConfig.mechanism} substrate={haloConfig.substrate} />
@@ -1318,7 +1427,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Layers size={18} className="text-brand-secondary" /> Polymer Labs
@@ -1326,6 +1435,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     {polyMode === 'synthesis' ? 'Ziegler-Natta Catalysis' : 'Conducting Polymers'}
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[450px] bg-white">
                   <PolymerCanvas mode={polyMode} />
@@ -1367,7 +1484,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Grid size={18} className="text-brand-secondary" /> Interactive Punnett Square
@@ -1375,6 +1492,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Unit VII: Genetics
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[520px] bg-slate-100">
                   <GeneticsCanvas mode={solidClassConfig.type === 'ionic' ? 'punnett' : 'meiosis'} />
@@ -1415,7 +1540,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Chromosomal Crossover Lab
@@ -1423,6 +1548,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Unit VII: Genetics
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-100">
                   {/* Using a local state for mode switching would be better, but for now reuse solidClassConfig hack or just create a new state variable quickly? 
@@ -1477,7 +1610,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Transcription Simulation
@@ -1485,6 +1618,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Molecular Biology
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[500px] bg-slate-100">
                   <TranscriptionCanvas mode={polyMode === 'synthesis' ? 'prokaryote' : 'eukaryote'} />
@@ -1512,7 +1653,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Lac Operon Simulator
@@ -1520,6 +1661,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Gene Regulation
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-100">
                   <LacOperonCanvas />
@@ -1543,7 +1692,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Replication Fork Simulator
@@ -1551,6 +1700,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     DNA Replication
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-900">
                   <ReplicationCanvas />
@@ -1576,11 +1733,26 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Magnet size={18} className="text-brand-secondary" /> Faraday's Law & AC Generator
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[650px] bg-slate-900 rounded-b-xl overflow-hidden">
                   <ElectromagneticInductionCanvas />
@@ -1604,11 +1776,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Transformer Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-white">
                   <AlternatingCurrentCanvas primaryTurns={transformerConfig.np} secondaryTurns={transformerConfig.ns} />
@@ -1652,11 +1831,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> EM Wave Propagation
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-50">
                   <EMWavesCanvas />
@@ -1680,11 +1866,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Layers size={18} className="text-brand-secondary" /> Optics Workbench
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-white">
                   <RayOpticsCanvas device={opticsDevice} />
@@ -1719,11 +1912,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Layers size={18} className="text-brand-secondary" /> Wave Optics (YDSE)
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-900">
                   <WaveOpticsCanvas />
@@ -1747,11 +1947,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Photoelectric Effect
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[400px] bg-slate-900">
                   <PhotoelectricCanvas frequency={photoelectricConfig.frequency} intensity={photoelectricConfig.intensity} />
@@ -1795,11 +2002,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Box size={18} className="text-brand-secondary" /> Alpha Scattering (Rutherford)
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[700px] bg-slate-900">
                   <AtomsCanvas />
@@ -1823,11 +2037,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Grid size={18} className="text-brand-secondary" /> P-N Junction
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[650px] bg-slate-900 rounded-xl overflow-hidden">
                   <SemiconductorCanvas />
@@ -1851,11 +2072,18 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Virtual Tensile Test Lab
                   </h3>
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative min-h-[700px] bg-slate-50">
                   <TensileTestCanvas />
@@ -1879,7 +2107,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> RNA Interference Game
@@ -1887,6 +2115,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Cell Defense
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-slate-900">
                   <RNAiCanvas />
@@ -1910,7 +2146,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Agrobacterium Transformation
@@ -1918,6 +2154,14 @@ const App: React.FC = () => {
                   <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
                     Biotechnology
                   </div>
+                
+                  <button 
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
                 <div className="relative h-[550px] bg-emerald-50">
                   <TiPlasmidCanvas />
