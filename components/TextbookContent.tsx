@@ -486,6 +486,60 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'hydrogen-spectrum') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Line Spectrum of Hydrogen and Bohr's Model</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The hydrogen spectrum is the set of discrete wavelengths of light emitted or absorbed when an electron transitions between fixed energy levels.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Quantization of Energy</h3>
+        <p>
+          Classical physics predicted atoms should collapse. Niels Bohr postulated that electrons can only revolve in specific "stationary orbits" without losing energy. Thus, the energy of an electron is <strong>quantized</strong>.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-4">
+          <li><strong>Ground State (<span className="font-mono">n=1</span>):</strong> The lowest possible energy state and the most stable.</li>
+          <li><strong>Excitation (Absorption):</strong> If supplied with exact packets of energy, the electron absorbs a photon and "jumps" to a higher orbit (<span className="font-mono">n=2, 3, 4...</span>).</li>
+          <li><strong>De-excitation (Emission):</strong> The electron quickly falls back down, discarding excess energy by emitting a single photon of specific wavelength.</li>
+        </ul>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center pb-2">E<sub>n</sub> = -2.18 × 10<sup>-18</sup> (1/n²) J</p>
+          <p className="font-mono text-xl text-brand-primary text-center">ΔE = E<sub>f</sub> - E<sub>i</sub></p>
+          <p className="text-sm text-slate-600 mt-2 text-center border-t border-slate-300 pt-2">The energy of the emitted photon equals the difference between the higher and lower orbits.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Hydrogen Emission Series</h3>
+        <p>
+          The energy gap between orbits is massive at the bottom and gets progressively smaller higher up.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-4">
+          <li><strong>Lyman Series (n_final = 1):</strong> Huge energy drops → Ultraviolet (UV) light.</li>
+          <li><strong>Balmer Series (n_final = 2):</strong> Moderate energy drops → Visible light (Red to Violet).</li>
+          <li><strong>Paschen/Brackett/Pfund (n_final ≥ 3):</strong> Small energy drops → Infrared (IR) light.</li>
+        </ul>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">🎆 Real-World Analogy: Fireworks & Neon Signs</h4>
+          <p className="text-sm">
+            When electricity passes through neon gas, electrons are excited. When they drop down, they emit specific wavelengths, giving Neon its red-orange glow.
+            Similarly, fireworks' colors depend on the metal salts used (strontium for red, copper for blue); heat excites electrons, and atomic "falling down" transitions dictate the color we see!
+          </p>
+        </div>
+
+        <div className="bg-indigo-50 p-6 rounded-xl border-l-4 border-indigo-500 my-6">
+          <h4 className="font-bold text-indigo-900 mb-2">🔭 Astrophysics: Stellar Spectroscopy</h4>
+          <p className="text-sm">
+            Astronomers know the chemical composition of stars millions of lightyears away. Cooler gases absorb specific wavelengths from starlight. By looking at the missing black lines (absorption spectra), they compare them to known energy levels on Earth to identify the star's elements.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {

@@ -117,5 +117,18 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_waves_1771662957415.png',
         youtubeVideoIds: []
+    },
+    {
+        id: 'hydrogen-spectrum',
+        title: 'Line Spectrum of Hydrogen and Bohr\'s Model',
+        subject: 'Chemistry',
+        unit: 'Unit II',
+        chapter: 'Structure of Atom',
+        description: 'Experience quantization by firing photons at a hydrogen atom. Observe electron transitions and the resulting emission spectrum to understand the Bohr model.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_hydrogen.png',
+        youtubeVideoIds: []
     }
 ];
