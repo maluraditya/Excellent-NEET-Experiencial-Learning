@@ -295,6 +295,42 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'equipartition') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Degrees of Freedom and Equipartition of Energy</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Every independent way a molecule can store energy is a "degree of freedom." The Law of Equipartition says energy distributes equally — ½k<sub>B</sub>T per DOF.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Types of Degrees of Freedom</h3>
+        <table className="w-full text-sm">
+          <thead><tr className="border-b"><th className="text-left py-2">Gas Type</th><th>Trans.</th><th>Rot.</th><th>Vib.</th><th>Total f</th></tr></thead>
+          <tbody>
+            <tr><td className="py-1"><strong>Monatomic</strong> (He, Ne)</td><td className="text-center">3</td><td className="text-center">0</td><td className="text-center">0</td><td className="text-center font-bold">3</td></tr>
+            <tr><td className="py-1"><strong>Rigid Diatomic</strong> (O₂, N₂)</td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">0</td><td className="text-center font-bold">5</td></tr>
+            <tr><td className="py-1"><strong>Vibrating Diatomic</strong> (CO at high T)</td><td className="text-center">3</td><td className="text-center">2</td><td className="text-center">2</td><td className="text-center font-bold">7</td></tr>
+            <tr><td className="py-1"><strong>Polyatomic</strong> (CH₄)</td><td className="text-center">3</td><td className="text-center">3</td><td className="text-center">f</td><td className="text-center font-bold">6+f</td></tr>
+          </tbody>
+        </table>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">U = (f/2) RT per mole</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">C<sub>v</sub> = (f/2)R,  C<sub>p</sub> = (f/2 + 1)R,  γ = C<sub>p</sub>/C<sub>v</sub></p>
+        </div>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">🏭 Engineering: Why γ Matters for Engines</h4>
+          <p className="text-sm">
+            Diatomic N₂ and O₂ have higher C<sub>v</sub> (5/2 R) than monatomic He (3/2 R) because heat is partitioned into rotational modes. The ratio γ = C<sub>p</sub>/C<sub>v</sub> dictates adiabatic expansion — critical for engine efficiency.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {

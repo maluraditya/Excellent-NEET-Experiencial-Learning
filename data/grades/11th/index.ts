@@ -69,7 +69,19 @@ export const TOPICS_11TH: Topic[] = [
         chapter: 'Kinetic Theory',
         description: 'Visualize how billions of molecular collisions create gas pressure. Adjust Temperature, Volume, and molecule count to validate P = ⅓nm⟨v²⟩.',
         thumbnailIcon: 'Activity',
-        branch: 'Thermodynamics',
+        branch: 'Statistical Mechanics',
+        grade: '11th',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'equipartition',
+        title: 'Degrees of Freedom and Equipartition of Energy',
+        subject: 'Physics',
+        unit: 'Chapter 12',
+        chapter: 'Kinetic Theory',
+        description: 'Switch between Monatomic, Diatomic, and Polyatomic gases. Watch how energy partitions equally across translation, rotation, and vibration — explaining why complex gases have higher specific heats.',
+        thumbnailIcon: 'Activity',
+        branch: 'Statistical Mechanics',
         grade: '11th',
         youtubeVideoIds: []
     }
