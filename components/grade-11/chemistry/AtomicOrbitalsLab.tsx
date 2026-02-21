@@ -3,6 +3,7 @@ import { Slice, Eye, HelpCircle } from 'lucide-react';
 
 const AtomicOrbitalsLab: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Quantum numbers state
     const [n, setN] = useState<number>(1);
@@ -10,8 +11,11 @@ const AtomicOrbitalsLab: React.FC = () => {
     const [m, setM] = useState<number>(0);
 
     // View state
-    const [sliceOpen, setSliceOpen] = useState<boolean>(true); // Default to open for clarity
+    const [sliceOpen, setSliceOpen] = useState<boolean>(true);
     const [highlightNodes, setHighlightNodes] = useState<boolean>(false);
+
+    // Track size for accurate canvas resolution
+    const [dimensions, setDimensions] = useState({ w: 800, h: 500 });
 
     // Auto-correct l and m when n or l changes
     useEffect(() => {
@@ -25,6 +29,21 @@ const AtomicOrbitalsLab: React.FC = () => {
             setM(0);
         }
     }, [l, m]);
+
+    // Handle reliable resizing
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (width > 0 && height > 0) {
+                    setDimensions({ w: width, h: height });
+                }
+            }
+        });
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
 
     // Derived Node Counts
     const radialNodes = n - l - 1;
@@ -63,20 +82,18 @@ const AtomicOrbitalsLab: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Responsive Canvas
-        const parent = canvas.parentElement;
-        if (parent) {
-            // Setup High-DPI canvas for crisp graphics
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = parent.clientWidth * dpr;
-            canvas.height = parent.clientHeight * dpr;
-            ctx.scale(dpr, dpr);
-            canvas.style.width = `${parent.clientWidth}px`;
-            canvas.style.height = `${parent.clientHeight}px`;
-        }
+        const { w, h } = dimensions;
+        if (w === 0 || h === 0) return;
 
-        const w = canvas.width / (window.devicePixelRatio || 1);
-        const h = canvas.height / (window.devicePixelRatio || 1);
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+        ctx.scale(dpr, dpr);
+
         const cx = w / 2;
         const cy = h / 2;
 
@@ -98,29 +115,31 @@ const AtomicOrbitalsLab: React.FC = () => {
         ];
         const theme = colors[Math.min(l, 2)];
 
-        const baseRadius = Math.min(cx, cy) * 0.25;
-        const size = baseRadius * (1 + n * 0.3); // Scale with n
+        const baseRadius = Math.min(w, h) * 0.20;
+        const size = baseRadius * (1 + n * 0.25); // Scale more gently with n
+        const lobeWidth = size * 0.7;
+        const lobeThickness = size * 0.4;
 
         const drawLobe = (x: number, y: number, rx: number, ry: number, angle: number) => {
             ctx.save();
             ctx.translate(cx, cy);
             ctx.rotate(angle);
 
-            // Slightly shift the center of the gradient towards the nucleus for realism
-            const gradX = sliceOpen ? x : x - Math.sign(x) * rx * 0.2;
-            const gradY = sliceOpen ? y : y - Math.sign(y) * ry * 0.2;
+            // Shift gradient slightly for lighting
+            const gradX = sliceOpen ? x : x - Math.sign(x) * rx * 0.15;
+            const gradY = sliceOpen ? y : y - Math.sign(y) * ry * 0.15;
 
             let grad = ctx.createRadialGradient(gradX, gradY, 0, x, y, Math.max(rx, ry));
 
             if (sliceOpen) {
-                // Sliced view shows internal probability density beautifully as a glow
+                // Sliced view - internal energy
                 grad.addColorStop(0, theme.core);
-                grad.addColorStop(0.4, theme.edge);
+                grad.addColorStop(0.3, theme.edge);
                 grad.addColorStop(1, 'transparent');
             } else {
-                // Unsliced is a soft volumetric balloon
+                // External puffy view
                 grad.addColorStop(0, '#ffffff');
-                grad.addColorStop(0.2, theme.core);
+                grad.addColorStop(0.1, theme.core);
                 grad.addColorStop(0.8, theme.edge);
                 grad.addColorStop(1, 'transparent');
             }
@@ -128,72 +147,64 @@ const AtomicOrbitalsLab: React.FC = () => {
             ctx.fillStyle = grad;
             ctx.beginPath();
             ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-
             ctx.fill();
             ctx.restore();
         };
 
-        // Draw Orbitals Based on Quantum Numbers
-        // Screen composite to simulate light/probability overlap
+        // Draw Orbitals
         ctx.globalCompositeOperation = 'screen';
 
         if (l === 0) {
-            // S Orbital
             drawLobe(0, 0, size, size, 0);
         } else if (l === 1) {
-            // P Orbital (Dumbbell)
-            // m determines orientation. m=0 is vertical (pz), m=1/-1 are horizontal/diagonal
             const angle = m === 0 ? Math.PI / 2 : (m === 1 ? 0 : Math.PI / 4);
-            drawLobe(size * 0.6, 0, size * 0.7, size * 0.4, angle);
-            drawLobe(-size * 0.6, 0, size * 0.7, size * 0.4, angle);
+            drawLobe(size * 0.55, 0, lobeWidth, lobeThickness, angle);
+            drawLobe(-size * 0.55, 0, lobeWidth, lobeThickness, angle);
         } else if (l === 2) {
-            // D Orbital
             if (m === 0) {
-                // dz2: Dumbbell + Doughnut
-                drawLobe(0, size * 0.6, size * 0.3, size * 0.6, 0);
-                drawLobe(0, -size * 0.6, size * 0.3, size * 0.6, 0);
+                // dz2 specific lobe
+                drawLobe(0, size * 0.55, lobeThickness, lobeWidth, 0);
+                drawLobe(0, -size * 0.55, lobeThickness, lobeWidth, 0);
 
-                // Doughnut
+                // Torus (Doughnut)
                 ctx.save();
                 ctx.translate(cx, cy);
-                ctx.scale(1, 0.3);
+                ctx.scale(1, 0.35);
                 ctx.beginPath();
-                ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
+                ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
                 ctx.lineWidth = size * 0.3;
-                ctx.strokeStyle = sliceOpen ? theme.edge : theme.glow;
 
-                // Add gradient to stroke if unsliced
-                if (!sliceOpen) {
+                if (sliceOpen) {
                     ctx.strokeStyle = theme.edge;
-                    ctx.shadowBlur = 20;
+                } else {
+                    ctx.strokeStyle = theme.edge;
+                    ctx.shadowBlur = 15;
                     ctx.shadowColor = theme.core;
                 }
-
                 ctx.stroke();
                 ctx.restore();
             } else {
-                // Clover shapes (dxy, dyz, dxz, dx2-y2)
-                const angleOffset = m === 2 || m === -2 ? Math.PI / 4 : 0;
+                // Clover shapes
+                const angleOffset = (m === 2 || m === -2) ? Math.PI / 4 : 0;
                 for (let i = 0; i < 4; i++) {
-                    drawLobe(size * 0.5, 0, size * 0.6, size * 0.3, angleOffset + i * Math.PI / 2);
+                    drawLobe(size * 0.45, 0, lobeWidth * 0.8, lobeThickness * 0.8, angleOffset + i * Math.PI / 2);
                 }
             }
         }
 
         ctx.globalCompositeOperation = 'source-over';
 
-        // Highlight Nodes Explicitly
+        // Draw exact Nodes
         if (highlightNodes) {
-            // Draw Nucleus
+            // Draw Nucleus center point
             ctx.beginPath();
-            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.arc(cx, cy, 3, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
 
-            // 1. Radial Nodes (Spherical zero-probability shells)
-            // Rendered as bold dashed circles cutting through the lobes
+            // Radial Nodes -> Dashed Red Circles
             if (radialNodes > 0 && sliceOpen) {
-                ctx.strokeStyle = '#ef4444'; // Red for radial nodes
+                ctx.strokeStyle = '#ef4444';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([5, 5]);
                 for (let i = 1; i <= radialNodes; i++) {
@@ -205,31 +216,30 @@ const AtomicOrbitalsLab: React.FC = () => {
                 ctx.setLineDash([]);
             }
 
-            // 2. Angular Nodes (Planes of zero probability)
-            // Rendered as infinite lines slicing the space
+            // Angular Nodes -> Blue Lines
             if (angularNodes > 0) {
-                ctx.strokeStyle = '#38bdf8'; // Blue for angular nodes (planes)
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
                 ctx.globalAlpha = 0.8;
 
                 const drawPlaneLine = (angle: number) => {
                     ctx.beginPath();
-                    ctx.moveTo(cx - Math.cos(angle) * w, cy - Math.sin(angle) * w);
-                    ctx.lineTo(cx + Math.cos(angle) * w, cy + Math.sin(angle) * w);
+                    // Just draw across the canvas bounds
+                    const rad = Math.max(w, h);
+                    ctx.moveTo(cx - Math.cos(angle) * rad, cy - Math.sin(angle) * rad);
+                    ctx.lineTo(cx + Math.cos(angle) * rad, cy + Math.sin(angle) * rad);
                     ctx.stroke();
                 };
 
                 if (l === 1) { // 1 plane
                     const angle = m === 0 ? 0 : (m === 1 ? Math.PI / 2 : -Math.PI / 4);
                     drawPlaneLine(angle);
-                } else if (l === 2) { // 2 planes or conical node
+                } else if (l === 2) { // 2 planes or conical surface
                     if (m === 0) {
-                        // Two conical nodes for dz2, shown as an X in 2D slice
                         drawPlaneLine(Math.PI / 6);
                         drawPlaneLine(-Math.PI / 6);
                     } else {
-                        // Two perpendicular planes
-                        const angleOffset = m === 2 || m === -2 ? 0 : Math.PI / 4;
+                        const angleOffset = (m === 2 || m === -2) ? 0 : Math.PI / 4;
                         drawPlaneLine(angleOffset);
                         drawPlaneLine(angleOffset + Math.PI / 2);
                     }
@@ -238,45 +248,38 @@ const AtomicOrbitalsLab: React.FC = () => {
             }
         }
 
-        // Axes
+        // Mini Axes Legend fixed in bottom right corner
         const drawAxis = (xDir: number, yDir: number, color: string, label: string) => {
+            const axX = w - 60;
+            const axY = h - 60;
             ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + xDir * 80, cy + yDir * 80);
+            ctx.moveTo(axX, axY);
+            ctx.lineTo(axX + xDir * 35, axY + yDir * 35);
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.6;
             ctx.stroke();
-            ctx.globalAlpha = 1.0;
             ctx.fillStyle = color;
             ctx.font = 'bold 12px sans-serif';
-            ctx.fillText(label, cx + xDir * 90, cy + yDir * 90);
+            ctx.fillText(label, axX + xDir * 45 - 4, axY + yDir * 45 + 4);
         };
         drawAxis(1, 0, '#f43f5e', 'x');
         drawAxis(0, -1, '#22c55e', 'y');
 
-    }, [n, l, m, sliceOpen, highlightNodes]);
-
-    // Hook for window resize
-    useEffect(() => {
-        const handleResize = () => setN(n => n); // trigger re-render
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [n, l, m, sliceOpen, highlightNodes, dimensions]);
 
     return (
         <div className="w-full flex-1 flex flex-col lg:flex-row h-full bg-slate-900 border-x border-b border-slate-700 rounded-b-xl text-slate-200 font-sans relative overflow-hidden">
 
             {/* 2D Visualizer Area */}
-            <div className="flex-1 relative bg-black min-h-[500px]">
+            <div ref={containerRef} className="flex-1 relative bg-black min-h-[600px] overflow-hidden">
                 <canvas
                     ref={canvasRef}
-                    className="w-full h-full block cursor-crosshair"
+                    className="absolute top-0 left-0 block cursor-crosshair"
                 />
 
                 {/* Realtime Badges */}
-                <div className="absolute top-6 left-6 flex flex-col gap-2 pointer-events-none">
-                    <div className="bg-slate-800/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg inline-flex items-center w-fit shadow-xl">
+                <div className="absolute top-6 left-6 flex flex-col gap-2 pointer-events-none z-10 w-fit">
+                    <div className="bg-slate-800/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg inline-flex items-center shadow-xl">
                         <span className="font-display font-bold text-3xl text-white tracking-widest">
                             {n}{getOrbitalLetter(l)}<sub className="text-sm text-brand-secondary ml-1 font-sans">{getSubscript(l, m)}</sub>
                         </span>
@@ -299,12 +302,12 @@ const AtomicOrbitalsLab: React.FC = () => {
                 </div>
 
                 {/* View Tools */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-slate-800/80 backdrop-blur p-2 rounded-xl border border-slate-700 shadow-2xl">
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-slate-800/80 backdrop-blur p-2 rounded-xl border border-slate-700 shadow-2xl z-10 w-fit">
                     <button
                         onClick={() => setSliceOpen(!sliceOpen)}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all border ${sliceOpen
-                                ? 'bg-amber-500 text-slate-900 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
-                                : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all border whitespace-nowrap ${sliceOpen
+                            ? 'bg-amber-500 text-slate-900 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
+                            : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
                             }`}
                     >
                         <Slice size={18} />
@@ -313,9 +316,9 @@ const AtomicOrbitalsLab: React.FC = () => {
 
                     <button
                         onClick={() => setHighlightNodes(!highlightNodes)}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all border ${highlightNodes
-                                ? 'bg-emerald-500 text-slate-900 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                                : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all border whitespace-nowrap ${highlightNodes
+                            ? 'bg-emerald-500 text-slate-900 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                            : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
                             }`}
                     >
                         <Eye size={18} />
@@ -325,7 +328,7 @@ const AtomicOrbitalsLab: React.FC = () => {
             </div>
 
             {/* Controls Panel */}
-            <div className="w-full lg:w-96 bg-slate-800 border-l border-slate-700 flex flex-col z-10 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
+            <div className="w-full lg:w-96 shrink-0 bg-slate-800 border-l border-slate-700 flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
 
                 <div className="p-6 border-b border-slate-700 bg-slate-800/50">
                     <h3 className="font-bold text-xl text-white mb-2 flex items-center gap-2">
