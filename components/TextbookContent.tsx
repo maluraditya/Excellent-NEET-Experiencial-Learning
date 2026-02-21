@@ -370,6 +370,68 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'shm-spring') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Spring-Mass System and Simple Harmonic Motion</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          SHM arises when a restoring force is <strong>directly proportional</strong> to displacement and always directed towards the equilibrium position: <strong>F = −kx</strong>.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Force Law &amp; Angular Frequency</h3>
+        <p className="text-sm">From Hooke&apos;s Law and Newton&apos;s Second Law:</p>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
+          <p className="font-mono text-lg text-brand-primary">F = −kx → a = −(k/m)x → ω = √(k/m)</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Kinematics of SHM</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>Displacement:</strong> x(t) = A cos(ωt + ϕ) — maximum at extreme positions</li>
+          <li><strong>Velocity:</strong> v(t) = −ωA sin(ωt + ϕ) — maximum at mean position (x = 0), phase shift of π/2</li>
+          <li><strong>Acceleration:</strong> a(t) = −ω²A cos(ωt + ϕ) = −ω²x — maximum at extremes, phase shift of π</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Time Period</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
+          <p className="font-mono text-lg text-emerald-700">T = 2π√(m/k)</p>
+          <p className="text-sm text-slate-600 mt-1">Critical: T depends only on m and k — <strong>independent of amplitude!</strong></p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Energy in SHM</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>KE</strong> = ½mv² = ½kA² sin²(ωt) — maximum at mean position</li>
+          <li><strong>PE</strong> = ½kx² = ½kA² cos²(ωt) — maximum at extreme positions</li>
+          <li><strong>Total E</strong> = ½kA² — <em>constant</em>, continuously transforms KE ↔ PE</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🚗 Automobile Suspension</h4>
+          <p className="text-sm">
+            Car shock absorbers use heavy springs. When the car hits a bump, the mass compresses the spring which then oscillates as a spring-mass SHM system. Oil-based damping prevents the car from bouncing forever.
+          </p>
+        </div>
+
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🔬 Atoms in a Crystal Lattice</h4>
+          <p className="text-sm">
+            In crystalline solids, atoms sit in equilibrium positions held by interatomic forces. If displaced, they experience restoring forces exactly like a microscopic spring-mass system, leading to lattice vibrations (phonons).
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">🌍 Seismographs</h4>
+          <p className="text-sm">
+            Earthquake detectors use a heavy mass suspended by a spring. Due to inertia, the mass stays relatively stationary while the ground moves during a quake — the relative SHM of the system records the earth&apos;s tremors.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {

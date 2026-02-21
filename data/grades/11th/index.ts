@@ -84,5 +84,17 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Statistical Mechanics',
         grade: '11th',
         youtubeVideoIds: []
+    },
+    {
+        id: 'shm-spring',
+        title: 'Spring-Mass System and Simple Harmonic Motion',
+        subject: 'Physics',
+        unit: 'Chapter 13',
+        chapter: 'Oscillations',
+        description: 'Drag a block on a spring and watch SHM unfold. Observe x(t), v(t), a(t) phase shifts, energy conservation KE↔PE, and prove T = 2π√(m/k) is independent of amplitude.',
+        thumbnailIcon: 'Activity',
+        branch: 'Oscillations',
+        grade: '11th',
+        youtubeVideoIds: []
     }
 ];
