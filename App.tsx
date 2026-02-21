@@ -48,7 +48,7 @@ import { MaxwellBoltzmannChart, PotentialEnergyDiagram } from './components/Char
 import Assistant from './components/Assistant';
 import Breadcrumbs from './components/Breadcrumbs';
 import { startDashboardTour, startTopicTour } from './components/TourGuide';
-import { RotateCcw, Activity, ArrowLeft, Home, Battery, Box, Magnet, FlaskConical, Layers, Cuboid, Grid, Percent, AlertTriangle, Info, GraduationCap, HelpCircle } from 'lucide-react';
+import { RotateCcw, Activity, ArrowLeft, Home, Battery, Box, Magnet, FlaskConical, Layers, Cuboid, Grid, Percent, AlertTriangle, Info, GraduationCap, HelpCircle, Maximize2, Minimize2 } from 'lucide-react';
 
 const App: React.FC = () => {
   // Navigation State
@@ -150,6 +150,7 @@ const App: React.FC = () => {
   const [transformerConfig, setTransformerConfig] = useState({ np: 100, ns: 200 });
   const [opticsDevice, setOpticsDevice] = useState<'convex_lens' | 'concave_lens' | 'prism'>('convex_lens');
   const [photoelectricConfig, setPhotoelectricConfig] = useState({ frequency: 2, intensity: 5 });
+  const [isSimulationFullscreen, setIsSimulationFullscreen] = useState(false);
 
 
   // Handlers
@@ -161,6 +162,7 @@ const App: React.FC = () => {
   const goHome = () => {
     setCurrentScreen('DASHBOARD');
     setActiveTopicId(null);
+    setIsSimulationFullscreen(false);
   };
 
   // --- AI CONTEXT GENERATION ---
@@ -722,14 +724,23 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
                 <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
               </div>
-              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
                 <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
                   <h3 className="font-display font-bold text-white flex items-center gap-2">
                     <Activity size={18} className="text-brand-secondary" /> Standing Waves Lab
                   </h3>
+                  <button
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
                 </div>
-                <div className="relative h-[500px] bg-slate-900">
-                  <WavesLab />
+                <div className={`relative bg-slate-900 flex-1 flex flex-col ${!isSimulationFullscreen ? 'h-[500px]' : ''}`}>
+                  <div className="flex-1 w-full h-full">
+                    <WavesLab />
+                  </div>
                 </div>
               </div>
             </div>
