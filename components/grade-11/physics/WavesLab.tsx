@@ -10,7 +10,6 @@ const WavesLab: React.FC = () => {
         amplitude: 30,   // px
         fixedEnd: true,  // true = rigid, false = free
         running: true,
-        slowMotion: false,
         time: 0,
     });
     const frameRef = useRef(0);
@@ -31,7 +30,7 @@ const WavesLab: React.FC = () => {
         frameRef.current++;
 
         if (s.running) {
-            s.time += s.slowMotion ? 0.0008 : 0.004;
+            s.time += 0.004; // Natively 20% of original speed
         }
 
         // Physics
@@ -265,22 +264,13 @@ const WavesLab: React.FC = () => {
         ctx.fillStyle = !s.fixedEnd ? '#22c55e' : '#fff'; ctx.font = 'bold 9px Inter, sans-serif';
         ctx.fillText('🔓 Free End', fbx + (slW / 2 - 3) / 2, bndY + 17);
 
-        // Play/Pause and Slow Motion
+        // Play/Pause
         const pbY = bndY + 34;
-        const pbW = slW / 2 - 3;
-
         ctx.fillStyle = s.running ? '#1e293b' : '#22c55e';
-        roundRect(ctx, dx + 10, pbY, pbW, 26, 8); ctx.fill();
-        ctx.strokeStyle = s.running ? '#64748b' : '#22c55e'; ctx.lineWidth = 1.5; roundRect(ctx, dx + 10, pbY, pbW, 26, 8); ctx.stroke();
-        ctx.fillStyle = s.running ? '#94a3b8' : '#fff'; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(s.running ? '⏸ Pause' : '▶ Play', dx + 10 + pbW / 2, pbY + 17);
-
-        const smX = dx + 10 + pbW + 6;
-        ctx.fillStyle = s.slowMotion ? '#3b82f6' : '#1e293b';
-        roundRect(ctx, smX, pbY, pbW, 26, 8); ctx.fill();
-        ctx.strokeStyle = s.slowMotion ? '#3b82f6' : '#64748b'; ctx.lineWidth = 1.5; roundRect(ctx, smX, pbY, pbW, 26, 8); ctx.stroke();
-        ctx.fillStyle = s.slowMotion ? '#fff' : '#94a3b8';
-        ctx.fillText('🐢 Slow Mo', smX + pbW / 2, pbY + 17);
+        roundRect(ctx, dx + 10, pbY, slW, 26, 8); ctx.fill();
+        ctx.strokeStyle = s.running ? '#64748b' : '#22c55e'; ctx.lineWidth = 1.5; roundRect(ctx, dx + 10, pbY, slW, 26, 8); ctx.stroke();
+        ctx.fillStyle = s.running ? '#94a3b8' : '#fff'; ctx.font = 'bold 10px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(s.running ? '⏸ Pause' : '▶ Play', dx + 10 + slW / 2, pbY + 17);
 
         // Reset
         const rstY = pbY + 34;
@@ -373,24 +363,17 @@ const WavesLab: React.FC = () => {
             if (x >= dx + 10 && x <= dx + 10 + slW / 2 - 3) { stateRef.current.fixedEnd = true; return; }
             if (x >= dx + 10 + slW / 2 + 3 && x <= dx + 10 + slW) { stateRef.current.fixedEnd = false; return; }
         }
-        // Play/Pause & Slow mo
+        // Play/Pause
         const pbY = bndY + 34;
-        const pbW = slW / 2 - 3;
-        if (y >= pbY && y <= pbY + 26) {
-            if (x >= dx + 10 && x <= dx + 10 + pbW) {
-                stateRef.current.running = !stateRef.current.running;
-                return;
-            }
-            if (x >= dx + 10 + pbW + 6 && x <= dx + 10 + slW) {
-                stateRef.current.slowMotion = !stateRef.current.slowMotion;
-                return;
-            }
+        if (x >= dx + 10 && x <= dx + 10 + slW && y >= pbY && y <= pbY + 26) {
+            stateRef.current.running = !stateRef.current.running;
+            return;
         }
 
         // Reset
         const rstY = pbY + 34;
         if (x >= dx + 10 && x <= dx + 10 + slW && y >= rstY && y <= rstY + 26) {
-            stateRef.current = { freq: 5.0, tension: 50, mu: 0.01, amplitude: 30, fixedEnd: true, running: true, slowMotion: false, time: 0 };
+            stateRef.current = { freq: 5.0, tension: 50, mu: 0.01, amplitude: 30, fixedEnd: true, running: true, time: 0 };
         }
     }, [getCoords]);
 
