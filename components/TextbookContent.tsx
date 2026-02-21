@@ -65,7 +65,137 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
           <p className="text-sm">
             <strong>Cranes:</strong> Use steel ropes because steel has a high Yield Strength. If the load exceeds this limit, the rope stretches permanently and becomes unsafe.
             <br /><br />
-            <strong>mountains:</strong> Why aren't mountains higher than 10km? Because the sheer weight of the rock would exceed its elastic limit at the base, causing it to flow and sink!
+            <strong>Mountains:</strong> Why aren't mountains higher than 10km? Because the sheer weight of the rock would exceed its elastic limit at the base, causing it to flow and sink!
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'fluid-dynamics') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Bernoulli's Principle and its Applications</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The flow of ideally incompressible fluids follows fundamental conservation laws, leading to surprising phenomena like pressure drops in narrow pipes.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Fluid Dynamics & Streamlines</h3>
+        <p>
+          When a fluid flows steadily, the path taken by the fluid particles is called a <strong>streamline</strong>. In a pipe with a varying thickness, the fluid must speed up in narrower regions to ensure the same amount of mass passes through every section in a given time.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">Equation of Continuity: A × v = constant</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">Where <strong>A</strong> is the cross-sectional area and <strong>v</strong> is the fluid velocity.</p>
+        </div>
+        <p>
+          This means where the streamlines are crowded together (in the narrow constriction), the fluid velocity is higher.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Bernoulli's Principle</h3>
+        <p>
+          Formulated by Daniel Bernoulli in 1738, this principle applies the law of conservation of energy to flowing fluids. It states that for a steady, incompressible, and non-viscous fluid, the sum of pressure, kinetic energy per unit volume, and potential energy per unit volume remains constant along a streamline.
+        </p>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">P + ½ρv² + ρgh = constant</p>
+          <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
+            <li><strong>P:</strong> Pressure energy per unit volume</li>
+            <li><strong>½ρv²:</strong> Kinetic energy per unit volume</li>
+            <li><strong>ρgh:</strong> Potential energy per unit volume</li>
+          </ul>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🌬️ Real-World Application: The Airplane Wing</h4>
+          <p className="text-sm">
+            An airplane wing (airfoil) is curved on top and relatively flat on the bottom. Air must travel faster over the top surface. According to Bernoulli's principle, this <strong>higher velocity</strong> creates <strong>lower pressure</strong> above the wing.
+            <br /><br />
+            The higher pressure below the wing pushes up, creating <strong>Lift</strong>! This same principle explains how atomizers and perfume sprays work.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'pascals-law') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Pascal's Law and Hydraulic Machines</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The basic property of a fluid is that it can flow and takes the shape of its container. When a fluid is at rest, it exerts a force perpendicular to the surface of any object submerged in it.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Pressure and Pascal's Law</h3>
+        <p>
+          The normal force (F) acting per unit area (A) is defined as <strong>pressure (P = F/A)</strong>. The SI unit is the pascal (Pa).
+          <br /><br />
+          Blaise Pascal observed a fundamental truth about fluids at rest:
+          <em>"Whenever external pressure is applied on any part of a fluid contained in a vessel, it is transmitted undiminished and equally in all directions."</em>
+        </p>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">P₁ = P₂  =&gt;  F₁/A₁ = F₂/A₂</p>
+          <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
+            <li><strong>F₁ / A₁:</strong> Input Force and Area (Master Cylinder)</li>
+            <li><strong>F₂ / A₂:</strong> Output Force and Area (Wheel Cylinder)</li>
+          </ul>
+        </div>
+        <p>
+          Because liquids are nearly incompressible, the volume pushed down on one side must equal the volume pushed up on the other. This means a small force pushing a small area a <em>long</em> distance can create a massive force pushing a large area a <em>short</em> distance.
+        </p>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🚗 Real-World Application: Hydraulic Brakes</h4>
+          <p className="text-sm">
+            When you press the brake pedal in a car, you push a small piston connected to the master cylinder. The pressure is transmitted instantly through the brake fluid to a much larger wheel cylinder.
+            Because the wheel cylinder has a larger area, it multiplies your initial foot force by up to 10 or 20 times, providing enough power to clamp the brake pads against the spinning disc and stop a heavily moving vehicle!
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'carnot-engine') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Carnot Engine and Carnot Cycle</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The Carnot Engine is a theoretical, perfectly reversible heat engine that operates between a hot reservoir (T₁) and a cold reservoir (T₂), defining the absolute maximum efficiency any heat engine can achieve.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Four Steps of the Carnot Cycle</h3>
+        <ol className="list-decimal pl-6 space-y-3">
+          <li><strong>Isothermal Expansion (1→2):</strong> Gas absorbs heat Q₁ from the hot source at T₁. Temperature stays constant, gas expands.</li>
+          <li><strong>Adiabatic Expansion (2→3):</strong> Gas is insulated. It continues expanding, using its own internal energy. Temperature drops from T₁ to T₂.</li>
+          <li><strong>Isothermal Compression (3→4):</strong> Gas rejects heat Q₂ to the cold sink at T₂. Temperature stays constant, gas is compressed.</li>
+          <li><strong>Adiabatic Compression (4→1):</strong> Gas is insulated again. It is compressed back to its original state. Temperature rises from T₂ back to T₁.</li>
+        </ol>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">η = 1 − T₂/T₁</p>
+          <p className="text-sm text-slate-600 mt-3 text-center">
+            The efficiency depends <strong>only</strong> on the temperatures of the two reservoirs, completely independent of the working substance.
+          </p>
+        </div>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">🏭 Real-World Application: Steam Power Plants</h4>
+          <p className="text-sm">
+            Modern thermal power plants heat water in a boiler (Hot Reservoir, T₁ ≈ 600K) and cool steam in a condenser (Cold Reservoir, T₂ ≈ 300K). The Carnot limit says their efficiency can never exceed 1 − 300/600 = <strong>50%</strong>. In practice, due to irreversibilities, real efficiencies are significantly lower.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🧊 Carnot Refrigerator</h4>
+          <p className="text-sm">
+            A Carnot cycle run in reverse is a <strong>Carnot refrigerator</strong>. It takes heat Q₂ from a cold space, requires input work W, and exhausts Q₁ = Q₂ + W to a warm environment. This sets the theoretical maximum for the Coefficient of Performance (COP) of all cooling devices.
           </p>
         </div>
 

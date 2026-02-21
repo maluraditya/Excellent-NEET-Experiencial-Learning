@@ -6,6 +6,9 @@ import TextbookContent from './components/TextbookContent';
 
 // Grade 11 - Physics
 import TensileTestCanvas from './components/grade-11/physics/TensileTestCanvas';
+import FluidDynamicsLab from './components/grade-11/physics/FluidDynamicsLab';
+import HydraulicBrakeLab from './components/grade-11/physics/HydraulicBrakeLab';
+import CarnotEngineLab from './components/grade-11/physics/CarnotEngineLab';
 
 // Grade 12 - Physics
 import ElectromagneticInductionCanvas from './components/grade-12/physics/ElectromagneticInductionCanvas';
@@ -130,6 +133,14 @@ const App: React.FC = () => {
   const [defectMode, setDefectMode] = useState<'schottky' | 'frenkel'>('schottky');
 
   // --- PHYSICS STATE ---
+  const [fluidDynamicsConfig, setFluidDynamicsConfig] = useState({ flowRate: 50, area: 100 });
+  const [hydraulicConfig, setHydraulicConfig] = useState<{ force1: number, area1: number, area2: number, fluidType: 'liquid' | 'gas' }>({
+    force1: 100,
+    area1: 10,
+    area2: 100,
+    fluidType: 'liquid'
+  });
+  const [carnotConfig, setCarnotConfig] = useState({ t1: 800, t2: 300 });
   const [emiSpeed, setEmiSpeed] = useState(2);
   const [transformerConfig, setTransformerConfig] = useState({ np: 100, ns: 200 });
   const [opticsDevice, setOpticsDevice] = useState<'convex_lens' | 'concave_lens' | 'prism'>('convex_lens');
@@ -210,6 +221,24 @@ const App: React.FC = () => {
         Topic: Point Defects
         Mode: ${defectMode}.
         Concept: Schottky reduces density (Vacancy). Frenkel maintains density (Dislocation).
+      `;
+    } else if (activeTopicId === 'fluid-dynamics') {
+      return `
+        Topic: Mechanical Properties of Fluids (Bernoulli's Principle)
+        State: Flow Rate ${fluidDynamicsConfig.flowRate}, Constriction Area ${fluidDynamicsConfig.area}.
+        Concept: Continuity equation (A*v=const) and Bernoulli's Principle (P + 0.5*rho*v^2 = const). As area decreases, velocity increases and pressure drops.
+      `;
+    } else if (activeTopicId === 'pascals-law') {
+      return `
+        Topic: Pascal's Law and Hydraulic Machines
+        State: Force In ${hydraulicConfig.force1}N, Area In ${hydraulicConfig.area1}, Area Out ${hydraulicConfig.area2}, Fluid: ${hydraulicConfig.fluidType}.
+        Concept: F2 = F1 * (A2/A1). Demonstrates force multiplication and volume conservation (Distance out is less than distance in). If gas is used, compression wastes energy.
+      `;
+    } else if (activeTopicId === 'carnot-engine') {
+      return `
+        Topic: Carnot Engine and Carnot Cycle (NCERT Class 11, Chapter 11)
+        State: T1=${carnotConfig.t1}K, T2=${carnotConfig.t2}K, Efficiency=${((1 - carnotConfig.t2 / carnotConfig.t1) * 100).toFixed(1)}%.
+        Concept: Carnot cycle has 4 steps: isothermal expansion, adiabatic expansion, isothermal compression, adiabatic compression. Efficiency = 1 - T2/T1. No engine can exceed Carnot efficiency.
       `;
     } else if (activeTopicId === 'atoms') {
       return `
@@ -318,6 +347,222 @@ const App: React.FC = () => {
             setImages={setTopicImages}
             topics={currentTopics}
           />
+        )}
+
+        {/* ================== FLUID DYNAMICS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'fluid-dynamics' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> Virtual Wind Tunnel
+                  </h3>
+                </div>
+                <div className="relative h-[550px] bg-slate-100 flex flex-col">
+                  <FluidDynamicsLab
+                    flowRate={fluidDynamicsConfig.flowRate}
+                    constrictionArea={fluidDynamicsConfig.area}
+                    onFlowRateChange={() => { }}
+                    onAreaChange={() => { }}
+                  />
+                </div>
+                <div className="p-6 bg-slate-50 border-t border-slate-200">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Flow Rate (Volume Flux)</span> <span className="text-brand-primary">{fluidDynamicsConfig.flowRate} units/s</span>
+                      </label>
+                      <input
+                        type="range" min="10" max="500" step="10"
+                        value={fluidDynamicsConfig.flowRate}
+                        onChange={(e) => setFluidDynamicsConfig(p => ({ ...p, flowRate: Number(e.target.value) }))}
+                        className="w-full accent-brand-secondary h-2 bg-slate-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Constriction Area (A₂)</span> <span className="text-brand-primary">{fluidDynamicsConfig.area} units²</span>
+                      </label>
+                      <input
+                        type="range" min="20" max="100" step="5"
+                        value={fluidDynamicsConfig.area}
+                        onChange={(e) => setFluidDynamicsConfig(p => ({ ...p, area: Number(e.target.value) }))}
+                        className="w-full accent-blue-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase mt-1">
+                        <span>Narrow</span>
+                        <span>Wide (A₁ = 100)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== PASCAL'S LAW ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'pascals-law' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> Hydraulic Brake Interactor
+                  </h3>
+                </div>
+                <div className="relative h-[550px] bg-slate-900 flex flex-col">
+                  <HydraulicBrakeLab
+                    force1={hydraulicConfig.force1}
+                    area1={hydraulicConfig.area1}
+                    area2={hydraulicConfig.area2}
+                    fluidType={hydraulicConfig.fluidType}
+                    isApplyingText={false}
+                  />
+                </div>
+                <div className="p-6 bg-slate-50 border-t border-slate-200">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                          <span>Master Piston Area (A₁)</span> <span className="text-brand-primary">{hydraulicConfig.area1} cm²</span>
+                        </label>
+                        <input
+                          type="range" min="5" max="50" step="5"
+                          value={hydraulicConfig.area1}
+                          onChange={(e) => setHydraulicConfig(p => ({ ...p, area1: Number(e.target.value) }))}
+                          className="w-full accent-brand-secondary h-2 bg-slate-200 rounded-lg cursor-pointer"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                          <span>Wheel Piston Area (A₂)</span> <span className="text-brand-primary">{hydraulicConfig.area2} cm²</span>
+                        </label>
+                        <input
+                          type="range" min="50" max="500" step="10"
+                          value={hydraulicConfig.area2}
+                          onChange={(e) => setHydraulicConfig(p => ({ ...p, area2: Number(e.target.value) }))}
+                          className="w-full accent-blue-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                          <span>Input Force (Foot Pedal)</span> <span className="text-amber-500">{hydraulicConfig.force1} N</span>
+                        </label>
+                        <input
+                          type="range" min="10" max="500" step="10"
+                          value={hydraulicConfig.force1}
+                          onChange={(e) => setHydraulicConfig(p => ({ ...p, force1: Number(e.target.value) }))}
+                          className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                        />
+                      </div>
+                      <div className="space-y-2 pt-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Fluid Type</label>
+                        <div className="flex bg-slate-200 p-1 rounded-lg">
+                          <button
+                            className={`flex-1 text-sm py-1 rounded-md font-bold transition-colors ${hydraulicConfig.fluidType === 'liquid' ? 'bg-white text-emerald-600 shadow' : 'text-slate-500 hover:bg-white/50'}`}
+                            onClick={() => setHydraulicConfig(p => ({ ...p, fluidType: 'liquid' }))}
+                          >
+                            Liquid (Incompressible)
+                          </button>
+                          <button
+                            className={`flex-1 text-sm py-1 rounded-md font-bold transition-colors ${hydraulicConfig.fluidType === 'gas' ? 'bg-white text-yellow-600 shadow' : 'text-slate-500 hover:bg-white/50'}`}
+                            onClick={() => setHydraulicConfig(p => ({ ...p, fluidType: 'gas' }))}
+                          >
+                            Gas (Compressible)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== CARNOT ENGINE ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'carnot-engine' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> Carnot Engine P-V Diagram Builder
+                  </h3>
+                </div>
+                <div className="relative h-[500px] bg-slate-900">
+                  <CarnotEngineLab t1={carnotConfig.t1} t2={carnotConfig.t2} />
+                </div>
+                <div className="p-6 bg-slate-50 border-t border-slate-200">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Hot Source Temperature (T₁)</span> <span className="text-red-500">{carnotConfig.t1} K</span>
+                      </label>
+                      <input
+                        type="range" min="400" max="1000" step="10"
+                        value={carnotConfig.t1}
+                        onChange={(e) => setCarnotConfig(p => ({ ...p, t1: Math.max(Number(e.target.value), p.t2 + 50) }))}
+                        className="w-full accent-red-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
+                        <span>Cold Sink Temperature (T₂)</span> <span className="text-blue-500">{carnotConfig.t2} K</span>
+                      </label>
+                      <input
+                        type="range" min="100" max="600" step="10"
+                        value={carnotConfig.t2}
+                        onChange={(e) => setCarnotConfig(p => ({ ...p, t2: Math.min(Number(e.target.value), p.t1 - 50) }))}
+                        className="w-full accent-blue-500 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-white rounded-lg border border-slate-200 text-center">
+                    <span className="text-sm text-slate-500">Carnot Efficiency: </span>
+                    <span className="text-lg font-bold text-emerald-600 font-mono">
+                      {((1 - carnotConfig.t2 / carnotConfig.t1) * 100).toFixed(1)}%
+                    </span>
+                    <span className="text-xs text-slate-400 ml-2">= 1 − {carnotConfig.t2}/{carnotConfig.t1}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* ================== SOLID STATE (4 TOPICS) ================== */}
