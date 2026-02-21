@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
-const kB = 1.38e-23; // Boltzmann constant
-const mMol = 4.65e-26; // mass of N₂ molecule (kg)
+// Speed mapping: temperature → canvas px/frame (not real units — this is a visualization)
+function tempToSpeed(T: number) { return 1.0 + (T - 100) / 900 * 4.0; } // 1–5 px/frame
 
 interface Molecule { x: number; y: number; vx: number; vy: number; }
 interface Flash { x: number; y: number; t: number; wall: string; }
@@ -23,37 +23,42 @@ const KineticTheoryLab: React.FC = () => {
 
     // Initialize molecules
     const initMols = useCallback((count: number, T: number, volFrac: number) => {
-        const speed = Math.sqrt(3 * kB * T / mMol) * 0.00004; // scale to canvas px/frame
+        const speed = tempToSpeed(T);
         const mols: Molecule[] = [];
+        const chamberBottom = 260;
         const chamberH = 200 * volFrac;
+        const chamberTop = chamberBottom - chamberH;
         for (let i = 0; i < count; i++) {
             const angle = Math.random() * Math.PI * 2;
+            const sp = speed * (0.5 + Math.random());
             mols.push({
-                x: 40 + Math.random() * 180,
-                y: 50 + (200 - chamberH) + Math.random() * (chamberH - 20),
-                vx: Math.cos(angle) * speed * (0.5 + Math.random()),
-                vy: Math.sin(angle) * speed * (0.5 + Math.random()),
+                x: 35 + Math.random() * 190,
+                y: chamberTop + 8 + Math.random() * (chamberH - 16),
+                vx: Math.cos(angle) * sp,
+                vy: Math.sin(angle) * sp,
             });
         }
         return mols;
     }, []);
 
-    // Reset molecules when state changes significantly
+    // Rescale molecules when T/V/N changes
     const rescaleMols = useCallback(() => {
         const s = stateRef.current;
-        const speed = Math.sqrt(3 * kB * s.T / mMol) * 0.00004;
-        const chamberBottom = 50 + 200;
-        const chamberTop = chamberBottom - 200 * s.volFrac;
+        const speed = tempToSpeed(s.T);
+        const chamberBottom = 260;
+        const chamberH = 200 * s.volFrac;
+        const chamberTop = chamberBottom - chamberH;
         const mols = molRef.current;
 
         // Add or remove molecules
         while (mols.length < s.N) {
             const angle = Math.random() * Math.PI * 2;
+            const sp = speed * (0.5 + Math.random());
             mols.push({
-                x: 40 + Math.random() * 180,
-                y: chamberTop + 10 + Math.random() * (chamberBottom - chamberTop - 20),
-                vx: Math.cos(angle) * speed * (0.5 + Math.random()),
-                vy: Math.sin(angle) * speed * (0.5 + Math.random()),
+                x: 35 + Math.random() * 190,
+                y: chamberTop + 8 + Math.random() * (chamberH - 16),
+                vx: Math.cos(angle) * sp,
+                vy: Math.sin(angle) * sp,
             });
         }
         while (mols.length > s.N) mols.pop();
@@ -61,11 +66,18 @@ const KineticTheoryLab: React.FC = () => {
         // Rescale speeds to match temperature
         mols.forEach(m => {
             const curSpeed = Math.sqrt(m.vx * m.vx + m.vy * m.vy);
-            if (curSpeed > 0.01) {
-                const scale = speed / curSpeed;
-                m.vx *= scale * (0.7 + Math.random() * 0.6);
-                m.vy *= scale * (0.7 + Math.random() * 0.6);
+            if (curSpeed > 0.1) {
+                const ratio = speed / curSpeed;
+                m.vx *= ratio * (0.7 + Math.random() * 0.6);
+                m.vy *= ratio * (0.7 + Math.random() * 0.6);
+            } else {
+                const angle = Math.random() * Math.PI * 2;
+                m.vx = Math.cos(angle) * speed;
+                m.vy = Math.sin(angle) * speed;
             }
+            // Clamp to current chamber bounds
+            m.x = Math.max(34, Math.min(226, m.x));
+            m.y = Math.max(chamberTop + 5, Math.min(chamberBottom - 5, m.y));
         });
     }, []);
 
@@ -135,13 +147,13 @@ const KineticTheoryLab: React.FC = () => {
 
         collCountRef.current += collisions;
 
-        // Calculate pressure: P = ⅓ n m <v²> (scaled for display)
+        // Calculate pressure from collision rate (proportional to real P)
+        // P ∝ N * <v²> / V → use collisions/frame as proxy, smoothed
         let sumV2 = 0;
         mols.forEach(m => { sumV2 += m.vx * m.vx + m.vy * m.vy; });
         const avgV2 = mols.length > 0 ? sumV2 / mols.length : 0;
-        const n_density = s.N / (chamberW * chamberH);
-        const rawP = (1 / 3) * n_density * mMol * avgV2 * 1e15; // scaled
-        pressureRef.current = pressureRef.current * 0.95 + rawP * 0.05; // smooth
+        const rawP = s.N * avgV2 / (chamberW * chamberH) * 500; // scaled for display
+        pressureRef.current = pressureRef.current * 0.9 + rawP * 0.1; // smooth
         const P = pressureRef.current;
 
         // Store graph data
