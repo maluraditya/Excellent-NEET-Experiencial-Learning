@@ -45,7 +45,7 @@ export const TOPICS_11TH: Topic[] = [
         chapter: 'Thermodynamics',
         description: 'Build the Carnot Cycle step-by-step on a P-V diagram. Explore isothermal and adiabatic processes, and understand the theoretical maximum efficiency of heat engines.',
         thumbnailIcon: 'Activity',
-        branch: 'Mechanics',
+        branch: 'Thermodynamics',
         grade: '11th',
         youtubeVideoIds: []
     },
@@ -57,7 +57,7 @@ export const TOPICS_11TH: Topic[] = [
         chapter: 'Thermodynamics',
         description: 'Perform isothermal, adiabatic, isobaric, and isochoric processes on an interactive gas cylinder. Observe how Heat (Q), Work (W), and Internal Energy (ΔU) relate through the First Law.',
         thumbnailIcon: 'Activity',
-        branch: 'Mechanics',
+        branch: 'Thermodynamics',
         grade: '11th',
         youtubeVideoIds: []
     }
