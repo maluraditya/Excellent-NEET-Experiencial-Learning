@@ -585,7 +585,7 @@ const App: React.FC = () => {
                     <Activity size={18} className="text-brand-secondary" /> First Law of Thermodynamics Lab
                   </h3>
                 </div>
-                <div className="relative h-[420px] bg-slate-900">
+                <div className="relative h-[500px] bg-slate-900">
                   <ThermodynamicProcessesLab />
                 </div>
               </div>

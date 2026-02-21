@@ -148,9 +148,9 @@ const ThermodynamicProcessesLab: React.FC = () => {
         ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
         // ===== LAYOUT =====
-        const cylX = 25, cylY = 38, cylW = 140, cylH = 165;
-        const gx = 195, gy = 28, gw = 260, gh = 195;
-        const dx = 480, dy = 25, dw = 310;
+        const cylX = 25, cylY = 38, cylW = 160, cylH = 195;
+        const gx = 215, gy = 28, gw = 260, gh = 220;
+        const dx = 500, dy = 25, dw = 290;
         const procInfo = proc ? PROCESS_INFO[proc] : null;
 
         // ===== GAS CYLINDER (Left) =====
@@ -346,7 +346,7 @@ const ThermodynamicProcessesLab: React.FC = () => {
         ctx.fillText(`ΔQ = ΔU + ΔW → ${e.dQ.toFixed(0)} = ${e.dU.toFixed(0)} + ${e.dW.toFixed(0)}`, dx + dw / 2, barY + 105);
 
         // ===== PROCESS INFO BOX (bottom-left) =====
-        const descY = 250, descW2 = 460, descH2 = 100;
+        const descY = 280, descW2 = 475, descH2 = 130;
         ctx.fillStyle = 'rgba(30,41,59,0.85)'; roundRect(ctx, 15, descY, descW2, descH2, 10); ctx.fill();
         ctx.strokeStyle = procInfo?.color || '#475569'; ctx.lineWidth = 2;
         roundRect(ctx, 15, descY, descW2, descH2, 10); ctx.stroke();
@@ -374,48 +374,87 @@ const ThermodynamicProcessesLab: React.FC = () => {
         const modes = ['isothermal', 'adiabatic', 'isochoric', 'isobaric'];
         const modeLabels = ['Isothermal', 'Adiabatic', 'Isochoric', 'Isobaric'];
         const btnW2 = (dw - 20) / 2 - 3;
+        const btnH2 = 32;
         modes.forEach((m, i) => {
             const col = i % 2, row = Math.floor(i / 2);
             const bx = dx + 10 + col * (btnW2 + 6);
-            const by = btnY2 + row * 32;
+            const by = btnY2 + row * (btnH2 + 6);
             const isActive = proc === m;
             const c = PROCESS_INFO[m].color;
             ctx.fillStyle = isActive ? c : '#1e293b';
-            roundRect(ctx, bx, by, btnW2, 26, 6); ctx.fill();
+            roundRect(ctx, bx, by, btnW2, btnH2, 8); ctx.fill();
             ctx.strokeStyle = c; ctx.lineWidth = 1.5;
-            roundRect(ctx, bx, by, btnW2, 26, 6); ctx.stroke();
-            ctx.fillStyle = isActive ? '#fff' : c; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText(modeLabels[i], bx + btnW2 / 2, by + 16);
+            roundRect(ctx, bx, by, btnW2, btnH2, 8); ctx.stroke();
+            ctx.fillStyle = isActive ? '#fff' : c; ctx.font = 'bold 11px Inter, sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(modeLabels[i], bx + btnW2 / 2, by + btnH2 / 2 + 4);
         });
 
         // Action slider (right panel)
-        const slY = btnY2 + 72;
+        const slY = btnY2 + (btnH2 + 6) * 2 + 14;
         const slW = dw - 20;
-        ctx.fillStyle = '#1e293b'; roundRect(ctx, dx + 10, slY, slW, 10, 5); ctx.fill();
+        // Track
+        ctx.fillStyle = '#1e293b'; roundRect(ctx, dx + 10, slY, slW, 14, 7); ctx.fill();
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; roundRect(ctx, dx + 10, slY, slW, 14, 7); ctx.stroke();
         // Left/right labels
-        const slLabel = proc === 'isochoric' ? ['Cool', 'Heat'] : ['Compress', 'Expand'];
-        ctx.fillStyle = '#3b82f6'; ctx.font = '7px Inter, sans-serif'; ctx.textAlign = 'left';
-        ctx.fillText(`← ${slLabel[0]}`, dx + 10, slY - 3);
+        const slLabel = proc === 'isochoric' ? ['← Cool', 'Heat →'] : ['← Compress', 'Expand →'];
+        ctx.fillStyle = '#3b82f6'; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(slLabel[0], dx + 10, slY - 4);
         ctx.fillStyle = '#ef4444'; ctx.textAlign = 'right';
-        ctx.fillText(`${slLabel[1]} →`, dx + 10 + slW, slY - 3);
-        // Thumb
+        ctx.fillText(slLabel[1], dx + 10 + slW, slY - 4);
+        // Fill from center
         const thumbX = dx + 10 + act * slW;
+        const centerX = dx + 10 + slW / 2;
+        if (act !== 0.5) {
+            ctx.fillStyle = act > 0.5 ? 'rgba(239,68,68,0.4)' : 'rgba(59,130,246,0.4)';
+            const fx = Math.min(centerX, thumbX), fw = Math.abs(thumbX - centerX);
+            roundRect(ctx, fx, slY + 1, fw, 12, 6); ctx.fill();
+        }
+        // Thumb
         ctx.fillStyle = act > 0.5 ? '#ef4444' : act < 0.5 ? '#3b82f6' : '#94a3b8';
-        ctx.beginPath(); ctx.arc(thumbX, slY + 5, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(thumbX, slY + 7, 10, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(thumbX, slY + 5, 8, 0, Math.PI * 2); ctx.stroke();
-
-        // Center line
-        ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(dx + 10 + slW / 2, slY - 1); ctx.lineTo(dx + 10 + slW / 2, slY + 11); ctx.stroke();
+        ctx.beginPath(); ctx.arc(thumbX, slY + 7, 10, 0, Math.PI * 2); ctx.stroke();
+        // Center tick
+        ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(centerX, slY - 1); ctx.lineTo(centerX, slY + 15); ctx.stroke();
 
         // Reset button
-        const rstY = slY + 22;
-        ctx.fillStyle = '#1e293b'; roundRect(ctx, dx + 10, rstY, slW, 24, 6); ctx.fill();
+        const rstY = slY + 28;
+        ctx.fillStyle = '#1e293b'; roundRect(ctx, dx + 10, rstY, slW, 30, 8); ctx.fill();
         ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1;
-        roundRect(ctx, dx + 10, rstY, slW, 24, 6); ctx.stroke();
-        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('↺ Reset All', dx + 10 + slW / 2, rstY + 15);
+        roundRect(ctx, dx + 10, rstY, slW, 30, 8); ctx.stroke();
+        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 11px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('↺ Reset All', dx + 10 + slW / 2, rstY + 19);
+
+        // ===== HOW TO USE GUIDE (bottom-right, below reset) =====
+        const guideY = rstY + 42;
+        const guideH = H - guideY - 8;
+        if (guideH > 40) {
+            ctx.fillStyle = 'rgba(30,41,59,0.5)'; roundRect(ctx, dx, guideY, dw, guideH, 8); ctx.fill();
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; roundRect(ctx, dx, guideY, dw, guideH, 8); ctx.stroke();
+
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('💡 HOW TO USE', dx + dw / 2, guideY + 16);
+
+            ctx.textAlign = 'left'; ctx.font = '8.5px Inter, sans-serif';
+            const steps = [
+                ['1.', 'Select a process mode above (e.g. Isothermal)'],
+                ['2.', 'Drag the slider LEFT to compress/cool'],
+                ['3.', 'Drag the slider RIGHT to expand/heat'],
+                ['4.', 'Watch the P-V diagram trace the curve'],
+                ['5.', 'Energy bars show ΔQ = ΔU + ΔW balance'],
+                ['6.', 'Switch modes to compare process types'],
+            ];
+            steps.forEach((s, i) => {
+                const sy = guideY + 30 + i * 14;
+                if (sy + 10 < guideY + guideH) {
+                    ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 8.5px monospace';
+                    ctx.fillText(s[0], dx + 12, sy);
+                    ctx.fillStyle = '#94a3b8'; ctx.font = '8.5px Inter, sans-serif';
+                    ctx.fillText(s[1], dx + 26, sy);
+                }
+            });
+        }
 
         // Top instruction
         ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'left';
@@ -445,17 +484,18 @@ const ThermodynamicProcessesLab: React.FC = () => {
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         const { x, y } = getCanvasCoords(e);
-        const dx = 480, dw = 310, barY = 25 + 85;
+        const dx = 500, dw = 290, barY = 25 + 85;
 
-        // Process buttons
-        const btnY2 = barY + 120 + 110;
+        // Process buttons (must match draw: btnH2=32, row gap=38)
+        const btnY2 = barY + 120;
         const btnW2 = (dw - 20) / 2 - 3;
+        const btnH2 = 32;
         const modes = ['isothermal', 'adiabatic', 'isochoric', 'isobaric'];
         for (let i = 0; i < 4; i++) {
             const col = i % 2, row = Math.floor(i / 2);
             const bx = dx + 10 + col * (btnW2 + 6);
-            const by = btnY2 + row * 32;
-            if (x >= bx && x <= bx + btnW2 && y >= by && y <= by + 26) {
+            const by = btnY2 + row * (btnH2 + 6);
+            if (x >= bx && x <= bx + btnW2 && y >= by && y <= by + btnH2) {
                 setProcess(modes[i]);
                 setAction(0.5);
                 energyRef.current = { dQ: 0, dU: 0, dW: 0 };
@@ -464,18 +504,18 @@ const ThermodynamicProcessesLab: React.FC = () => {
             }
         }
 
-        // Slider
-        const slY = btnY2 + 72;
+        // Slider (must match draw: slY = btnY2 + (btnH2+6)*2 + 14)
+        const slY = btnY2 + (btnH2 + 6) * 2 + 14;
         const slW = dw - 20;
-        if (x >= dx + 10 && x <= dx + 10 + slW && y >= slY - 10 && y <= slY + 20) {
+        if (x >= dx + 10 && x <= dx + 10 + slW && y >= slY - 12 && y <= slY + 26) {
             draggingRef.current = true;
             const val = Math.max(0, Math.min(1, (x - (dx + 10)) / slW));
             setAction(val);
         }
 
-        // Reset
-        const rstY = slY + 22;
-        if (x >= dx + 10 && x <= dx + 10 + slW && y >= rstY && y <= rstY + 24) {
+        // Reset (must match draw: rstY = slY + 28)
+        const rstY = slY + 28;
+        if (x >= dx + 10 && x <= dx + 10 + slW && y >= rstY && y <= rstY + 30) {
             reset();
         }
     }, [getCanvasCoords, reset]);
@@ -483,7 +523,7 @@ const ThermodynamicProcessesLab: React.FC = () => {
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!draggingRef.current) return;
         const { x } = getCanvasCoords(e);
-        const dx = 480, dw = 310, barY = 25 + 85;
+        const dx = 500, dw = 290;
         const slW = dw - 20;
         const val = Math.max(0, Math.min(1, (x - (dx + 10)) / slW));
         setAction(val);
@@ -500,7 +540,7 @@ const ThermodynamicProcessesLab: React.FC = () => {
         <canvas
             ref={canvasRef}
             width={800}
-            height={380}
+            height={480}
             className="w-full h-full cursor-pointer"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
