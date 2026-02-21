@@ -60,5 +60,17 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Thermodynamics',
         grade: '11th',
         youtubeVideoIds: []
+    },
+    {
+        id: 'kinetic-theory',
+        title: 'Pressure of an Ideal Gas (Kinetic Theory)',
+        subject: 'Physics',
+        unit: 'Chapter 12',
+        chapter: 'Kinetic Theory',
+        description: 'Visualize how billions of molecular collisions create gas pressure. Adjust Temperature, Volume, and molecule count to validate P = ⅓nm⟨v²⟩.',
+        thumbnailIcon: 'Activity',
+        branch: 'Thermodynamics',
+        grade: '11th',
+        youtubeVideoIds: []
     }
 ];

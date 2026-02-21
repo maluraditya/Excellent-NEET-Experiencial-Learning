@@ -245,6 +245,56 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'kinetic-theory') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Pressure of an Ideal Gas (Kinetic Theory)</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Gas pressure is not a static force — it is the macroscopic manifestation of billions of microscopic elastic collisions of gas molecules against the container walls.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Derivation Summary</h3>
+        <ol className="list-decimal pl-6 space-y-3">
+          <li><strong>Elastic collision:</strong> A molecule of mass m hits the wall and rebounds. Momentum transferred to wall = 2mv<sub>x</sub>.</li>
+          <li><strong>Number of collisions:</strong> In time Δt, molecules within distance v<sub>x</sub>Δt from the wall can reach it. Count = ½ n A v<sub>x</sub> Δt.</li>
+          <li><strong>Total force:</strong> F = n m A ⟨v<sub>x</sub>²⟩. Since gas is isotropic, ⟨v<sub>x</sub>²⟩ = ⅓⟨v²⟩.</li>
+        </ol>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">P = ⅓ n m ⟨v²⟩</p>
+          <p className="text-sm text-slate-600 mt-3 text-center">
+            n = N/V (number density), m = molecular mass, ⟨v²⟩ = mean square speed
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Kinetic Interpretation of Temperature</h3>
+        <p>Comparing PV = ⅔E with PV = Nk<sub>B</sub>T gives:</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="font-mono text-lg text-emerald-700 text-center">½ m ⟨v²⟩ = 3/2 k<sub>B</sub> T</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">
+            Absolute temperature is simply a measure of the average random kinetic energy of gas molecules.
+          </p>
+        </div>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">🎈 Daily Life: Why Balloons Stay Inflated</h4>
+          <p className="text-sm">
+            Air molecules inside a balloon are in continuous random motion, colliding with the rubber walls. More molecules = more collisions per second = outward push that keeps the balloon inflated.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🚗 Engineering: Tyre Pressure Increase While Driving</h4>
+          <p className="text-sm">
+            Road friction heats tyres, raising air temperature inside. By ½m⟨v²⟩ = 3/2 k<sub>B</sub>T, molecules move faster, hit walls harder, and tyre pressure rises — which is why it's recommended to check tyre pressure when cold.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {
