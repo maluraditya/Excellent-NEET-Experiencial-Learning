@@ -42,6 +42,7 @@ export interface Topic {
   chapter: string;
   description: string;
   thumbnailIcon: string;
+  thumbnailUrl?: string; // Optional URL for custom thumbnail images
   imageUrl?: string; // For AI generated image
   coverImage?: string; // Static override
   youtubeVideoIds: string[]; // For embedded videos

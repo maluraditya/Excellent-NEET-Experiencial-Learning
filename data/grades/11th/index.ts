@@ -11,6 +11,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity', // Lucide icon name to be matched in Dashboard
         branch: 'Mechanics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_solids_1771662772975.png',
         youtubeVideoIds: ['video1', 'video2'] // Placeholders as none provided yet
     },
     {
@@ -23,6 +24,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'wind', // Will map to 'wind' icon in Dashboard
         branch: 'Mechanics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_fluids_1771662792973.png',
         youtubeVideoIds: [] // Add videos later if needed
     },
     {
@@ -35,6 +37,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Mechanics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_pascals_1771662812204.png',
         youtubeVideoIds: []
     },
     {
@@ -47,6 +50,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Thermodynamics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_carnot_1771662842471.png',
         youtubeVideoIds: []
     },
     {
@@ -59,6 +63,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Thermodynamics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_thermo_1771662859751.png',
         youtubeVideoIds: []
     },
     {
@@ -71,6 +76,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Statistical Mechanics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_kinetic_1771662889485.png',
         youtubeVideoIds: []
     },
     {
@@ -83,6 +89,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Statistical Mechanics',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_equipartition_1771662906243.png',
         youtubeVideoIds: []
     },
     {
@@ -95,6 +102,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Oscillations',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_shm_1771662927209.png',
         youtubeVideoIds: []
     },
     {
@@ -107,6 +115,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Oscillations',
         grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_waves_1771662957415.png',
         youtubeVideoIds: []
     }
 ];

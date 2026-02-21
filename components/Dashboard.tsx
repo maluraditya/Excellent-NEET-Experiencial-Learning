@@ -116,9 +116,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
               className="group relative bg-white rounded-3xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden border border-slate-100 flex flex-col h-[520px]"
             >
               <div className="h-56 w-full bg-slate-100 relative overflow-hidden">
-                {topic.coverImage || images[topic.id] ? (
+                {topic.coverImage || topic.thumbnailUrl || images[topic.id] ? (
                   <img
-                    src={topic.coverImage || images[topic.id]}
+                    src={topic.coverImage || topic.thumbnailUrl || images[topic.id]}
                     alt={topic.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
