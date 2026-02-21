@@ -130,5 +130,18 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_hydrogen.png',
         youtubeVideoIds: []
+    },
+    {
+        id: 'atomic-orbitals',
+        title: 'Shapes of Atomic Orbitals',
+        subject: 'Chemistry',
+        unit: 'Unit II',
+        chapter: 'Structure of Atom',
+        description: 'Explore the 3D probability clouds of s, p, and d orbitals. Slice open and visualize radial and angular nodes dictated by quantum mechanics.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_atomic_orbitals.png',
+        youtubeVideoIds: []
     }
 ];

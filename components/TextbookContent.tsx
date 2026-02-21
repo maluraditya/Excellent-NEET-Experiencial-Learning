@@ -540,6 +540,62 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'atomic-orbitals') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Shapes of Atomic Orbitals</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Unlike planets orbiting the sun, electrons exist in 3D "probability clouds." An orbital represents the region in space where the probability of finding an electron is maximum.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Quantum Mechanical Model</h3>
+        <p>
+          Heisenberg's Uncertainty Principle states we cannot know both the exact position and momentum of an electron. Instead, we use Schrödinger's wave equation (ψ) to find the probability density (ψ²).
+          A boundary surface diagram connects points of constant probability to visualize the "shape" of these clouds.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Shapes of Orbitals (s, p, d)</h3>
+        <ul className="list-disc pl-5 space-y-4 mb-6">
+          <li>
+            <strong>s-orbitals (l = 0):</strong> Spherically symmetric. The probability of finding the electron is identical in all directions at a given distance. Size increases with <i>n</i> (1s &lt; 2s &lt; 3s).
+          </li>
+          <li>
+            <strong>p-orbitals (l = 1):</strong> Consists of two lobes separated by a plane (dumbbell shape). There are three mutually perpendicular p-orbitals: p<sub>x</sub>, p<sub>y</sub>, and p<sub>z</sub>.
+          </li>
+          <li>
+            <strong>d-orbitals (l = 2):</strong> Four of the five d-orbitals have a "double-dumbbell" or clover shape (d<sub>xy</sub>, d<sub>yz</sub>, d<sub>xz</sub>, d<sub>x²-y²</sub>). The fifth (d<sub>z²</sub>) looks like a dumbbell with a doughnut-shaped ring around the center.
+          </li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Nodes: Zones of Zero Probability</h3>
+        <p>
+          A node is a region where the probability density (ψ²) drops to absolute zero.
+        </p>
+        <div className="my-6 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <p><strong>Radial Nodes:</strong> Spherical shells of zero probability. <br /><span className="font-mono text-brand-primary">Formula: n - l - 1</span></p>
+          <p><strong>Angular Nodes (Nodal Planes):</strong> Flat planes slicing through the nucleus with zero probability. <br /><span className="font-mono text-brand-secondary">Formula: l</span></p>
+          <p><strong>Total Nodes:</strong> <span className="font-mono text-slate-700">Formula: n - 1</span></p>
+        </div>
+
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-6">
+          <h4 className="font-bold text-sky-900 mb-2">🐝 Real-World Analogy: A Swarm of Bees</h4>
+          <p className="text-sm">
+            Imagine a beehive as the nucleus. A single bee flies around it incredibly fast. A photograph won't show the bee; a time-lapse reveals a blurry "cloud." The cloud is thickest near the hive. This is electron probability density (ψ²). A region where a repelling scent keeps bees away is a "node."
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">🎸 Nature Example: Standing Waves</h4>
+          <p className="text-sm">
+            When you pluck a guitar string, points vibrate violently (antinodes) while others remain perfectly still (nodes). Electron wave functions (ψ) are essentially 3D standing waves, and orbital nodes are the 3D equivalent of those motionless vibrational points.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {
