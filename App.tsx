@@ -18,6 +18,8 @@ import WavesLab from './components/grade-11/physics/WavesLab';
 // Grade 11 - Chemistry
 import HydrogenSpectrumLab from './components/grade-11/chemistry/HydrogenSpectrumLab';
 import AtomicOrbitalsLab from './components/grade-11/chemistry/AtomicOrbitalsLab';
+import VSEPRTheoryLab from './components/grade-11/chemistry/VSEPRTheoryLab';
+import SigmaPiBondsLab from './components/grade-11/chemistry/SigmaPiBondsLab';
 
 // Grade 12 - Physics
 import ElectromagneticInductionCanvas from './components/grade-12/physics/ElectromagneticInductionCanvas';
@@ -303,6 +305,18 @@ const App: React.FC = () => {
         
         The student is viewing the alpha scattering simulation with electron shells.
         Answer based on NCERT Class 12 Physics Chapter on Atoms.
+      `;
+    } else if (activeTopicId === 'vsepr-theory') {
+      return `
+        Topic: The Valence Shell Electron Pair Repulsion (VSEPR) Theory (NCERT Class 11, Unit 4)
+        Concept: Electron pairs arrange in 3D to minimize repulsion: lp-lp > lp-bp > bp-bp. Lone pairs compress bond angles (e.g., NH3 107°, H2O 104.5°).
+        Simulation: 3D interactive molecular sandbox with bond pairs, lone pairs, and dynamic angle measurements.
+      `;
+    } else if (activeTopicId === 'sigma-pi-bonds') {
+      return `
+        Topic: Types of Overlapping and Nature of Covalent Bonds (Sigma & Pi) (NCERT Class 11, Unit 4)
+        Concept: σ bonds form by head-on overlap (s-s, s-p, p-p axial). π bonds form by lateral overlap of parallel p-orbitals. σ > π in strength. Phase (+/−) must match for constructive overlap. Orthogonal orbitals have zero net overlap.
+        Simulation: Interactive orbital overlap lab with selectable orbitals, distance slider, phase flip, and live energy graph.
       `;
     }
     return "User is on the curriculum dashboard.";
@@ -794,6 +808,76 @@ const App: React.FC = () => {
                   <div className="flex-1 w-full h-full">
                     <WavesLab />
                   </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== VSEPR THEORY ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'vsepr-theory' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> 3D Molecular Sandbox
+                  </h3>
+                  <button
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
+                </div>
+                <div className="relative h-[650px] bg-slate-900 flex flex-col">
+                  <VSEPRTheoryLab />
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-5 relative">
+              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================== SIGMA & PI BONDS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'sigma-pi-bonds' && (
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
+              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+              </div>
+              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
+                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                  <h3 className="font-display font-bold text-white flex items-center gap-2">
+                    <Activity size={18} className="text-brand-secondary" /> Orbital Overlap Lab
+                  </h3>
+                  <button
+                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                  >
+                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                  </button>
+                </div>
+                <div className="relative h-[550px] bg-slate-900 flex flex-col">
+                  <SigmaPiBondsLab />
                 </div>
               </div>
             </div>

@@ -596,6 +596,153 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  // --- UNIT IV: CHEMICAL BONDING ---
+
+  if (topic?.id === 'vsepr-theory') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">The Valence Shell Electron Pair Repulsion (VSEPR) Theory</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The Lewis concept of chemical bonding helps us write the structure of molecules in 2D, but it completely fails to explain the actual 3-dimensional shapes. VSEPR theory overcomes this limitation.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Physical Meaning & Postulates</h3>
+        <p>
+          The core physical meaning of the VSEPR theory is that electron pairs (being negatively charged) inherently repel each other and will arrange themselves in 3D space to maximize their distance apart, thereby minimizing repulsion and stabilizing the molecule.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li>The overall shape of a molecule depends entirely on the total number of valence shell electron pairs (both bonded and lone pairs).</li>
+          <li>Pairs of electrons repel one another because their electron clouds are negatively charged.</li>
+          <li>To minimize this repulsion, these electron pairs occupy spatial positions that maximize the distance between them.</li>
+          <li>The valence shell is considered as a sphere, with pairs localizing on its surface.</li>
+          <li>A multiple bond (double or triple) is treated as if it is a single electron pair (a single super pair) for predicting geometry.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Role of Lone Pairs (Scientific Logic)</h3>
+        <p>
+          Not all electron pairs are equal. While bond pairs are shared between two atomic nuclei, lone pairs are localized on the central atom. Under the influence of only one nucleus, a lone pair's electron cloud occupies more spatial volume, exerting a stronger repulsive force.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">Repulsion Order: LP-LP &gt; LP-BP &gt; BP-BP</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">Lone Pair (LP) - Bond Pair (BP)</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Cause and Effect: Geometric Distortion</h3>
+        <ul className="list-disc pl-5 space-y-4 mb-6">
+          <li>
+            <strong>Ideal Geometry:</strong> Only bond pairs. Perfect symmetry (e.g., CH₄ is perfectly Tetrahedral at 109.5°).
+          </li>
+          <li>
+            <strong>One Lone Pair (e.g., NH₃):</strong> Nitrogen has 3 bond pairs, 1 lone pair. The strong LP-BP repulsion squeezes N-H bonds. Shape: <i>Trigonal Pyramidal</i> (Angle drops from 109.5° to 107°).
+          </li>
+          <li>
+            <strong>Two Lone Pairs (e.g., H₂O):</strong> Oxygen has 2 bond pairs, 2 lone pairs. Massive LP-LP repulsion brutally squishes O-H bonds. Shape: <i>Bent</i> (Angle drops further to 104.5°).
+          </li>
+          <li>
+            <strong>Equatorial Preference (e.g., SF₄):</strong> In a 5-pair Trigonal Bipyramidal setup, lone pairs occupy equatorial positions, minimizing 90° repulsions. This forms a <i>See-saw</i> shape.
+          </li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🎈 Daily Life Analogy: Tied Balloons</h4>
+          <p className="text-sm">
+            Imagine tying 4 elongated balloons together. They naturally fan out into a tetrahedral shape giving maximum space. Now attach one significantly fatter balloon (a lone pair). It forces the three thinner balloons to squeeze closer together!
+          </p>
+        </div>
+
+        <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500 my-4">
+          <h4 className="font-bold text-blue-900 mb-2">💧 Nature: Water's Unique Properties</h4>
+          <p className="text-sm">
+            Because H₂O has two lone pairs, it is distinctly bent (not linear). This asymmetry creates a dipole moment. This precise polarity is why water is the universal solvent, liquid at room temperature, and why ice floats—fundamental to life!
+          </p>
+        </div>
+
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🌡️ Industrial: Microwave Ovens</h4>
+          <p className="text-sm">
+            Microwaves work exactly by interacting with water's dipole moment. VSEPR theory's lone pair dictates the bent geometry allowing the water molecule to align with the oscillating electromagnetic field, generating heat.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">💊 Pharmaceutical Engineering</h4>
+          <p className="text-sm">
+            Receptors in our body are locks. VSEPR theory is actively used to predict exact 3D molecular geometry of synthetic drugs to ensure perfectly shaped "keys" that fit into viral or bacterial receptors.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'sigma-pi-bonds') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Types of Overlapping and Nature of Covalent Bonds</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          In Valence Bond theory, a covalent bond forms when two atomic orbitals partially merge (overlap), pairing electrons with opposite spins and lowering the system's potential energy.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Phases of Orbitals</h3>
+        <p>
+          Orbital wave functions (ψ) have <strong>positive (+)</strong> and <strong>negative (−)</strong> regions representing the phase of the wave — <em>not</em> electrical charge. Two overlapping orbitals must have the <strong>same phase</strong> and proper orientation to produce a <strong>constructive overlap</strong> (bonding). Opposite phases give <strong>destructive interference</strong> (no bond).
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Sigma (σ) Bond — Head-on Overlap</h3>
+        <p>
+          Formed by <strong>end-to-end</strong> overlap along the internuclear axis. The electron cloud is <strong>cylindrically symmetrical</strong> around the bond axis.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li><strong>s–s overlap:</strong> Two half-filled s-orbitals merge (e.g., H₂ molecule).</li>
+          <li><strong>s–p overlap:</strong> One s-orbital overlaps with one p-orbital head-on.</li>
+          <li><strong>p–p axial overlap:</strong> Two p-orbitals overlap head-on along the z-axis (p<sub>z</sub>–p<sub>z</sub>).</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Pi (π) Bond — Sideways Overlap</h3>
+        <p>
+          Formed when <strong>parallel p-orbitals</strong> overlap laterally, perpendicular to the internuclear axis. The electron cloud sits in two lobes <strong>above and below</strong> the molecular plane.
+        </p>
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm text-blue-800 text-center"><strong>Key Rule:</strong> A π bond is <em>never</em> formed alone — it always accompanies an existing σ bond in double or triple bonds.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Strength: σ vs. π</h3>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">Sigma (σ) Bond &gt; Pi (π) Bond</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">Head-on approach → greater overlap extent → stronger bond.<br />Sideways approach → less overlap → weaker, more reactive bond.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🤝 Daily Life Analogy: Handshake vs. High-Five</h4>
+          <p className="text-sm">
+            A σ bond is a firm, direct handshake — strong and head-on. A π bond is like adding a sideways high-five while maintaining the handshake. The high-five is weaker and easier to break.
+          </p>
+        </div>
+
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">🏭 Industrial: Plastics Manufacturing</h4>
+          <p className="text-sm">
+            Polythene is made by breaking ethene's weak π bond under heat and pressure. The freed electrons form new σ bonds, linking thousands of molecules into long, strong polymer chains.
+          </p>
+        </div>
+
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">👁️ Biological: Vision</h4>
+          <p className="text-sm">
+            Retinal in our eyes has alternating σ and (σ+π) bonds. Light energy breaks the weaker π bond, allowing rotation around the remaining σ bond. This shape change triggers the nerve impulse that lets us see!
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {

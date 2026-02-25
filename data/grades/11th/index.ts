@@ -143,5 +143,31 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_atomic_orbitals.png',
         youtubeVideoIds: []
+    },
+    {
+        id: 'vsepr-theory',
+        title: 'The Valence Shell Electron Pair Repulsion (VSEPR) Theory',
+        subject: 'Chemistry',
+        unit: 'Unit IV',
+        chapter: 'Chemical Bonding and Molecular Structure',
+        description: 'Understand how electron repulsion forces molecular geometry. Build 3D molecules, alter lone pairs, and visually grasp shapes from bent to octahedral.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_vsepr.png',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'sigma-pi-bonds',
+        title: 'Types of Overlapping and Nature of Covalent Bonds',
+        subject: 'Chemistry',
+        unit: 'Unit IV',
+        chapter: 'Chemical Bonding and Molecular Structure',
+        description: 'Visualize how s and p orbitals overlap head-on or laterally to form Sigma and Pi bonds. Discover why phase matters and why π bonds are weaker than σ bonds.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_sigma_pi.png',
+        youtubeVideoIds: []
     }
 ];

@@ -1,0 +1,88 @@
+11th Standard
+Topic,Overall Topic Rating out of 10,Simulation Rating (out of 10),How can we make simulation 10/10,Existing Content,Changes for Content,Existing Video Resources,Video Resource Updates Needed
+(No topics available yet),,,,,,,
+
+12th Standard
+Topic,Overall Topic Rating out of 10,Simulation Rating (out of 10),How can we make simulation 10/10,Existing Content,Changes for Content,Existing Video Resources,Video Resource Updates Needed
+Mendel’s Law of Independent Assortment,,,,(No detailed content found),,https://youtube.com/watch?v=7b34XYgADlM,
+Linkage and Crossing Over,,,,"Linkage & Recombination 
+ Why do some traits always seem to travel together? The answer lies in the physical geography of chromosomes.
+ I. The Exception to Mendel's Law 
+ Mendel's Law of Independent Assortment states that genes for different traits segregate independently.
+ However, Thomas Hunt Morgan discovered that this isn't always true. Genes located on the same chromosome are physically connected and tend to be inherited together. This is called Linkage .
+ Roleplay Analogy: The Crowded Mall
+ Imagine two friends walking through a very crowded mall. 
+ Tightly Linked (Holding Hands) 
+ If they hold hands, the crowd cannot separate them. They stay together (Parental Type). 
+ Loosely Linked (Walking Apart) 
+ If they walk far apart, a group of people (Crossover) can easily come between them, separating them into different groups (Recombinant Type).",,https://youtube.com/watch?v=8vj9e1DQ3aA,
+Transcription: Prokaryotes vs Eukaryotes,,,,"Transcription: Prokaryotes vs Eukaryotes 
+ Core Concept 
+ Bacteria run a ""Live Broadcast"" (simultaneous transcription/translation), while Eukaryotes produce a ""Movie"" (filmed, edited, then released). 
+ I. Prokaryotes: Efficiency First 
+ In bacteria (prokaryotes), there is no nucleus. DNA is in the cytoplasm. This means ribosomes can attach to mRNA while it is still being made .
+ • Polycistronic mRNA: One mRNA file contains recipes for multiple proteins.
+ • No Processing: The mRNA is ready to use immediately. No splicing needed.
+ II. Eukaryotes: Quality Control 
+ In humans (eukaryotes), DNA is locked in the library (nucleus). mRNA must be processed before it can leave.
+ 1. Capping (5') 
+ Adding a safety helmet to the start so the ribosome recognizes it. 
+ 2. Splicing 
+ Cutting out ""ads"" (Introns) and gluing the movie scenes (Exons) together. 
+ 3. Tailing (3') 
+ Adding a long tail (Poly-A) to prevent degradation in the cytoplasm.",,https://youtube.com/watch?v=JQP_yTeK-s,
+Lac Operon,,,,"Gene Regulation: The Lac Operon 
+ Bacteria don't waste energy. They only build lactose-digesting tools when lactose is actually present.
+ Analogy: The Motion Sensor Light 
+ Imagine a hallway light (the Genes) that you want on ONLY when someone is there (Lactose).
+ Repressor (The Switch Guard): Normally blocks the switch so the light stays OFF. 
+ Lactose (The Person): When present, it bumps into the Guard, distracting them. The switch is free! 
+ RNA Polymerase (The Electrician): Sees the switch is free and turns the light ON. 
+ The Logic Gate 
+ The system is a simple negative feedback loop: 
+ • No Lactose: Repressor binds Operator &rarr; No RNA made.
+ • Lactose Present: Lactose binds Repressor &rarr; Repressor falls off &rarr; RNA is made!",,https://youtube.com/watch?v=h_1QLdtF8d0,
+Machinery of Transcription (Replication Fork),,,,"The Machinery of Replication 
+ Copying 3 billion letters without mistakes requires a specialized construction crew.
+ Helicase 
+ The ""Zipper Buster"". Unzips the double helix. 
+ DNA Polymerase 
+ The ""Builder"". Adds new nucleotides. 
+ Primase 
+ The ""Flag Planter"". Marks where to start. 
+ Ligase 
+ The ""Gluer"". Connects the fragments. 
+ The Directionality Problem 
+ DNA Polymerase can only build in one direction (5' to 3'). This creates a traffic problem! 
+ Leading Strand (Easy Mode) 
+ Follows the Helicase smoothly. Like driving on an empty highway. 
+ Lagging Strand (Hard Mode) 
+ Must be built backwards in chunks (Okazaki Fragments). Like paving a road while driving effectively in reverse!",,https://youtube.com/watch?v=TNKWgcFPHqw,
+RNA Interference (RNAi),,,,"RNA Interference: The Cell's Antivirus 
+ Key Concept: Silencing
+ RNAi is a natural system that destroys double-stranded RNA . Why? Because eukaryotes don't make double-stranded RNA! If the cell sees it, it assumes it's a virus. 
+ How it Works (The RISC Complex) 
+ • Detection: Cell spots dsRNA (common in viral replication).
+ • Dicing: An enzyme called Dicer cuts the dsRNA into small chunks (siRNA).
+ • Loading: These chunks are loaded into the RISC complex (a protein weapon).
+ • Targeting: RISC uses the siRNA as a ""Wanted Poster"". If it finds any matching mRNA, it slices it up!
+ // SECURITY ALERT 
+ Scanning for viral signatures... 
+ MATCH FOUND: viral_gene_expression.exe 
+ ACTION: DICER initiated. 
+ STATUS: Threat Neutralized.",,https://youtube.com/watch?v=cK-OGB1_ELE,
+Agrobacterium & Ti Plasmid,,,,"Agrobacterium: Nature's Genetic Engineer 
+ Long before humans invented CRISPR, this bacteria figured out how to insert its own DNA into plants.
+ The Trojan Horse Mechanism 
+ Agrobacterium tumifaciens infects plants. But unlike other germs that just steal food, Agrobacterium forces the plant to build a house for it . 
+ 1 
+ Ti Plasmid 
+ The bacteria carries a special ring of DNA called the Tumor-Inducing (Ti) Plasmid. 
+ 2 
+ T-DNA Transfer 
+ A specific section (T-DNA) is cut out and shot into the plant cell. 
+ 3 
+ Integration 
+ The T-DNA inserts itself RANDOMLY into the plant's own chromosomes! 
+ Biotech Application 
+ Scientists disable the tumor-causing genes in the Ti Plasmid and swap them for useful genes (like pest resistance). The bacteria then delivers OUR gene instead of its own!",,https://youtube.com/watch?v=U-i2f_J4z9g,
