@@ -208,5 +208,18 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_buffer_solutions.png',
         youtubeVideoIds: []
+    },
+    {
+        id: 'le-chatelier-equilibrium',
+        title: 'Effect of Concentration Change on Equilibrium',
+        subject: 'Chemistry',
+        unit: 'Unit VII',
+        chapter: 'Equilibrium',
+        description: 'Manipulate the Iron-Thiocyanate equilibrium with reagent droppers. Watch solution color shift as Qc races to match Kc in real time.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_le_chatelier.png',
+        youtubeVideoIds: []
     }
 ];

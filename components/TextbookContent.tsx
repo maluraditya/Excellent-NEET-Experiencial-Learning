@@ -911,6 +911,49 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
     );
   }
 
+  if (topic?.id === 'le-chatelier-equilibrium') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Le Chatelier's Principle: Effect of Concentration Change</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When a system at equilibrium is disturbed by changing the concentration of a reactant or product, it <strong>shifts to counteract the change</strong> and restore equilibrium.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Principle</h3>
+        <div className="my-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm text-amber-800"><strong>Le Chatelier's Principle:</strong> If a change is imposed on a system at equilibrium, the system adjusts to partially oppose the imposed change.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. How It Works (Q꜀ vs K꜀)</h3>
+        <p className="text-sm">For the reaction Fe³⁺ + SCN⁻ ⇌ [Fe(SCN)]²⁺:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-700 mb-2">🔶 <strong>Add reactant (Fe³⁺ or SCN⁻):</strong> Q꜀ drops below K꜀ → system shifts <span className="text-amber-600 font-bold">forward</span> → more red product forms.</p>
+          <p className="text-sm text-slate-700">🔷 <strong>Remove reactant:</strong> Q꜀ rises above K꜀ → system shifts <span className="text-blue-600 font-bold">backward</span> → red product decomposes, color fades to yellow.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Reaction Quotient</h3>
+        <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="font-mono text-lg text-purple-700 text-center">Q꜀ = [Fe(SCN)²⁺] / ([Fe³⁺][SCN⁻])</p>
+          <p className="text-sm text-purple-600 mt-2 text-center">
+            Q꜀ &lt; K꜀ → forward shift &nbsp;|&nbsp; Q꜀ &gt; K꜀ → backward shift &nbsp;|&nbsp; Q꜀ = K꜀ → equilibrium
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🏭 Haber Process (NH₃)</h4>
+          <p className="text-sm">NH₃ is continuously liquefied and removed from the reactor. By removing product, Q꜀ stays below K꜀, forcing N₂ + 3H₂ to keep reacting forward.</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🔥 Quicklime from Limestone</h4>
+          <p className="text-sm">CaCO₃ ⇌ CaO + CO₂. Blowing air through the kiln removes CO₂, driving the decomposition to completion.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 
   if (topic?.id === 'emi') {
