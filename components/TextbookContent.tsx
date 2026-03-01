@@ -953,6 +953,196 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic }) => {
       </div>
     );
   }
+  // --- UNIT VIII: ORGANIC CHEMISTRY ---
+
+  if (topic?.id === 'qualitative-analysis-organic') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Detection of Elements — Qualitative Analysis (Lassaigne's Test)</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Organic compounds are predominantly <strong>covalent</strong>. Standard inorganic qualitative tests rely on ionic reactions. To detect heteroatoms (N, S, Halogens, P), we must first <strong>convert them from covalent form into ionic form</strong>.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Detection of Carbon and Hydrogen</h3>
+        <p>
+          The organic compound is heated with <strong>Copper(II) oxide (CuO)</strong>, which acts as an oxidizing agent.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">C + 2CuO → 2Cu + CO₂</p>
+          <p className="font-mono text-lg text-brand-primary text-center">2H + CuO → Cu + H₂O</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">CO₂ turns lime water milky (CaCO₃). H₂O turns anhydrous CuSO₄ blue.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Lassaigne&apos;s Test (Sodium Fusion)</h3>
+        <p>
+          The organic compound is <strong>fused with metallic sodium</strong> at high temperature. Sodium is highly electropositive — at red heat, it breaks the covalent bonds and reacts with heteroatoms to form stable, water-soluble <strong>ionic sodium salts</strong>.
+        </p>
+        <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
+          <p className="font-mono text-sm text-emerald-700">For Nitrogen: Na + C + N → NaCN (Sodium cyanide)</p>
+          <p className="font-mono text-sm text-emerald-700">For Sulphur: 2Na + S → Na₂S (Sodium sulphide)</p>
+          <p className="font-mono text-sm text-emerald-700">For Halogen: Na + X → NaX (Sodium halide)</p>
+        </div>
+        <p className="text-sm text-slate-600 italic">The fused mass is extracted with boiling distilled water. This clear filtrate is the <strong>Sodium Fusion Extract (SFE)</strong>.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Test for Nitrogen (Prussian Blue)</h3>
+        <p>
+          The SFE is boiled with <strong>FeSO₄</strong> and then acidified with <strong>conc. H₂SO₄</strong>.
+        </p>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-sm text-blue-700">6CN⁻ + Fe²⁺ → [Fe(CN)₆]⁴⁻</p>
+          <p className="font-mono text-sm text-blue-700">3[Fe(CN)₆]⁴⁻ + 4Fe³⁺ → Fe₄[Fe(CN)₆]₃ · xH₂O</p>
+          <p className="text-sm text-blue-600 mt-2 font-bold text-center">Result: Brilliant Prussian Blue color</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Test for Sulphur</h3>
+        <ul className="list-disc pl-5 space-y-4 mb-6">
+          <li>
+            <strong>Lead Acetate Test:</strong> SFE + acetic acid + lead acetate → <strong>Black precipitate</strong> of PbS.
+            <span className="font-mono text-sm ml-2">S²⁻ + Pb²⁺ → PbS↓</span>
+          </li>
+          <li>
+            <strong>Nitroprusside Test:</strong> SFE + sodium nitroprusside → <strong>Violet color</strong>.
+            <span className="font-mono text-sm ml-2">S²⁻ + [Fe(CN)₅NO]²⁻ → [Fe(CN)₅NOS]⁴⁻</span>
+          </li>
+        </ul>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm text-amber-800"><strong>Special Case (N and S both present):</strong> NaSCN forms instead of NaCN and Na₂S. Adding Fe³⁺ gives a <strong>blood red</strong> color: Fe³⁺ + SCN⁻ → [Fe(SCN)]²⁺. No Prussian blue appears since free CN⁻ is absent.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Test for Halogens</h3>
+        <p>
+          The SFE is acidified with <strong>HNO₃</strong> (to remove CN⁻ and S²⁻ interference) and treated with <strong>AgNO₃</strong>.
+        </p>
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="text-sm text-red-800"><strong>⚠️ Critical:</strong> Must boil with HNO₃ first to expel HCN and H₂S. Otherwise, AgCN or Ag₂S precipitates interfere!</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-1">
+          <p className="text-sm text-slate-700"><strong>White ppt</strong> (soluble in NH₄OH) = Chlorine (AgCl)</p>
+          <p className="text-sm text-slate-700"><strong>Yellowish ppt</strong> (sparingly soluble) = Bromine (AgBr)</p>
+          <p className="text-sm text-slate-700"><strong>Yellow ppt</strong> (insoluble in NH₄OH) = Iodine (AgI)</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Test for Phosphorus</h3>
+        <p className="text-sm">
+          The compound is heated with Na₂O₂, converting P → PO₄³⁻. Boiling with HNO₃ and adding ammonium molybdate yields a <strong>yellow precipitate</strong> of (NH₄)₃PO₄·12MoO₃.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Applications</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🥜 The Walnut Shell Analogy</h4>
+          <p className="text-sm">
+            An organic compound is a tough walnut (covalent bonds), and the elements inside (N, S, Cl) are the nutmeat. Fusing with Na is like smashing the walnut — it breaks the covalent &ldquo;shell&rdquo; and releases elements as free ions your reagents can detect.
+          </p>
+        </div>
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🔍 Forensic Toxicology</h4>
+          <p className="text-sm">
+            Toxicologists use elemental analysis to identify unknown synthetic drugs. Detecting chlorine points to chloroform or sedatives; nitrogen suggests alkaloids or amphetamines.
+          </p>
+        </div>
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">💊 Pharmaceutical Industry</h4>
+          <p className="text-sm">
+            When a new drug is synthesized, chemists perform these elemental tests to verify that the desired heteroatoms were successfully incorporated into the molecular structure.
+          </p>
+        </div>
+        <div className="bg-purple-50 p-6 rounded-xl border-l-4 border-purple-500 my-4">
+          <h4 className="font-bold text-purple-900 mb-2">🌾 Agricultural Chemistry</h4>
+          <p className="text-sm">
+            Detecting organic phosphorus is crucial for evaluating soil quality and pesticide residues. The yellow ammonium phosphomolybdate test is a standard method for organophosphates.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'quantitative-analysis-organic') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Estimation of C, H, N, S & Halogens — Quantitative Analysis (Liebig's Method)</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Once an organic compound is purified and its elements are <strong>qualitatively identified</strong>, the next step is to determine the <strong>exact mass percentage</strong> of each element. This data is the foundation for calculating empirical and molecular formulas.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Estimation of Carbon and Hydrogen (Liebig&apos;s Combustion)</h3>
+        <p>
+          A known mass (<strong>m</strong>) of the compound is burnt in excess pure oxygen with heated <strong>CuO</strong> (oxidizing agent). All Carbon &rarr; CO₂ and all Hydrogen &rarr; H₂O.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">C<sub>x</sub>H<sub>y</sub> + (x + y/4) O₂ &rarr; x CO₂ + (y/2) H₂O</p>
+        </div>
+        <p className="text-sm"><strong>Trapping the Gases:</strong> The mixture passes through two weighed U-tubes connected <em>in series</em>:</p>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li><strong>Tube 1 — Anhydrous CaCl₂:</strong> Absorbs only H₂O vapour. Mass increase = m₁.</li>
+          <li><strong>Tube 2 — Conc. KOH:</strong> Absorbs CO₂ gas (forms K₂CO₃). Mass increase = m₂.</li>
+        </ul>
+
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="text-sm text-red-800"><strong>⚠️ Critical Order:</strong> CaCl₂ must come <em>before</em> KOH. If KOH is placed first, it absorbs both H₂O and CO₂, making the Carbon calculation artificially high!</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Formulas</h3>
+        <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
+          <p className="font-mono text-lg text-emerald-700 text-center">%H = (2/18) &times; (m₁/m) &times; 100</p>
+          <p className="text-sm text-emerald-600 text-center">1 mol H₂O (18g) contains 2g of Hydrogen</p>
+        </div>
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-2">
+          <p className="font-mono text-lg text-blue-700 text-center">%C = (12/44) &times; (m₂/m) &times; 100</p>
+          <p className="text-sm text-blue-600 text-center">1 mol CO₂ (44g) contains 12g of Carbon</p>
+        </div>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm text-purple-800"><strong>If %C + %H &lt; 100%:</strong> The difference is attributed to <strong>Oxygen</strong> (by difference method).</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Estimation of Nitrogen</h3>
+        <ul className="list-disc pl-5 space-y-4 mb-6">
+          <li>
+            <strong>Dumas Method:</strong> Compound heated with CuO in CO₂ atmosphere. Nitrogen &rarr; N₂ gas. Oxides of nitrogen reduced by heated copper gauze. N₂ collected over KOH (absorbs CO₂) and measured by volume.
+          </li>
+          <li>
+            <strong>Kjeldahl&apos;s Method:</strong> Compound boiled with conc. H₂SO₄ &rarr; (NH₄)₂SO₄. Heated with excess NaOH &rarr; NH₃ gas. NH₃ absorbed in standard H₂SO₄ and back-titrated.
+            <div className="my-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-xs text-amber-800"><strong>Limitation:</strong> Not applicable for compounds with nitro groups, azo groups, or ring nitrogen (e.g., pyridine), as they don&apos;t convert to (NH₄)₂SO₄.</p>
+            </div>
+          </li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Estimation of Halogens and Sulphur (Carius Method)</h3>
+        <ul className="list-disc pl-5 space-y-4 mb-6">
+          <li>
+            <strong>Halogens:</strong> Heated with fuming HNO₃ + AgNO₃ in a sealed Carius tube. Halogen &rarr; AgX precipitate (filtered, dried, weighed).
+          </li>
+          <li>
+            <strong>Sulphur:</strong> Heated with fuming HNO₃ or Na₂O₂. S &rarr; H₂SO₄ &rarr; add BaCl₂ &rarr; <strong>BaSO₄ precipitate</strong> (weighed).
+          </li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🪙 The Coin Sorter Analogy</h4>
+          <p className="text-sm">
+            Imagine a sealed piggy bank (the compound) filled with dimes (Carbon) and pennies (Hydrogen). You break it open (combust with CuO), and the contents flow down a chute. The first slot catches only pennies (CaCl₂ traps H₂O), the second catches dimes (KOH traps CO₂). Weighing each slot gives you the exact percentage.
+          </p>
+        </div>
+        <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500 my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🛢️ Petrochemical Engineering</h4>
+          <p className="text-sm">
+            Petroleum engineers determine the exact C:H ratio of crude oil. A higher hydrogen-to-carbon ratio means cleaner burning fuel and higher-grade gasoline. Automated CHN analyzers are based on these combustion principles.
+          </p>
+        </div>
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">🌾 Food &amp; Agriculture (Kjeldahl Method)</h4>
+          <p className="text-sm">
+            The Kjeldahl method is the global standard for determining protein content in food, grains, and fertilizers. Since proteins contain a specific percentage of nitrogen, finding %N directly reveals nutritional protein value.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
 
   // --- UNIT VI-IX: PHYSICS TOPICS ---
 

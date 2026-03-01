@@ -221,5 +221,31 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_le_chatelier.png',
         youtubeVideoIds: []
+    },
+    {
+        id: 'qualitative-analysis-organic',
+        title: 'Detection of Elements — Qualitative Analysis (Lassaigne\'s Test)',
+        subject: 'Chemistry',
+        unit: 'Unit VIII',
+        chapter: 'Organic Chemistry – Some Basic Principles and Techniques',
+        description: 'Master Lassaigne\'s Test. Experience why covalent organic compounds must undergo sodium fusion before testing for Nitrogen, Sulphur, and Halogens.',
+        thumbnailIcon: 'Activity',
+        branch: 'Organic Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_qualitative_analysis.png',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'quantitative-analysis-organic',
+        title: 'Estimation of C, H, N, S & Halogens — Quantitative Analysis (Liebig\'s Method)',
+        subject: 'Chemistry',
+        unit: 'Unit VIII',
+        chapter: 'Organic Chemistry – Some Basic Principles and Techniques',
+        description: 'Build Liebig\'s combustion train, trap invisible gases, and deduce the empirical formula from mass data using the Liebig method.',
+        thumbnailIcon: 'Activity',
+        branch: 'Organic Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_quantitative_analysis.png',
+        youtubeVideoIds: []
     }
 ];
