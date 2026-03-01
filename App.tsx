@@ -390,7 +390,6 @@ const App: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <h1 className="text-base sm:text-xl font-display font-bold text-white tracking-wide leading-tight">Excellent Academy</h1>
-              <p className="text-[9px] sm:text-[10px] text-brand-secondary font-bold uppercase tracking-widest">Digital Learning Series</p>
             </div>
           </div>
 
