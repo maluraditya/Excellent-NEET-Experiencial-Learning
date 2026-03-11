@@ -32,14 +32,14 @@ import GeometricalIsomerismCanvas from './components/grade-11/chemistry/Geometri
 
 
 // Grade 12 - Physics
-import ElectromagneticInductionCanvas from './components/grade-12/physics/ElectromagneticInductionCanvas';
-import AlternatingCurrentCanvas from './components/grade-12/physics/AlternatingCurrentCanvas';
-import EMWavesCanvas from './components/grade-12/physics/EMWavesCanvas';
-import RayOpticsCanvas from './components/grade-12/physics/RayOpticsCanvas';
-import WaveOpticsCanvas from './components/grade-12/physics/WaveOpticsCanvas';
-import PhotoelectricCanvas from './components/grade-12/physics/PhotoelectricCanvas';
-import AtomsCanvas from './components/grade-12/physics/AtomsCanvas';
-import SemiconductorCanvas from './components/grade-12/physics/SemiconductorCanvas';
+import ElectromagneticInductionLab from './components/grade-12/physics/ElectromagneticInductionLab';
+import AlternatingCurrentLab from './components/grade-12/physics/AlternatingCurrentLab';
+import EMWavesLab from './components/grade-12/physics/EMWavesLab';
+import RayOpticsLab from './components/grade-12/physics/RayOpticsLab';
+import WaveOpticsLab from './components/grade-12/physics/WaveOpticsLab';
+import PhotoelectricLab from './components/grade-12/physics/PhotoelectricLab';
+import AtomsLab from './components/grade-12/physics/AtomsLab';
+import SemiconductorLab from './components/grade-12/physics/SemiconductorLab';
 
 // Grade 12 - Chemistry
 import CollisionCanvas from './components/grade-12/chemistry/CollisionCanvas';
@@ -155,10 +155,8 @@ const App: React.FC = () => {
 
 
 
-  const [emiSpeed, setEmiSpeed] = useState(2);
-  const [transformerConfig, setTransformerConfig] = useState({ np: 100, ns: 200 });
-  const [opticsDevice, setOpticsDevice] = useState<'convex_lens' | 'concave_lens' | 'prism'>('convex_lens');
-  const [photoelectricConfig, setPhotoelectricConfig] = useState({ frequency: 2, intensity: 5 });
+
+
   const [isSimulationFullscreen, setIsSimulationFullscreen] = useState(false);
 
 
@@ -1563,456 +1561,205 @@ const App: React.FC = () => {
 
         {/* ================== PHYSICS SIMULATIONS ================== */}
 
-        {/* 1. EMI */}
+        {/* 1. ELECTROMAGNETIC INDUCTION */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'emi' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Magnet size={18} className="text-brand-secondary" /> Faraday's Law & AC Generator
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[650px] bg-slate-900 rounded-b-xl overflow-hidden">
-                  <ElectromagneticInductionCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <ElectromagneticInductionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
         )}
 
         {/* 2. AC */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ac' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Transformer Lab
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[400px] bg-white">
-                  <AlternatingCurrentCanvas primaryTurns={transformerConfig.np} secondaryTurns={transformerConfig.ns} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200 grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Primary Turns (Np): {transformerConfig.np}</label>
-                    <input
-                      type="range" min="50" max="300" step="10"
-                      value={transformerConfig.np}
-                      onChange={(e) => setTransformerConfig(p => ({ ...p, np: Number(e.target.value) }))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Secondary Turns (Ns): {transformerConfig.ns}</label>
-                    <input
-                      type="range" min="50" max="300" step="10"
-                      value={transformerConfig.ns}
-                      onChange={(e) => setTransformerConfig(p => ({ ...p, ns: Number(e.target.value) }))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ac' && (
+            <AlternatingCurrentLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 3. EM WAVES */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'em_waves' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> EM Wave Propagation
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[400px] bg-slate-50">
-                  <EMWavesCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'em_waves' && (
+            <EMWavesLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 4. RAY OPTICS */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ray_optics' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Layers size={18} className="text-brand-secondary" /> Optics Workbench
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[400px] bg-white">
-                  <RayOpticsCanvas device={opticsDevice} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-center gap-4">
-                  {['convex_lens', 'concave_lens', 'prism'].map(d => (
-                    <button
-                      key={d}
-                      onClick={() => setOpticsDevice(d as any)}
-                      className={`px - 4 py - 2 rounded - lg font - bold capitalize ${opticsDevice === d ? 'bg-brand-primary text-white shadow' : 'bg-white border text-slate-500'} `}
-                    >
-                      {d.replace('_', ' ')}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ray_optics' && (
+            <RayOpticsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 5. WAVE OPTICS */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'wave_optics' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Layers size={18} className="text-brand-secondary" /> Wave Optics (YDSE)
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[400px] bg-slate-900">
-                  <WaveOpticsCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'wave_optics' && (
+            <WaveOpticsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 6. PHOTOELECTRIC EFFECT */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'dual_nature' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Photoelectric Effect
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[400px] bg-slate-900">
-                  <PhotoelectricCanvas frequency={photoelectricConfig.frequency} intensity={photoelectricConfig.intensity} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200 grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Frequency (ν)</label>
-                    <input
-                      type="range" min="1" max="10" step="0.5"
-                      value={photoelectricConfig.frequency}
-                      onChange={(e) => setPhotoelectricConfig(p => ({ ...p, frequency: Number(e.target.value) }))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Intensity</label>
-                    <input
-                      type="range" min="1" max="10"
-                      value={photoelectricConfig.intensity}
-                      onChange={(e) => setPhotoelectricConfig(p => ({ ...p, intensity: Number(e.target.value) }))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-yellow-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'dual_nature' && (
+            <PhotoelectricLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 7. ATOMS */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atoms' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6" id="tour-simulation">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Box size={18} className="text-brand-secondary" /> Alpha Scattering (Rutherford)
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[700px] bg-slate-900">
-                  <AtomsCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atoms' && (
+            <AtomsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 8. SEMICONDUCTORS */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'semiconductors' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Grid size={18} className="text-brand-secondary" /> P-N Junction
-                  </h3>
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[650px] bg-slate-900 rounded-xl overflow-hidden">
-                  <SemiconductorCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'semiconductors' && (
+            <SemiconductorLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 9. MECHANICAL PROPERTIES OF SOLIDS (CLASS 11) */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'mechanical-properties-solids' && (
-          <TensileTestCanvas
-            topic={currentTopics.find(t => t.id === activeTopicId)!}
-            onExit={goHome}
-          />
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'mechanical-properties-solids' && (
+            <TensileTestCanvas
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 10. HYDROGEN SPECTRUM (CLASS 11) */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'hydrogen-spectrum' && (
-          <HydrogenSpectrumLab
-            topic={currentTopics.find(t => t.id === activeTopicId)!}
-            onExit={goHome}
-          />
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'hydrogen-spectrum' && (
+            <HydrogenSpectrumLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* 11. SHAPES OF ATOMIC ORBITALS (CLASS 11) */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atomic-orbitals' && (
-          <AtomicOrbitalsLab
-            topic={currentTopics.find(t => t.id === activeTopicId)!}
-            onExit={goHome}
-          />
-        )}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atomic-orbitals' && (
+            <AtomicOrbitalsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
 
         {/* ================== ASSISTANT ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'rnai' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> RNA Interference Game
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Cell Defense
-                  </div>
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'rnai' && (
+            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                  <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+                </div>
+                <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
+                  <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                    <h3 className="font-display font-bold text-white flex items-center gap-2">
+                      <Activity size={18} className="text-brand-secondary" /> RNA Interference Game
+                    </h3>
+                    <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
+                      Cell Defense
+                    </div>
 
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
+                    <button
+                      onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                      title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                    >
+                      {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                    </button>
+                  </div>
+                  <div className="relative h-[550px] bg-slate-900">
+                    <RNAiCanvas />
+                  </div>
                 </div>
-                <div className="relative h-[550px] bg-slate-900">
-                  <RNAiCanvas />
+              </div>
+              <div className="lg:col-span-5 relative">
+                <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                    <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        }
 
         {/* ================== Ti PLASMID SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ti_plasmid' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Agrobacterium Transformation
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Biotechnology
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ti_plasmid' && (
+            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
+                  <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
+                </div>
+                <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
+                  <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
+                    <h3 className="font-display font-bold text-white flex items-center gap-2">
+                      <Activity size={18} className="text-brand-secondary" /> Agrobacterium Transformation
+                    </h3>
+                    <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
+                      Biotechnology
+                    </div>
+
+                    <button
+                      onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
+                      title={isSimulationFullscreen ? "Minimize" : "Maximize"}
+                    >
+                      {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
+                  <div className="relative h-[550px] bg-emerald-50">
+                    <TiPlasmidCanvas />
+                  </div>
                 </div>
-                <div className="relative h-[550px] bg-emerald-50">
-                  <TiPlasmidCanvas />
+              </div>
+              <div className="lg:col-span-5 relative">
+                <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
+                    <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        }
 
-      </main>
+      </main >
 
       {/* AI Assistant */}
-      <Assistant contextData={aiContext} />
+      < Assistant contextData={aiContext} />
 
       {/* --- FOOTER --- */}
-      <footer className="relative bg-slate-950 py-14 mt-16 overflow-hidden">
+      < footer className="relative bg-slate-950 py-14 mt-16 overflow-hidden" >
         {/* Subtle gradient glow behind content */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/5 via-transparent to-transparent pointer-events-none" />
+        < div className="absolute inset-0 bg-gradient-to-t from-brand-primary/5 via-transparent to-transparent pointer-events-none" />
 
         <div className="relative z-10 text-center space-y-5">
           {/* Logo + Brand */}
@@ -2036,9 +1783,9 @@ const App: React.FC = () => {
             Building the future of education
           </p>
         </div>
-      </footer>
+      </footer >
 
-    </div>
+    </div >
   );
 };
 
