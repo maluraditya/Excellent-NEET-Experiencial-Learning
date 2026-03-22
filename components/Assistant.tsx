@@ -12,7 +12,19 @@ const Assistant: React.FC<AssistantProps> = ({ contextData }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -79,7 +91,9 @@ const Assistant: React.FC<AssistantProps> = ({ contextData }) => {
               </div>
               <div>
                 <h3 className="font-display font-bold text-lg leading-tight">AI Tutor</h3>
-                <p className="text-xs text-white/80 font-medium">Always here to help</p>
+                <p className="text-xs text-white/80 font-medium">
+                  {isOffline ? 'Offline Mode' : 'Always here to help'}
+                </p>
               </div>
             </div>
             <button onClick={() => setMessages([])} className="text-xs text-white/60 hover:text-white underline">
@@ -160,12 +174,13 @@ const Assistant: React.FC<AssistantProps> = ({ contextData }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Type your question..."
-                className="flex-1 bg-slate-100 border-none rounded-xl pl-4 pr-12 py-3 text-sm focus:ring-2 focus:ring-brand-primary/20 focus:bg-white transition-all outline-none text-slate-800 placeholder:text-slate-400"
+                placeholder={isOffline ? "AI requires internet..." : "Type your question..."}
+                disabled={isOffline}
+                className="flex-1 bg-slate-100 border-none rounded-xl pl-4 pr-12 py-3 text-sm focus:ring-2 focus:ring-brand-primary/20 focus:bg-white transition-all outline-none text-slate-800 placeholder:text-slate-400 disabled:opacity-50"
               />
               <button 
                 onClick={() => handleSend()}
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || !input.trim() || isOffline}
                 className="absolute right-2 top-1.5 p-1.5 bg-brand-primary text-white rounded-lg hover:bg-brand-dark disabled:opacity-50 disabled:hover:bg-brand-primary transition-colors shadow-sm"
               >
                 <Send size={18} />
