@@ -437,12 +437,6 @@ const App: React.FC = () => {
             </span>
           </nav>
         </div>
-        {!isOnline && (
-          <div className="bg-amber-500 text-white text-[10px] font-bold py-1 px-4 flex items-center justify-center gap-2 animate-pulse">
-            <AlertTriangle size={12} />
-            OFFLINE MODE — YOU ARE VIEWING CONTENT FROM LOCAL CACHE
-          </div>
-        )}
       </header>
 
       {/* --- BREADCRUMBS --- */}

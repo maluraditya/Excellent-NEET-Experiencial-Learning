@@ -337,8 +337,8 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 </span>
             </div>
 
-            <div className="flex-1 relative min-h-[300px]">
-                <canvas ref={canvasRef} className="absolute inset-0 w-full h-full bg-white object-contain" />
+            <div className="flex-1 relative">
+                <canvas ref={canvasRef} className="absolute inset-0 w-full h-full bg-white" />
                 <div className="absolute top-2 right-2 flex flex-col gap-2">
                     <div className="bg-white/90 backdrop-blur-sm rounded-lg p-2 text-xs shadow-lg border border-slate-200">
                         <div className="font-bold text-slate-700 mb-1 text-[10px] uppercase">Particle Legend</div>
@@ -353,7 +353,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
             </div>
 
             <div className="h-28 bg-slate-50 border-t border-slate-200 shrink-0">
-                <canvas ref={graphCanvasRef} width={800} height={112} className="w-full h-full object-contain" />
+                <canvas ref={graphCanvasRef} width={800} height={112} className="w-full h-full" />
             </div>
         </div>
     );
@@ -413,10 +413,10 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                         ) : null}
 
                         <ul className="text-xs text-slate-600 space-y-2 font-medium">
-                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'diffusion' ? 'bg-blue-100 text-blue-900 border border-blue-200' : ''}`}><span className="text-blue-500 mt-0.5">•</span> <strong>Diffusion (🔀):</strong> Majority carriers cross the junction.</li>
-                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'depletion' ? 'bg-yellow-100 text-yellow-900 border border-yellow-300' : ''}`}><span className="text-yellow-600 mt-0.5">•</span> <strong>Depletion (⚡):</strong> Recombination creates an ion zone lacking free carriers.</li>
-                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'efield' ? 'bg-red-100 text-red-900 border border-red-200' : ''}`}><span className="text-red-500 mt-0.5">•</span> <strong>E-Field (🔋):</strong> Uncovered ions form a barrier potential (V₀) that resists diffusion.</li>
-                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'equilibrium' ? 'bg-purple-100 text-purple-900 border border-purple-200' : ''}`}><span className="text-purple-600 mt-0.5">•</span> <strong>Equilibrium (⚖️):</strong> Net current becomes zero.</li>
+                            <li className="flex items-start gap-2 p-1"><span className="text-blue-500 mt-0.5">•</span> <strong>Diffusion (🔀):</strong> Majority carriers cross the junction.</li>
+                            <li className="flex items-start gap-2 p-1"><span className="text-yellow-600 mt-0.5">•</span> <strong>Depletion (⚡):</strong> Recombination creates an ion zone lacking free carriers.</li>
+                            <li className="flex items-start gap-2 p-1"><span className="text-red-500 mt-0.5">•</span> <strong>E-Field (🔋):</strong> Uncovered ions form a barrier potential (V₀) that resists diffusion.</li>
+                            <li className="flex items-start gap-2 p-1"><span className="text-purple-600 mt-0.5">•</span> <strong>Equilibrium (⚖️):</strong> Net current becomes zero.</li>
                         </ul>
                     </div>
                 </div>
