@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
           },
           workbox: {
             globPatterns: ['**/*.{js,css,html,ico,png,svg,json,tsx,ts,json}'],
+            cleanupOutdatedCaches: true,
+            clientsClaim: true,
+            skipWaiting: true,
             runtimeCaching: [
               {
                 urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -45,7 +48,7 @@ export default defineConfig(({ mode }) => {
                   cacheName: 'google-fonts-cache',
                   expiration: {
                     maxEntries: 10,
-                    maxAgeSeconds: 60 * 60 * 24 * 365 // < 365 days
+                    maxAgeSeconds: 60 * 60 * 24 * 365
                   },
                   cacheableResponse: {
                     statuses: [0, 200]
@@ -59,7 +62,7 @@ export default defineConfig(({ mode }) => {
                   cacheName: 'google-fonts-online',
                   expiration: {
                     maxEntries: 10,
-                    maxAgeSeconds: 60 * 60 * 24 * 365 // < 365 days
+                    maxAgeSeconds: 60 * 60 * 24 * 365
                   },
                   cacheableResponse: {
                     statuses: [0, 200]
@@ -81,6 +84,11 @@ export default defineConfig(({ mode }) => {
                 }
               }
             ]
+          },
+          devOptions: {
+            enabled: true,
+            type: 'module',
+            navigateFallback: 'index.html'
           }
         })
       ],
