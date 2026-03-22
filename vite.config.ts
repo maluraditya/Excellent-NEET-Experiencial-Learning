@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: './',
+      base: '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -15,8 +15,10 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'autoUpdate',
+          injectRegister: 'script',
           includeAssets: ['logo.png', 'images/**/*'],
           manifest: {
+            id: '/',
             name: 'Excellent Academy Digital Textbook',
             short_name: 'Excellent Academy',
             description: 'Immersive, experiential learning platform for Science',
@@ -37,7 +39,8 @@ export default defineConfig(({ mode }) => {
             ]
           },
           workbox: {
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,json,tsx,ts,json}'],
+            globPatterns: ['**/*.{js,css,html,ico,png,svg,json,manifest,webmanifest}'],
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
             cleanupOutdatedCaches: true,
             clientsClaim: true,
             skipWaiting: true,
