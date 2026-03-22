@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => {
           includeAssets: ['logo.png', 'images/**/*'],
           manifest: {
             id: '/',
+            start_url: '/',
+            scope: '/',
             name: 'Excellent Academy Digital Textbook',
             short_name: 'Excellent Academy',
             description: 'Immersive, experiential learning platform for Science',
