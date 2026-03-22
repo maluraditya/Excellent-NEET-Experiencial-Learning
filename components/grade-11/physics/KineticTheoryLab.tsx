@@ -134,10 +134,10 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
 
         const halfW = (W - pad * 3) / 2;
 
-        // ─── LEFT PANEL: GAS CHAMBER ───
+        // ─── MAIN PANEL: GAS CHAMBER ───
         const chamberPanelX = pad;
         const chamberPanelY = pad * 2.5;
-        const chamberPanelW = halfW;
+        const chamberPanelW = W - pad * 2; // Full width instead of halfW
         const chamberPanelH = H - pad * 3.5;
 
         ctx.fillStyle = '#ffffff';
@@ -251,78 +251,18 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
             roundRect(ctx, chamberX, fY, chamberW, fH, 12); ctx.fill();
             ctx.strokeStyle = '#d97706'; ctx.lineWidth = 2;
             roundRect(ctx, chamberX, fY, chamberW, fH, 12); ctx.stroke();
-            ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'center';
-            ctx.fillText('P = ⅓ n m ⟨v²⟩', chamberX + chamberW / 2, fY + fH * 0.45);
+            
+            // Draw formula on the left
+            ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'left';
+            ctx.fillText('P = ⅓ n m ⟨v²⟩', chamberX + pad * 2, fY + fH * 0.45);
             ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(12)}px sans-serif`;
-            ctx.fillText('Average KE = 3/2 kᵦT', chamberX + chamberW / 2, fY + fH * 0.8);
-        }
+            ctx.fillText('Average KE = 3/2 kᵦT', chamberX + pad * 2, fY + fH * 0.8);
 
-        // ─── RIGHT PANEL: PRESSURE vs TIME GRAPH ───
-        const gPanelX = pad * 2 + halfW;
-        const gx = gPanelX + pad * 3;
-        const gy = chamberPanelY + pad * 3;
-        const gPanelW = halfW;
-        const gPanelH = chamberPanelH;
-
-        ctx.fillStyle = '#ffffff';
-        roundRect(ctx, gPanelX, chamberPanelY, gPanelW, gPanelH, 16); ctx.fill();
-        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
-        roundRect(ctx, gPanelX, chamberPanelY, gPanelW, gPanelH, 16); ctx.stroke();
-
-        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(14)}px sans-serif`; ctx.textAlign = 'center';
-        ctx.fillText('IDEAL GAS PRESSURE MONITOR', gPanelX + gPanelW / 2, chamberPanelY + pad * 1.2);
-
-        const gw = gPanelW - pad * 5;
-        const gh = gPanelH * 0.6;
-
-        ctx.strokeStyle = '#334155'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx, gy + gh); ctx.lineTo(gx + gw, gy + gh); ctx.stroke();
-
-        ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(11)}px sans-serif`; ctx.textAlign = 'center';
-        ctx.fillText('Time →', gx + gw / 2, gy + gh + pad * 1.5);
-        ctx.save(); ctx.translate(gx - pad * 1.8, gy + gh / 2); ctx.rotate(-Math.PI / 2);
-        ctx.fillText('PRESSURE (P)', 0, 0); ctx.restore();
-
-        const gd_data = graphRef.current;
-        if (gd_data.length > 1) {
-            const maxP = Math.max(...gd_data.map(d => d.P)) * 1.2 || 1;
-            ctx.strokeStyle = '#d97706'; ctx.lineWidth = 3.5;
-            ctx.beginPath();
-            gd_data.forEach((d, i) => {
-                const px = gx + (i / (gd_data.length - 1)) * gw;
-                const py = gy + gh - (d.P / maxP) * gh;
-                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-            });
-            ctx.stroke();
-
-            const curPy = gy + gh - (P_val / maxP) * gh;
-            ctx.strokeStyle = 'rgba(217, 119, 6, 0.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]);
-            ctx.beginPath(); ctx.moveTo(gx, curPy); ctx.lineTo(gx + gw, curPy); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'right';
-            ctx.fillText(`P = ${P_val.toFixed(2)}`, gx + gw - 8, curPy - 10);
-        }
-
-        const cardY = gy + gh + pad * 3.2;
-        const cardH = chamberPanelY + gPanelH - cardY - pad;
-        if (cardH > 40) {
-            const cardW3 = (gPanelW - pad * 4.5) / 3;
-            const metrics = [
-                { label: 'TEMP', value: `${Math.round(s.T)} K`, color: '#dc2626' },
-                { label: 'MOLS', value: `${s.N}`, color: '#16a34a' },
-                { label: 'VOL', value: `${(s.volFrac * 100).toFixed(0)}%`, color: '#7c3aed' },
-            ];
-            metrics.forEach((v, i) => {
-                const cx_val = gPanelX + pad + i * (cardW3 + pad * 0.9);
-                ctx.fillStyle = '#f8fafc';
-                roundRect(ctx, cx_val, cardY, cardW3, cardH, 10); ctx.fill();
-                ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
-                roundRect(ctx, cx_val, cardY, cardW3, cardH, 10); ctx.stroke();
-                ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(10)}px sans-serif`; ctx.textAlign = 'center';
-                ctx.fillText(v.label, cx_val + cardW3 / 2, cardY + cardH * 0.4);
-                ctx.fillStyle = v.color; ctx.font = `bold ${fs(18)}px monospace`;
-                ctx.fillText(v.value, cx_val + cardW3 / 2, cardY + cardH * 0.8);
-            });
+            // Draw current stats on the right inside this bottom panel
+            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(18)}px monospace`; ctx.textAlign = 'right';
+            ctx.fillText(`PRESSURE: ${P_val.toFixed(2)}`, chamberX + chamberW - pad * 2, fY + fH * 0.45);
+            ctx.fillStyle = '#16a34a'; ctx.font = `bold ${fs(14)}px monospace`;
+            ctx.fillText(`MOLS: ${s.N}`, chamberX + chamberW - pad * 2, fY + fH * 0.8);
         }
 
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(18)}px sans-serif`; ctx.textAlign = 'left';

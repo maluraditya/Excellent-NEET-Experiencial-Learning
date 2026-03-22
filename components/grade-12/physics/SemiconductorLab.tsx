@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Eye, EyeOff, HelpCircle, Activity } from 'lucide-react';
+import { Play, Pause, RotateCcw, Eye, EyeOff, Activity, FastForward, SkipForward } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 
 interface Particle {
@@ -10,6 +10,8 @@ interface Particle {
     active: boolean;
     flashTimer?: number;
 }
+
+type Phase = 'initial' | 'diffusion' | 'depletion' | 'efield' | 'equilibrium';
 
 interface SemiconductorLabProps {
     topic: any;
@@ -24,14 +26,19 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     const [joined, setJoined] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
     const [showForces, setShowForces] = useState(true);
-    const [phase, setPhase] = useState<'initial' | 'diffusion' | 'depletion' | 'efield' | 'equilibrium'>('initial');
+    const [phase, setPhase] = useState<Phase>('initial');
     const [depletionWidth, setDepletionWidth] = useState(0);
+    
+    // Playback control state
+    const [playbackSpeed, setPlaybackSpeed] = useState(0.5); // 0.5 is the new default (slower)
+    const [stepMode, setStepMode] = useState(false);
 
     // Particle refs for animation
     const holesRef = useRef<Particle[]>([]);
     const electronsRef = useRef<Particle[]>([]);
-    const recombinationsRef = useRef<{ x: number, y: number, timer: number }[]>([]);
+    const recombinationsRef = useRef<{ x: number, y: number, timer: number, maxTimer: number }[]>([]);
     const minorityCarriersRef = useRef<Particle[]>([]);
+    const phaseTimerRef = useRef(0);
 
     const initParticles = useCallback(() => {
         const holes: Particle[] = [];
@@ -54,6 +61,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         electronsRef.current = electrons;
         recombinationsRef.current = [];
         minorityCarriersRef.current = [];
+        phaseTimerRef.current = 0;
     }, []);
 
     const handleReset = useCallback(() => {
@@ -61,6 +69,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         setPhase('initial');
         setDepletionWidth(0);
         setShowForces(true);
+        setIsPlaying(true);
         initParticles();
     }, [initParticles]);
 
@@ -96,6 +105,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         const render = () => {
             const width = canvas.width;
             const height = canvas.height;
+            if (width < 10 || height < 10) { animationRef.current = requestAnimationFrame(render); return; }
             const centerX = width / 2;
             ctx.clearRect(0, 0, width, height);
 
@@ -105,6 +115,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
             const ionSpacing = 40;
             const ionSize = joined ? 16 : 12;
 
+            // Draw Ions
             for (let x = 20; x < centerX - depletionWidth; x += ionSpacing) {
                 for (let y = 40; y < height - 20; y += ionSpacing) {
                     ctx.fillStyle = joined && x > centerX - depletionWidth - 60 ? '#64748b' : '#cbd5e1';
@@ -118,6 +129,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 }
             }
 
+            // Draw Depletion Region
             if (depletionWidth > 0) {
                 const gradient = ctx.createLinearGradient(centerX - depletionWidth, 0, centerX + depletionWidth, 0);
                 gradient.addColorStop(0, 'rgba(148, 163, 184, 0.3)');
@@ -148,19 +160,22 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 }
             }
 
+            // Speed factor
+            const speedScale = playbackSpeed;
+
             const updateParticle = (p: Particle, type: 'hole' | 'electron') => {
                 if (!p.active) return;
-                p.x += p.vx; p.y += p.vy;
+                p.x += p.vx * speedScale; p.y += p.vy * speedScale;
                 if (p.y < 30 || p.y > height - 30) p.vy *= -1;
 
                 if (!joined) {
                     if (type === 'hole' && p.x > centerX - 5) { p.x = centerX - 5; p.vx = -Math.abs(p.vx); }
                     if (type === 'electron' && p.x < centerX + 5) { p.x = centerX + 5; p.vx = Math.abs(p.vx); }
                 } else {
-                    if (type === 'hole' && p.x < centerX - depletionWidth) p.vx += 0.05;
-                    if (type === 'electron' && p.x > centerX + depletionWidth) p.vx -= 0.05;
-                    if (type === 'hole' && p.x > centerX - depletionWidth && depletionWidth > 20) p.vx = -Math.abs(p.vx) - 0.5;
-                    if (type === 'electron' && p.x < centerX + depletionWidth && depletionWidth > 20) p.vx = Math.abs(p.vx) + 0.5;
+                    if (type === 'hole' && p.x < centerX - depletionWidth) p.vx += 0.05 * speedScale;
+                    if (type === 'electron' && p.x > centerX + depletionWidth) p.vx -= 0.05 * speedScale;
+                    if (type === 'hole' && p.x > centerX - depletionWidth && depletionWidth > 20) p.vx = -Math.abs(p.vx) - 0.5 * speedScale;
+                    if (type === 'electron' && p.x < centerX + depletionWidth && depletionWidth > 20) p.vx = Math.abs(p.vx) + 0.5 * speedScale;
 
                     if (p.x < 20) { p.x = 20; p.vx = Math.abs(p.vx); }
                     if (p.x > width - 20) { p.x = width - 20; p.vx = -Math.abs(p.vx); }
@@ -174,14 +189,27 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 else { ctx.fillStyle = '#be185d'; ctx.fill(); }
             };
 
-            if (joined && depletionWidth < 80) {
+            // Calculate state transitions
+            if (joined && !stepMode) {
+                phaseTimerRef.current += speedScale;
+                const pt = phaseTimerRef.current;
+                
+                if (phase === 'diffusion' && pt > 150) setPhase('depletion');
+                if (phase === 'depletion' && pt > 350) setPhase('efield');
+                if (phase === 'efield' && pt > 600) setPhase('equilibrium');
+            }
+
+            // Recombination logic
+            if (joined && depletionWidth < 80 && (phase === 'depletion' || phase === 'efield' || (!stepMode && phaseTimerRef.current > 100))) {
                 holesRef.current.forEach((hole) => {
                     if (!hole.active) return;
                     electronsRef.current.forEach((electron) => {
                         if (!electron.active) return;
                         if (Math.hypot(hole.x - electron.x, hole.y - electron.y) < 15 && Math.abs(hole.x - centerX) < 100 && Math.abs(electron.x - centerX) < 100) {
                             hole.active = false; electron.active = false;
-                            recombinationsRef.current.push({ x: (hole.x + electron.x) / 2, y: (hole.y + electron.y) / 2, timer: 30 });
+                            // Flash duration scales inversely with speed so it's always visible
+                            const flashLen = Math.max(30, 60 / speedScale); 
+                            recombinationsRef.current.push({ x: (hole.x + electron.x) / 2, y: (hole.y + electron.y) / 2, timer: flashLen, maxTimer: flashLen });
                             setDepletionWidth(prev => Math.min(prev + 2, 80));
                         }
                     });
@@ -191,11 +219,12 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
             holesRef.current.forEach(p => updateParticle(p, 'hole'));
             electronsRef.current.forEach(p => updateParticle(p, 'electron'));
 
+            // Render flashes
             recombinationsRef.current = recombinationsRef.current.filter(r => {
-                r.timer--;
+                r.timer -= speedScale;
                 if (r.timer > 0) {
-                    const alpha = r.timer / 30;
-                    ctx.beginPath(); ctx.arc(r.x, r.y, (30 - r.timer) * 0.8, 0, Math.PI * 2);
+                    const alpha = r.timer / r.maxTimer;
+                    ctx.beginPath(); ctx.arc(r.x, r.y, (r.maxTimer - r.timer) * 0.4, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(250, 204, 21, ${alpha})`; ctx.fill();
                     ctx.strokeStyle = `rgba(234, 179, 8, ${alpha})`; ctx.lineWidth = 2; ctx.stroke();
                     return true;
@@ -203,14 +232,14 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 return false;
             });
 
-            if (joined && depletionWidth > 40 && Math.random() < 0.005) {
+            if (joined && depletionWidth > 40 && Math.random() < 0.005 * speedScale) {
                 minorityCarriersRef.current.push({ x: width - 50, y: Math.random() * 300 + 50, vx: -2, vy: (Math.random() - 0.5) * 2, active: true });
             }
 
             minorityCarriersRef.current = minorityCarriersRef.current.filter(p => {
                 if (p.x < centerX - depletionWidth || p.x > width) return false;
-                if (p.x < centerX + depletionWidth && p.x > centerX - depletionWidth) p.vx -= 0.3;
-                p.x += p.vx; p.y += p.vy;
+                if (p.x < centerX + depletionWidth && p.x > centerX - depletionWidth) p.vx -= 0.3 * speedScale;
+                p.x += p.vx * speedScale; p.y += p.vy * speedScale;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.stroke();
                 return p.x > centerX - depletionWidth - 50;
             });
@@ -279,40 +308,46 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
         render();
         return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
-    }, [isPlaying, joined, showForces, depletionWidth]);
+    }, [isPlaying, joined, showForces, depletionWidth, playbackSpeed, phase, stepMode]);
 
     const handleJoin = () => {
         if (!joined) {
             setJoined(true);
             setPhase('diffusion');
-            setTimeout(() => setPhase('depletion'), 1000);
-            setTimeout(() => setPhase('efield'), 2500);
-            setTimeout(() => setPhase('equilibrium'), 5000);
+            setIsPlaying(true);
         }
+    };
+
+    const handleNextPhase = () => {
+        if (!joined) return;
+        if (phase === 'diffusion') setPhase('depletion');
+        else if (phase === 'depletion') setPhase('efield');
+        else if (phase === 'efield') setPhase('equilibrium');
     };
 
     const simulationCombo = (
         <div className="w-full h-full relative bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex flex-col">
             <div className="bg-gradient-to-r from-blue-900 to-indigo-900 p-2 border-b border-indigo-800 text-center relative shrink-0">
-                <span className={`px-3 py-1 bg-black/30 rounded-full text-xs font-bold transition-all text-white inline-block shadow-inner border border-white/10 ${phase === 'initial' ? 'opacity-80' : 'animate-in fade-in zoom-in'
-                    }`}>
+                <span className={`px-3 py-1 bg-black/30 rounded-full text-xs font-bold transition-all text-white inline-block shadow-inner border border-white/10 ${phase === 'initial' ? 'opacity-80' : 'animate-in fade-in zoom-in'}`}>
                     {phase === 'initial' ? '⏸ Ready' :
-                        phase === 'diffusion' ? '🔀 Phase A: Diffusion' :
-                            phase === 'depletion' ? '⚡ Phase B: Depletion' :
-                                phase === 'efield' ? '🔋 Phase C: E-Field & Drift' :
-                                    '⚖️ Phase D: Equilibrium Dynamic Balance'}
+                        phase === 'diffusion' ? '🔀 Phase 1: Diffusion (Majority Carriers cross junction)' :
+                            phase === 'depletion' ? '⚡ Phase 2: Depletion & Recombination' :
+                                phase === 'efield' ? '🔋 Phase 3: E-Field Formation & Drift' :
+                                    '⚖️ Phase 4: Equilibrium Balance'}
                 </span>
             </div>
 
             <div className="flex-1 relative min-h-[300px]">
                 <canvas ref={canvasRef} className="absolute inset-0 w-full h-full bg-white object-contain" />
-                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-xs shadow-lg border border-slate-200">
-                    <div className="font-bold text-slate-700 mb-1 text-[10px] uppercase">Legend</div>
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full border-2 border-blue-800"></div><span className="text-[10px]">Hole (h⁺)</span></div>
-                        <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-pink-700"></div><span className="text-[10px]">Electron (e⁻)</span></div>
-                        <div className="flex items-center gap-2"><span className="text-blue-800 font-bold text-[12px] leading-none">⊖</span><span className="text-[10px]">Acceptor</span></div>
-                        <div className="flex items-center gap-2"><span className="text-red-600 font-bold text-[12px] leading-none">⊕</span><span className="text-[10px]">Donor</span></div>
+                <div className="absolute top-2 right-2 flex flex-col gap-2">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-lg p-2 text-xs shadow-lg border border-slate-200">
+                        <div className="font-bold text-slate-700 mb-1 text-[10px] uppercase">Particle Legend</div>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full border-2 border-blue-800"></div><span className="text-[10px]">Hole (h⁺)</span></div>
+                            <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-pink-700"></div><span className="text-[10px]">Electron (e⁻)</span></div>
+                            <div className="flex items-center gap-2"><span className="text-blue-800 font-bold text-[12px] leading-none">⊖</span><span className="text-[10px]">Acceptor</span></div>
+                            <div className="flex items-center gap-2"><span className="text-red-600 font-bold text-[12px] leading-none">⊕</span><span className="text-[10px]">Donor</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -325,56 +360,63 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
     const controlsCombo = (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col w-full h-full">
-            <div className="p-6 flex flex-col gap-6 w-full flex-1 overflow-y-auto">
+            <div className="p-6 flex flex-col gap-5 w-full flex-1 overflow-y-auto">
                 <div className="text-center p-4 bg-teal-50 border border-teal-100 rounded-lg text-teal-900 text-sm">
                     <strong>P-N Junction Formation:</strong> <br />
                     When a p-type and an n-type semiconductor are joined, electrons diffuse from N to P and holes from P to N.
-                    This leaves behind immobile ions, creating a <strong>Depletion Region</strong> and an opposing <strong>Electric Field</strong> that balances diffusion.
+                    This leaves behind immobile ions, creating a <strong>Depletion Region</strong> and an opposing <strong>Electric Field</strong>.
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <button
-                        onClick={handleJoin}
-                        disabled={joined}
-                        className={`w-full py-4 rounded-xl font-bold font-display shadow-md transition-all flex items-center justify-center gap-2 ${joined
-                            ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white hover:shadow-lg hover:-translate-y-0.5 animate-pulse'
-                            }`}
-                    >
+                    <button onClick={handleJoin} disabled={joined}
+                        className={`w-full py-4 rounded-xl font-bold font-display shadow-md transition-all flex items-center justify-center gap-2 ${joined ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white hover:shadow-lg hover:-translate-y-0.5 animate-pulse'}`}>
                         {joined ? 'Junction Formed' : '▶ Join P-N Junction'}
                     </button>
 
                     <div className="grid grid-cols-3 gap-2">
-                        <button
-                            onClick={() => setIsPlaying(!isPlaying)}
-                            className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-700 transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm"
-                        >
+                        <button onClick={() => setIsPlaying(!isPlaying)} className={`p-3 rounded-lg text-slate-700 transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm ${isPlaying ? 'bg-slate-50 hover:bg-slate-100 border border-slate-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}>
                             {isPlaying ? <Pause size={16} /> : <Play size={16} />} {isPlaying ? 'Pause' : 'Play'}
                         </button>
-
-                        <button
-                            onClick={() => setShowForces(!showForces)}
-                            className={`p-3 border rounded-lg transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm ${showForces ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                                }`}
-                        >
+                        <button onClick={() => setShowForces(!showForces)} className={`p-3 border rounded-lg transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm ${showForces ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}>
                             {showForces ? <Eye size={16} /> : <EyeOff size={16} />} Forces
                         </button>
-
-                        <button
-                            onClick={handleReset}
-                            className="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg text-red-700 transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm"
-                        >
+                        <button onClick={handleReset} className="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg text-red-700 transition-colors flex items-center justify-center gap-2 font-bold text-xs shadow-sm">
                             <RotateCcw size={16} /> Reset
                         </button>
                     </div>
 
+                    <div className="space-y-4 pt-2 border-t border-slate-100">
+                        <div className="flex justify-between items-center text-sm font-bold text-slate-700">
+                            <div className="flex items-center gap-2"><FastForward size={16} className="text-blue-500"/> Playback Speed</div>
+                            <span className="font-mono bg-blue-50 text-blue-700 px-2 py-1 rounded">{playbackSpeed.toFixed(2)}x</span>
+                        </div>
+                        <input type="range" min="0.1" max="2.0" step="0.1" value={playbackSpeed}
+                            onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                        <div className="flex justify-between text-xs text-slate-400 px-1">
+                            <span>Slower (0.1x)</span><span>Normal (1.0x)</span><span>Fast (2.0x)</span>
+                        </div>
+                    </div>
+
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2 space-y-3">
-                        <h4 className="font-bold text-slate-700 flex items-center gap-2 text-sm border-b border-slate-200 pb-2"><Activity size={16} /> Phases of Junction</h4>
+                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                            <h4 className="font-bold text-slate-700 flex items-center gap-2 text-sm"><Activity size={16} /> Teaching Modes</h4>
+                            <button onClick={() => setStepMode(!stepMode)} className={`text-xs px-2 py-1 rounded font-bold transition-colors ${stepMode ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-white text-slate-500 border border-slate-300'}`}>
+                                {stepMode ? 'Manual Steps: ON' : 'Auto Progression: ON'}
+                            </button>
+                        </div>
+                        
+                        {stepMode && joined && phase !== 'equilibrium' ? (
+                            <button onClick={handleNextPhase} className="w-full p-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                                Advance to Next Phase <SkipForward size={14}/>
+                            </button>
+                        ) : null}
+
                         <ul className="text-xs text-slate-600 space-y-2 font-medium">
-                            <li className="flex items-start gap-2"><span className="text-blue-500 mt-0.5">•</span> <strong>Diffusion (🔀):</strong> Majority carriers cross the junction.</li>
-                            <li className="flex items-start gap-2"><span className="text-yellow-600 mt-0.5">•</span> <strong>Depletion (⚡):</strong> Recombination creates an ion zone lacking free carriers.</li>
-                            <li className="flex items-start gap-2"><span className="text-red-500 mt-0.5">•</span> <strong>E-Field (🔋):</strong> Uncovered ions form a barrier potential (V₀) that resists diffusion.</li>
-                            <li className="flex items-start gap-2"><span className="text-purple-600 mt-0.5">•</span> <strong>Equilibrium (⚖️):</strong> Net current becomes zero.</li>
+                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'diffusion' ? 'bg-blue-100 text-blue-900 border border-blue-200' : ''}`}><span className="text-blue-500 mt-0.5">•</span> <strong>Diffusion (🔀):</strong> Majority carriers cross the junction.</li>
+                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'depletion' ? 'bg-yellow-100 text-yellow-900 border border-yellow-300' : ''}`}><span className="text-yellow-600 mt-0.5">•</span> <strong>Depletion (⚡):</strong> Recombination creates an ion zone lacking free carriers.</li>
+                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'efield' ? 'bg-red-100 text-red-900 border border-red-200' : ''}`}><span className="text-red-500 mt-0.5">•</span> <strong>E-Field (🔋):</strong> Uncovered ions form a barrier potential (V₀) that resists diffusion.</li>
+                            <li className={`flex items-start gap-2 p-1 rounded transition-colors ${phase === 'equilibrium' ? 'bg-purple-100 text-purple-900 border border-purple-200' : ''}`}><span className="text-purple-600 mt-0.5">•</span> <strong>Equilibrium (⚖️):</strong> Net current becomes zero.</li>
                         </ul>
                     </div>
                 </div>
@@ -382,14 +424,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         </div>
     );
 
-    return (
-        <TopicLayoutContainer
-            topic={topic}
-            onExit={onExit}
-            SimulationComponent={simulationCombo}
-            ControlsComponent={controlsCombo}
-        />
-    );
+    return <TopicLayoutContainer topic={topic} onExit={onExit} SimulationComponent={simulationCombo} ControlsComponent={controlsCombo} />;
 };
 
 export default SemiconductorLab;

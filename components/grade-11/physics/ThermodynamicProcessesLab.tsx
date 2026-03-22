@@ -103,7 +103,7 @@ const ThermodynamicProcessesLab: React.FC<ThermodynamicProcessesLabProps> = ({ t
         // ─── Physics update ───
         if (proc && act !== 0.5) {
             const dir = act > 0.5 ? 1 : -1;
-            const speed = Math.abs(act - 0.5) * 2;
+            const speed = Math.abs(act - 0.5) * 3; // Increased responsiveness here (from 2 to 3)
             let newV = gas.V, newT = gas.T;
             let ddQ = 0, ddU = 0, ddW = 0;
 
@@ -408,9 +408,11 @@ const ThermodynamicProcessesLab: React.FC<ThermodynamicProcessesLabProps> = ({ t
                     </label>
                     <input type="range" min="0" max="1" step="0.01" value={action}
                         onChange={(e) => setAction(Number(e.target.value))}
-                        onMouseUp={() => setAction(0.5)} onTouchEnd={() => setAction(0.5)}
+                        onPointerUp={() => setAction(0.5)}
+                        onPointerLeave={() => setAction(0.5)}
+                        onPointerCancel={() => setAction(0.5)}
                         disabled={!process}
-                        className="w-full h-2 md:h-3.5 accent-red-600 bg-slate-100 rounded-lg appearance-none cursor-pointer disabled:opacity-30" />
+                        className="w-full h-3 md:h-4 rounded-lg bg-slate-200 appearance-none cursor-pointer disabled:opacity-50" />
                     <div className="text-center text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         {!process ? 'Select a process to start' : 'Hold and slide to execute'}
                     </div>

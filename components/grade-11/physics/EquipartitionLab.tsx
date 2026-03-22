@@ -143,6 +143,12 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(mx, my, atomR * 2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = gas.color; ctx.beginPath(); ctx.arc(mx, my, atomR * 1.2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(mx - 4, my - 4, atomR * 0.4, 0, Math.PI * 2); ctx.fill();
+            
+            // Translation (3 DOF)
+            ctx.strokeStyle = 'rgba(22, 163, 74, 0.7)'; ctx.lineWidth = 2.5 * scale;
+            drawDoubleArrow(ctx, mx - 35 * scale, my, mx + 35 * scale, my);
+            drawDoubleArrow(ctx, mx, my - 35 * scale, mx, my + 35 * scale);
+            drawDoubleArrow(ctx, mx - 20 * scale, my + 20 * scale, mx + 20 * scale, my - 20 * scale);
         } else if (gas.atoms === 2) {
             const bondLen = atomR * 2.8 + vibAmp;
             const dx1 = Math.cos(rotAngle) * bondLen;
@@ -151,8 +157,8 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             const x2 = mx + dx1 / 2, y2 = my + dy1 / 2;
 
             ctx.strokeStyle = s.vibEnabled && fVib > 0 ? '#475569' : '#94a3b8';
-            ctx.lineWidth = s.vibEnabled && fVib > 0 ? 3 : 5;
-            if (s.vibEnabled && fVib > 0) ctx.setLineDash([5, 4]);
+            ctx.lineWidth = s.vibEnabled && fVib > 0 ? 3 * scale : 5 * scale;
+            if (s.vibEnabled && fVib > 0) ctx.setLineDash([5 * scale, 4 * scale]);
             ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             ctx.setLineDash([]);
 
@@ -164,6 +170,27 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                 ctx.fillStyle = c; ctx.beginPath(); ctx.arc(a.x, a.y, atomR * 1.2, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(a.x - 3, a.y - 3, atomR * 0.3, 0, Math.PI * 2); ctx.fill();
             });
+
+            // Vibration arrows
+            if (s.vibEnabled && fVib > 0) {
+                ctx.strokeStyle = 'rgba(220, 38, 38, 0.9)'; ctx.lineWidth = 2.5 * scale;
+                const vLen = 25 * scale;
+                const vdx = Math.cos(rotAngle) * vLen, vdy = Math.sin(rotAngle) * vLen;
+                drawDoubleArrow(ctx, x1 - vdx * 0.9, y1 - vdy * 0.9, x1 - vdx * 0.1, y1 - vdy * 0.1);
+                drawDoubleArrow(ctx, x2 + vdx * 0.1, y2 + vdy * 0.1, x2 + vdx * 0.9, y2 + vdy * 0.9);
+            }
+            // Rotation arrows
+            if (fRot > 0) {
+                ctx.strokeStyle = 'rgba(217, 119, 6, 0.8)'; ctx.lineWidth = 2.5 * scale;
+                const pLen = 20 * scale;
+                const pdx = -Math.sin(rotAngle) * pLen, pdy = Math.cos(rotAngle) * pLen;
+                drawDoubleArrow(ctx, x1 - pdx, y1 - pdy, x1 + pdx, y1 + pdy);
+                drawDoubleArrow(ctx, x2 - pdx, y2 - pdy, x2 + pdx, y2 + pdy);
+            }
+            // Translation
+            ctx.strokeStyle = 'rgba(22, 163, 74, 0.4)'; ctx.lineWidth = 2 * scale;
+            drawDoubleArrow(ctx, mx - 45 * scale, my, mx + 45 * scale, my);
+            drawDoubleArrow(ctx, mx, my - 45 * scale, mx, my + 45 * scale);
         } else {
             ctx.fillStyle = gas.color; ctx.beginPath(); ctx.arc(mx, my, atomR * 1.2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(mx - 3, my - 3, atomR * 0.3, 0, Math.PI * 2); ctx.fill();
@@ -171,11 +198,32 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                 const a = rotAngle + i * Math.PI / 2 + (i % 2 ? 0.3 : 0);
                 const bLen = atomR * 2.2 + (s.vibEnabled ? Math.sin(time * speed * 8 + i * 1.5) * (4 + tempNorm * 8) : 0);
                 const ax = mx + Math.cos(a) * bLen, ay = my + Math.sin(a) * bLen;
-                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4;
+                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4 * scale;
                 ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(ax, ay); ctx.stroke();
                 ctx.fillStyle = '#475569';
                 ctx.beginPath(); ctx.arc(ax, ay, atomR * 0.8, 0, Math.PI * 2); ctx.fill();
+                
+                // Polyatomic Vibration
+                if (s.vibEnabled && fVib > 0) {
+                    ctx.strokeStyle = 'rgba(220, 38, 38, 0.7)'; ctx.lineWidth = 2 * scale;
+                    const vdx = Math.cos(a) * 15 * scale, vdy = Math.sin(a) * 15 * scale;
+                    drawDoubleArrow(ctx, ax + vdx * 0.2, ay + vdy * 0.2, ax + vdx, ay + vdy);
+                }
             }
+            
+            // Polyatomic Rotation
+            if (fRot > 0) {
+                ctx.strokeStyle = 'rgba(217, 119, 6, 0.7)'; ctx.lineWidth = 2.5 * scale;
+                ctx.beginPath(); ctx.arc(mx, my, atomR * 3.5, 0, Math.PI * 1.5); ctx.stroke();
+                drawArrow(ctx, mx, my - atomR * 3.5, mx - 1, my - atomR * 3.5); 
+                ctx.beginPath(); ctx.arc(mx, my, atomR * 2.8, Math.PI * 0.5, Math.PI * 2); ctx.stroke();
+                drawArrow(ctx, mx + atomR * 2.8, my, mx + atomR * 2.8, my + 1); 
+            }
+            
+            // Polyatomic Translation
+            ctx.strokeStyle = 'rgba(22, 163, 74, 0.4)'; ctx.lineWidth = 2 * scale;
+            drawDoubleArrow(ctx, mx - 50 * scale, my, mx + 50 * scale, my);
+            drawDoubleArrow(ctx, mx, my - 50 * scale, mx, my + 50 * scale);
         }
 
         // Motion trail
@@ -474,6 +522,24 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
     ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
     ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+
+function drawArrow(ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number) {
+    const headLen = 8;
+    const angle = Math.atan2(toY - fromY, toX - fromX);
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.stroke();
+}
+
+function drawDoubleArrow(ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number) {
+    ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
+    drawArrow(ctx, (fromX+toX)/2, (fromY+toY)/2, toX, toY);
+    drawArrow(ctx, (fromX+toX)/2, (fromY+toY)/2, fromX, fromY);
 }
 
 export default EquipartitionLab;

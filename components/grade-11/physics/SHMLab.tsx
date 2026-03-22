@@ -57,7 +57,8 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
         const omega = Math.sqrt(s.k / s.mass);
         const T_period = 2 * Math.PI / omega;
         const freq = 1 / T_period;
-        if (s.running) s.time += 0.025;
+        // Physics update (slowed down for analysis)
+        if (s.running) s.time += 0.01;
 
         const scaledA = Math.min(s.A, W * 0.15); // Scale amplitude to canvas
         const x = scaledA * Math.cos(omega * s.time);

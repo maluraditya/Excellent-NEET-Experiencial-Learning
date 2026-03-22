@@ -59,17 +59,26 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         // Physics Update
         const targetD1 = isPedal ? (isLiquid ? 0.8 : 1.0) : 0;
         s.d1 += (targetD1 - s.d1) * 0.1;
-        if (isLiquid) s.d2 = s.d1 / mechanicalAdv_val;
-        else s.d2 += (0 - s.d2) * 0.1;
+        // Slave piston directly mirrors master piston in liquid (visually closes the gap)
+        if (isLiquid) {
+            const targetD2 = isPedal ? 1.0 : 0;
+            s.d2 += (targetD2 - s.d2) * 0.08;
+        } else {
+            // Gas: compressible — piston moves most of the way but can't quite reach disc
+            const targetD2 = isPedal ? 0.70 : 0;
+            s.d2 += (targetD2 - s.d2) * 0.06;
+        }
 
         if (isPedal) s.fluidPulse = Math.min(1, s.fluidPulse + 0.04);
         else s.fluidPulse = Math.max(0, s.fluidPulse - 0.06);
 
-        const brakingForce = isLiquid && isPedal ? force2_val * 0.00005 : 0;
+        // Only brake when pad is actually contacting the disc (d2 > 0.92)
+        const padContact = isLiquid && s.d2 > 0.92;
+        const brakingForce = padContact && isPedal ? force2_val * 0.00005 : 0;
         s.discSpeed = Math.max(0, Math.min(3, s.discSpeed - brakingForce + (isPedal ? 0 : 0.02)));
         s.discAngle = (s.discAngle + s.discSpeed) % 360;
 
-        if (isPedal && isLiquid && s.discSpeed > 0.3 && s.d2 > 0.001) s.sparkLife = 1;
+        if (padContact && isPedal && s.discSpeed > 0.3) s.sparkLife = 1;
         else s.sparkLife *= 0.9;
 
         // Draw
@@ -83,8 +92,20 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         const pad_val = Math.min(W * 0.03, H * 0.035, scale * 24);
 
         const midlineY = H * 0.42;
-        const masterX_pos = pad_val * 3, masterW_val = W * 0.20, masterH_val = H * 0.14;
-        const wheelX_pos = W - pad_val * 3 - W * 0.22 - W * 0.08, wheelH_val = H * 0.20;
+        const masterX_pos = pad_val * 3, masterW_val = W * 0.20;
+        
+        // ─── AREA-PROPORTIONAL CYLINDER HEIGHTS ───
+        // Scale cylinder heights based on area values
+        // sqrt(area) gives a diameter-like visual scaling
+        const a1Norm = Math.sqrt(area1) / Math.sqrt(50); // normalise to max area1=50
+        const a2Norm = Math.sqrt(area2) / Math.sqrt(500); // normalise to max area2=500
+        const minCylH = H * 0.08;
+        const maxMasterH = H * 0.20;
+        const maxWheelH = H * 0.32;
+        const masterH_val = minCylH + a1Norm * (maxMasterH - minCylH);
+        const wheelH_val = minCylH + a2Norm * (maxWheelH - minCylH);
+        
+        const wheelX_pos = W - pad_val * 3 - W * 0.22 - W * 0.08;
 
         // --- MASTER CYLINDER ---
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3 * scale;
@@ -125,20 +146,40 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         ctx.fillStyle = '#2563eb'; ctx.font = `bold ${fs_val(16)}px monospace`;
         ctx.fillText(pressure_val.toFixed(1), gx_val, gy_val + pad_val * 3);
 
-        // --- WHEEL CYLINDER ---
-        ctx.fillStyle = '#ffffff'; roundRect(ctx, wheelX_pos, midlineY - wheelH_val * 0.5, W * 0.20, wheelH_val, 12); ctx.fill(); 
+        // --- WHEEL CYLINDER (area-proportional height) ---
+        const wheelW = W * 0.20;
+        ctx.fillStyle = '#ffffff'; roundRect(ctx, wheelX_pos, midlineY - wheelH_val * 0.5, wheelW, wheelH_val, 12); ctx.fill(); 
         ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3 * scale; ctx.stroke();
         
-        const p2Travel_val = s.d2 * (W * 0.2 * 0.35);
-        ctx.fillStyle = fluidCol_val; ctx.fillRect(wheelX_pos + 6 * scale, midlineY - wheelH_val * 0.5 + 6 * scale, W * 0.2 - 18 * scale - p2Travel_val, wheelH_val - 12 * scale);
-        ctx.fillStyle = '#475569'; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2 * scale;
-        roundRect(ctx, wheelX_pos + W * 0.2 - 16 * scale - p2Travel_val, midlineY - wheelH_val * 0.5 + 4 * scale, 14 * scale, wheelH_val * 0.95, 5); ctx.fill(); ctx.stroke();
+        // ─── DISC is FIXED at the right edge of the wheel cylinder ───
+        const discR_val = Math.max(wheelH_val * 0.6, H * 0.10);
+        const padW = 10 * scale;
+        const pistonW = 14 * scale;
+        const discCX_val = wheelX_pos + wheelW + padW + discR_val + 4 * scale;
+        const discCY_val = midlineY;
+        const discLeftEdge = discCX_val - discR_val;
 
-        // Brake Pad & Rotating Disc
-        const padX_val = wheelX_pos + W * 0.2 + 6 * scale - p2Travel_val * 0.6;
-        ctx.fillStyle = '#7c2d12'; roundRect(ctx, padX_val, midlineY - wheelH_val * 0.4, 10 * scale, wheelH_val * 0.8, 3); ctx.fill();
+        // Piston travel: at rest, piston sits at left of cylinder.
+        // At max brake, piston + pad reach the disc.
+        const maxGap = discLeftEdge - padW - pistonW - (wheelX_pos + 6 * scale);
+        const fluidBaseW = 20 * scale;
+        const current_p2Travel = s.d2 * Math.max(0, maxGap - fluidBaseW);
+
+        // Fluid pushing from the left
+        const fluidCurrentW = fluidBaseW + current_p2Travel;
+        ctx.fillStyle = fluidCol_val; 
+        ctx.fillRect(wheelX_pos + 6 * scale, midlineY - wheelH_val * 0.5 + 6 * scale, fluidCurrentW, wheelH_val - 12 * scale);
         
-        const discCX_val = wheelX_pos + W * 0.2 + W * 0.12, discCY_val = midlineY, discR_val = H * 0.14;
+        // Piston
+        const pistonX = wheelX_pos + 6 * scale + fluidCurrentW;
+        ctx.fillStyle = '#475569'; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2 * scale;
+        roundRect(ctx, pistonX, midlineY - wheelH_val * 0.5 + 4 * scale, pistonW, wheelH_val * 0.95, 5); ctx.fill(); ctx.stroke();
+
+        // Brake Pad
+        const padX = pistonX + pistonW;
+        ctx.fillStyle = '#7c2d12'; 
+        roundRect(ctx, padX, midlineY - wheelH_val * 0.4, padW, wheelH_val * 0.8, 3); ctx.fill();
+
         ctx.save(); ctx.translate(discCX_val, discCY_val); ctx.rotate(s.discAngle * Math.PI / 180);
         ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(0, 0, discR_val, 0, Math.PI * 2); ctx.fill(); 
         ctx.strokeStyle = '#64748b'; ctx.lineWidth = 5 * scale; ctx.stroke();
@@ -148,10 +189,10 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         ctx.restore();
 
         // Friction Sparks Animation
-        if (s.sparkLife > 0.1) {
+        if (s.sparkLife > 0.1 && isLiquid && isPedal && s.d2 > 0.001) {
             for (let i = 0; i < 8; i++) {
                 ctx.fillStyle = `rgba(217, 119, 6, ${s.sparkLife * (Math.random() * 0.5 + 0.5)})`;
-                ctx.beginPath(); ctx.arc(padX_val + 15 * scale + Math.random() * 15 * scale, midlineY - 30 * scale + Math.random() * 60 * scale, 3 * scale, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(padX + padW + Math.random() * 15 * scale, midlineY - 30 * scale + Math.random() * 60 * scale, 3 * scale, 0, Math.PI * 2); ctx.fill();
             }
         }
 
@@ -242,9 +283,17 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
                     </div>
                 </div>
             </div>
-            <div className="flex justify-center mt-1 md:mt-2">
+            <div className="flex gap-3 mt-1 md:mt-2">
+                <button
+                    onMouseDown={() => setPedalDown(true)} onMouseUp={() => setPedalDown(false)}
+                    onMouseLeave={() => setPedalDown(false)} onTouchStart={() => setPedalDown(true)} onTouchEnd={() => setPedalDown(false)}
+                    className={`flex-1 flex items-center justify-center gap-2 md:gap-3 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all shadow active:scale-95 border select-none ${pedalDown
+                        ? 'bg-red-600 text-white border-red-500 shadow-lg shadow-red-200'
+                        : 'bg-red-500 text-white border-red-400 hover:bg-red-600'}`}>
+                    🛑 {pedalDown ? 'BRAKING...' : 'HOLD TO BRAKE'}
+                </button>
                 <button onClick={() => { setForce1(100); setArea1(10); setArea2(100); setFluidType('liquid'); }}
-                    className="w-full md:w-auto flex items-center justify-center gap-2 md:gap-3 px-8 md:px-12 py-3 md:py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-200 transition-all font-bold text-sm md:text-base shadow-sm active:scale-95">
+                    className="flex-1 flex items-center justify-center gap-2 md:gap-3 py-3 md:py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-200 transition-all font-bold text-sm md:text-base shadow-sm active:scale-95">
                     <RotateCcw size={22} /> RESET ALL
                 </button>
             </div>

@@ -126,7 +126,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         const fs = (base: number) => Math.max(10, Math.min(base * scale, W * 0.025, H * 0.045));
         const pad = Math.min(W * 0.03, H * 0.035, scale * 24);
 
-        const cylW_val = W * 0.22, graphW_val = W * 0.45, statsW_val = W * 0.24;
+        const cylW_val = W * 0.20, graphW_val = W * 0.50, statsW_val = W * 0.20;
         const cylX_val = pad, graphX_val = cylX_val + cylW_val + pad * 2, statsX_val = graphX_val + graphW_val + pad * 2;
 
         let currentV = V1, currentT = t1;
@@ -177,56 +177,80 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         ctx.fillStyle = lblColor_val; ctx.font = `bold ${fs(12)}px sans-serif`;
         ctx.fillText(resLabel_val, cylX_val + cylW_val / 2, pad * 5 + cylH_val + pad * 1.3);
 
-        // --- P-V GRAPH ---
-        const gh_val = H * 0.5, gw_val = graphW_val - pad * 4;
-        const gx_val = graphX_val + pad * 2, gy_val = pad * 5;
+        // --- P-V GRAPH (NCERT Style — power V scaling, linear P) ---
+        const gh_val = H * 0.55, gw_val = graphW_val - pad * 5;
+        const gx_val = graphX_val + pad * 3.5, gy_val = pad * 5.5;
 
-        ctx.fillStyle = '#ffffff'; roundRect(ctx, graphX_val, pad * 3, graphW_val, gh_val + pad * 4.5, 18); ctx.fill();
-        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; roundRect(ctx, graphX_val, pad * 3, graphW_val, gh_val + pad * 4.5, 18); ctx.stroke();
-        
-        ctx.strokeStyle = '#334155'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(gx_val, gy_val); ctx.lineTo(gx_val, gy_val + gh_val); ctx.lineTo(gx_val + gw_val, gy_val + gh_val); ctx.stroke();
-        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(15)}px sans-serif`; ctx.textAlign = 'center';
-        ctx.fillText('PV INDICATOR DIAGRAM', graphX_val + graphW_val / 2, pad * 4.2);
+        ctx.fillStyle = '#ffffff'; roundRect(ctx, graphX_val, pad * 3, graphW_val, gh_val + pad * 5, 18); ctx.fill();
+        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; roundRect(ctx, graphX_val, pad * 3, graphW_val, gh_val + pad * 5, 18); ctx.stroke();
 
-        ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(11)}px sans-serif`;
-        ctx.fillText('Volume (V) →', gx_val + gw_val / 2, gy_val + gh_val + pad * 2);
-        ctx.save(); ctx.translate(gx_val - pad * 1.8, gy_val + gh_val / 2); ctx.rotate(-Math.PI / 2);
-        ctx.fillText('Pressure (P) →', 0, 0); ctx.restore();
+        // Axes
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(gx_val, gy_val - 8); ctx.lineTo(gx_val, gy_val + gh_val); ctx.lineTo(gx_val + gw_val + 8, gy_val + gh_val); ctx.stroke();
+        // Arrowheads
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath(); ctx.moveTo(gx_val - 5, gy_val - 4); ctx.lineTo(gx_val, gy_val - 14); ctx.lineTo(gx_val + 5, gy_val - 4); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(gx_val + gw_val + 4, gy_val + gh_val - 5); ctx.lineTo(gx_val + gw_val + 14, gy_val + gh_val); ctx.lineTo(gx_val + gw_val + 4, gy_val + gh_val + 5); ctx.fill();
 
-        const vm_val = V3 * 1.25, pm_val = P1 * 1.15;
-        const sv_val = (v: number) => gx_val + (v / vm_val) * gw_val;
-        const sp_val = (p: number) => gy_val + gh_val - (p / pm_val) * gh_val;
+        ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(15)}px "Inter", sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText('P-V Diagram of Heat Engine', graphX_val + graphW_val / 2, pad * 4.2);
 
-        const drawCurve_val = (step: number, vS: number, vE: number, pFn: (v: number) => number, color: string, rev: boolean) => {
+        ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(13)}px "Inter", sans-serif`;
+        ctx.fillText('Volume  →', gx_val + gw_val / 2, gy_val + gh_val + pad * 2.8);
+        ctx.save(); ctx.translate(gx_val - pad * 2.2, gy_val + gh_val / 2); ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Pressure  →', 0, 0); ctx.restore();
+
+        // POWER SCALING on V (spreads small V, compresses large V) + LINEAR on P
+        // This gives proper hyperbolic curve shapes like the NCERT diagram
+        const vPow = 0.4; // power exponent — lower = more spread
+        const allV = [V1, V2, V3, V4];
+        const allP = [P1, P2, P3, P4];
+        const vPowMax = Math.pow(Math.max(...allV) * 1.15, vPow);
+        const vPowMin = Math.pow(Math.min(...allV) * 0.7, vPow);
+        const pMax = Math.max(...allP) * 1.12;
+
+        const sv_val = (v: number) => gx_val + ((Math.pow(v, vPow) - vPowMin) / (vPowMax - vPowMin)) * gw_val;
+        const sp_val = (p: number) => gy_val + gh_val - (p / pMax) * gh_val;
+
+        // Light grid
+        ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
+        for (let i = 1; i <= 4; i++) {
+            const ly = gy_val + (gh_val / 5) * i;
+            ctx.beginPath(); ctx.moveTo(gx_val, ly); ctx.lineTo(gx_val + gw_val, ly); ctx.stroke();
+            const lx = gx_val + (gw_val / 5) * i;
+            ctx.beginPath(); ctx.moveTo(lx, gy_val); ctx.lineTo(lx, gy_val + gh_val); ctx.stroke();
+        }
+
+        const drawCurve_val = (step: number, vS: number, vE: number, pFn: (v: number) => number, color: string, _rev: boolean) => {
             const p_val = getProg(step); if (p_val <= 0 && !isReplay && cp < step) return;
             const active_val = (isReplay && replayStepRef.current === step) || (cp === step && !isReplay);
-            ctx.strokeStyle = color; ctx.lineWidth = active_val ? 5 : 2.5;
-            ctx.globalAlpha = (isReplay && !active_val && cp === 5) ? 0.3 : 1.0;
+            ctx.strokeStyle = color; ctx.lineWidth = active_val ? 5 : 3;
+            ctx.globalAlpha = (isReplay && !active_val && cp === 5) ? 0.4 : 1.0;
             ctx.beginPath();
             const limit_val = vS + (vE - vS) * p_val;
-            const inc_val = vE > vS ? 0.05 : -0.05;
-            for (let v = vS; vE > vS ? v <= (p_val >= 1 ? vE : limit_val) : v >= (p_val >= 1 ? vE : limit_val); v += inc_val) {
+            const steps = 80;
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const v = vS + (vE - vS) * t * (p_val >= 1 ? 1 : p_val);
+                if (vE > vS ? v > (p_val >= 1 ? vE : limit_val) : v < (p_val >= 1 ? vE : limit_val)) break;
                 const px = sv_val(v), py = sp_val(pFn(v));
-                v === vS ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+                i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
             }
-            if (p_val >= 1 || active_val) {
-                const pxL = sv_val(vE), pyL = sp_val(pFn(vE));
-                ctx.lineTo(pxL, pyL);
-            }
-            ctx.stroke(); 
-            
-            // Add arrowheads for direction
+            ctx.stroke();
+
+            // Arrowhead at midpoint
             if (p_val > 0.5) {
                 const midV = vS + (vE - vS) * 0.5;
                 const midP = pFn(midV);
-                const nextV = midV + (vE > vS ? 0.1 : -0.1);
+                const dv = (vE - vS) * 0.02;
+                const nextV = midV + dv;
                 const nextP = pFn(nextV);
                 const angle = Math.atan2(sp_val(nextP) - sp_val(midP), sv_val(nextV) - sv_val(midV));
+                const hl = 12;
                 ctx.fillStyle = color; ctx.beginPath();
                 ctx.moveTo(sv_val(midV), sp_val(midP));
-                ctx.lineTo(sv_val(midV) - 10 * Math.cos(angle - 0.5), sp_val(midP) - 10 * Math.sin(angle - 0.5));
-                ctx.lineTo(sv_val(midV) - 10 * Math.cos(angle + 0.5), sp_val(midP) - 10 * Math.sin(angle + 0.5));
+                ctx.lineTo(sv_val(midV) - hl * Math.cos(angle - 0.45), sp_val(midP) - hl * Math.sin(angle - 0.45));
+                ctx.lineTo(sv_val(midV) - hl * Math.cos(angle + 0.45), sp_val(midP) - hl * Math.sin(angle + 0.45));
                 ctx.closePath(); ctx.fill();
             }
             ctx.globalAlpha = 1.0;
@@ -237,15 +261,99 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         drawCurve_val(3, V3, V4, (v) => isothermP_calc(v, t2), '#2563eb', true);
         drawCurve_val(4, V4, V1, (v) => adiabaticP_calc(v, P4, V4), '#7c3aed', true);
 
+        // ─── POINT LABELS (1, 2, 3, 4) — positioned OUTSIDE the cycle ───
+        const labelFont = Math.max(15, gw_val * 0.045);
+        const dotR = 7;
+        const pointData = [
+            { v: V1, p: P1, label: '1', align: 'right' as const, ox: -18, oy: -14, step: 1 },
+            { v: V2, p: P2, label: '2', align: 'left' as const, ox: 18, oy: -6, step: 1 },
+            { v: V3, p: P3, label: '3', align: 'left' as const, ox: 18, oy: 6, step: 2 },
+            { v: V4, p: P4, label: '4', align: 'right' as const, ox: -18, oy: 14, step: 3 },
+        ];
+        pointData.forEach(c => {
+            if (cp < c.step && !isReplay) return;
+            if (getProg(c.step) <= 0 && !isReplay && cp !== 5) return;
+
+            const px = sv_val(c.v), py = sp_val(c.p);
+            // Filled dot with white ring
+            ctx.fillStyle = '#16a34a';
+            ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(px, py, dotR + 2, 0, Math.PI * 2); ctx.stroke();
+
+            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${labelFont}px "Inter", sans-serif`;
+            ctx.textAlign = c.align === 'left' ? 'left' : 'right';
+            ctx.fillText(c.label, px + c.ox, py + c.oy + labelFont * 0.35);
+        });
+
+        // ─── PROCESS LABELS — positioned OUTSIDE the cycle edges ───
+        if (cp >= 1 || isReplay) {
+            const procFont = Math.max(12, gw_val * 0.028);
+
+            const drawEdgeLabel = (step: number, label: string, x: number, y: number, align: CanvasTextAlign) => {
+                if (getProg(step) < 0.5 && cp !== 5 && !isReplay) return;
+                ctx.fillStyle = '#1e293b'; ctx.font = `italic 600 ${procFont}px "Inter", sans-serif`;
+                ctx.textAlign = align;
+                ctx.fillText(label, x, y);
+            };
+
+            // I: Isothermal — ABOVE the top curve, centered between points 1 and 2
+            const i1x = (sv_val(V1) + sv_val(V2)) / 2;
+            const i1y = sp_val(isothermP_calc((V1 + V2) / 2, t1)) - procFont * 1.8;
+            drawEdgeLabel(1, 'I  Isothermal expansion', i1x, i1y, 'center');
+
+            // II: Adiabatic — RIGHT of the right curve, between points 2 and 3
+            const i2v = V2 + (V3 - V2) * 0.6;
+            const i2x = sv_val(i2v) + procFont * 3;
+            const i2y = sp_val(adiabaticP_calc(i2v, P2, V2));
+            drawEdgeLabel(2, 'II  Adiabatic expansion', i2x, i2y, 'left');
+
+            // III: Isothermal — BELOW the bottom curve, centered between points 3 and 4
+            const i3x = (sv_val(V3) + sv_val(V4)) / 2;
+            const i3y = sp_val(isothermP_calc((V3 + V4) / 2, t2)) + procFont * 2.5;
+            drawEdgeLabel(3, 'III  Isothermal compression', i3x, i3y, 'center');
+
+            // IV: Adiabatic — LEFT of the left curve, between points 4 and 1
+            const i4v = V4 + (V1 - V4) * 0.4;
+            const i4x = sv_val(i4v) - procFont * 3;
+            const i4y = sp_val(adiabaticP_calc(i4v, P4, V4));
+            drawEdgeLabel(4, 'IV  Adiabatic compression', i4x, i4y, 'right');
+
+            // Temperature labels on right — T₁=T₂=T_high and T₃=T₄=T_low
+            if (cp === 5 || isReplay) {
+                ctx.fillStyle = '#dc2626'; ctx.font = `bold ${Math.max(11, procFont * 0.9)}px "Inter", sans-serif`;
+                ctx.textAlign = 'left';
+                const tHighY = (sp_val(P1) + sp_val(P2)) / 2;
+                ctx.fillText(`T₁ = ${t1}K`, gx_val + gw_val - procFont * 5, tHighY);
+                ctx.fillStyle = '#2563eb';
+                const tLowY = (sp_val(P3) + sp_val(P4)) / 2;
+                ctx.fillText(`T₂ = ${t2}K`, gx_val + gw_val - procFont * 5, tLowY);
+            }
+        }
+
+        // ─── NET WORK DONE FILL (cycle complete) ───
         if (cp === 5 && !isReplay) {
-            ctx.fillStyle = 'rgba(22, 163, 74, 0.1)'; ctx.beginPath();
-            for (let v = V1; v <= V2; v += 0.05) v === V1 ? ctx.moveTo(sv_val(v), sp_val(isothermP_calc(v, t1))) : ctx.lineTo(sv_val(v), sp_val(isothermP_calc(v, t1)));
-            for (let v = V2; v <= V3; v += 0.05) ctx.lineTo(sv_val(v), sp_val(adiabaticP_calc(v, P2, V2)));
-            for (let v = V3; v >= V4; v -= 0.05) ctx.lineTo(sv_val(v), sp_val(isothermP_calc(v, t2)));
-            for (let v = V4; v >= V1; v -= 0.05) ctx.lineTo(sv_val(v), sp_val(adiabaticP_calc(v, P4, V4)));
-            ctx.fill();
-            ctx.fillStyle = '#15803d'; ctx.font = `bold ${fs(14)}px sans-serif`;
-            ctx.fillText('W = Area enclosed', sv_val((V1+V3)/2), sp_val((P1+P3)/2));
+            ctx.fillStyle = 'rgba(22, 163, 74, 0.20)';
+            ctx.beginPath();
+            for (let i = 0; i <= 80; i++) { const v = V1 + (V2-V1)*(i/80); i===0 ? ctx.moveTo(sv_val(v), sp_val(isothermP_calc(v,t1))) : ctx.lineTo(sv_val(v), sp_val(isothermP_calc(v,t1))); }
+            for (let i = 0; i <= 80; i++) { const v = V2 + (V3-V2)*(i/80); ctx.lineTo(sv_val(v), sp_val(adiabaticP_calc(v,P2,V2))); }
+            for (let i = 0; i <= 80; i++) { const v = V3 + (V4-V3)*(i/80); ctx.lineTo(sv_val(v), sp_val(isothermP_calc(v,t2))); }
+            for (let i = 0; i <= 80; i++) { const v = V4 + (V1-V4)*(i/80); ctx.lineTo(sv_val(v), sp_val(adiabaticP_calc(v,P4,V4))); }
+            ctx.closePath(); ctx.fill();
+
+            // Hatching
+            ctx.save(); ctx.clip();
+            ctx.strokeStyle = 'rgba(22, 163, 74, 0.35)'; ctx.lineWidth = 1.5;
+            for (let x = -H; x < W; x += 14) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + H, H); ctx.stroke(); }
+            ctx.restore();
+
+            // W label in geometric center
+            const ctrV = Math.pow((Math.pow(V1, vPow) + Math.pow(V2, vPow) + Math.pow(V3, vPow) + Math.pow(V4, vPow)) / 4, 1/vPow);
+            const ctrP = (P1 + P2 + P3 + P4) / 4;
+            ctx.fillStyle = '#15803d'; ctx.font = `bold ${fs(13)}px "Inter", sans-serif`; ctx.textAlign = 'center';
+            ctx.fillText('−W_out', sv_val(ctrV), sp_val(ctrP));
         }
 
         if (cp >= 1 && cp <= 4) {
