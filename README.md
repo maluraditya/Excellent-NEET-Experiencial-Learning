@@ -1,7 +1,3 @@
-<div align="center">
-  <img width="100%" alt="Excellent Academy Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 <h1 align="center">Excellent Academy — Interactive Digital Textbook 2026</h1>
 
 <p align="center">
