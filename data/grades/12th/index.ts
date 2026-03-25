@@ -13,7 +13,7 @@ export const TOPICS: Topic[] = [
     title: 'Faraday’s Law & AC Generator',
     description: 'Visualize a rotating coil in a magnetic field. See how changing flux induces an EMF (ϵ = -dΦ/dt) and generates sinusoidal AC voltage.',
     thumbnailIcon: 'magnet',
-    youtubeVideoIds: ['F5vcvOA3Bbg'],
+    youtubeVideoIds: ['K95wcRVwh80'],
     coverImage: '/images/emi_cover.png'
   },
   {
@@ -26,7 +26,7 @@ export const TOPICS: Topic[] = [
     title: 'The Transformer',
     description: 'Experiment with Step-up and Step-down transformers. Adjust primary/secondary turns to change voltage/current ratios while conserving power.',
     thumbnailIcon: 'zap',
-    youtubeVideoIds: ['ZJWEnIyVRUw'],
+    youtubeVideoIds: ['zf8vnCcETqM'],
     coverImage: '/images/transformer_cover.png'
   },
   {
@@ -39,7 +39,7 @@ export const TOPICS: Topic[] = [
     title: 'EM Wave Propagation',
     description: 'See how an oscillating charge generates self-sustaining Electric and Magnetic fields. Visualize the transverse nature of EM waves in 3D.',
     thumbnailIcon: 'activity',
-    youtubeVideoIds: ['8y9v1bM71fI'],
+    youtubeVideoIds: ['p0AwOTqgTTk'],
     coverImage: '/images/em_waves_cover.png'
   },
   {
@@ -52,7 +52,7 @@ export const TOPICS: Topic[] = [
     title: 'Lenses, Prisms & Instruments',
     description: 'Ray tracing for convex/concave lenses and prisms. Explore image formation in Microscopes and Telescopes.',
     thumbnailIcon: 'microscope', // Need to ensure Dashboard handles this, or falls back
-    youtubeVideoIds: ['jM3Zc6xYyVk'],
+    youtubeVideoIds: ['1R5vH6KIpIk'],
     coverImage: '/images/ray_optics_cover.png'
   },
   {
@@ -65,7 +65,7 @@ export const TOPICS: Topic[] = [
     title: 'Interference & Diffraction',
     description: 'Observe the wave nature of light. Simulate Young’s Double Slit Experiment (YDSE) fringes and Diffraction patterns.',
     thumbnailIcon: 'layers',
-    youtubeVideoIds: ['n2y7nWXr5q8'],
+    youtubeVideoIds: ['X_NMkbbb974'],
     coverImage: '/images/wave_optics_cover.png'
   },
   {
@@ -78,7 +78,7 @@ export const TOPICS: Topic[] = [
     title: 'Photoelectric Effect',
     description: 'Prove the particle nature of light. Hit metals with photons of different frequencies to eject electrons (if hν > Φ).',
     thumbnailIcon: 'sun',
-    youtubeVideoIds: ['kYJjI4T8Z3I', 'i9YyI-d_4-k'],
+    youtubeVideoIds: ['SgXW4foFGpw'],
     coverImage: '/images/photoelectric_cover.png'
   },
   {
@@ -91,7 +91,7 @@ export const TOPICS: Topic[] = [
     title: 'Alpha Scattering Experiment',
     description: 'Recreate Rutherford’s gold foil experiment. Fire alpha particles at a nucleus and observe deflection angles based on impact parameter.',
     thumbnailIcon: 'atom',
-    youtubeVideoIds: ['WEPMwhNsLbU'],
+    youtubeVideoIds: ['QmRFtM08F4A'],
     coverImage: '/images/atoms_cover.png'
   },
   {
@@ -104,7 +104,7 @@ export const TOPICS: Topic[] = [
     title: 'Formation of P-N Junction',
     description: 'Join p-type and n-type materials. Watch diffusion create a Depletion Region and Barrier Potential that controls current flow.',
     thumbnailIcon: 'grid',
-    youtubeVideoIds: ['BHA4teZmwT0'],
+    youtubeVideoIds: ['qu9reCzzrco'],
     coverImage: '/images/semiconductors_cover.png'
   },
 
@@ -119,7 +119,7 @@ export const TOPICS: Topic[] = [
     title: 'Classification of Solids',
     description: 'Distinguish between Molecular, Ionic, Metallic, and Covalent solids. Test their properties like conductivity, malleability, and brittleness in a virtual lab.',
     thumbnailIcon: 'cuboid',
-    youtubeVideoIds: ['O82d8aiIS5Y'],
+    youtubeVideoIds: ['Qutg3ifbg_c'],
     coverImage: '/images/solids_classification.png'
   },
   {
@@ -132,7 +132,7 @@ export const TOPICS: Topic[] = [
     title: 'Unit Cells & Atomic Count',
     description: 'Visualize Simple Cubic, BCC, and FCC lattices. Use the "Slicer" tool to see how atoms are shared between adjacent cells and calculate Z.',
     thumbnailIcon: 'grid',
-    youtubeVideoIds: ['tUkj8UNzbyA'],
+    youtubeVideoIds: ['qAeaHYSX0hs'],
     coverImage: '/images/unit_cells.png'
   },
   {
@@ -145,7 +145,7 @@ export const TOPICS: Topic[] = [
     title: 'Packing Efficiency',
     description: 'Compare void spaces in SCC, BCC, and FCC lattices. Derive the radius relationships and understand why FCC is the most efficient structure.',
     thumbnailIcon: 'percent',
-    youtubeVideoIds: ['HCWwRh5CXYU'],
+    youtubeVideoIds: ['B1JzFAD1GAo'],
     coverImage: '/images/packing.png'
   },
   {
@@ -158,7 +158,7 @@ export const TOPICS: Topic[] = [
     title: 'Point Defects',
     description: 'Create Frenkel and Schottky defects in an ionic crystal grid. Observe the effects on density and electrical neutrality.',
     thumbnailIcon: 'alert',
-    youtubeVideoIds: ['tfG9gr_skxA'],
+    youtubeVideoIds: ['Z0Ks3wjFnrk'],
     coverImage: '/images/defects.png'
   },
 
@@ -173,7 +173,7 @@ export const TOPICS: Topic[] = [
     title: 'Galvanic vs. Electrolytic Cells',
     description: 'Visualize the flow of ions and electrons in spontaneous and non-spontaneous electrochemical cells. Control the voltage to reverse the reaction.',
     thumbnailIcon: 'zap',
-    youtubeVideoIds: ['HVV1KNmJWh4'],
+    youtubeVideoIds: ['cNs7CPevcYs'],
     coverImage: '/images/electrochemistry.png'
   },
 
@@ -203,7 +203,7 @@ export const TOPICS: Topic[] = [
     title: 'Magnetic Properties & Color',
     description: 'Connect electron configuration to bulk properties. Visualize Crystal Field Splitting, d-d transitions, and calculate Magnetic Moment.',
     thumbnailIcon: 'magnet',
-    youtubeVideoIds: ['dAMUQg6h2bg'],
+    youtubeVideoIds: ['LzZWHSdYaxw'],
     coverImage: '/images/dblock.png'
   },
   {
@@ -216,7 +216,7 @@ export const TOPICS: Topic[] = [
     title: 'Polymerization & Conductivity',
     description: 'Understand Ziegler-Natta catalysis for chain growth and explore how conjugated organic polymers can conduct electricity like metals.',
     thumbnailIcon: 'layers',
-    youtubeVideoIds: ['FnmL0NuoClQ'],
+    youtubeVideoIds: ['AEGd8Ky9B3U'],
     coverImage: '/images/polymers.png'
   },
 
@@ -231,7 +231,7 @@ export const TOPICS: Topic[] = [
     title: 'Stereoisomerism in Complexes',
     description: 'Master 3D molecular geometry. Visualize Cis/Trans, Fac/Mer isomers and perform the Mirror Test to understand Optical Isomerism and Chirality.',
     thumbnailIcon: 'box',
-    youtubeVideoIds: ['gNcczQRR0WQ'],
+    youtubeVideoIds: ['CGpGpQ3bzLI'],
     coverImage: '/images/stereochemistry.png'
   },
 
@@ -246,7 +246,7 @@ export const TOPICS: Topic[] = [
     title: 'SN1 vs SN2 Reactions',
     description: 'Compare nucleophilic substitution mechanisms. Visualize the backside attack, Walden inversion, and carbocation intermediates.',
     thumbnailIcon: 'flask',
-    youtubeVideoIds: ['yrvV85H737o'],
+    youtubeVideoIds: ['yAjEqu--LVs'],
     coverImage: '/images/haloalkanes.png'
   },
 
