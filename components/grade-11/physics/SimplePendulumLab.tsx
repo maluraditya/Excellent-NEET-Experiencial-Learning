@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { RotateCcw, Play, Pause, Timer, TimerReset, Zap, Activity } from 'lucide-react';
+import { RotateCcw, Play, Pause, Zap, Activity } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 
 interface SimplePendulumLabProps {
@@ -16,12 +16,12 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
     const [mass, setMass] = useState(0.1);
     const [gravity, setGravity] = useState(9.8);
     const [damping, setDamping] = useState(0.05);
-    const [running, setRunning] = useState(true);
+    const [running, setRunning] = useState(false);
     const [showVectors, setShowVectors] = useState(true);
     
+    const [initAngle, setInitAngle] = useState(30);
     // Stopwatch State
-    const [timerMode, setTimerMode] = useState<'manual' | 'auto'>('manual');
-    const [isTiming, setIsTiming] = useState(false);
+    const [isTiming, setIsTiming] = useState(true);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [measuredPeriod, setMeasuredPeriod] = useState<number | null>(null);
 
@@ -37,7 +37,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
     
     const graphRef = useRef<{ t: number; theta: number; theoryTheta: number }[]>([]);
     const frameRef = useRef(0);
-    const timerRef = useRef({ start: 0, elapsed: 0, mode: 'manual', active: false, oscCount: 0, lastOmega: 0 });
+    const timerRef = useRef({ start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0 });
 
     // Sync React state to Ref
     useEffect(() => {
@@ -109,15 +109,14 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
                 setElapsedTime(tRef.elapsed);
 
                 // Auto-timer: Count zero-crossings
-                if (timerMode === 'auto') {
-                    // Detect passage through equilibrium (theta crosses 0)
-                    if ((tRef.lastOmega <= 0 && s.omega > 0) || (tRef.lastOmega >= 0 && s.omega < 0)) {
-                        tRef.oscCount += 0.5; // Half oscillation
-                        if (tRef.oscCount >= 10) { // Stop at 10 full oscillations
-                            tRef.active = false;
-                            setIsTiming(false);
-                            setMeasuredPeriod(tRef.elapsed / 10);
-                        }
+                if ((tRef.lastOmega <= 0 && s.omega > 0) || (tRef.lastOmega >= 0 && s.omega < 0)) {
+                    tRef.oscCount += 0.5; // Half oscillation
+                    if (tRef.oscCount >= 10) { // Stop at 10 full oscillations
+                        tRef.active = false;
+                        setIsTiming(false);
+                        setMeasuredPeriod(tRef.elapsed / 10);
+                        s.running = false; // Stop simulation after 10 oscillations
+                        setRunning(false);
                     }
                 }
             }
@@ -213,7 +212,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(18)}px monospace`; ctx.textAlign = 'center';
         ctx.fillText(`${tRef.elapsed.toFixed(2)}s`, stopX + stopW / 2, stopY + 30 * scale);
         ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(10)}px sans-serif`;
-        ctx.fillText(timerMode === 'auto' ? `OSC: ${Math.floor(tRef.oscCount)}/10` : 'MANUAL TIMER', stopX + stopW / 2, stopY + 50 * scale);
+        ctx.fillText(`OSC: ${Math.floor(tRef.oscCount)}/10`, stopX + stopW / 2, stopY + 50 * scale);
 
         // --- Bottom Layout: Graphs + Energy ---
         const bottomY = topH + pad;
@@ -290,39 +289,28 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         drawBar(rightX + rightW * 0.65, KE + PE, '#d97706', 'TOTAL');
 
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(20)}px sans-serif`; ctx.textAlign = 'left';
-        ctx.fillText('Simple Pendulum Dynamics Lab', pad, pad * 1.3);
+        ctx.fillText('Simple Pendulum Dynamics Lab', pad + 220 * scale, pad * 1.3);
 
         animRef.current = requestAnimationFrame(draw);
-    }, [timerMode, showVectors]);
+    }, [showVectors]);
 
     useEffect(() => {
         animRef.current = requestAnimationFrame(draw);
         return () => cancelAnimationFrame(animRef.current);
     }, [draw]);
 
-    const handleReset = () => {
-        stateRef.current.theta = 30 * Math.PI / 180;
+    const handleReset = (overrideAngle?: number | React.MouseEvent) => {
+        const angleToUse = typeof overrideAngle === 'number' ? overrideAngle : initAngle;
+        const thetaRad = angleToUse * Math.PI / 180;
+        stateRef.current.theta = thetaRad;
         stateRef.current.omega = 0;
         stateRef.current.time = 0;
-        stateRef.current.initTheta = 30 * Math.PI / 180;
+        stateRef.current.initTheta = thetaRad;
+        stateRef.current.running = false;
         graphRef.current = [];
-        timerRef.current = { start: 0, elapsed: 0, mode: timerMode, active: false, oscCount: 0, lastOmega: 0 };
-        setElapsedTime(0); setIsTiming(false); setMeasuredPeriod(null);
-    };
-
-    const toggleStopwatch = () => {
-        const t = timerRef.current;
-        if (t.active) {
-            t.active = false;
-            setIsTiming(false);
-            if (timerMode === 'manual') setMeasuredPeriod(t.elapsed);
-        } else {
-            t.elapsed = 0;
-            t.oscCount = 0;
-            t.active = true;
-            setIsTiming(true);
-            setMeasuredPeriod(null);
-        }
+        timerRef.current = { start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0 };
+        setElapsedTime(0); setIsTiming(true); setMeasuredPeriod(null);
+        setRunning(false);
     };
 
     // --- Components ---
@@ -336,7 +324,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
 
     const controlsCombo = (
         <div className="flex flex-col gap-4 w-full text-slate-700 p-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <ControlCard label="String Length" value={`${length.toFixed(2)}m`} icon="📏" color="violet">
                     <input type="range" min="0.2" max="2.0" step="0.05" value={length} onChange={(e) => { setLength(Number(e.target.value)); handleReset(); }} className="w-full accent-violet-600" />
                 </ControlCard>
@@ -354,27 +342,18 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
                 <ControlCard label="Damping" value={damping.toFixed(2)} icon="💨" color="amber">
                     <input type="range" min="0" max="0.5" step="0.01" value={damping} onChange={(e) => setDamping(Number(e.target.value))} className="w-full accent-amber-600" />
                 </ControlCard>
+                <ControlCard label="Release Angle" value={`${initAngle}°`} icon="📐" color="rose">
+                    <input type="range" min="5" max="90" step="1" value={initAngle} onChange={(e) => { const val = Number(e.target.value); setInitAngle(val); handleReset(val); }} className="w-full accent-rose-600" />
+                </ControlCard>
             </div>
 
             <div className="flex flex-wrap gap-4 items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div className="flex gap-2">
-                    <button onClick={() => setRunning(!running)} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all shadow-sm ${running ? 'bg-white text-slate-600 border' : 'bg-blue-600 text-white shadow-blue-200 shadow-lg'}`}>
-                        {running ? <Pause size={18} /> : <Play size={18} />} {running ? 'PAUSE' : 'RESUME'}
+                    <button onClick={() => setRunning(!running)} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all shadow-sm ${running ? 'bg-red-500 text-white shadow-red-200 shadow-lg border-red-600' : 'bg-emerald-600 text-white shadow-emerald-200 shadow-lg'}`}>
+                        {running ? <Pause size={18} /> : <Play size={18} />} {running ? 'STOP' : 'START'}
                     </button>
                     <button onClick={handleReset} className="flex items-center gap-2 px-6 py-3 bg-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-300 transition-all">
                         <RotateCcw size={18} /> RESET
-                    </button>
-                </div>
-
-                <div className="h-10 w-px bg-slate-300 hidden md:block" />
-
-                <div className="flex gap-2 items-center">
-                    <div className="flex bg-slate-200 p-1 rounded-lg mr-2">
-                        <button onClick={() => { setTimerMode('manual'); handleReset(); }} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${timerMode === 'manual' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}>MANUAL</button>
-                        <button onClick={() => { setTimerMode('auto'); handleReset(); }} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${timerMode === 'auto' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}>AUTO (10x)</button>
-                    </div>
-                    <button onClick={toggleStopwatch} className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${isTiming ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-600 text-white'}`}>
-                        {isTiming ? <TimerReset size={18} /> : <Timer size={18} />} {isTiming ? 'STOP TIMER' : 'START TIMER'}
                     </button>
                 </div>
 
