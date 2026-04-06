@@ -143,11 +143,14 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const pad = Math.min(W * 0.03, H * 0.035, scale * 24);
 
         // Animation Viewport
-        const topH = H * 0.45;
+        const topH = H * 0.50; // Increased to 50% for better spacing
         const pivotX = W * 0.5;
-        const pivotY = pad * 2.5;
-        const visualL = Math.min(s.L * 150 * scale, topH * 0.8);
-        const bobR = 18 * scale;
+        const pivotY = pad * 2.8; 
+        
+        const bobR = (10 + Math.sqrt(s.m) * 25) * scale;
+        // Strict boundary: pivotY + visualL + bobR <= topH
+        const maxVisualL = topH - pivotY - bobR - 5; 
+        const visualL = Math.min(s.L * 160 * scale, maxVisualL);
 
         // 1. Draw Protractor (Reference for teachers)
         ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
@@ -203,16 +206,34 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
             ctx.fillStyle = '#16a34a'; ctx.fillText('T', tEndX - 15, tEndY - 5);
         }
 
-        // 5. Floating Info (Digital Stopwatch Display)
+        // 5. Floating Info (Digital Stopwatch & Oscillation Counter)
         const stopW = 140 * scale;
+        const boxPad = 8 * scale;
         const stopX = W - stopW - pad;
         const stopY = pad;
+
+        // Time Box
+        const timeBoxH = 45 * scale;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
-        roundRect(ctx, stopX, stopY, stopW, 60 * scale, 12); ctx.fill(); ctx.stroke();
+        roundRect(ctx, stopX, stopY, stopW, timeBoxH, 12); ctx.fill(); ctx.stroke();
+        
         ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(18)}px monospace`; ctx.textAlign = 'center';
-        ctx.fillText(`${tRef.elapsed.toFixed(2)}s`, stopX + stopW / 2, stopY + 30 * scale);
-        ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(10)}px sans-serif`;
-        ctx.fillText(`OSC: ${Math.floor(tRef.oscCount)}/10`, stopX + stopW / 2, stopY + 50 * scale);
+        ctx.fillText(`${tRef.elapsed.toFixed(2)}s`, stopX + stopW / 2, stopY + timeBoxH * 0.65);
+        
+        ctx.fillStyle = '#94a3b8'; ctx.font = `bold ${fs(8)}px sans-serif`;
+        ctx.fillText('ELAPSED TIME', stopX + stopW / 2, stopY + 12 * scale);
+
+        // Oscillation Box
+        const oscBoxY = stopY + timeBoxH + boxPad;
+        const oscBoxH = 40 * scale;
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
+        roundRect(ctx, stopX, oscBoxY, stopW, oscBoxH, 12); ctx.fill(); ctx.stroke();
+        
+        ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(12)}px sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText(`OSC: ${Math.floor(tRef.oscCount)}/10`, stopX + stopW / 2, oscBoxY + oscBoxH * 0.7);
+
+        ctx.fillStyle = '#94a3b8'; ctx.font = `bold ${fs(8)}px sans-serif`;
+        ctx.fillText('COUNT', stopX + stopW / 2, oscBoxY + 12 * scale);
 
         // --- Bottom Layout: Graphs + Energy ---
         const bottomY = topH + pad;

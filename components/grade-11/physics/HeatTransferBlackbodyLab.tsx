@@ -142,7 +142,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
             drawPotOnStoveScene(ctx, {
                 x: pad, y: pad, w: W - pad * 2, h: topSectionHeight,
                 pad, fs, time, temperature: T, materialColor: materialData.color, rate: conductionRate,
-                activeStation, environment: environmentKey
+                activeStation, environment: environmentKey, area, length
             });
         }
 
@@ -288,7 +288,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                         {station === 'conduction' ? (
                             <div>
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Material</div>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 gap-2">
                                     {(Object.keys(MATERIALS) as MaterialKey[]).map((key) => (
                                         <button key={key} onClick={() => setMaterial(key)} className={`rounded-xl px-3 py-3 text-xs md:text-sm font-bold border transition-all ${material === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-white'}`} style={material === key ? { backgroundColor: MATERIALS[key].color } : {}}>{MATERIALS[key].label}</button>
                                     ))}
@@ -297,7 +297,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                         ) : station === 'convection' ? (
                             <div>
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Environment</div>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 gap-2">
                                     {(Object.keys(ENVIRONMENTS) as EnvironmentKey[]).map((key) => (
                                         <button key={key} onClick={() => setEnvironment(key)} className={`rounded-xl px-3 py-3 text-xs md:text-sm font-bold border transition-all ${environment === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-white'}`} style={environment === key ? { backgroundColor: ENVIRONMENTS[key].color } : {}}>{ENVIRONMENTS[key].label}</button>
                                     ))}
@@ -500,21 +500,38 @@ function drawVacuumScene(ctx: CanvasRenderingContext2D, p: any) {
 }
 
 function drawPotOnStoveScene(ctx: CanvasRenderingContext2D, p: any) {
-    const { x, y, w, h, time, temperature, materialColor, rate, activeStation, environment, pad, fs } = p;
+    const { x, y, w, h, time, temperature, materialColor, rate, activeStation, environment, pad, fs, area = 4, length = 0.6 } = p;
     
     const centerX = x + w * 0.55; 
     const centerY = y + h * 0.6;
-    const potW = 200 * (w / 1000);
-    const potH = 140 * (h / 600);
+    
+    let potW = 200 * (w / 1000);
+    let potH = 140 * (h / 600);
+    
+    if (activeStation === 'convection' || activeStation === 'radiation') {
+        potW = Math.max(100, 45 * area) * (w / 1000); 
+    }
+    if (activeStation === 'convection') {
+        potH = Math.max(80, 230 * length) * (h / 600);
+    }
+
     const burnerY = centerY + potH / 2 + 10;
 
     // 1. Draw Burner & Flames
+    const isRadiation = activeStation === 'radiation';
+    // Emphasize burner color for radiation
+    if (isRadiation) {
+        ctx.shadowColor = blackbodyColor(temperature);
+        ctx.shadowBlur = 10 + temperature/300;
+    }
     drawBurner(ctx, centerX, burnerY, potW);
-    drawFire(ctx, centerX, burnerY, 30 + temperature / 150, activeStation === 'radiation');
+    drawFire(ctx, centerX, burnerY, 30 + temperature / 150, isRadiation);
+    ctx.shadowBlur = 0; // reset
 
     // 2. Draw Radiation Waves if selected
-    if (activeStation === 'radiation') {
-        drawRadiationWaves(ctx, centerX, burnerY - 10, potW + 100, time);
+    if (isRadiation) {
+        const numRays = Math.floor(6 + area * 2);
+        drawRadiationWaves(ctx, centerX, burnerY - 10, potW + 100, time, temperature, numRays);
     }
 
     // 3. Draw Pot Body
@@ -536,8 +553,8 @@ function drawPotOnStoveScene(ctx: CanvasRenderingContext2D, p: any) {
     }
 
     // 5. Draw Handle & Conduction
-    const handleL = 180 * (w / 1000);
-    const handleH = 20 * (h / 600);
+    const handleL = (activeStation === 'conduction' ? (100 + 150 * length) : 180) * (w / 1000);
+    const handleH = (activeStation === 'conduction' ? Math.max(10, 5 * area) : 20) * (h / 600);
     const handleX = centerX - potW/2 - handleL;
     const handleY = centerY - potH/4;
 
@@ -615,9 +632,9 @@ function drawFire(ctx: any, x: number, y: number, size: number, active: boolean)
     }
 }
 
-function drawRadiationWaves(ctx: any, x: number, y: number, w: number, time: number) {
-    const rays = 12;
-    ctx.strokeStyle = 'rgba(244, 63, 94, 0.5)';
+function drawRadiationWaves(ctx: any, x: number, y: number, w: number, time: number, temperature: number, rays: number) {
+    ctx.strokeStyle = blackbodyColor(temperature);
+    ctx.globalAlpha = 0.6;
     ctx.lineWidth = 2;
     for (let i = 0; i < rays; i++) {
         const angle = (i / rays) * Math.PI * 2;
@@ -632,6 +649,7 @@ function drawRadiationWaves(ctx: any, x: number, y: number, w: number, time: num
         }
         ctx.stroke();
     }
+    ctx.globalAlpha = 1.0;
 }
 
 function drawConvectionCurrents(ctx: any, x: number, y: number, w: number, h: number, time: number, env: string) {

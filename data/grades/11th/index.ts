@@ -38,7 +38,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Mechanics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_stokes_law.png',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_stokes_law_1775281306204.png',
         youtubeVideoIds: ['L7gOIFgYl2k']
     },
     {
@@ -94,6 +94,19 @@ export const TOPICS_11TH: Topic[] = [
         youtubeVideoIds: ['w3MEJoTW2Oo']
     },
     {
+        id: 'thermal-expansion-calorimetry',
+        title: 'Thermal Expansion, Calorimetry & Phase Change',
+        subject: 'Physics',
+        unit: 'Unit X',
+        chapter: 'Thermal Properties of Matter',
+        description: 'Investigate how heat alters matter. Observe linear, area, and volume expansion, study the anomalous behavior of water, trace phase changes on a heating curve, and perform virtual calorimetry experiments.',
+        thumbnailIcon: 'Activity',
+        branch: 'Thermodynamics',
+        grade: '11th',
+        thumbnailUrl: '/thumbnail-thermal-expansion.png',
+        youtubeVideoIds: ['w3MEJoTW2Oo']
+    },
+    {
         id: 'heat-transfer-blackbody-radiation',
         title: 'Heat Transfer and Blackbody Radiation',
         subject: 'Physics',
@@ -103,7 +116,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Thermodynamics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_thermo_1771662859751.png',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_blackbody_radiation_1775281143953.png',
         youtubeVideoIds: ['w3MEJoTW2Oo']
     },
     {
@@ -129,7 +142,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Statistical Mechanics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_mean_free_path.png',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_mean_free_path_1775281125480.png',
         youtubeVideoIds: ['k4FvOpHU0jo']
     },
     {
@@ -169,8 +182,21 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Oscillations',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_simple_pendulum.png',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_simple_pendulum_1775281077905.png',
         youtubeVideoIds: ['m3CtyV35s8U']
+    },
+    {
+        id: 'wave-motion',
+        title: 'Wave Motion: Transverse and Longitudinal',
+        subject: 'Physics',
+        unit: 'Unit XIV',
+        chapter: 'Waves',
+        description: 'Visualize how energy travels through a medium without matter transport. Toggle between transverse string waves and longitudinal sound pulses in air.',
+        thumbnailIcon: 'Activity',
+        branch: 'Oscillations',
+        grade: '11th',
+        thumbnailUrl: '/thumbnail-wave-motion.png',
+        youtubeVideoIds: ['mQdp4Be9qM8']
     },
     {
         id: 'standing-waves',

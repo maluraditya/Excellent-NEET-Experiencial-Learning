@@ -12,12 +12,14 @@ import HydraulicBrakeLab from './components/grade-11/physics/HydraulicBrakeLab';
 import CarnotEngineLab from './components/grade-11/physics/CarnotEngineLab';
 import ThermodynamicProcessesLab from './components/grade-11/physics/ThermodynamicProcessesLab';
 import HeatTransferBlackbodyLab from './components/grade-11/physics/HeatTransferBlackbodyLab';
+import ThermalExpansionCalorimetryLab from './components/grade-11/physics/ThermalExpansionCalorimetryLab';
 import KineticTheoryLab from './components/grade-11/physics/KineticTheoryLab';
 import MeanFreePathLab from './components/grade-11/physics/MeanFreePathLab';
 import EquipartitionLab from './components/grade-11/physics/EquipartitionLab';
 
 import SHMLab from './components/grade-11/physics/SHMLab';
 import SimplePendulumLab from './components/grade-11/physics/SimplePendulumLab';
+import WaveMotionLab from './components/grade-11/physics/WaveMotionLab';
 import WavesLab from './components/grade-11/physics/WavesLab';
 
 
@@ -272,6 +274,12 @@ const App: React.FC = () => {
         Concept: ΔQ = ΔU + ΔW. Four process modes: Isothermal (T const, ΔU=0, ΔQ=ΔW), Adiabatic (Q=0, ΔU=-ΔW), Isochoric (V const, ΔW=0, ΔQ=ΔU), Isobaric (P const, ΔW=PΔV).
         Simulation: Interactive gas cylinder with P-V diagram and energy balance bars.
       `;
+    } else if (activeTopicId === 'thermal-expansion-calorimetry') {
+      return `
+        Topic: Thermal Expansion, Specific Heat capacity, Calorimetry and Latent Heat (NCERT Class 11, Chapter 10)
+        Concept: Expansion follows ΔL=αLΔT, ΔA=βAΔT, ΔV=γVΔT. Water behaves anomalously contracting 0-4°C. Calorimetry principle: Heat Lost = Heat Gained. Phase change plateaus at constant temp with Q = mL.
+        Simulation: Three-station lab with metal block expansion setup, interactive phase change heating curve, and interactive mixing calorimetry beaker.
+      `;
     } else if (activeTopicId === 'heat-transfer-blackbody-radiation') {
       return `
         Topic: Heat Transfer and Blackbody Radiation (NCERT Class 11, Chapter 10 - Thermal Properties of Matter)
@@ -331,6 +339,15 @@ const App: React.FC = () => {
         Concept: y = [2a sin(kx)] cos(ωt). Nodes at sin(kx)=0, antinodes at |sin(kx)|=1.
         Normal modes: νn = nv/(2L), v = √(T/μ). Fixed end → π phase reversal. Free end → no reversal.
         Simulation: Driven string with frequency/tension sliders, node/antinode markers, superposition graphs.
+      `;
+    } else if (activeTopicId === 'wave-motion') {
+      return `
+        Topic: Wave Motion (NCERT Class 11, Chapter 14)
+        Definition: A wave is a pattern of disturbance that moves through a medium without the actual physical transfer of matter. It acts as a carrier of energy and information.
+        Concept: Wave motion is intimately connected to harmonic oscillations. In a transverse wave (e.g., string), particles move perpendicular to propagation. In a longitudinal wave (e.g., sound), particles move parallel to propagation via compression and rarefaction.
+        Key Formula: y(x,t) = a sin(kx - ωt + φ), where k = 2π/λ and ω = 2πν.
+        Wave Speed: v = ω/k = λν. For a string, v = √(T/μ).
+        Simulation: Toggle between transverse and longitudinal modes. Track a single 'Red Bead' to see it oscillates but never travels forward.
       `;
     } else if (activeTopicId === 'youngs-modulus') {
       return `
@@ -574,6 +591,14 @@ const App: React.FC = () => {
           />
         )}
 
+        {/* ================== THERMAL EXPANSION AND CALORIMETRY ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'thermal-expansion-calorimetry' && (
+          <ThermalExpansionCalorimetryLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
         {/* ================== KINETIC THEORY ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'kinetic-theory' && (
           <KineticTheoryLab
@@ -610,6 +635,14 @@ const App: React.FC = () => {
         {/* ================== SIMPLE PENDULUM ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'simple-pendulum' && (
           <SimplePendulumLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== WAVE MOTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'wave-motion' && (
+          <WaveMotionLab
             topic={currentTopics.find(t => t.id === activeTopicId)!}
             onExit={goHome}
           />

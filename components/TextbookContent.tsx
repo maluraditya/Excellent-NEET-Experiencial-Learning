@@ -487,6 +487,92 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <VideoSection />
       </div>
     );
+  }  if (topic?.id === 'thermal-expansion-calorimetry') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Thermal Properties of Matter</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Temperature is a relative measure or indication of the "hotness" or "coldness" of a body. While we can perceive it by touch, this sense is unreliable for scientific purposes. Heat is the form of energy transferred between two or more systems (or a system and its surroundings) by virtue of a temperature difference. Heat flows from a body at a higher temperature to one at a lower temperature until thermal equilibrium is reached.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Thermal Expansion</h3>
+        <p>Most substances expand on heating and contract on cooling. This change in dimensions due to temperature increase is called thermal expansion.</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Linear Expansion:</strong> The fractional change in length (Δl/l) is proportional to the change in temperature (ΔT): Δl = α_l l ΔT, where α_l is the coefficient of linear expansion.</li>
+          <li><strong>Area Expansion:</strong> The change in area (ΔA) is related to temperature change by ΔA = 2α_l A ΔT.</li>
+          <li><strong>Volume Expansion:</strong> The fractional change in volume (ΔV/V) is ΔV = α_v V ΔT. For solids, α_v = 3α_l.</li>
+          <li><strong>Anomalous Expansion of Water:</strong> Water contracts on heating between 0 °C and 4 °C. It reaches its maximum density at 4 °C.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Specific Heat Capacity (s)</h3>
+        <p>Every substance has a unique value for the amount of heat absorbed or rejected to change the temperature of unit mass by one unit. The formula is s = (1/m)(ΔQ/ΔT). Its SI unit is J kg⁻¹ K⁻¹. Water has the highest specific heat capacity among common substances, making it an excellent coolant.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Calorimetry and Change of State</h3>
+        <p>Calorimetry is the measurement of heat. In an isolated system, heat lost by a hot body equals heat gained by a colder body. Matter changes state (solid to liquid, liquid to gas) when heat is exchanged with surroundings. During these transitions, the temperature remains constant.</p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">Latent Heat (L): Q = mL</p>
+          <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
+            <li><strong>Latent Heat of Fusion (L_f):</strong> Heat needed for solid-to-liquid transition.</li>
+            <li><strong>Latent Heat of Vaporisation (L_v):</strong> Heat needed for liquid-to-gas transition.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Heat Transfer Mechanisms</h3>
+        <ol className="list-decimal pl-6 space-y-3">
+          <li><strong>Conduction:</strong> Heat transfer between adjacent parts of a body via molecular collisions without bulk motion of matter. The rate of flow H = KA(T_C - T_D)/L, where K is thermal conductivity.</li>
+          <li><strong>Convection:</strong> Heat transfer by actual motion of matter, occurring only in fluids. It can be natural (driven by buoyancy/gravity) or forced (driven by a pump).</li>
+          <li><strong>Radiation:</strong> Transfer of energy via electromagnetic waves, requiring no medium.
+            <ul className="list-disc pl-6 space-y-2 mt-2">
+              <li><strong>Stefan-Boltzmann Law:</strong> The energy emitted per unit time is H = σAeT⁴, where σ is the Stefan-Boltzmann constant, A is area, e is emissivity, and T is absolute temperature.</li>
+              <li><strong>Wien's Displacement Law:</strong> The wavelength (λ_m) of maximum emission decreases as temperature increases: λ_m T = constant.</li>
+            </ul>
+          </li>
+        </ol>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">Newton’s Law of Cooling</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">The rate of loss of heat (– dQ/dt) of a body is directly proportional to the difference in temperature between the body and its surroundings (ΔT = T₂ – T₁). This holds for small temperature differences.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Analogy and Applications</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500">
+            <h4 className="font-bold text-amber-900 mb-2">⚙️ Daily Life (Engineering)</h4>
+            <p className="text-sm">Blacksmiths heat an iron ring before fitting it onto the wooden rim of a horse cart. Because the iron ring's diameter is slightly smaller than the rim at room temperature, heating causes it to expand (linear/area expansion), allowing it to slip onto the rim. As it cools, it contracts and grips the wheel tightly.</p>
+          </div>
+          <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500">
+            <h4 className="font-bold text-emerald-900 mb-2">❄️ Nature (Environmental)</h4>
+            <p className="text-sm">Anomalous expansion of water allows lakes to freeze at the top first. Since water at 4 °C is densest, it sinks, while colder water (less than 4 °C) stays on top and freezes. This preserves animal and plant life at the bottom of the lake.</p>
+          </div>
+          <div className="bg-sky-50 p-6 rounded-xl border-l-4 border-sky-500">
+            <h4 className="font-bold text-sky-900 mb-2">☀️ Daily Life (Heat Transfer)</h4>
+            <p className="text-sm">We wear white clothes in summer because they reflect radiation, and dark clothes in winter because they absorb heat better. Cooking pot bottoms are often blackened to maximize heat absorption from the fire.</p>
+          </div>
+          <div className="bg-purple-50 p-6 rounded-xl border-l-4 border-purple-500">
+            <h4 className="font-bold text-purple-900 mb-2">🚗 Engineering (Specific Heat)</h4>
+            <p className="text-sm">Water is used in automobile radiators as a coolant because its high specific heat allows it to absorb a large amount of heat with a relatively small rise in its own temperature.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Simulation Guide</h3>
+        <div className="my-6 p-5 bg-slate-50 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <p className="text-sm font-bold text-brand-primary">Step-by-Step Discovery in the Virtual Lab:</p>
+          <ol className="list-decimal pl-6 space-y-3 text-sm">
+            <li><strong>Step 1:</strong> Select the Copper rod. Turn the burner to 100W. Observe the Temperature rise and the rod length increase simultaneously. <em>Logic: Heat addition increases internal kinetic energy and causes expansion.</em></li>
+            <li><strong>Step 2:</strong> Switch to the Glass rod. Notice for the same time interval, the expansion is significantly less. <em>Logic: Glass has a much smaller coefficient of linear expansion than Copper.</em></li>
+            <li><strong>Step 3:</strong> Select the Ice block. Start heating. Observe that the temperature stays at 0 °C for several minutes while the ice visibly turns to water. <em>Logic: Energy is being used for the Latent Heat of Fusion to break molecular bonds, not to increase temperature.</em></li>
+            <li><strong>Step 4:</strong> Heat the resulting Water. Observe the temperature rise until 100 °C. Notice the graph flatlines again. <em>Logic: Water is reaching its boiling point and absorbing Latent Heat of Vaporisation.</em></li>
+          </ol>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mt-3">
+            <p className="text-sm text-blue-800 text-center">
+              <strong>Learning Outcome:</strong> Thermal properties are material-specific (different α_l, s). Heat causes macroscopic expansion and microscopic vibration. Phase changes require significant energy without temperature change.
+            </p>
+          </div>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
   }
 
   if (topic?.id === 'heat-transfer-blackbody-radiation') {
@@ -2996,6 +3082,89 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p>ACTION: DICER initiated.</p>
           <p>STATUS: Threat Neutralized.</p>
         </div>
+        <VideoSection />
+      </div>
+    );
+  }
+
+
+  if (topic?.id === 'wave-motion') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Wave Motion: Transverse and Longitudinal</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A wave is a pattern of disturbance that moves through a medium without the actual physical transfer or flow of matter as a whole. It acts as a carrier of energy and information from one point to another.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Nature of Waves</h3>
+        <p>
+          Wave motion is intimately connected to harmonic oscillations. While oscillations involve a single object moving to and fro, a wave describes what happens in a system of such objects coupled together by elastic forces.
+          In a wave, it is the <strong>disturbance</strong> that travels, not the particles of the medium themselves.
+        </p>
+
+        <div className="my-6 p-5 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-bold text-blue-800 mb-2 underline">Key Differential:</p>
+          <ul className="text-sm space-y-2 list-disc ml-5 text-slate-700 font-medium">
+             <li><strong>Particle Motion:</strong> Localized oscillation about equilibrium.</li>
+             <li><strong>Wave Motion:</strong> Continuous progression through space.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Categorization</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-brand-primary">
+            <h4 className="font-bold text-brand-primary">Transverse Waves</h4>
+            <p className="text-xs text-slate-500 mt-2">
+              Particles move <strong>perpendicular</strong> to the direction of wave propagation.
+              <br /><br />
+              <em>Examples:</em> Waves on a plucked string, light waves (EM), sea waves.
+            </p>
+          </div>
+          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-indigo-600">
+            <h4 className="font-bold text-indigo-600">Longitudinal Waves</h4>
+            <p className="text-xs text-slate-500 mt-2">
+              Particles move <strong>parallel</strong> to the direction of wave propagation, creating regions of compression and rarefaction.
+              <br /><br />
+              <em>Examples:</em> Sound waves in air, P-waves in earthquakes, compression in a slinky.
+            </p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Mathematical Description</h3>
+        <p className="text-sm">
+          A harmonic wave traveling in the +x direction is described by the displacement relation:
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
+          <p className="font-mono text-xl text-brand-primary">y(x, t) = A sin(kx - ωt + φ)</p>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-mono">
+            <span>A: Amplitude</span>
+            <span>k: Wave number (2π/λ)</span>
+            <span>ω: Angular frequency (2πv)</span>
+            <span>φ: Phase constant</span>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Wave Speed</h3>
+        <p className="text-sm">
+          The speed (v) of a wave depends on the interaction between two medium properties: <strong>Elasticity</strong> (restoring force) and <strong>Inertia</strong> (mass).
+        </p>
+        <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 my-4">
+          <h4 className="font-bold text-amber-900 mb-2">弦 (String) Wave Speed</h4>
+          <p className="text-sm">
+            For a transverse wave on a string under tension (T) and linear mass density (μ):
+            <br />
+            <strong className="text-lg">v = √(T/μ)</strong>
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Insight</h3>
+        <div className="bg-emerald-50 p-6 rounded-xl border-l-4 border-emerald-500 my-4 font-medium">
+          <h4 className="font-bold text-emerald-900 mb-2">Why can't sound travel in space?</h4>
+          <p className="text-sm">
+             Mechanical waves like sound require a medium to provide the elastic restoring force. In the vacuum of space, there are no particles to compress or displace, so the 'disturbance' cannot propagate. In contrast, Light is an Electromagnetic wave and carries its own fields, needing no medium!
+          </p>
+        </div>
+
         <VideoSection />
       </div>
     );
