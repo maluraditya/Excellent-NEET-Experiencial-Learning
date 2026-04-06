@@ -20,10 +20,10 @@ const EXPANSION_MATERIALS: Record<MaterialKey, { label: string; alpha: number; c
     water: { label: 'Water', alpha: 210e-6, color: '#0ea5e9', type: 'liquid' } // alpha is average volumetric, but we use special function for anomalous 0-10C
 };
 
-const CALORIMETRY_SOLIDS: Record<SolidMaterialKey, { label: string; c: number; color: string }> = {
-    aluminum: { label: 'Aluminum', c: 900, color: '#94a3b8' },
-    copper: { label: 'Copper', c: 385, color: '#d97706' },
-    lead: { label: 'Lead', c: 128, color: '#475569' }
+const CALORIMETRY_SOLIDS: Record<SolidMaterialKey, { label: string; c: number; color: string; rho: number }> = {
+    aluminum: { label: 'Aluminum', c: 900, color: '#94a3b8', rho: 2700 },
+    copper: { label: 'Copper', c: 385, color: '#d97706', rho: 8960 },
+    lead: { label: 'Lead', c: 128, color: '#475569', rho: 11340 }
 };
 
 const WATER_C = 4186; // J/(kg K)
@@ -247,27 +247,32 @@ const ThermalExpansionCalorimetryLab: React.FC<ThermalExpansionCalorimetryLabPro
                 </div>
 
                 {station === 'expansion' && (
-                    <div className="grid lg:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-4">
                         <div className="space-y-4 p-4 md:p-5 bg-white rounded-xl border border-slate-200">
                             <SliderRow label="Temperature" valueLabel={`${expTemp} °C`} minLabel={expMaterial === 'water' ? '0 °C' : '20 °C'} maxLabel={expMaterial === 'water' ? '15 °C' : '400 °C'}>
                                 <input type="range" min={expMaterial === 'water' ? 0 : 20} max={expMaterial === 'water' ? 15 : 400} step={expMaterial === 'water' ? 0.2 : 10} value={expTemp} onChange={(e) => setExpTemp(Number(e.target.value))} className="w-full accent-orange-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                             </SliderRow>
-                            <div className="grid grid-cols-3 gap-2 mt-4">
-                                {['linear', 'area', 'volume'].map((d) => (
-                                    <button key={d} onClick={() => setExpDimension(d as DimensionMode)} disabled={expMaterial === 'water' && d !== 'volume'} className={`text-xs p-2 rounded-lg font-bold border transition-colors ${expDimension === d ? 'bg-orange-600 text-white border-orange-600' : 'bg-slate-50 text-slate-600 border-slate-200'} disabled:opacity-30 disabled:cursor-not-allowed`}>
-                                        {d.charAt(0).toUpperCase() + d.slice(1)} ({d === 'linear' ? '1D' : d === 'area' ? '2D' : '3D'})
-                                    </button>
-                                ))}
+                            
+                            <div className="pt-2">
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Dimension</div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['linear', 'area', 'volume'].map((d) => (
+                                        <button key={d} onClick={() => setExpDimension(d as DimensionMode)} disabled={expMaterial === 'water' && d !== 'volume'} className={`text-xs p-2 rounded-lg font-bold border transition-colors ${expDimension === d ? 'bg-orange-600 text-white border-orange-600' : 'bg-slate-50 text-slate-600 border-slate-200'} disabled:opacity-30 disabled:cursor-not-allowed`}>
+                                            {d.charAt(0).toUpperCase() + d.slice(1)} ({d === 'linear' ? '1D' : d === 'area' ? '2D' : '3D'})
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                        <div className="space-y-4 p-4 md:p-5 bg-white rounded-xl border border-slate-200">
-                            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Material</div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {(Object.keys(EXPANSION_MATERIALS) as MaterialKey[]).map((key) => (
-                                    <button key={key} onClick={() => { setExpMaterial(key); if (key === 'water') { setExpDimension('volume'); setExpTemp(4); } else if (expMaterial === 'water') { setExpTemp(20); } }} className={`rounded-xl px-2 py-2 text-xs md:text-sm font-bold border transition-all ${expMaterial === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200'}`} style={expMaterial === key ? { backgroundColor: EXPANSION_MATERIALS[key].color } : {}}>
-                                        {EXPANSION_MATERIALS[key].label}
-                                    </button>
-                                ))}
+
+                            <div className="pt-2">
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Material</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {(Object.keys(EXPANSION_MATERIALS) as MaterialKey[]).map((key) => (
+                                        <button key={key} onClick={() => { setExpMaterial(key); if (key === 'water') { setExpDimension('volume'); setExpTemp(4); } else if (expMaterial === 'water') { setExpTemp(20); } }} className={`flex-1 min-w-[75px] rounded-xl px-2 py-2 text-xs md:text-sm font-bold border transition-all ${expMaterial === key ? 'text-white border-transparent shadow-md' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`} style={expMaterial === key ? { backgroundColor: EXPANSION_MATERIALS[key].color } : {}}>
+                                            {EXPANSION_MATERIALS[key].label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -305,9 +310,9 @@ const ThermalExpansionCalorimetryLab: React.FC<ThermalExpansionCalorimetryLabPro
                             <div className="flex justify-between items-center mb-1">
                                 <span className="text-sm font-bold text-slate-700">Hot Object (Metal)</span>
                             </div>
-                            <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="flex flex-wrap gap-2 mb-3">
                                 {(Object.keys(CALORIMETRY_SOLIDS) as SolidMaterialKey[]).map((key) => (
-                                    <button key={key} onClick={() => setCalHotMat(key)} disabled={calDropped} className={`text-xs p-1.5 rounded-lg font-bold border ${calHotMat === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200'} disabled:opacity-50`} style={calHotMat === key ? { backgroundColor: CALORIMETRY_SOLIDS[key].color } : {}}>{CALORIMETRY_SOLIDS[key].label}</button>
+                                    <button key={key} onClick={() => setCalHotMat(key)} disabled={calDropped} className={`flex-1 min-w-[70px] text-xs px-2 py-1.5 rounded-lg font-bold border ${calHotMat === key ? 'text-white border-transparent shadow-md' : 'bg-slate-50 text-slate-600 border-slate-200'} disabled:opacity-50`} style={calHotMat === key ? { backgroundColor: CALORIMETRY_SOLIDS[key].color } : {}}>{CALORIMETRY_SOLIDS[key].label}</button>
                                 ))}
                             </div>
                             <SliderRow label="Mass" valueLabel={`${calHotMass} g`} minLabel="10 g" maxLabel="200 g">
@@ -320,7 +325,7 @@ const ThermalExpansionCalorimetryLab: React.FC<ThermalExpansionCalorimetryLabPro
                         <div className="space-y-4 p-4 md:p-5 bg-white rounded-xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <span className="text-sm font-bold text-slate-700 mb-2 block">Cold Bath (Water)</span>
-                                <SliderRow label="Mass" valueLabel={`${calWaterMass} g`} minLabel="50 g" maxLabel="500 g">
+                                <SliderRow label="Volume" valueLabel={`${calWaterMass} ml (${calWaterMass} g)`} minLabel="50 ml" maxLabel="500 ml">
                                     <input type="range" min="50" max="500" step="10" value={calWaterMass} onChange={(e) => setCalWaterMass(Number(e.target.value))} disabled={calDropped} className="w-full accent-cyan-500 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer disabled:opacity-50" />
                                 </SliderRow>
                                 <SliderRow label="Temp (T2)" valueLabel={`${calWaterTemp} °C`} minLabel="10 °C" maxLabel="40 °C">
@@ -362,7 +367,7 @@ const SliderRow = ({ label, valueLabel, minLabel, maxLabel, children, className=
     </div>
 );
 
-function getDescriptions(station: Station, opts: any): string[] {
+function getDescriptions(station: Station, opts: any): React.ReactNode[] {
     if (station === 'expansion') {
         if (opts.expMaterial === 'water') {
             return [
@@ -372,11 +377,11 @@ function getDescriptions(station: Station, opts: any): string[] {
                 "This is why ice floats and lakes freeze from the top down."
             ];
         }
-        const mult = opts.expDimension === 'linear' ? "α" : opts.expDimension === 'area' ? "β ≈ 2α" : "γ ≈ 3α";
+        const mult = opts.expDimension === 'linear' ? <span>α<sub>l</sub></span> : opts.expDimension === 'area' ? <span>α<sub>a</sub> = 2α<sub>l</sub></span> : <span>α<sub>v</sub> = 3α<sub>l</sub></span>;
         return [
             "Thermal Expansion in Solids:",
             "As temperature increases, atoms vibrate more violently, pushing each other apart.",
-            `Formula: Δ${opts.expDimension === 'linear' ? 'L' : opts.expDimension === 'area' ? 'A' : 'V'} = ${opts.expDimension === 'linear' ? 'L' : opts.expDimension === 'area' ? 'A' : 'V'}₀ · ${mult} · ΔT`,
+            <span>Formula: Δ{opts.expDimension === 'linear' ? 'l' : opts.expDimension === 'area' ? 'A' : 'V'} = {opts.expDimension === 'linear' ? 'l' : opts.expDimension === 'area' ? 'A' : 'V'}<sub>0</sub> · {mult} · ΔT</span>,
             "Different materials expand at different rates governed by their structural bonds."
         ];
     }
@@ -385,13 +390,13 @@ function getDescriptions(station: Station, opts: any): string[] {
             "Heating Curve and Phase Changes:",
             "During a phase change, temperature remains constant despite heat being added.",
             "Q = mL (Latent Heat of Fusion/Vaporization): Energy breaks intermolecular bonds.",
-            "Q = mcΔT (Specific Heat): Energy increases kinetic energy (temperature)."
+            "Q = msΔT (Specific Heat): Energy increases kinetic energy (temperature)."
         ];
     }
     return [
         "Calorimetry Principle:",
         "Law of Conservation of Energy: Heat Lost by Hot Body = Heat Gained by Cold Bath.",
-        "m₁c₁(T₁ - T_f) = m₂c₂(T_f - T₂)",
+        <span>m<sub>1</sub>s<sub>1</sub>(T<sub>1</sub> - T<sub>f</sub>) = m<sub>2</sub>s<sub>2</sub>(T<sub>f</sub> - T<sub>2</sub>)</span>,
         opts.calDropped ? "Notice how water's high specific heat capacity means its temperature changes much less than the metal's." : "Drop the hot metal to observe the thermal equilibrium process."
     ];
 }
@@ -460,7 +465,7 @@ function drawExpansionScene(ctx: CanvasRenderingContext2D, p: any) {
     if (expMaterial === 'water') {
         // Exaggerate visually
         const vol = getWaterVolumeFactor(expTemp);
-        scaleFactor = 1 + (vol - 1) * 50000; // massive visual multiplier for Anomalous observation
+        scaleFactor = 1 + (vol - 1) * 300; // Exaggerate but keep inside beaker
     } else {
         const deltaT = expTemp - 20;
         const alpha = EXPANSION_MATERIALS[expMaterial].alpha;
@@ -765,7 +770,22 @@ function drawCalorimetryScene(ctx: CanvasRenderingContext2D, p: any) {
     
     // Beaker (Calorimeter)
     const bW = 140; const bH = 160;
-    const waterLvl = bH * (state.calWaterMass / 500) * 0.8; // scales with mass visually
+    const baseWaterLvl = bH * (state.calWaterMass / 500) * 0.8; // scales with mass visually
+    
+    // Calculate displaced volume when metal is submerged
+    const metalMassKg = state.calHotMass * 1e-3;
+    const metalRho = CALORIMETRY_SOLIDS[state.calHotMat].rho;
+    const metalVolM3 = metalMassKg / metalRho; // m^3
+    const metalVolMl = metalVolM3 * 1e6; // ml
+    // beaker cross-section area in ml-per-pixel units
+    const beakerInnerW = bW - 4; // px inner width
+    const maxWaterLvlPx = bH * 0.8; // max water height in px for 500ml
+    const pxPerMl = maxWaterLvlPx / 500;
+    const displacePx = metalVolMl * pxPerMl;
+    
+    // Animate displacement
+    const dropProgress = state.calDropped ? Math.min(1, state.calMixTime * 5) : 0;
+    const waterLvl = baseWaterLvl + displacePx * dropProgress;
     
     ctx.fillStyle = '#f1f5f9'; ctx.fillRect(cx - bW/2 - 10, cy - bH/2, bW + 20, bH); // insulation outer
     ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 4; ctx.strokeRect(cx - bW/2 - 10, cy - bH/2, bW + 20, bH);
@@ -813,7 +833,7 @@ function drawCalorimetryScene(ctx: CanvasRenderingContext2D, p: any) {
         ctx.fillRect(tx-3, ty+10-fill, 6, fill);
         ctx.beginPath(); ctx.arc(tx, ty+10, 6, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(12)}px sans-serif`; ctx.textAlign='center';
-        ctx.fillText(`${T.toFixed(1)}°C`, tx, ty+35);
+        ctx.fillText(`${T.toFixed(1)}${String.fromCharCode(176)}C`, tx, ty+35);
         ctx.fillText(label, tx, ty-70);
     };
 

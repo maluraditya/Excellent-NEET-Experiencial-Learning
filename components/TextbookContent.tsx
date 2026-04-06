@@ -498,9 +498,9 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Thermal Expansion</h3>
         <p>Most substances expand on heating and contract on cooling. This change in dimensions due to temperature increase is called thermal expansion.</p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Linear Expansion:</strong> The fractional change in length (Δl/l) is proportional to the change in temperature (ΔT): Δl = α_l l ΔT, where α_l is the coefficient of linear expansion.</li>
-          <li><strong>Area Expansion:</strong> The change in area (ΔA) is related to temperature change by ΔA = 2α_l A ΔT.</li>
-          <li><strong>Volume Expansion:</strong> The fractional change in volume (ΔV/V) is ΔV = α_v V ΔT. For solids, α_v = 3α_l.</li>
+          <li><strong>Linear Expansion:</strong> The fractional change in length (Δl/l) is proportional to the change in temperature (ΔT): Δl = α<sub>l</sub> l ΔT, where α<sub>l</sub> is the coefficient of linear expansion.</li>
+          <li><strong>Area Expansion:</strong> The change in area (ΔA) is related to temperature change by ΔA = 2α<sub>l</sub> A ΔT.</li>
+          <li><strong>Volume Expansion:</strong> The fractional change in volume (ΔV/V) is ΔV = α<sub>v</sub> V ΔT. For solids, α<sub>v</sub> = 3α<sub>l</sub>.</li>
           <li><strong>Anomalous Expansion of Water:</strong> Water contracts on heating between 0 °C and 4 °C. It reaches its maximum density at 4 °C.</li>
         </ul>
 
@@ -512,8 +512,8 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
           <p className="font-mono text-xl text-brand-primary text-center">Latent Heat (L): Q = mL</p>
           <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
-            <li><strong>Latent Heat of Fusion (L_f):</strong> Heat needed for solid-to-liquid transition.</li>
-            <li><strong>Latent Heat of Vaporisation (L_v):</strong> Heat needed for liquid-to-gas transition.</li>
+            <li><strong>Latent Heat of Fusion (L<sub>f</sub>):</strong> Heat needed for solid-to-liquid transition.</li>
+            <li><strong>Latent Heat of Vaporisation (L<sub>v</sub>):</strong> Heat needed for liquid-to-gas transition.</li>
           </ul>
         </div>
 

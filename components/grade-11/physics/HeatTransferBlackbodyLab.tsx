@@ -11,16 +11,16 @@ type Station = 'conduction' | 'convection' | 'radiation';
 type MaterialKey = 'copper' | 'steel' | 'glass';
 type EnvironmentKey = 'air' | 'water' | 'vacuum';
 
-const MATERIALS: Record<MaterialKey, { label: string; k: number; color: string }> = {
-    copper: { label: 'Copper', k: 400, color: '#d97706' },
-    steel: { label: 'Steel', k: 50, color: '#64748b' },
-    glass: { label: 'Glass', k: 1.05, color: '#0ea5e9' },
+const MATERIALS: Record<MaterialKey, { label: string; k: number; color: string; mp: number }> = {
+    copper: { label: 'Copper', k: 400, color: '#d97706', mp: 1358 },
+    steel: { label: 'Steel', k: 50, color: '#64748b', mp: 1643 },
+    glass: { label: 'Glass', k: 1.05, color: '#0ea5e9', mp: 1773 },
 };
 
-const ENVIRONMENTS: Record<EnvironmentKey, { label: string; factor: number; color: string }> = {
-    air: { label: 'Air', factor: 1, color: '#38bdf8' },
-    water: { label: 'Water', factor: 2.3, color: '#0f766e' },
-    vacuum: { label: 'Vacuum', factor: 0, color: '#7c3aed' },
+const ENVIRONMENTS: Record<EnvironmentKey, { label: string; h: number; color: string }> = {
+    air: { label: 'Air', h: 10, color: '#38bdf8' },
+    water: { label: 'Water', h: 500, color: '#0f766e' },
+    vacuum: { label: 'Vacuum', h: 0, color: '#7c3aed' },
 };
 
 const STATIONS: { key: Station; label: string; accent: string; icon: React.ReactNode }[] = [
@@ -29,9 +29,17 @@ const STATIONS: { key: Station; label: string; accent: string; icon: React.React
     { key: 'radiation', label: 'Radiation', accent: '#f43f5e', icon: <Sun size={18} /> },
 ];
 
-const SIGMA = 5.67e-8;
-const WIEN_CONSTANT_NM_K = 2.9e6;
-const AMBIENT_TEMPERATURE = 300;
+const SIGMA = 5.67e-8; // Stefan-Boltzmann constant W/(m2 K4)
+const WIEN_CONSTANT_NM_K = 2.898e6; // Wien's displacement constant in nm.K
+const AMBIENT_TEMPERATURE = 300; // Kelvin
+
+function formatWatts(w: number): string {
+    if (Math.abs(w) < 0.01) return '0 W';
+    if (Math.abs(w) >= 1e6) return `${(w / 1e6).toFixed(2)} MW`;
+    if (Math.abs(w) >= 1e3) return `${(w / 1e3).toFixed(2)} kW`;
+    if (Math.abs(w) >= 1) return `${w.toFixed(2)} W`;
+    return `${(w * 1e3).toFixed(2)} mW`;
+}
 
 const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -181,17 +189,24 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
         setLengthM(0.6);
     };
 
-    const conductionRate = MATERIALS[material].k * (areaCm2 * 1e-4) * Math.max(temperature - AMBIENT_TEMPERATURE, 0) / Math.max(lengthM, 0.2);
+    const maxTemp = station === 'radiation' ? 6000 : MATERIALS[material].mp;
+
+    // Fourier's Law: Q/t = k * A * deltaT / L  (W)
+    const areaM2 = areaCm2 * 1e-4;
+    const conductionRate = MATERIALS[material].k * areaM2 * Math.max(temperature - AMBIENT_TEMPERATURE, 0) / Math.max(lengthM, 0.2);
     const deltaT = Math.max(temperature - AMBIENT_TEMPERATURE, 0);
-    const convectionStrength = environment === 'vacuum' ? 0 : ENVIRONMENTS[environment].factor * (deltaT / 300) * Math.sqrt(areaCm2 / Math.max(lengthM, 0.2));
-    const radiationPower = SIGMA * (areaCm2 * 1e-4) * Math.pow(temperature, 4);
+    // Newton's Law of Cooling: Q/t = h * A * deltaT  (W)
+    const convectionRate = environment === 'vacuum' ? 0 : ENVIRONMENTS[environment].h * areaM2 * deltaT;
+    // Stefan-Boltzmann (net): P = sigma * A * (T^4 - T0^4)  (W)
+    const radiationPower = SIGMA * areaM2 * (Math.pow(temperature, 4) - Math.pow(AMBIENT_TEMPERATURE, 4));
+    // Wien's Displacement Law: lambda_max = b / T  (nm)
     const peakNm = WIEN_CONSTANT_NM_K / temperature;
 
     const descriptions = getDescriptions(station, {
         materialLabel: MATERIALS[material].label,
         environmentLabel: ENVIRONMENTS[environment].label,
         conductionRate,
-        convectionStrength,
+        convectionRate,
         radiationPower,
         peakNm,
         lengthM: lengthM,
@@ -225,23 +240,6 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                         </div>
                     ))}
                 </div>
-                <div className="mt-auto pt-4 border-t border-slate-100">
-                    <div className="bg-slate-50 rounded-xl p-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Efficiency Rating</p>
-                        <div className="flex items-center gap-3">
-                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-brand-primary transition-all duration-500" 
-                                    style={{ width: `${station === 'conduction' ? Math.min(100, conductionRate/3) : station === 'convection' ? Math.min(100, convectionStrength*30) : 100}%` }} 
-                                />
-                            </div>
-                            <span className="text-xs font-bold text-brand-primary">
-                                {station === 'conduction' ? (conductionRate > 100 ? 'High' : conductionRate > 30 ? 'Med' : 'Low') : 
-                                 station === 'convection' ? (convectionStrength > 1.5 ? 'Strong' : 'Weak') : 'Max'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Main Center Controls */}
@@ -264,15 +262,15 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                     <StatCard label="Heat Flow" value={`${conductionRate.toFixed(1)} W`} color="text-orange-600" icon={<Zap size={14}/>} />
-                    <StatCard label="Convection" value={convectionStrength.toFixed(2)} color="text-cyan-600" icon={<Droplets size={14}/>} />
+                    <StatCard label="Convection" value={`${convectionRate.toFixed(1)} W`} color="text-cyan-600" icon={<Droplets size={14}/>} />
                     <StatCard label="Radiation" value={`${radiationPower.toFixed(1)} W`} color="text-rose-600" icon={<CloudSun size={14}/>} />
                     <StatCard label="Peak Lambda" value={`${peakNm.toFixed(0)} nm`} color="text-purple-600" icon={<Activity size={14}/>} />
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-4">
                     <div className="space-y-4 p-4 md:p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
-                        <SliderRow label="Temperature" valueLabel={`${temperature} K`} minLabel="300 K" maxLabel="6000 K">
-                            <input type="range" min="300" max="6000" step="50" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="w-full accent-rose-600 h-2 md:h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+                        <SliderRow label="Temperature" valueLabel={`${temperature} K`} minLabel="300 K" maxLabel={`${maxTemp} K`}>
+                            <input type="range" min="300" max={maxTemp} step="50" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="w-full accent-rose-600 h-2 md:h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                         </SliderRow>
                         <SliderRow label="Area" valueLabel={`${areaCm2.toFixed(1)} cm²`} minLabel="1 cm²" maxLabel="8 cm²">
                             <input type="range" min="1" max="8" step="0.5" value={areaCm2} onChange={(e) => setAreaCm2(Number(e.target.value))} className="w-full accent-orange-600 h-2 md:h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
@@ -290,7 +288,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Material</div>
                                 <div className="grid grid-cols-1 gap-2">
                                     {(Object.keys(MATERIALS) as MaterialKey[]).map((key) => (
-                                        <button key={key} onClick={() => setMaterial(key)} className={`rounded-xl px-3 py-3 text-xs md:text-sm font-bold border transition-all ${material === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-white'}`} style={material === key ? { backgroundColor: MATERIALS[key].color } : {}}>{MATERIALS[key].label}</button>
+                                        <button key={key} onClick={() => { setMaterial(key); if (temperature > MATERIALS[key].mp) setTemperature(MATERIALS[key].mp); }} className={`rounded-xl px-3 py-3 text-xs md:text-sm font-bold border transition-all ${material === key ? 'text-white border-transparent' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-white'}`} style={material === key ? { backgroundColor: MATERIALS[key].color } : {}}>{MATERIALS[key].label} ({MATERIALS[key].mp} K)</button>
                                     ))}
                                 </div>
                             </div>
@@ -345,8 +343,8 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                             <Zap size={12} className="text-brand-secondary" />
                         </div>
                         <div className="text-xl font-mono font-bold text-white tracking-tighter">
-                            {station === 'conduction' ? conductionRate.toFixed(1) : station === 'convection' ? convectionStrength.toFixed(2) : radiationPower.toFixed(1)}
-                            <span className="text-xs ml-1 text-slate-400">{station === 'convection' ? 'Index' : 'Watts'}</span>
+                            {station === 'conduction' ? formatWatts(conductionRate) : station === 'convection' ? formatWatts(convectionRate) : formatWatts(radiationPower)}
+                            <span className="text-xs ml-1 text-slate-400">(SI)</span>
                         </div>
                     </div>
                 </div>
@@ -401,10 +399,11 @@ function getDescriptions(station: Station, values: any): string[] {
         ];
     }
     return [
-        "Radiation: emission of electromagnetic rays.",
-        `Highlight: Burner/Flame. Heat is transferred via infrared waves across the gap between burner and pot.`,
-        "No medium is required for this transfer. Power scales with Temperature to the fourth power (T⁴).",
-        "Formula: P = σ·A·T⁴"
+        "Radiation: Energy transfer via Infrared Waves.",
+        "Source: Heating Element. Energy travels through the gap via electromagnetic radiation.",
+        "Unlike conduction or convection, radiation does not require a material medium.",
+        "Stefan-Boltzmann Law: Net power P = σ A (T⁴ - T₀⁴), where T₀ is ambient temperature.",
+        <span>Formula: P = σ A (T<sup>4</sup> - T<sub>0</sub><sup>4</sup>)</span>
     ];
 }
 
@@ -754,10 +753,10 @@ function drawConvectionGraph(ctx: any, p: any) {
 
     const order: EnvironmentKey[] = ['air', 'water', 'vacuum'];
     const barW = gw / 5;
-    const maxValue = ENVIRONMENTS.water.factor * (deltaT / 300) * Math.sqrt(8 / 0.2);
+    const maxValue = ENVIRONMENTS.water.h * (8 * 1e-4) * deltaT;
 
     order.forEach((key, index) => {
-        const val = key === 'vacuum' ? 0 : ENVIRONMENTS[key].factor * (deltaT / 300) * Math.sqrt(areaCm2 / Math.max(lengthM, 0.2));
+        const val = key === 'vacuum' ? 0 : ENVIRONMENTS[key].h * (areaCm2 * 1e-4) * deltaT;
         const barH = (val / maxValue) * (gh - 30);
         const bx = gx + (index * 1.8 + 0.5) * barW;
         const by = gy + gh - barH;
@@ -807,8 +806,12 @@ function normalizedPlanck(l: number, T: number) {
 }
 
 function blackbodyColor(T: number) {
-    if (T < 1200) return '#ef4444'; if (T < 2200) return '#f97316';
-    if (T < 4500) return '#fbbf24'; return '#bae6fd';
+    if (T < 1000) return '#450a0a'; // Dark Red (Dull)
+    if (T < 2000) return '#ef4444'; // Red
+    if (T < 3500) return '#f97316'; // Orange
+    if (T < 5500) return '#fbbf24'; // Yellow/Amber
+    if (T < 7500) return '#ffffff'; // White
+    return '#bae6fd'; // Blue-White
 }
 
 function roundRect(ctx: any, x: number, y: number, w: number, h: number, r: number) {
