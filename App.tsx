@@ -24,6 +24,8 @@ import WavesLab from './components/grade-11/physics/WavesLab';
 
 
 import StokesLawLab from './components/grade-11/physics/StokesLawLab';
+import SurfaceTensionLab from './components/grade-11/physics/SurfaceTensionLab';
+import ZerothLawLab from './components/grade-11/physics/ZerothLawLab';
 
 // Grade 11 - Chemistry
 import HydrogenSpectrumLab from './components/grade-11/chemistry/HydrogenSpectrumLab';
@@ -263,10 +265,26 @@ const App: React.FC = () => {
         State: Force and Area dictate output force according to Pascal's Law.
         Concept: F2 = F1 * (A2/A1). Demonstrates force multiplication and volume conservation (Distance out is less than distance in). If gas is used, compression wastes energy.
       `;
+    } else if (activeTopicId === 'surface-tension') {
+      return `
+        Topic: Surface Tension and Capillarity (NCERT Class 11, Section 9.6)
+        Concept: Surface tension is due to the inward pull on surface molecules.
+        Formula: h = (2S cos θ) / (aρg).
+        States: Water (rise, concave meniscus), Mercury (fall, convex meniscus). Adding detergent reduces S and changes h.
+        Lab: A macro beaker with 3 tubes showing height inverse to radius (h ∝ 1/a) and a molecular microscope showing the inward force vectors.
+      `;
     } else if (activeTopicId === 'carnot-engine') {
       return `
         Topic: Carnot Engine and Carnot Cycle (NCERT Class 11, Chapter 11)
         Concept: Carnot cycle has 4 steps: isothermal expansion, adiabatic expansion, isothermal compression, adiabatic compression. Efficiency = 1 - T2/T1. No engine can exceed Carnot efficiency.
+      `;
+    } else if (activeTopicId === 'zeroth-law') {
+      return `
+        Topic: Zeroth Law of Thermodynamics (NCERT Class 11, Chapter 11)
+        Concept: Two systems in thermal equilibrium with a third system are in equilibrium with each other. If T_A = T_C and T_B = T_C, then T_A = T_B.
+        Walls: Adiabatic (insulating, blocks heat) vs Diathermic (conducting, allows heat).
+        Simulation: Three chambers A, B, C with particles. Toggle walls between adiabatic and diathermic. Watch temperatures equalize.
+        Application: Thermometer works because of the Zeroth Law.
       `;
     } else if (activeTopicId === 'thermodynamic-processes') {
       return `
@@ -567,9 +585,25 @@ const App: React.FC = () => {
           />
         )}
 
+        {/* ================== SURFACE TENSION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'surface-tension' && (
+          <SurfaceTensionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
         {/* ================== CARNOT ENGINE ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'carnot-engine' && (
           <CarnotEngineLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== ZEROTH LAW OF THERMODYNAMICS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'zeroth-law' && (
+          <ZerothLawLab
             topic={currentTopics.find(t => t.id === activeTopicId)!}
             onExit={goHome}
           />

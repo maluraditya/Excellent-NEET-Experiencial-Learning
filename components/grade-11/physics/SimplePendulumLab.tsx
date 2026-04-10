@@ -108,9 +108,14 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
                 tRef.elapsed += dt;
                 setElapsedTime(tRef.elapsed);
 
-                // Auto-timer: Count zero-crossings
-                if ((tRef.lastOmega <= 0 && s.omega > 0) || (tRef.lastOmega >= 0 && s.omega < 0)) {
-                    tRef.oscCount += 0.5; // Half oscillation
+                // Count a full oscillation only when the bob returns to the same-side extreme
+                const returnedToInitialExtreme =
+                    s.initTheta >= 0
+                        ? (tRef.lastOmega > 0 && s.omega <= 0)
+                        : (tRef.lastOmega < 0 && s.omega >= 0);
+
+                if (returnedToInitialExtreme) {
+                    tRef.oscCount += 1;
                     if (tRef.oscCount >= 10) { // Stop at 10 full oscillations
                         tRef.active = false;
                         setIsTiming(false);

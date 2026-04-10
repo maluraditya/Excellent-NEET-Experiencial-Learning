@@ -126,6 +126,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         const fs = (base: number) => Math.max(10, Math.min(base * scale, W * 0.025, H * 0.045));
         const pad = Math.min(W * 0.03, H * 0.035, scale * 24);
 
+        const topH = H * 0.75;
         const cylW_val = W * 0.20, graphW_val = W * 0.50, statsW_val = W * 0.20;
         const cylX_val = pad, graphX_val = cylX_val + cylW_val + pad * 2, statsX_val = graphX_val + graphW_val + pad * 2;
 
@@ -145,7 +146,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         }
 
         // --- CYLINDER ---
-        const cylH_val = H * 0.45;
+        const cylH_val = topH - pad * 8;
         const cylPad_val = cylW_val * 0.1;
         const pistonNorm_val = (currentV - V1) / (V3 * 1.1 - V1);
         const pistonY_val = pad * 5 + cylH_val - pistonNorm_val * (cylH_val - 40);
@@ -178,7 +179,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         ctx.fillText(resLabel_val, cylX_val + cylW_val / 2, pad * 5 + cylH_val + pad * 1.3);
 
         // --- P-V GRAPH (NCERT Style — power V scaling, linear P) ---
-        const gh_val = H * 0.55, gw_val = graphW_val - pad * 5;
+        const gh_val = topH - pad * 9, gw_val = graphW_val - pad * 5;
         const gx_val = graphX_val + pad * 3.5, gy_val = pad * 5.5;
 
         ctx.fillStyle = '#ffffff'; roundRect(ctx, graphX_val, pad * 3, graphW_val, gh_val + pad * 5, 18); ctx.fill();
@@ -196,7 +197,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         ctx.fillText('P-V Diagram of Heat Engine', graphX_val + graphW_val / 2, pad * 4.2);
 
         ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(13)}px "Inter", sans-serif`;
-        ctx.fillText('Volume  →', gx_val + gw_val / 2, gy_val + gh_val + pad * 2.8);
+        ctx.fillText('Volume  →', gx_val + gw_val / 2, gy_val + gh_val + pad * 2.5);
         ctx.save(); ctx.translate(gx_val - pad * 2.2, gy_val + gh_val / 2); ctx.rotate(-Math.PI / 2);
         ctx.fillText('Pressure  →', 0, 0); ctx.restore();
 
@@ -301,23 +302,23 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
 
             // I: Isothermal — ABOVE the top curve, centered between points 1 and 2
             const i1x = (sv_val(V1) + sv_val(V2)) / 2;
-            const i1y = sp_val(isothermP_calc((V1 + V2) / 2, t1)) - procFont * 1.8;
+            const i1y = sp_val(isothermP_calc((V1 + V2) / 2, t1)) - procFont * 1.5;
             drawEdgeLabel(1, 'I  Isothermal expansion', i1x, i1y, 'center');
 
             // II: Adiabatic — RIGHT of the right curve, between points 2 and 3
-            const i2v = V2 + (V3 - V2) * 0.6;
-            const i2x = sv_val(i2v) + procFont * 3;
+            const i2v = V2 + (V3 - V2) * 0.45;
+            const i2x = sv_val(i2v) + procFont * 3.5;
             const i2y = sp_val(adiabaticP_calc(i2v, P2, V2));
             drawEdgeLabel(2, 'II  Adiabatic expansion', i2x, i2y, 'left');
 
             // III: Isothermal — BELOW the bottom curve, centered between points 3 and 4
             const i3x = (sv_val(V3) + sv_val(V4)) / 2;
-            const i3y = sp_val(isothermP_calc((V3 + V4) / 2, t2)) + procFont * 2.5;
+            const i3y = sp_val(isothermP_calc((V3 + V4) / 2, t2)) + procFont * 1.8;
             drawEdgeLabel(3, 'III  Isothermal compression', i3x, i3y, 'center');
 
             // IV: Adiabatic — LEFT of the left curve, between points 4 and 1
-            const i4v = V4 + (V1 - V4) * 0.4;
-            const i4x = sv_val(i4v) - procFont * 3;
+            const i4v = V4 + (V1 - V4) * 0.55;
+            const i4x = sv_val(i4v) - procFont * 3.5;
             const i4y = sp_val(adiabaticP_calc(i4v, P4, V4));
             drawEdgeLabel(4, 'IV  Adiabatic compression', i4x, i4y, 'right');
 
@@ -390,7 +391,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         });
 
         // --- DESCRIPTION BOX ---
-        const descY_val = pad * 5 + cylH_val + 60;
+        const descY_val = topH + pad;
         const descH_val = H - descY_val - pad;
         if (descH_val > 50) {
             const step_info = STEP_INFO[cp];
@@ -423,7 +424,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         }
 
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(20)}px sans-serif`; ctx.textAlign = 'left';
-        ctx.fillText('Thermodynamics: The Carnot Heat Engine', pad, pad * 1.3);
+        ctx.fillText('Thermodynamics: The Carnot Heat Engine', pad + 150 * scale, pad * 1.3);
 
         animRef.current = requestAnimationFrame(draw);
     }, [t1, t2, V2, V3, efficiency, phase]);

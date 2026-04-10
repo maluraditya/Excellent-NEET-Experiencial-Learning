@@ -68,6 +68,19 @@ export const TOPICS_11TH: Topic[] = [
         youtubeVideoIds: ['h2IBnGURgHY']
     },
     {
+        id: 'surface-tension',
+        title: 'Surface Tension and Capillarity',
+        subject: 'Physics',
+        unit: 'Unit IX',
+        chapter: 'Mechanical Properties of Fluids',
+        description: 'Discover how molecular forces create surface tension, how the angle of contact determines wetting behavior, and why liquids rise in narrow tubes.',
+        thumbnailIcon: 'Activity',
+        branch: 'Mechanics',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_surface_tension.png',
+        youtubeVideoIds: ['L7gOIFgYl2k'] // Placeholder
+    },
+    {
         id: 'carnot-engine',
         title: 'Carnot Engine and Carnot Cycle',
         subject: 'Physics',
@@ -79,6 +92,19 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_carnot_1771662842471.png',
         youtubeVideoIds: ['IMXcixHO9u0']
+    },
+    {
+        id: 'zeroth-law',
+        title: 'Zeroth Law of Thermodynamics',
+        subject: 'Physics',
+        unit: 'Unit XI',
+        chapter: 'Thermodynamics',
+        description: 'Discover thermal equilibrium and the foundation of temperature. Control adiabatic and diathermic walls between three gas chambers to prove the Zeroth Law.',
+        thumbnailIcon: 'Activity',
+        branch: 'Thermodynamics',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_zeroth_law.png',
+        youtubeVideoIds: ['L7gOIFgYl2k']
     },
     {
         id: 'thermodynamic-processes',

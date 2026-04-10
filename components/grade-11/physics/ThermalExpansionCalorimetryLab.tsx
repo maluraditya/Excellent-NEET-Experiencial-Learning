@@ -441,6 +441,7 @@ function drawExpansionScene(ctx: CanvasRenderingContext2D, p: any) {
     const { x, y, w, h, state, fs, time } = p;
     const { expMaterial, expDimension, expTemp } = state;
     const cx = x + w / 2; const cy = y + h / 2;
+    const clipInset = 8;
 
     let scaleFactor = 1;
     if (expMaterial === 'water') {
@@ -457,10 +458,20 @@ function drawExpansionScene(ctx: CanvasRenderingContext2D, p: any) {
     const baseColor = EXPANSION_MATERIALS[expMaterial].color;
 
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(x + clipInset, y + clipInset, w - clipInset * 2, h - clipInset * 2);
+    ctx.clip();
+
+    ctx.save();
     ctx.translate(cx, cy);
 
     if (expDimension === 'linear') {
-        const bl = w * 0.5; const bw = 20;
+        const bw = 20;
+        const visualMultiplier = 150;
+        const maxDeltaT = 400 - AMBIENT_TEMP;
+        const maxScaleFactor = 1 + EXPANSION_MATERIALS[expMaterial].alpha * maxDeltaT * visualMultiplier;
+        const maxVisualLength = Math.max(80, w - 80);
+        const bl = Math.min(w * 0.5, maxVisualLength / maxScaleFactor);
         const l = bl * scaleFactor;
         
         ctx.fillStyle = '#e2e8f0'; // placeholder outline
@@ -542,6 +553,7 @@ function drawExpansionScene(ctx: CanvasRenderingContext2D, p: any) {
             drawCube(l, false);
         }
     }
+    ctx.restore();
     ctx.restore();
 }
 

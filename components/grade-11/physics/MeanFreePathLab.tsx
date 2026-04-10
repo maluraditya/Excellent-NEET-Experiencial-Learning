@@ -414,8 +414,8 @@ const MeanFreePathLab: React.FC<MeanFreePathLabProps> = ({ topic, onExit }) => {
         // DRAW – RIGHT PANEL (3 stacked cards)
         // ═══════════════════════════════════════════
         const cardGap = pad * 0.9;
-        const card1H  = contentH * 0.32;
-        const card2H  = contentH * 0.32;
+        const card1H  = contentH * 0.28;
+        const card2H  = contentH * 0.25;
         const card3H  = contentH - card1H - card2H - cardGap * 2;
 
         // ── Card 1: Live MFP Meter ──
@@ -477,35 +477,43 @@ const MeanFreePathLab: React.FC<MeanFreePathLabProps> = ({ topic, onExit }) => {
         roundRect(ctx, rightX, c3Y, rightW, card3H, 14); ctx.stroke();
 
         ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(11)}px sans-serif`; ctx.textAlign = 'center';
-        ctx.fillText('CAUSE & EFFECT SUMMARY', rightX + rightW / 2, c3Y + pad * 1.1);
+        ctx.fillText('CAUSE & EFFECT SUMMARY', rightX + rightW / 2, c3Y + pad * 1.05);
 
         // Formula
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'center';
         ctx.fillText('l = 1 / (√2 · nπd²)', rightX + rightW / 2, c3Y + pad * 2.4);
 
         // Three rows: density, size, temperature
-        const rowH = (card3H - pad * 3.5) / 3;
+        const summaryTop = c3Y + pad * 3.05;
+        const summaryBottomPad = pad * 0.45;
+        const rowGap = Math.max(6, pad * 0.18);
+        const rowX = rightX + pad * 0.45;
+        const rowW = rightW - pad * 0.9;
+        const rowH = (card3H - (summaryTop - c3Y) - summaryBottomPad - rowGap * 2) / 3;
         const rows = [
             { label: 'Density n ↑', effect: 'l ↓  (l ∝ 1/n)', color: '#2563eb', desc: 'More targets → shorter path' },
             { label: 'Diameter d ↑', effect: 'l ↓  (l ∝ 1/d²)', color: '#dc2626', desc: 'Bigger cross-section → more hits' },
             { label: 'Temperature T ↑', effect: 'l ↑  (at const. P)', color: '#16a34a', desc: 'Volume expands → n decreases' },
         ];
         rows.forEach((row, i) => {
-            const ry = c3Y + pad * 3.2 + i * rowH;
+            const ry = summaryTop + i * (rowH + rowGap);
+            const innerPadX = pad * 0.35;
+            const leftTextX = rowX + innerPadX;
+            const rightTextX = rowX + rowW - innerPadX;
             ctx.fillStyle = '#f8fafc';
-            roundRect(ctx, rightX + pad * 0.4, ry, rightW - pad * 0.8, rowH - 4, 8); ctx.fill();
+            roundRect(ctx, rowX, ry, rowW, rowH, 8); ctx.fill();
             ctx.strokeStyle = row.color + '30'; ctx.lineWidth = 1;
-            roundRect(ctx, rightX + pad * 0.4, ry, rightW - pad * 0.8, rowH - 4, 8); ctx.stroke();
+            roundRect(ctx, rowX, ry, rowW, rowH, 8); ctx.stroke();
 
             // Colored label
             ctx.fillStyle = row.color; ctx.font = `bold ${fs(11)}px sans-serif`; ctx.textAlign = 'left';
-            ctx.fillText(row.label, rightX + pad * 0.8, ry + rowH * 0.42);
+            ctx.fillText(row.label, leftTextX, ry + rowH * 0.38);
             // Effect
             ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(11)}px monospace`;
-            ctx.fillText(row.effect, rightX + pad * 0.8, ry + rowH * 0.78);
+            ctx.fillText(row.effect, leftTextX, ry + rowH * 0.76);
             // Desc right
-            ctx.fillStyle = '#64748b'; ctx.font = `${fs(9)}px sans-serif`; ctx.textAlign = 'right';
-            ctx.fillText(row.desc, rightX + rightW - pad * 0.6, ry + rowH * 0.60);
+            ctx.fillStyle = '#64748b'; ctx.font = `${fs(9.5)}px sans-serif`; ctx.textAlign = 'right';
+            ctx.fillText(row.desc, rightTextX, ry + rowH * 0.57);
         });
 
         // ── Page Title ──

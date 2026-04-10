@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 dev-dist
 dev-dist/
+
+# Project specific temporary files
+original_textbook.txt
+temp_diff.txt
+review_sheets/
+metadata.json

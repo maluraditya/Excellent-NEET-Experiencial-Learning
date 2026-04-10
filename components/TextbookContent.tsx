@@ -406,6 +406,92 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'surface-tension') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Surface Tension and Capillarity</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Surface tension is the property of a liquid surface by which it behaves like a <strong>stretched elastic membrane</strong>. It explains why some insects can walk on water and why raindrops are spherical.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Why it Exists (Molecular Foundation)</h3>
+        <p>
+          A liquid stays together because of attractive forces between molecules.
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Inside the Liquid:</strong> A molecule is attracted by neighbors from all sides equally, resulting in a net force of zero.</li>
+          <li><strong>At the Surface:</strong> A molecule is only surrounded by liquid molecules on its lower side. This creates a <strong>net inward attraction</strong> toward the bulk.</li>
+        </ul>
+        <p className="mt-4">
+          Because surface molecules have fewer neighbors, they possess higher potential energy. To reach the lowest energy state, a liquid always tends to <strong>minimize its surface area</strong>.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Formulas</h3>
+        <div className="my-6 p-5 bg-blue-50 rounded-xl border border-blue-200 space-y-3">
+          <p className="font-mono text-lg text-brand-primary text-center">Surface Tension (S) = F / l (or Work / ΔArea)</p>
+          <p className="text-sm text-slate-600 text-center">SI Units: N m⁻¹ or J m⁻²</p>
+          <div className="border-t border-blue-200 pt-3">
+            <p className="font-bold text-brand-dark text-center mb-2">Excess Pressure (ΔP):</p>
+            <p className="font-mono text-lg text-brand-primary text-center">Liquid Drop (1 interface): Pᵢ − Pₒ = 2S / r</p>
+            <p className="font-mono text-lg text-brand-primary text-center">Soap Bubble (2 interfaces): Pᵢ − Pₒ = 4S / r</p>
+          </div>
+          <div className="border-t border-blue-200 pt-3">
+            <p className="font-bold text-brand-dark text-center mb-2">Capillary Rise (h):</p>
+            <p className="font-mono text-xl text-brand-primary text-center font-bold">h = (2S cos θ) / (a ρ g)</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Angle of Contact (θ)</h3>
+        <p>
+          This is the angle between the tangent to the liquid surface and the solid surface at the point of contact, measured <em>inside</em> the liquid.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <p className="font-bold text-brand-primary">Acute (θ &lt; 90°)</p>
+            <p className="text-sm">Liquid is strongly attracted to the solid (e.g., Water on Glass). The liquid <strong>"wets"</strong> the surface and rises in a tube.</p>
+          </div>
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <p className="font-bold text-brand-primary">Obtuse (θ &gt; 90°)</p>
+            <p className="text-sm">Molecules attracted more to each other than to the solid (e.g., Mercury on Glass). It <strong>"does not wet"</strong> and falls in a tube.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
+        <div className="grid gap-4">
+          <div className="p-4 bg-amber-50 rounded-xl border-l-4 border-amber-500">
+            <h4 className="font-bold text-amber-900 mb-2">Washing (Wetting Agents)</h4>
+            <p className="text-sm">Detergents reduce water's surface tension and angle of contact. This allows water to penetrate deep into fabric pores to remove dirt more effectively.</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
+            <h4 className="font-bold text-emerald-900 mb-2">Waterproofing</h4>
+            <p className="text-sm">Waterproofing agents create a large (obtuse) angle of contact between water and fabric fibers, causing rain to bead up and roll off rather than soaking in.</p>
+          </div>
+          <div className="p-4 bg-sky-50 rounded-xl border-l-4 border-sky-500">
+            <h4 className="font-bold text-sky-900 mb-2">Nature's Spheres</h4>
+            <p className="text-sm">Small water droplets and bubbles are spherical because the sphere is the shape with the minimum surface area for a given volume — representing the lowest energy state.</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-xl border-l-4 border-purple-500">
+            <h4 className="font-bold text-purple-900 mb-2">Paint Brushes</h4>
+            <p className="text-sm">Dry brush hairs stay apart. When taken out of water, the surface film of water tries to minimize its area, pulling the hairs together into a fine tip for precision painting.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Simulation Guide</h3>
+        <div className="my-6 p-5 bg-slate-50 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <p className="text-sm font-bold text-brand-primary">Step-by-Step Discovery:</p>
+          <ol className="list-decimal pl-6 space-y-3 text-sm text-slate-700">
+            <li><strong>Step 1:</strong> Select <strong>Water</strong>. Look at the "Molecular Microscope" to see surface molecules being pulled inward.</li>
+            <li><strong>Step 2:</strong> Observe the 3 tubes. Water rises highest in the <strong>thinnest tube</strong> (h ∝ 1/a).</li>
+            <li><strong>Step 3:</strong> Switch to <strong>Mercury</strong>. Notice the level drops below the outside surface because the angle of contact is obtuse.</li>
+            <li><strong>Step 4:</strong> Click <strong>"Add Detergent"</strong> while using water. Watch the rise height drop as surface tension is reduced.</li>
+          </ol>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   if (topic?.id === 'carnot-engine') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
@@ -447,6 +533,87 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       </div>
     );
   }
+
+  if (topic?.id === 'zeroth-law') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Zeroth Law of Thermodynamics</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The Zeroth Law states: <strong>"Two systems in thermal equilibrium with a third system separately are in thermal equilibrium with each other."</strong> This simple principle is the foundation of temperature measurement.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Thermal Equilibrium and Walls</h3>
+        <p>
+          To understand this law, we must first understand how systems interact through boundaries:
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+          <div className="p-4 bg-slate-100 rounded-xl border border-slate-300">
+            <p className="font-bold text-slate-800 mb-2">Adiabatic Wall (Insulating)</p>
+            <p className="text-sm text-slate-600">A thick insulating wall that does <strong>NOT</strong> allow heat to flow between systems. Example: Thermos flask walls.</p>
+          </div>
+          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <p className="font-bold text-amber-800 mb-2">Diathermic Wall (Conducting)</p>
+            <p className="text-sm text-slate-600">A thin conducting wall that <strong>ALLOWS</strong> heat to flow until both systems reach the same temperature.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. What is Thermal Equilibrium?</h3>
+        <p>
+          In mechanics, equilibrium means net force is zero. In thermodynamics, <strong>Thermal Equilibrium</strong> is reached when two systems in contact through a diathermic wall stop exchanging heat. Their macroscopic variables (Pressure P, Volume V) stop changing.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Step-by-Step Logic of the Zeroth Law</h3>
+        <ol className="list-decimal pl-6 space-y-3">
+          <li><strong>Stage 1:</strong> Two systems A and B are separated by an adiabatic wall. They cannot exchange heat and are independent.</li>
+          <li><strong>Stage 2:</strong> Both A and B are connected to a third system C via diathermic walls.</li>
+          <li><strong>Stage 3:</strong> Heat flows until A reaches equilibrium with C, and B reaches equilibrium with C.</li>
+          <li><strong>Stage 4:</strong> Now replace the adiabatic wall between A and B with a diathermic wall.</li>
+          <li><strong>Observation:</strong> No heat flows between A and B! They are already in thermal equilibrium.</li>
+        </ol>
+
+        <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="font-mono text-lg text-brand-primary text-center">If T<sub>A</sub> = T<sub>C</sub> and T<sub>B</sub> = T<sub>C</sub>, then T<sub>A</sub> = T<sub>B</sub></p>
+          <p className="text-sm text-slate-600 mt-3 text-center">
+            Temperature (T) is the thermodynamic variable that is equal for all systems in thermal equilibrium.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
+        <div className="grid gap-4">
+          <div className="p-4 bg-amber-50 rounded-xl border-l-4 border-amber-500">
+            <h4 className="font-bold text-amber-900 mb-2">Daily Life: The Hot Tea</h4>
+            <p className="text-sm">Leave a cup of hot tea in a room. Heat flows from the tea to the environment until both reach the same temperature — thermal equilibrium.</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-xl border-l-4 border-emerald-500">
+            <h4 className="font-bold text-emerald-900 mb-2">Engineering: The Thermometer</h4>
+            <p className="text-sm">When a thermometer (System C) touches a human body (System A), it reaches thermal equilibrium. The thermometer reading tells us the body temperature — this works because of the Zeroth Law.</p>
+          </div>
+          <div className="p-4 bg-sky-50 rounded-xl border-l-4 border-sky-500">
+            <h4 className="font-bold text-sky-900 mb-2">Nature: Lake and Air</h4>
+            <p className="text-sm">A lake and the air above it tend toward thermal equilibrium. If air stays at 25°C for a long time, the surface water eventually reaches the same temperature.</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-xl border-l-4 border-purple-500">
+            <h4 className="font-bold text-purple-900 mb-2">Industrial: Thermacole Icebox</h4>
+            <p className="text-sm">We prevent thermal equilibrium between ice (inside) and hot air (outside) using an adiabatic (insulating) wall — keeping food cold.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Simulation Guide</h3>
+        <div className="my-6 p-5 bg-slate-50 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <p className="text-sm font-bold text-brand-primary">Step-by-Step Discovery:</p>
+          <ol className="list-decimal pl-6 space-y-3 text-sm text-slate-700">
+            <li><strong>Step 1:</strong> Set Chamber A to high temperature and B to low temperature using the sliders.</li>
+            <li><strong>Step 2:</strong> Connect A-C and B-C with diathermic walls. Watch molecules exchange energy.</li>
+            <li><strong>Step 3:</strong> Observe T<sub>A</sub>, T<sub>B</sub>, and T<sub>C</sub> equalize.</li>
+            <li><strong>Step 4:</strong> Now connect A-B directly with a diathermic wall. Notice no further change!</li>
+          </ol>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   if (topic?.id === 'thermodynamic-processes') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">

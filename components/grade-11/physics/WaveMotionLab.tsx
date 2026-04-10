@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { RotateCcw, Activity, Info } from 'lucide-react';
+import { RotateCcw, Info } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 
 interface WaveMotionLabProps {
@@ -224,22 +224,6 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                 </div>
             </div>
 
-            <div className="hidden xl:flex flex-col gap-4 w-72 shrink-0 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm overflow-y-auto max-h-[500px]">
-                <div className="flex items-center gap-2 text-rose-600 font-bold border-b pb-3 mb-1">
-                    <Activity size={20} />
-                    <span className="text-sm uppercase">Applications</span>
-                </div>
-                <div className="space-y-4 text-xs leading-relaxed text-slate-600">
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-                        <p className="font-bold text-blue-800">The Stadium Wave</p>
-                        <p className="italic text-[10px]">Fans stand up and sit down (oscillation), but the disturbance travels across the crowd.</p>
-                    </div>
-                    <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-                        <p className="font-bold text-emerald-800">Sound Waves</p>
-                        <p className="italic text-[10px]">Air molecules move back and forth, creating high and low pressure regions that move through space.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 

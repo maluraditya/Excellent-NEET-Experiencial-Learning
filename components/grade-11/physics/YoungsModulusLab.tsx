@@ -536,7 +536,7 @@ const YoungsModulusLab: React.FC<YoungsModulusLabProps> = ({ topic, onExit, mode
                 </div>
 
                 {/* Reset */}
-                <button onClick={() => { setForce(100000); setLength(1.0); setRadiusMm(10); setMatKey('steel'); }}
+                <button onClick={() => { setForce(0); setLength(1.0); setRadiusMm(10); setMatKey('steel'); }}
                     className="flex items-center justify-center gap-1.5 py-2.5 md:py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-200 font-bold text-xs md:text-sm shadow-sm active:scale-95">
                     <RotateCcw size={16} /> RESET ALL
                 </button>
