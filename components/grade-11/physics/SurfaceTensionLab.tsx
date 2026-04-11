@@ -243,9 +243,7 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
         const pad = Math.min(W * 0.03, H * 0.035, scale * 22);
 
         const topY = pad * 2.2;
-        const topH = H * 0.62;
-        const bottomY = topY + topH + pad;
-        const bottomH = H - bottomY - pad;
+        const topH = H - topY - pad;
         const macroW = W * 0.58;
         const microX = pad + macroW + pad;
         const microW = W - microX - pad;
@@ -257,7 +255,6 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
 
         drawCard(ctx, pad, topY, macroW, topH, '#ffffff', '#e2e8f0');
         drawCard(ctx, microX, topY, microW, topH, '#ffffff', '#e2e8f0');
-        drawCard(ctx, pad, bottomY, W - pad * 2, bottomH, '#ffffff', '#e2e8f0');
 
         drawMacroView(ctx, {
             x: pad,
@@ -283,17 +280,7 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
             dragRef,
         });
 
-        drawSummaryPanel(ctx, {
-            x: pad,
-            y: bottomY,
-            w: W - pad * 2,
-            h: bottomH,
-            pad,
-            fs,
-            liquid,
-            activeRadius,
-            thetaDeg,
-        });
+
 
         animRef.current = requestAnimationFrame(draw);
     }, []);
@@ -502,9 +489,9 @@ function drawMacroView(
     ctx.textAlign = 'left';
     ctx.fillText('Macro View: Beaker + Capillary Tubes', x + pad * 0.8, y + pad * 1.0);
 
-    const beakerX = x + pad * 1.0;
+    const beakerX = x + pad * 0.8;
     const beakerY = y + h * 0.28;
-    const beakerW = w * 0.66;
+    const beakerW = w * 0.68;
     const beakerH = h * 0.58;
     const liquidLevelY = beakerY + beakerH * 0.46;
 
@@ -525,7 +512,7 @@ function drawMacroView(
     ctx.lineTo(beakerX + beakerW - 4, liquidLevelY);
     ctx.stroke();
 
-    const tubeXs = [beakerX + beakerW * 0.28, beakerX + beakerW * 0.52, beakerX + beakerW * 0.76];
+    const tubeXs = [beakerX + beakerW * 0.15, beakerX + beakerW * 0.38, beakerX + beakerW * 0.61];
     const tubeRadii = [PRESET_RADII[0], activeRadius, PRESET_RADII[2]];
     const tubeLabels = ['Thin', 'Adjustable', 'Thick'];
     const tubeTopY = y + h * 0.16;
@@ -534,7 +521,7 @@ function drawMacroView(
 
     const heightsCm = tubeRadii.map((radius) => capillaryHeightMeters(liquid.surfaceTension, thetaDeg, radius, liquid.density) * 100);
     const maxAbsCm = Math.max(1.2, ...heightsCm.map((value) => Math.abs(value)));
-    const cmToPx = (h * 0.28) / maxAbsCm;
+    const cmToPx = (h * 0.22) / maxAbsCm;
 
     tubeRadii.forEach((radius, index) => {
         const centerX = tubeXs[index];
@@ -565,7 +552,7 @@ function drawMacroView(
         ctx.fillText(`${capillaryCm >= 0 ? '+' : ''}${capillaryCm.toFixed(2)} cm`, centerX, beakerY + beakerH + 18);
     });
 
-    const rulerX = tubeXs[1] + 48;
+    const rulerX = beakerX + beakerW * 0.88;
     ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -586,11 +573,12 @@ function drawMacroView(
     }
     ctx.fillStyle = '#0f172a';
     ctx.font = `bold ${fs(10)}px sans-serif`;
-    ctx.fillText('Height Scale (cm)', rulerX - 20, tubeTopY - 10);
+    ctx.textAlign = 'center';
+    ctx.fillText('Height Scale (cm)', rulerX, tubeTopY - 10);
 
     const pressureInside = pressureInsideKPa(liquid.surfaceTension, thetaDeg, activeRadius);
-    drawGaugeBox(ctx, beakerX + beakerW + 18, beakerY + 10, w * 0.22, 52, fs, 'P outside', `${ATM_KPA.toFixed(2)} kPa`, '#475569');
-    drawGaugeBox(ctx, beakerX + beakerW + 18, beakerY + 74, w * 0.22, 52, fs, 'P inside', `${pressureInside.toFixed(2)} kPa`, pressureInside < ATM_KPA ? '#2563eb' : '#dc2626');
+    drawGaugeBox(ctx, x + w - pad - w * 0.2, beakerY + 10, w * 0.2, 52, fs, 'P outside', `${ATM_KPA.toFixed(2)} kPa`, '#475569');
+    drawGaugeBox(ctx, x + w - pad - w * 0.2, beakerY + 74, w * 0.2, 52, fs, 'P inside', `${pressureInside.toFixed(2)} kPa`, pressureInside < ATM_KPA ? '#2563eb' : '#dc2626');
 
     ctx.fillStyle = '#64748b';
     ctx.font = `${fs(10)}px sans-serif`;
@@ -779,72 +767,6 @@ function drawMicroscopeView(
     wrapText(ctx, 'Drag the orange handle to change the angle of contact.', viewX + viewW * 0.58, viewY + viewH - 54, viewW * 0.34, fs(10) * 1.25);
 }
 
-function drawSummaryPanel(
-    ctx: CanvasRenderingContext2D,
-    params: {
-        x: number;
-        y: number;
-        w: number;
-        h: number;
-        pad: number;
-        fs: (base: number) => number;
-        liquid: LiquidData;
-        activeRadius: number;
-        thetaDeg: number;
-    }
-) {
-    const { x, y, w, h, pad, fs, liquid, activeRadius, thetaDeg } = params;
 
-    ctx.fillStyle = '#0f172a';
-    ctx.font = `bold ${fs(14)}px sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.fillText('Live Scientific Summary', x + pad * 0.8, y + pad * 1.0);
-
-    const col1X = x + pad * 0.8;
-    const col2X = x + w * 0.38;
-    const col3X = x + w * 0.67;
-
-    const radiusM = activeRadius / 1000;
-    const cosTheta = Math.cos((thetaDeg * Math.PI) / 180);
-    const heightM = capillaryHeightMeters(liquid.surfaceTension, thetaDeg, activeRadius, liquid.density);
-    const deltaPKPa = ATM_KPA - pressureInsideKPa(liquid.surfaceTension, thetaDeg, activeRadius);
-
-    ctx.fillStyle = '#475569';
-    ctx.font = `${fs(11)}px sans-serif`;
-    wrapText(ctx, 'Formula: h = (2S cos theta) / (a rho g)', col1X, y + pad * 2.0, w * 0.28, fs(11) * 1.45);
-    wrapText(ctx, `Using this setup: S = ${liquid.surfaceTension.toFixed(3)} N/m, a = ${activeRadius.toFixed(2)} mm, theta = ${thetaDeg.toFixed(0)} deg`, col1X, y + pad * 3.0, w * 0.28, fs(11) * 1.45);
-
-    ctx.fillStyle = '#1e293b';
-    ctx.font = `bold ${fs(11)}px sans-serif`;
-    ctx.fillText('Capillary Comparison', col2X, y + pad * 2.0);
-    PRESET_RADII.map((radius, index) => index === 1 ? activeRadius : radius).forEach((radius, index) => {
-        const labels = ['Thin', 'Adjustable', 'Thick'];
-        const hCm = capillaryHeightMeters(liquid.surfaceTension, thetaDeg, radius, liquid.density) * 100;
-        const rowY = y + pad * 3.0 + index * (fs(11) * 1.7);
-        ctx.fillStyle = '#64748b';
-        ctx.font = `${fs(10.5)}px sans-serif`;
-        ctx.fillText(`${labels[index]} tube`, col2X, rowY);
-        ctx.textAlign = 'right';
-        ctx.fillText(`${radius.toFixed(2)} mm`, col2X + w * 0.17, rowY);
-        ctx.fillStyle = hCm >= 0 ? '#16a34a' : '#dc2626';
-        ctx.fillText(`${hCm >= 0 ? '+' : ''}${hCm.toFixed(2)} cm`, col2X + w * 0.28, rowY);
-        ctx.textAlign = 'left';
-    });
-
-    ctx.fillStyle = '#1e293b';
-    ctx.font = `bold ${fs(11)}px sans-serif`;
-    ctx.fillText('Pressure and Wetting', col3X, y + pad * 2.0);
-    ctx.fillStyle = '#64748b';
-    ctx.font = `${fs(10.5)}px sans-serif`;
-    wrapText(ctx, `P_outside = ${ATM_KPA.toFixed(2)} kPa`, col3X, y + pad * 3.0, w * 0.26, fs(10.5) * 1.4);
-    wrapText(ctx, `P_inside = ${pressureInsideKPa(liquid.surfaceTension, thetaDeg, activeRadius).toFixed(2)} kPa`, col3X, y + pad * 4.1, w * 0.26, fs(10.5) * 1.4);
-    wrapText(ctx, `P_outside - P_inside = ${deltaPKPa.toFixed(3)} kPa`, col3X, y + pad * 5.2, w * 0.26, fs(10.5) * 1.4);
-
-    const explanation =
-        cosTheta > 0
-            ? 'Acute contact angle gives positive cos theta, so the curved meniscus pulls liquid upward.'
-            : 'Obtuse contact angle gives negative cos theta, so the liquid level inside the tube falls below the outer level.';
-    wrapText(ctx, explanation, col3X, y + pad * 6.5, w * 0.28, fs(10.5) * 1.35);
-}
 
 export default SurfaceTensionLab;

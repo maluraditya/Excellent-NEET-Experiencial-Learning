@@ -18,7 +18,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
     const [damping, setDamping] = useState(0.05);
     const [running, setRunning] = useState(false);
     const [showVectors, setShowVectors] = useState(true);
-    
+
     const [initAngle, setInitAngle] = useState(30);
     // Stopwatch State
     const [isTiming, setIsTiming] = useState(true);
@@ -27,14 +27,14 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
 
     // --- Refs for Physics ---
     const stateRef = useRef({
-        L: 1.0, m: 0.1, g: 9.8, b: 0.05, 
-        theta: 30 * Math.PI / 180, 
-        omega: 0, 
-        time: 0, 
+        L: 1.0, m: 0.1, g: 9.8, b: 0.05,
+        theta: 30 * Math.PI / 180,
+        omega: 0,
+        time: 0,
         running: true,
         initTheta: 30 * Math.PI / 180
     });
-    
+
     const graphRef = useRef<{ t: number; theta: number; theoryTheta: number }[]>([]);
     const frameRef = useRef(0);
     const timerRef = useRef({ start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0 });
@@ -71,7 +71,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         if (!ctx) return;
         const W = canvas.width, H = canvas.height;
         if (W < 10 || H < 10) { animRef.current = requestAnimationFrame(draw); return; }
-        
+
         const s = stateRef.current;
         const tRef = timerRef.current;
         frameRef.current++;
@@ -150,11 +150,11 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         // Animation Viewport
         const topH = H * 0.50; // Increased to 50% for better spacing
         const pivotX = W * 0.5;
-        const pivotY = pad * 2.8; 
-        
+        const pivotY = pad * 2.8;
+
         const bobR = (10 + Math.sqrt(s.m) * 25) * scale;
         // Strict boundary: pivotY + visualL + bobR <= topH
-        const maxVisualL = topH - pivotY - bobR - 5; 
+        const maxVisualL = topH - pivotY - bobR - 5;
         const visualL = Math.min(s.L * 160 * scale, maxVisualL);
 
         // 1. Draw Protractor (Reference for teachers)
@@ -221,10 +221,10 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const timeBoxH = 60 * scale;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
         roundRect(ctx, stopX, stopY, stopW, timeBoxH, 12); ctx.fill(); ctx.stroke();
-        
+
         ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(26)}px monospace`; ctx.textAlign = 'center';
         ctx.fillText(`${tRef.elapsed.toFixed(2)}s`, stopX + stopW / 2, stopY + timeBoxH * 0.7);
-        
+
         ctx.fillStyle = '#94a3b8'; ctx.font = `bold ${fs(10)}px sans-serif`;
         ctx.fillText('ELAPSED TIME', stopX + stopW / 2, stopY + 14 * scale);
 
@@ -233,7 +233,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const oscBoxH = 50 * scale;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
         roundRect(ctx, stopX, oscBoxY, stopW, oscBoxH, 12); ctx.fill(); ctx.stroke();
-        
+
         ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(16)}px sans-serif`; ctx.textAlign = 'center';
         ctx.fillText(`OSC: ${Math.floor(tRef.oscCount)}/10`, stopX + stopW / 2, oscBoxY + oscBoxH * 0.7);
 
@@ -249,7 +249,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const graphX = pad;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
         roundRect(ctx, graphX, bottomY, graphW, bottomH, 12); ctx.fill(); ctx.stroke();
-        
+
         ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(12)}px sans-serif`; ctx.textAlign = 'left';
         ctx.fillText('DISPLACEMENT θ(t) — [Solid: Actual, Dashed: Ideal SHM]', graphX + 15, bottomY + 25);
 
@@ -257,7 +257,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         if (gd.length > 1) {
             const centerY = bottomY + bottomH / 2;
             const ampScale = (bottomH * 0.35) / (s.initTheta || 1);
-            
+
             // Theory Line (Dashed)
             ctx.setLineDash([5, 5]); ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5;
             ctx.beginPath();
@@ -282,12 +282,12 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         // Right: Info Cards
         const rightX = graphX + graphW + pad;
         const rightW = W - rightX - pad;
-        
+
         // Theory vs Measured Card
         const cardH = (bottomH - pad) / 2;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#2563eb40';
         roundRect(ctx, rightX, bottomY, rightW, cardH, 12); ctx.fill(); ctx.stroke();
-        
+
         const theoryT = 2 * Math.PI * Math.sqrt(s.L / s.g);
         ctx.fillStyle = '#2563eb'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'center';
         ctx.fillText(`Theory T: ${theoryT.toFixed(3)}s`, rightX + rightW / 2, bottomY + cardH * 0.4);
@@ -298,11 +298,11 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const ebY = bottomY + cardH + pad;
         ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#e2e8f0';
         roundRect(ctx, rightX, ebY, rightW, cardH, 12); ctx.fill(); ctx.stroke();
-        
+
         const PE = s.m * s.g * s.L * (1 - Math.cos(s.theta));
         const KE = 0.5 * s.m * (s.L * s.omega) * (s.L * s.omega);
         const maxE = s.m * s.g * s.L * (1 - Math.cos(s.initTheta));
-        
+
         const drawBar = (x: number, val: number, color: string, label: string) => {
             const bW = rightW * 0.2;
             const bH = (val / (maxE || 1)) * (cardH * 0.6);
