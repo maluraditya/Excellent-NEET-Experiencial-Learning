@@ -14,20 +14,6 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_solids_1771662772975.png',
         youtubeVideoIds: ['L7gOIFgYl2k']
     },
-/* deleted youngs modulus */
-
-
-
-
-
-
-
-
-
-
-
-
-
     {
         id: 'stokes-law',
         title: "Stokes' Law and Terminal Velocity",

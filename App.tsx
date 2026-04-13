@@ -367,15 +367,6 @@ const App: React.FC = () => {
         Wave Speed: v = ω/k = λν. For a string, v = √(T/μ).
         Simulation: Toggle between transverse and longitudinal modes. Track a single 'Red Bead' to see it oscillates but never travels forward.
       `;
-    } else if (activeTopicId === 'youngs-modulus') {
-      return `
-        Topic: Young's Modulus (NCERT Class 11, Unit VIII, Chapter 8 — Mechanical Properties of Solids, Section 8.5.1)
-        Concept: Y = σ/ε = FL/(AΔL). Based on Hooke's Law: σ ∝ ε within elastic limit. Y represents stiffness.
-        Materials (NCERT Table 8.1): Steel 200 GPa, Copper 110 GPa, Brass 100 GPa, Aluminum 70 GPa.
-        Key insight: Doubling radius quadruples area (A=πr²), quartering elongation. Steel > Rubber in elasticity (physics definition).
-        Simulation: Virtual testing rig with material selector, force/length/radius sliders, live stress-strain graph, digital gauges, fracture state.
-      `;
-
     } else if (activeTopicId === 'atoms') {
       return `
         Topic: Atoms - Rutherford's Alpha Scattering Experiment (NCERT Class 12 Physics, Unit VIII)
@@ -1141,17 +1132,6 @@ const App: React.FC = () => {
             />
           )
         }
-
-        {/* 9b. YOUNG'S MODULUS (CLASS 11) */}
-        {
-          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'youngs-modulus' && (
-            {/* empty */ }
-
-
-
-          )
-        }
-
 
 
         {/* 9d. STOKES' LAW (CLASS 11) */}
