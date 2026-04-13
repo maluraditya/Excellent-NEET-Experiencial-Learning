@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RotateCw, Eye, Zap, ArrowRight, RefreshCcw, AlertTriangle, CheckCircle } from 'lucide-react';
+import TopicLayoutContainer from '../../TopicLayoutContainer';
+import { Topic } from '../../../types';
 
 type Phase = 1 | 2 | 3 | 4;
 
-const GeometricalIsomerismCanvas: React.FC = () => {
+interface GeometricalIsomerismProps {
+    topic: Topic;
+    onExit: () => void;
+}
+
+const GeometricalIsomerismCanvas: React.FC<GeometricalIsomerismProps> = ({ topic, onExit }) => {
     const [phase, setPhase] = useState<Phase>(1);
     const [twistAngle, setTwistAngle] = useState(0); // 0-360 for single bond
     const [showDipoles, setShowDipoles] = useState(false);
@@ -321,207 +328,208 @@ const GeometricalIsomerismCanvas: React.FC = () => {
         setAutoAnimate(false);
         setIsomerType('cis');
     };
-
     const pc = phaseColors[phase];
 
-    return (
-        <div className="w-full h-full flex flex-col text-slate-100 font-sans bg-slate-900 absolute inset-0">
-            {/* Top Bar */}
-            <div className="flex items-center gap-2 p-3 bg-slate-950 border-b border-slate-800 shrink-0 overflow-x-auto">
-                {[1, 2, 3, 4].map(p => (
-                    <button key={p} onClick={() => { setPhase(p as Phase); setAutoAnimate(false); setShowDipoles(p >= 3); }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${phase === p ? `${phaseColors[p as Phase].bg} ${phaseColors[p as Phase].border} ${phaseColors[p as Phase].text}` :
-                                'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                            }`}>
-                        Phase {p}
-                    </button>
-                ))}
-
-                <div className="w-px h-5 bg-slate-700 mx-1" />
-
-                {phase >= 3 && (
-                    <button onClick={() => setShowDipoles(!showDipoles)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${showDipoles ? 'bg-red-500/20 border-red-500/50 text-red-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                            }`}>
-                        <Eye size={12} /> Dipole Vectors
-                    </button>
-                )}
-
-                {phase === 1 && (
-                    <button onClick={() => setAutoAnimate(!autoAnimate)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${autoAnimate ? 'bg-blue-500/20 border-blue-500/50 text-blue-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                            }`}>
-                        <RotateCw size={12} /> Auto-Spin
-                    </button>
-                )}
-
-                <button onClick={handleReset}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 flex items-center gap-1.5 ml-auto">
-                    <RefreshCcw size={12} /> Reset
+    const topBar = (
+        <div className="flex items-center gap-1">
+            {[1, 2, 3, 4].map(p => (
+                <button key={p} onClick={() => { setPhase(p as Phase); setAutoAnimate(false); setShowDipoles(p >= 3); }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${phase === p ? `${phaseColors[p as Phase].bg.replace('/10', '')} shadow-lg text-white border-transparent` : 'bg-transparent border-transparent text-slate-300 hover:bg-white/10'}`}>
+                    Phase {p}
                 </button>
+            ))}
+            <div className="w-px h-4 bg-white/20 mx-1" />
+            {phase >= 3 && (
+                <button onClick={() => setShowDipoles(!showDipoles)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${showDipoles ? 'bg-red-500 shadow-lg text-white border-transparent' : 'bg-transparent border-transparent text-slate-300 hover:bg-white/10'}`}>
+                    <Eye size={12} /> {showDipoles ? 'Hide Dipoles' : 'Show Dipoles'}
+                </button>
+            )}
+            {phase === 1 && (
+                <button onClick={() => setAutoAnimate(!autoAnimate)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer flex items-center gap-1.5 ${autoAnimate ? 'bg-blue-500 shadow-lg text-white border-transparent' : 'bg-transparent border-transparent text-slate-300 hover:bg-white/10'}`}>
+                    <RotateCw size={12} /> Auto-Spin
+                </button>
+            )}
+            <button onClick={handleReset}
+                className="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all bg-transparent border-transparent text-slate-300 hover:bg-white/10 flex items-center gap-1.5 ml-1 cursor-pointer" title="Reset">
+                <RefreshCcw size={14} /> 
+            </button>
+        </div>
+    );
+
+    const systemMessageBadge = (
+        <div className={`w-full p-4 rounded-xl border backdrop-blur-sm shadow-sm transition-all duration-300 ${pc.bg} ${pc.border}`}>
+            <div className={`uppercase tracking-widest text-[10px] font-bold mb-1 ${pc.text}`}>
+                PHASE {phase}
+            </div>
+            <div className={`text-xs md:text-sm font-medium leading-relaxed ${pc.text}`}>
+                {systemMessages[phase]}
+            </div>
+        </div>
+    );
+
+    const infoPanelContent = (
+        <div className="flex flex-col h-full shrink-0">
+            {/* System Message at the top of the Info Panel on Desktop */}
+            <div className="hidden xl:block mb-6 shrink-0">
+                {systemMessageBadge}
             </div>
 
-            {/* System Message */}
-            <div className={`p-3 border-b backdrop-blur-sm z-10 transition-all duration-300 ${pc.bg} ${pc.border}`}>
-                <p className={`text-xs md:text-sm font-medium text-center leading-relaxed ${pc.text}`}>
-                    {systemMessages[phase]}
-                </p>
+            <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-3 flex items-center gap-1.5 shrink-0">
+                <Zap size={10} className="text-amber-400" /> Concept Summary
             </div>
+            {phase === 1 && (
+                <div className="space-y-3 text-xs shrink-0">
+                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                        <p className="text-blue-300 font-bold mb-1">σ Bond = Free Rotation</p>
+                        <p className="text-slate-400 leading-relaxed">The C-C single bond has cylindrical electron symmetry along the axis. Rotation doesn&apos;t disrupt electron overlap.</p>
+                    </div>
+                    <div className="p-3 bg-slate-800/80 rounded-lg border border-white/5">
+                        <p className="text-slate-300 font-bold mb-1">🔩 Analogy: Single Nail</p>
+                        <p className="text-slate-400 leading-relaxed">Two cardboards joined by ONE nail — you can spin one freely.</p>
+                    </div>
+                </div>
+            )}
+            {phase === 2 && (
+                <div className="space-y-3 text-xs shrink-0">
+                    <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                        <p className="text-red-300 font-bold mb-1">π Bond = Locked Rotation</p>
+                        <p className="text-slate-400 leading-relaxed">The π bond forms by lateral overlap of parallel p-orbitals. Rotation would break this overlap, destroying the bond.</p>
+                    </div>
+                    <div className="p-3 bg-slate-800/80 rounded-lg border border-white/5">
+                        <p className="text-slate-300 font-bold mb-1">🔩🔩 Analogy: Two Nails</p>
+                        <p className="text-slate-400 leading-relaxed">Two cardboards joined by TWO nails — rotation is impossible without tearing!</p>
+                    </div>
+                    {twistAttempts > 0 && (
+                        <div className="p-3 bg-red-900/40 rounded-lg border border-red-500/40 animate-pulse">
+                            <p className="text-red-300 font-bold">Twist attempts: {twistAttempts}</p>
+                            <p className="text-red-200/80 text-[10px]">Every attempt would break the π bond!</p>
+                        </div>
+                    )}
+                </div>
+            )}
+            {(phase === 3 || phase === 4) && (
+                <div className="space-y-3 text-xs shrink-0">
+                    <div className={`p-3 rounded-lg border ${phase === 3 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                        <p className={`font-bold mb-1 ${phase === 3 ? 'text-emerald-300' : 'text-amber-300'}`}>
+                            {phase === 3 ? 'Cis: Same Side' : 'Trans: Opposite Sides'}
+                        </p>
+                        <p className="text-slate-400 leading-relaxed">
+                            {phase === 3
+                                ? 'Identical groups on the same side → bond dipoles ADD → polar molecule with higher boiling point.'
+                                : 'Identical groups on opposite sides → bond dipoles CANCEL → non-polar molecule but higher melting point (better crystal packing).'}
+                        </p>
+                    </div>
+                    <div className="p-3 bg-slate-800/80 rounded-lg border border-white/5">
+                        <p className="text-slate-300 font-bold mb-1">🍳 Trans Fats</p>
+                        <p className="text-slate-400 leading-relaxed">
+                            Natural fats are cis (bent, liquid oil). Hydrogenation flips some to trans (straight, solid margarine). Our bodies can&apos;t process the unnatural trans geometry.
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                {/* Molecule Viewer */}
-                <div className="flex-1 flex items-center justify-center relative min-h-0 overflow-hidden">
-                    <div className="w-full h-full flex items-center justify-center">
+    const simulationContent = (
+        <div className="w-full h-full relative flex flex-col xl:flex-row pointer-events-auto overflow-hidden">
+            
+            {/* Left Box: SVG Molecule Viewer */}
+            <div className="flex-1 flex flex-col relative h-full min-w-0 min-h-0">
+
+                {/* System Message on Mobile ONLY (Desktop uses Info Panel) */}
+                <div className="xl:hidden absolute top-4 left-4 right-4 z-20">
+                    {systemMessageBadge}
+                </div>
+
+                <div className="flex-1 w-full h-full flex items-center justify-center p-4 xl:p-8 min-w-0 min-h-0">
+                    <div className="w-full h-full max-w-[800px] aspect-square flex items-center justify-center">
                         {phase === 1 && renderSingleBond()}
                         {phase === 2 && renderDoubleBond()}
                         {phase === 3 && renderCisTrans(true)}
                         {phase === 4 && renderCisTrans(false)}
                     </div>
-
-                    {/* Phase badge */}
-                    <div className={`absolute top-3 right-3 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${pc.bg} ${pc.border} ${pc.text}`}>
-                        Phase {phase}
-                    </div>
-                </div>
-
-                {/* Info Panel */}
-                <div className="lg:w-[30%] w-full h-auto lg:h-full bg-slate-950 border-t lg:border-t-0 lg:border-l border-slate-800 p-4 flex flex-col shrink-0 overflow-y-auto">
-                    <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-3 flex items-center gap-1.5">
-                        <Zap size={10} /> Concept Summary
-                    </div>
-
-                    {phase === 1 && (
-                        <div className="space-y-3 text-xs">
-                            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                <p className="text-blue-300 font-bold mb-1">σ Bond = Free Rotation</p>
-                                <p className="text-slate-400 leading-relaxed">The C-C single bond has cylindrical electron symmetry along the axis. Rotation doesn&apos;t disrupt electron overlap.</p>
-                            </div>
-                            <div className="p-3 bg-slate-800 rounded-lg">
-                                <p className="text-slate-300 font-bold mb-1">🔩 Analogy: Single Nail</p>
-                                <p className="text-slate-400 leading-relaxed">Two cardboards joined by ONE nail — you can spin one freely.</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {phase === 2 && (
-                        <div className="space-y-3 text-xs">
-                            <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20">
-                                <p className="text-red-300 font-bold mb-1">π Bond = Locked Rotation</p>
-                                <p className="text-slate-400 leading-relaxed">The π bond forms by lateral overlap of parallel p-orbitals. Rotation would break this overlap, destroying the bond.</p>
-                            </div>
-                            <div className="p-3 bg-slate-800 rounded-lg">
-                                <p className="text-slate-300 font-bold mb-1">🔩🔩 Analogy: Two Nails</p>
-                                <p className="text-slate-400 leading-relaxed">Two cardboards joined by TWO nails — rotation is impossible without tearing!</p>
-                            </div>
-                            {twistAttempts > 0 && (
-                                <div className="p-3 bg-red-900/30 rounded-lg border border-red-500/30">
-                                    <p className="text-red-300 font-bold">Twist attempts: {twistAttempts}</p>
-                                    <p className="text-red-200/70 text-[10px]">Every attempt would break the π bond!</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {(phase === 3 || phase === 4) && (
-                        <div className="space-y-3 text-xs">
-                            <div className={`p-3 rounded-lg border ${phase === 3 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
-                                <p className={`font-bold mb-1 ${phase === 3 ? 'text-emerald-300' : 'text-amber-300'}`}>
-                                    {phase === 3 ? 'Cis: Same Side' : 'Trans: Opposite Sides'}
-                                </p>
-                                <p className="text-slate-400 leading-relaxed">
-                                    {phase === 3
-                                        ? 'Identical groups on the same side → bond dipoles ADD → polar molecule with higher boiling point.'
-                                        : 'Identical groups on opposite sides → bond dipoles CANCEL → non-polar molecule but higher melting point (better crystal packing).'}
-                                </p>
-                            </div>
-
-                            <div className="p-3 bg-slate-800 rounded-lg">
-                                <p className="text-slate-300 font-bold mb-1">🍳 Trans Fats</p>
-                                <p className="text-slate-400 leading-relaxed">
-                                    Natural fats are cis (bent, liquid oil). Hydrogenation flips some to trans (straight, solid margarine). Our bodies can&apos;t process the unnatural trans geometry.
-                                </p>
-                            </div>
-
-                            <div className="flex gap-2 mt-2">
-                                <button onClick={() => { setPhase(3); setShowDipoles(true); }}
-                                    className={`flex-1 px-2 py-2 rounded-lg text-[11px] font-bold border cursor-pointer transition-all ${phase === 3 ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                        }`}>
-                                    Cis View
-                                </button>
-                                <button onClick={() => { setPhase(4); setShowDipoles(true); }}
-                                    className={`flex-1 px-2 py-2 rounded-lg text-[11px] font-bold border cursor-pointer transition-all ${phase === 4 ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                        }`}>
-                                    Trans View
-                                </button>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
+            
+            {/* Right Box: Info Panel Dock (Flex column alongside, preventing overlaps) */}
+            <div className="hidden xl:flex w-[340px] 2xl:w-[380px] bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl p-6 flex-col overflow-y-auto custom-scrollbar m-4 ml-0 shrink-0">
+                {infoPanelContent}
+            </div>
 
-            {/* Bottom Controls */}
-            <div className="bg-slate-950 border-t border-slate-800 p-3 shrink-0">
-                <div className="max-w-3xl mx-auto">
-                    {phase === 1 && (
-                        <div className="flex items-center gap-4">
-                            <RotateCw size={14} className="text-slate-500 shrink-0" />
-                            <span className="text-xs text-slate-400 font-bold whitespace-nowrap">Twist Angle</span>
-                            <input type="range" min="0" max="360" step="1" value={twistAngle}
-                                onChange={e => { setTwistAngle(Number(e.target.value)); setAutoAnimate(false); }}
-                                className="flex-1 h-2 bg-slate-800 rounded-full appearance-none cursor-pointer accent-blue-500"
-                                style={{ background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(twistAngle / 360) * 100}%, #1e293b ${(twistAngle / 360) * 100}%)` }}
-                            />
-                            <div className="font-mono text-sm text-blue-400 font-bold w-12 text-right shrink-0">{twistAngle.toFixed(0)}°</div>
-                        </div>
-                    )}
+        </div>
+    );
 
-                    {phase === 2 && (
-                        <div className="flex items-center gap-4">
-                            <AlertTriangle size={14} className="text-red-500 shrink-0" />
-                            <span className="text-xs text-slate-400 font-bold whitespace-nowrap">Try to Twist</span>
-                            <input type="range" min="-30" max="30" step="1" value={0}
-                                onChange={e => handleDoubleBondTwist(Number(e.target.value))}
-                                className="flex-1 h-2 bg-slate-800 rounded-full appearance-none cursor-pointer accent-red-500"
-                            />
-                            <div className="font-mono text-xs text-red-400 font-bold whitespace-nowrap shrink-0">🔒 Locked</div>
-                        </div>
-                    )}
-
-                    {(phase === 3 || phase === 4) && (
-                        <div className="flex items-center justify-center gap-4">
-                            <button onClick={() => { setPhase(3); setShowDipoles(true); }}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition-all ${phase === 3 ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                    }`}>
-                                ← Cis-Isomer (μ &gt; 0)
-                            </button>
-                            <div className="w-px h-6 bg-slate-700" />
-                            <button onClick={() => { setPhase(4); setShowDipoles(true); }}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition-all ${phase === 4 ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                    }`}>
-                                Trans-Isomer (μ = 0) →
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Phase navigation */}
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                        {phase > 1 && (
-                            <button onClick={() => setPhase((phase - 1) as Phase)}
-                                className="px-3 py-1 rounded-md text-[10px] font-bold border border-slate-700 text-slate-400 cursor-pointer hover:bg-slate-800">
-                                ← Previous Phase
-                            </button>
-                        )}
-                        {phase < 4 && (
-                            <button onClick={() => { setPhase((phase + 1) as Phase); if (phase + 1 >= 3) setShowDipoles(true); }}
-                                className="px-3 py-1 rounded-md text-[10px] font-bold border border-indigo-500/40 text-indigo-300 cursor-pointer hover:bg-indigo-500/10 flex items-center gap-1">
-                                Next Phase <ArrowRight size={10} />
-                            </button>
-                        )}
-                    </div>
+    const bottomControls = (
+        <div className="flex flex-col gap-4 w-full max-w-3xl mx-auto">
+            {phase === 1 && (
+                <div className="flex items-center gap-4">
+                    <RotateCw size={14} className="text-slate-500 shrink-0 hidden sm:block" />
+                    <span className="text-xs text-slate-400 font-bold whitespace-nowrap">Twist Angle</span>
+                    <input type="range" min="0" max="360" step="1" value={twistAngle}
+                        onChange={e => { setTwistAngle(Number(e.target.value)); setAutoAnimate(false); }}
+                        className="flex-1 h-2 bg-slate-950/80 rounded-full appearance-none cursor-pointer border border-white/5"
+                        style={{ background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(twistAngle / 360) * 100}%, rgba(15,23,42,0.8) ${(twistAngle / 360) * 100}%)` }}
+                    />
+                    <div className="font-mono text-sm text-blue-400 font-bold w-12 text-right shrink-0">{twistAngle.toFixed(0)}°</div>
                 </div>
+            )}
+            {phase === 2 && (
+                <div className="flex items-center gap-4">
+                    <AlertTriangle size={14} className="text-red-500 shrink-0 hidden sm:block" />
+                    <span className="text-xs text-slate-400 font-bold whitespace-nowrap">Try to Twist</span>
+                    <input type="range" min="-30" max="30" step="1" value={0}
+                        onChange={e => handleDoubleBondTwist(Number(e.target.value))}
+                         className="flex-1 h-2 bg-slate-950/80 rounded-full appearance-none cursor-pointer border border-white/5"
+                    />
+                    <div className="font-mono text-[10px] text-red-500 font-bold whitespace-nowrap shrink-0 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded-md">🔒 Locked</div>
+                </div>
+            )}
+            {(phase === 3 || phase === 4) && (
+                <div className="flex items-center justify-center gap-4">
+                    <button onClick={() => { setPhase(3); setShowDipoles(true); }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer transition-all ${phase === 3 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 border-emerald-400' : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                        ← Cis-Isomer (μ &gt; 0)
+                    </button>
+                    <div className="w-px h-6 bg-slate-700/50" />
+                    <button onClick={() => { setPhase(4); setShowDipoles(true); }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer transition-all ${phase === 4 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20 border-amber-400' : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                        Trans-Isomer (μ = 0) →
+                    </button>
+                </div>
+            )}
+            
+            <div className="flex items-center justify-center gap-2 mt-2">
+                {phase > 1 && (
+                    <button onClick={() => setPhase((phase - 1) as Phase)}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-slate-700 text-slate-400 cursor-pointer hover:bg-slate-800 bg-slate-900/50">
+                        ← Previous Phase
+                    </button>
+                )}
+                {phase < 4 && (
+                    <button onClick={() => { setPhase((phase + 1) as Phase); if (phase + 1 >= 3) setShowDipoles(true); }}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-indigo-500/40 text-indigo-300 cursor-pointer hover:bg-indigo-500/10 flex items-center gap-1 bg-indigo-500/5">
+                        Next Phase <ArrowRight size={10} />
+                    </button>
+                )}
+            </div>
+
+            {/* Mobile / Tablet Info Panel Flow */}
+            <div className="xl:hidden mt-2 pt-4 border-t border-slate-800 space-y-3">
+                {infoPanelContent}
             </div>
         </div>
+    );
+
+    return (
+        <TopicLayoutContainer
+            topic={topic}
+            onExit={onExit}
+            FloatingNavComponent={topBar}
+            SimulationComponent={simulationContent}
+            ControlsComponent={bottomControls}
+        />
     );
 };
 
