@@ -236,6 +236,12 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
     const vpHrms = (inputVoltagePeak / Math.SQRT2).toFixed(1);
     const vsHrms = ((inputVoltagePeak * secondaryTurns / primaryTurns) / Math.SQRT2).toFixed(1);
 
+    // Derived current values (reference load = 1000 W for illustration)
+    const referenceLoad = 1000; // W
+    const vpRms = inputVoltagePeak / Math.SQRT2;
+    const ipRms = (referenceLoad / vpRms).toFixed(2);
+    const isRms = (Number(ipRms) * (primaryTurns / secondaryTurns)).toFixed(2);
+
     const simulationCombo = (
         <div className="w-full h-full relative bg-slate-100 rounded-2xl overflow-hidden border border-slate-300 shadow-inner flex flex-col">
             <div className="flex-1 relative min-h-[300px]">
@@ -331,6 +337,25 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
                         <span className="text-sm font-bold text-slate-600">Turns Ratio (k) = {ratio}</span>
                         <div className={`px-3 py-1 text-xs font-bold rounded text-white ${transformerType === 'Step-Up' ? 'bg-amber-500' : 'bg-green-500'}`}>
                             {transformerType}
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg space-y-2 text-sm">
+                        <h4 className="font-bold text-blue-800 border-b border-blue-200 pb-1">Derived Relations</h4>
+                        <div className="flex justify-between items-center">
+                            <span className="text-blue-700 font-medium">Input current (Ip)</span>
+                            <span className="font-mono text-blue-900 bg-white px-2 rounded border border-blue-200">Ip = P / Vp ≈ {ipRms} A</span>
+                        </div>
+                        <p className="text-[10px] text-blue-500">(Reference load P = 1000 W for illustration)</p>
+                        <div className="flex justify-between items-center">
+                            <span className="text-blue-700 font-medium">Output current (Is)</span>
+                            <span className="font-mono text-blue-900 bg-white px-2 rounded border border-blue-200">Is = Ip × (Np / Ns) ≈ {isRms} A</span>
+                        </div>
+                        <div className="text-[10px] text-blue-700 italic border-t border-blue-200 pt-2">
+                            For ideal transformer: Vp × Ip = Vs × Is (power conserved)
+                        </div>
+                        <div className="text-[10px] text-slate-500 italic">
+                            This is an ideal transformer model (100% efficiency). Real transformers have copper and iron losses. (NCERT Ch. 7)
                         </div>
                     </div>
                 </div>

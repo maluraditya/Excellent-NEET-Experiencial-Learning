@@ -239,7 +239,7 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
                             <span>Wavelength (λ)</span>
-                            <span className="text-indigo-600 font-mono bg-indigo-50 px-2 rounded">{wavelength} nm</span>
+                            <span className="text-indigo-600 font-mono bg-indigo-50 px-2 rounded">{wavelength} px (scaled)</span>
                         </label>
                         <input
                             type="range" min="100" max="400" step="10"
@@ -251,12 +251,13 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
                             <span>Higher Freq (Gamma)</span>
                             <span>Lower Freq (Radio)</span>
                         </div>
+                        <p className="text-[10px] text-slate-400 italic">Real EM wavelengths range from ~10⁻¹² m (gamma) to 10³ m (radio). This is a visual representation.</p>
                     </div>
 
                     <div className="space-y-2 mt-4">
                         <label className="text-xs font-bold text-slate-500 uppercase flex justify-between">
                             <span>Amplitude (E₀)</span>
-                            <span className="text-red-500 font-mono bg-red-50 px-2 rounded">{amplitude} V/m</span>
+                            <span className="text-red-500 font-mono bg-red-50 px-2 rounded">{amplitude} arb. units</span>
                         </label>
                         <input
                             type="range" min="20" max="150" step="5"
@@ -283,9 +284,10 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
                         <div className="w-full h-px bg-slate-200"></div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-slate-600 font-medium">Magnetic Amplitude (B₀)</span>
-                            <span className="font-mono font-bold text-blue-600">{(amplitude * bToERatio).toFixed(1)} T</span>
+                            <span className="font-mono font-bold text-blue-600">{(amplitude * bToERatio).toFixed(1)} arb. units</span>
                         </div>
                         <div className="text-xs text-slate-400 text-right">E₀ / c = B₀</div>
+                        <div className="text-xs text-indigo-500 italic text-right">Ratio E₀/B₀ = c is preserved.</div>
                     </div>
                 </div>
             </div>

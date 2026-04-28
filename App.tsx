@@ -59,10 +59,6 @@ import StereochemistryLab from './components/grade-12/chemistry/StereochemistryL
 import DBlockLab from './components/grade-12/chemistry/DBlockLab';
 import HaloalkaneLab from './components/grade-12/chemistry/HaloalkaneLab';
 import PolymerLab from './components/grade-12/chemistry/PolymerLab';
-import ClassificationOfSolidsLab from './components/grade-12/chemistry/ClassificationOfSolidsLab';
-import UnitCellsLab from './components/grade-12/chemistry/UnitCellsLab';
-import PackingEfficiencyLab from './components/grade-12/chemistry/PackingEfficiencyLab';
-import PointDefectsLab from './components/grade-12/chemistry/PointDefectsLab';
 
 // Grade 12 - Biology
 import GeneticsCanvas from './components/grade-12/biology/GeneticsCanvas';
@@ -765,18 +761,6 @@ const App: React.FC = () => {
         )}
 
         {/* ================== GRADE 12 CHEMISTRY LABS ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'solids_classification' && (
-          <ClassificationOfSolidsLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
-        )}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'unit_cells' && (
-          <UnitCellsLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
-        )}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'packing' && (
-          <PackingEfficiencyLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
-        )}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'defects' && (
-          <PointDefectsLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
-        )}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'kinetics' && (
           <CollisionTheoryLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}

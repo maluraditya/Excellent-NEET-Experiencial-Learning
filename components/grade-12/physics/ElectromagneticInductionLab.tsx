@@ -122,20 +122,23 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
 
         const renderFaraday = (ctx: CanvasRenderingContext2D, W: number, H: number, _dt: number, scale: number, fs: (b: number) => number, pad: number) => {
             const centerY = H * 0.42;
+            const headerSafeLeft = Math.max(pad, 170 * scale);
+            const headerCenterX = headerSafeLeft + (W - headerSafeLeft - pad) * 0.5;
+            const headerMaxW = Math.max(180, W - headerSafeLeft - pad);
 
-            // ── Coil position (responsive) ──
+            // -- Coil position (responsive) --
             const COIL_CX = W * 0.55;
             const COIL_LEFT = COIL_CX - W * 0.06;
             const COIL_RIGHT = COIL_CX + W * 0.06;
             const coilRadius = Math.min(55, H * 0.13);
 
-            // ── Magnet position (responsive) ──
+            // -- Magnet position (responsive) --
             const magPxX = magnetX * W;
             const magW = W * 0.13;
             const magH = Math.min(55, H * 0.12);
             const magCenterX = magPxX + magW / 2;
 
-            // ── Flux calculation ──
+            // -- Flux calculation --
             const dist = magCenterX - COIL_CX;
             const w_width = W * 0.12;
             const flux = Math.exp(-(dist * dist) / (w_width * w_width));
@@ -150,11 +153,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             const targetBright = Math.min(1, absEmf / 18);
             bulbRef.current = bulbRef.current * 0.85 + targetBright * 0.15;
 
-            // ── Title ──
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(17)}px "Inter", sans-serif`; ctx.textAlign = 'left';
-            ctx.fillText("Faraday's Law — Electromagnetic Induction", pad, pad * 1.2);
-
-            // ── Draw coil ──
+            // -- Draw coil --
             const numTurns = 14;
             ctx.strokeStyle = '#92400e'; ctx.lineWidth = 3 * scale;
             for (let i = 0; i < numTurns; i++) {
@@ -166,13 +165,13 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             ctx.strokeStyle = '#78350f'; ctx.lineWidth = 2;
             ctx.strokeRect(COIL_LEFT, centerY - coilRadius, COIL_RIGHT - COIL_LEFT, coilRadius * 2);
 
-            // ── Flux highlight in coil ──
+            // -- Flux highlight in coil --
             if (flux > 0.05) {
                 ctx.fillStyle = `rgba(250, 204, 21, ${flux * 0.35})`;
                 ctx.fillRect(COIL_LEFT, centerY - coilRadius, COIL_RIGHT - COIL_LEFT, coilRadius * 2);
             }
 
-            // ── DYNAMIC FIELD LINES ──
+            // -- DYNAMIC FIELD LINES --
             if (showFieldLines) {
                 const nLines = 10;
                 // Determine how many lines are currently actively linking based on flux (from 0 to 10)
@@ -219,7 +218,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
                 }
             }
 
-            // ── Flux meter bar ──
+            // -- Flux meter bar --
             const meterX = W * 0.82, meterY = pad * 3, meterW = W * 0.04, meterH = H * 0.35;
             ctx.fillStyle = '#f1f5f9';
             roundRect(ctx, meterX, meterY, meterW, meterH, 8); ctx.fill();
@@ -231,10 +230,10 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
                 roundRect(ctx, meterX, meterY + meterH - fillH, meterW, fillH, 8); ctx.fill();
             }
             ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('Φ', meterX + meterW / 2, meterY - 8);
+            ctx.fillText('Phi', meterX + meterW / 2, meterY - 8);
             ctx.fillText(`${(flux * 100).toFixed(0)}%`, meterX + meterW / 2, meterY + meterH + fs(12) + 4);
 
-            // ── Magnet ──
+            // -- Magnet --
             const magnetY = centerY - magH / 2;
             ctx.fillStyle = '#1d4ed8';
             roundRect(ctx, magPxX, magnetY, magW / 2, magH, 6); ctx.fill();
@@ -246,10 +245,10 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
 
             if (!isDragging) {
                 ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`;
-                ctx.fillText('← Drag Magnet →', magPxX + magW / 2, magnetY - 12);
+                ctx.fillText('Drag Magnet', magPxX + magW / 2, magnetY - 12);
             }
 
-            // ── Wires ──
+            // -- Wires --
             ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3 * scale;
             ctx.beginPath();
             ctx.moveTo(COIL_LEFT, centerY + coilRadius);
@@ -263,7 +262,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             ctx.lineTo(W * 0.78, H * 0.82);
             ctx.stroke();
 
-            // ── Bulb ──
+            // -- Bulb --
             const bulbX = W * 0.62, bulbY = H * 0.82;
             const brightness = bulbRef.current;
             if (brightness > 0.05) {
@@ -277,14 +276,14 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(bulbX, bulbY - 20, 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('💡', bulbX, bulbY + 18);
+            ctx.fillText('Bulb', bulbX, bulbY + 18);
 
-            // ── Galvanometer ──
+            // -- Galvanometer --
             const galvoX = W * 0.78, galvoY = H * 0.82;
             ctx.fillStyle = '#e2e8f0'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(galvoX, galvoY, 36 * scale, Math.PI, 0); ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(10)}px monospace`; ctx.textAlign = 'center';
-            ctx.fillText('−  0  +', galvoX, galvoY - 8);
+            ctx.fillText('-  0  +', galvoX, galvoY - 8);
 
             ctx.save();
             ctx.translate(galvoX, galvoY);
@@ -295,7 +294,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`;
             ctx.fillText('G', galvoX, galvoY + 18);
 
-            // ── EMF indicator bar ──
+            // -- EMF indicator bar --
             const emfBarX = pad, emfBarY = H * 0.88, emfBarW = W * 0.35;
             ctx.fillStyle = '#f1f5f9';
             roundRect(ctx, emfBarX, emfBarY, emfBarW, 20 * scale, 6); ctx.fill();
@@ -313,12 +312,15 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
                 }
             }
             ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText(`EMF: ε = −dΦ/dt`, emfBarX + emfBarW / 2, emfBarY - 6);
+            ctx.fillText('EMF: e = -dPhi/dt', emfBarX + emfBarW / 2, emfBarY - 6);
         };
 
         const renderACGenerator = (ctx: CanvasRenderingContext2D, W: number, H: number, dt: number, scale: number, fs: (b: number) => number, pad: number) => {
             const centerX = W * 0.35;
             const centerY = H * 0.38;
+            const headerSafeLeft = Math.max(pad, 170 * scale);
+            const headerCenterX = headerSafeLeft + (W - headerSafeLeft - pad) * 0.5;
+            const headerMaxW = Math.max(180, W - headerSafeLeft - pad);
 
             coilAngleRef.current += angularSpeed * dt;
             const cAngle = coilAngleRef.current;
@@ -332,10 +334,6 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
                 fluxHistory.current.shift();
                 emfHistory.current.shift();
             }
-
-            // Title
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(17)}px "Inter", sans-serif`; ctx.textAlign = 'left';
-            ctx.fillText('AC Generator — Electromagnetic Induction', pad, pad * 1.2);
 
             // Magnets
             const magW = 35 * scale, magH = 120 * scale;
@@ -397,11 +395,11 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.arc(lampX, lampY - 12, 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
-            // ω label
+            // Angular speed label
             ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(13)}px monospace`; ctx.textAlign = 'center';
-            ctx.fillText(`ω = ${angularSpeed.toFixed(1)} rad/s`, centerX, centerY - coilH / 2 - 35 * scale);
+            ctx.fillText(`omega = ${angularSpeed.toFixed(1)} rad/s`, centerX, centerY - coilH / 2 - 35 * scale);
 
-            // ── Graphs panel (right side) ──
+            // -- Graphs panel (right side) --
             const graphX = W * 0.58, graphY = pad * 2.5, graphW = W * 0.38, graphH = H * 0.82;
             ctx.fillStyle = '#ffffff';
             roundRect(ctx, graphX, graphY, graphW, graphH, 14); ctx.fill();
@@ -413,7 +411,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
 
             // Flux graph
             ctx.fillStyle = '#3b82f6'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`; ctx.textAlign = 'left';
-            ctx.fillText('Magnetic Flux Φ(t) = NABcos(ωt)', graphX + gPad, graphY + 20);
+            ctx.fillText('Magnetic Flux Phi(t) = NAB cos(omega t)', graphX + gPad, graphY + 20);
             ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(graphX + gPad, graphY + halfGH / 2 + 10); ctx.lineTo(graphX + graphW - gPad, graphY + halfGH / 2 + 10); ctx.stroke();
 
@@ -429,7 +427,7 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             // EMF graph
             const emfGY = graphY + halfGH;
             ctx.fillStyle = '#ef4444'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`;
-            ctx.fillText('EMF ε(t) = NABω sin(ωt)', graphX + gPad, emfGY + 20);
+            ctx.fillText('EMF e(t) = NAB omega sin(omega t)', graphX + gPad, emfGY + 20);
             ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(graphX + gPad, emfGY + halfGH / 2 + 10); ctx.lineTo(graphX + graphW - gPad, emfGY + halfGH / 2 + 10); ctx.stroke();
 
@@ -444,9 +442,9 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
 
             // Current values
             ctx.fillStyle = '#3b82f6'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'right';
-            ctx.fillText(`Φ = ${flux.toFixed(2)}`, graphX + graphW - gPad, graphY + 20);
+            ctx.fillText(`Phi = ${flux.toFixed(2)}`, graphX + graphW - gPad, graphY + 20);
             ctx.fillStyle = '#ef4444';
-            ctx.fillText(`ε = ${emf.toFixed(2)}`, graphX + graphW - gPad, emfGY + 20);
+            ctx.fillText(`e = ${emf.toFixed(2)}`, graphX + graphW - gPad, emfGY + 20);
         };
 
         animationRef.current = requestAnimationFrame(render);
@@ -464,6 +462,33 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                 />
+
+                <div className="absolute top-3 left-40 right-20 md:left-44 md:right-24 pointer-events-none">
+                    <div className="bg-slate-50/98 rounded-lg px-3 py-2 shadow-sm">
+                        <p className="text-sm md:text-lg font-bold text-slate-900 text-center">
+                            {mode === 'faraday'
+                                ? "Faraday's Law - Electromagnetic Induction"
+                                : 'AC Generator - Electromagnetic Induction'}
+                        </p>
+                    </div>
+                </div>
+
+                {mode === 'acgenerator' && (
+                    <div className="absolute top-[9%] right-[4%] w-[38%] h-[82%] pointer-events-none">
+                        <div className="absolute left-3 right-3 top-3 bg-white/98 rounded-xl px-4 py-3 shadow-sm">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <p className="text-[11px] md:text-xs font-bold text-blue-500">Magnetic Flux Phi(t) = NAB cos(omega t)</p>
+                                    <p className="text-[9px] md:text-[10px] text-slate-400">Normalized (N = A = B = 1). Real peak EMF = N*A*B*omega</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="absolute left-3 right-3 top-1/2 mt-3 bg-white/98 rounded-xl px-4 py-3 shadow-sm">
+                            <p className="text-[11px] md:text-xs font-bold text-red-500">EMF e(t) = NAB omega sin(omega t)</p>
+                            <p className="text-[9px] md:text-[10px] text-slate-400">Normalized (N = A = B = 1). Real peak EMF = N*A*B*omega</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="absolute top-3 right-3 flex gap-2">
@@ -501,11 +526,11 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
             {mode === 'acgenerator' && (
                 <div className="space-y-4">
                     <div className="text-center p-3 md:p-4 bg-amber-50 rounded-lg text-amber-800 text-sm">
-                        EMF = N·A·B·ω·sin(ωt). Peak voltage is proportional to rotation speed (ω).
+                        EMF = N*A*B*omega*sin(omega*t). Peak voltage is proportional to rotation speed (omega).
                     </div>
                     <div className="space-y-2 p-3 md:p-4 bg-white rounded-xl border border-slate-200">
                         <label className="text-sm font-bold text-slate-700 uppercase flex justify-between items-center">
-                            <span>Angular Speed (ω)</span>
+                            <span>Angular Speed (omega)</span>
                             <span className="text-amber-700 bg-amber-100 px-3 py-1 rounded-lg font-mono">{angularSpeed.toFixed(1)} rad/s</span>
                         </label>
                         <input type="range" min="1" max="10" step="0.5" value={angularSpeed}
@@ -532,3 +557,4 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 }
 
 export default ElectromagneticInductionLab;
+

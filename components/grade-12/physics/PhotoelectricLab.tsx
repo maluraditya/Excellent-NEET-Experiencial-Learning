@@ -201,18 +201,23 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
                         photonsRef.current.splice(i, 1);
                         // Eject electron? (1 to 1 probability if E > phi, simply scale by intensity)
                         if (isEjecting) {
-                            // Initial velocity depends on K.E.
-                            // K_max = hf - phi
-                            // K_actual is randomly between 0 and K_max (electrons come from different depths)
-                            const kActual = Math.random() * kMax;
-                            const vBase = Math.sqrt(kActual) * 50; // Visual scaling for speed
-                            electronsRef.current.push({
-                                x: 140,
-                                y: p.y,
-                                vx: vBase,
-                                vy: (Math.random() - 0.5) * 20, // Small spread
-                                maxKe: kMax
-                            });
+                            // If applied retarding voltage exceeds stopping potential, electron cannot escape cathode
+                            if (voltage < -kMax) {
+                                // Electron is stopped before leaving cathode — do not spawn
+                            } else {
+                                // Initial velocity depends on K.E.
+                                // K_max = hf - phi
+                                // K_actual is randomly between 0 and K_max (electrons come from different depths)
+                                const kActual = Math.random() * kMax;
+                                const vBase = Math.sqrt(kActual) * 50; // Visual scaling for speed
+                                electronsRef.current.push({
+                                    x: 140,
+                                    y: p.y,
+                                    vx: vBase,
+                                    vy: (Math.random() - 0.5) * 20, // Small spread
+                                    maxKe: kMax
+                                });
+                            }
                         }
                     } else if (p.y > height) {
                         photonsRef.current.splice(i, 1); // Missed
@@ -308,8 +313,9 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
                     <span className="text-emerald-400 font-bold">{isEjecting ? kMax.toFixed(2) : '0.00'} eV</span>
                 </div>
                 <div className="flex flex-col items-center border-l border-slate-700 pl-6">
-                    <span className="text-slate-400 text-[10px] uppercase">Stopping Potential (V₀)</span>
-                    <span className="text-red-400 font-bold">{isEjecting ? stoppingPotential.toFixed(2) : '0.00'} V</span>
+                    <span className="text-slate-400 text-[10px] uppercase">|V₀| (magnitude)</span>
+                    <span className="text-red-400 font-bold">{isEjecting ? Math.abs(stoppingPotential).toFixed(2) : '0.00'} V</span>
+                    <span className="text-slate-500 text-[9px] text-center max-w-[110px]">Stopping potential is applied as a retarding voltage; its magnitude equals K_max / e.</span>
                 </div>
             </div>
 
@@ -383,6 +389,7 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
                                 onChange={(e) => setIntensity(Number(e.target.value))}
                                 className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
                             />
+                            <p className="text-[10px] text-slate-500 italic">Increasing intensity increases saturation current but does NOT change the stopping potential V₀. (NCERT Ch. 11)</p>
                         </div>
 
                         <div className="space-y-2">
