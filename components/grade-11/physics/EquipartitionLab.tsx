@@ -67,7 +67,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         const fRot = gas.fRot;
         const fVib = s.vibEnabled ? gas.fVib : 0;
         const fTotal = gas.fTrans + fRot + fVib;
-        const kBT_half = 0.5 * R_CONST * s.T / 1000;
+        const RT_half = 0.5 * R_CONST * s.T / 1000;
 
         // Clear
         ctx.clearRect(0, 0, W, H);
@@ -143,7 +143,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(mx, my, atomR * 2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = gas.color; ctx.beginPath(); ctx.arc(mx, my, atomR * 1.2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(mx - 4, my - 4, atomR * 0.4, 0, Math.PI * 2); ctx.fill();
-            
+
             // Translation (3 DOF)
             ctx.strokeStyle = 'rgba(22, 163, 74, 0.7)'; ctx.lineWidth = 2.5 * scale;
             drawDoubleArrow(ctx, mx - 35 * scale, my, mx + 35 * scale, my);
@@ -202,7 +202,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                 ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(ax, ay); ctx.stroke();
                 ctx.fillStyle = '#475569';
                 ctx.beginPath(); ctx.arc(ax, ay, atomR * 0.8, 0, Math.PI * 2); ctx.fill();
-                
+
                 // Polyatomic Vibration
                 if (s.vibEnabled && fVib > 0) {
                     ctx.strokeStyle = 'rgba(220, 38, 38, 0.7)'; ctx.lineWidth = 2 * scale;
@@ -210,16 +210,16 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                     drawDoubleArrow(ctx, ax + vdx * 0.2, ay + vdy * 0.2, ax + vdx, ay + vdy);
                 }
             }
-            
+
             // Polyatomic Rotation
             if (fRot > 0) {
                 ctx.strokeStyle = 'rgba(217, 119, 6, 0.7)'; ctx.lineWidth = 2.5 * scale;
                 ctx.beginPath(); ctx.arc(mx, my, atomR * 3.5, 0, Math.PI * 1.5); ctx.stroke();
-                drawArrow(ctx, mx, my - atomR * 3.5, mx - 1, my - atomR * 3.5); 
+                drawArrow(ctx, mx, my - atomR * 3.5, mx - 1, my - atomR * 3.5);
                 ctx.beginPath(); ctx.arc(mx, my, atomR * 2.8, Math.PI * 0.5, Math.PI * 2); ctx.stroke();
-                drawArrow(ctx, mx + atomR * 2.8, my, mx + atomR * 2.8, my + 1); 
+                drawArrow(ctx, mx + atomR * 2.8, my, mx + atomR * 2.8, my + 1);
             }
-            
+
             // Polyatomic Translation
             ctx.strokeStyle = 'rgba(22, 163, 74, 0.4)'; ctx.lineWidth = 2 * scale;
             drawDoubleArrow(ctx, mx - 50 * scale, my, mx + 50 * scale, my);
@@ -273,9 +273,9 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         ctx.font = `bold ${fs(11)}px sans-serif`;
         ctx.fillText('Average Energy per Degree of Freedom', barPanelX + barPanelW / 2, barPanelY + pad * 1.2 + fs(14) + 4);
 
-        const eTrans = gas.fTrans * kBT_half;
-        const eRot = fRot * kBT_half;
-        const eVib = fVib * kBT_half;
+        const eTrans = gas.fTrans * RT_half;
+        const eRot = fRot * RT_half;
+        const eVib = fVib * RT_half;
         const eTotal = eTrans + eRot + eVib;
         const maxE = Math.max(eTotal * 1.3, 1);
 
@@ -302,10 +302,10 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             if (fillH > 0) {
                 ctx.fillStyle = b.color;
                 roundRect(ctx, bx, barBottom - fillH, bw, fillH, 6); ctx.fill();
-                if (kBT_half > 0) {
-                    const quanta = b.val / kBT_half;
+                if (RT_half > 0) {
+                    const quanta = b.val / RT_half;
                     for (let q = 1; q < quanta; q++) {
-                        const qy = barBottom - (q * kBT_half / maxE) * barMaxH;
+                        const qy = barBottom - (q * RT_half / maxE) * barMaxH;
                         ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.5;
                         ctx.beginPath(); ctx.moveTo(bx + 3, qy); ctx.lineTo(bx + bw - 3, qy); ctx.stroke();
                     }
@@ -325,15 +325,15 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             ctx.fillText(b.sub, bx + bw / 2, barBottom + fs(12) + fs(10) + 10);
         });
 
-        if (kBT_half > 0) {
-            const eqY = barBottom - (kBT_half / maxE) * barMaxH;
+        if (RT_half > 0) {
+            const eqY = barBottom - (RT_half / maxE) * barMaxH;
             ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
             ctx.beginPath(); ctx.moveTo(barStartX - 10, eqY); ctx.lineTo(barStartX + totalBarW + 10, eqY); ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = '#475569';
             ctx.font = `bold ${fs(11)}px sans-serif`;
             ctx.textAlign = 'right';
-            ctx.fillText('½kᵦT', barStartX - 15, eqY + 4);
+            ctx.fillText('½RT (per mol)', barStartX - 15, eqY + 4);
         }
 
         // ═══════════════════════════════════════════════
@@ -413,7 +413,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         fY += lineH * 1.4;
         ctx.fillStyle = '#64748b';
         ctx.font = `italic bold ${fs(12)}px sans-serif`;
-        ctx.fillText('Each DOF gets ½kᵦT energy', infoX + infoW / 2, fY);
+        ctx.fillText('Each DOF gets ½kᵦT per molecule = ½RT per mole', infoX + infoW / 2, fY);
         fY += lineH * 0.8;
         ctx.fillText('Vibration adds 2 DOF (KE+PE)', infoX + infoW / 2, fY);
 
@@ -451,11 +451,10 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                     <button
                         key={g.symbol}
                         onClick={() => { setGasIdx(i); setVibEnabled(false); }}
-                        className={`p-2 md:p-4 rounded-xl border-2 font-bold transition-all shadow-sm active:scale-95 ${
-                            gasIdx === i
+                        className={`p-2 md:p-4 rounded-xl border-2 font-bold transition-all shadow-sm active:scale-95 ${gasIdx === i
                                 ? 'text-white border-transparent'
                                 : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                        }`}
+                            }`}
                         style={gasIdx === i ? { backgroundColor: g.color } : {}}
                     >
                         <div className="text-lg md:text-2xl mb-0.5 md:mb-1">{g.symbol}</div>
@@ -485,13 +484,12 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
                     <button
                         onClick={() => { if (gas.fVib > 0) setVibEnabled(!vibEnabled); }}
                         disabled={gas.fVib === 0}
-                        className={`w-full py-2.5 md:py-4 rounded-xl text-xs md:text-sm lg:text-base font-bold transition-all border shadow-sm active:scale-95 ${
-                            gas.fVib === 0
+                        className={`w-full py-2.5 md:py-4 rounded-xl text-xs md:text-sm lg:text-base font-bold transition-all border shadow-sm active:scale-95 ${gas.fVib === 0
                                 ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
                                 : vibEnabled
                                     ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg scale-[1.02]'
                                     : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                        }`}
+                            }`}
                     >
                         {gas.fVib === 0 ? 'NO VIBRATIONAL MODES' : vibEnabled ? '🔓 VIBRATION: ACTIVE' : '🔒 VIBRATION: INACTIVE'}
                     </button>
@@ -538,8 +536,8 @@ function drawArrow(ctx: CanvasRenderingContext2D, fromX: number, fromY: number, 
 
 function drawDoubleArrow(ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number) {
     ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
-    drawArrow(ctx, (fromX+toX)/2, (fromY+toY)/2, toX, toY);
-    drawArrow(ctx, (fromX+toX)/2, (fromY+toY)/2, fromX, fromY);
+    drawArrow(ctx, (fromX + toX) / 2, (fromY + toY) / 2, toX, toY);
+    drawArrow(ctx, (fromX + toX) / 2, (fromY + toY) / 2, fromX, fromY);
 }
 
 export default EquipartitionLab;

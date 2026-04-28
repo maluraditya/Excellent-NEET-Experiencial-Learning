@@ -19,10 +19,12 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
     const [frequency, setFrequency] = useState(2.0);
     const [tension, setTension] = useState(500); // Affects wave speed v = sqrt(T/mu)
     const [mu, setMu] = useState(0.5); // Linear mass density
+    const [bulkModulus, setBulkModulus] = useState(140000); // B in Pa, range 50000–500000
+    const [density, setDensity] = useState(1.2); // ρ in kg/m³, range 0.5–5.0
     const [running, setRunning] = useState(true);
 
     const stateRef = useRef({
-        waveType, amplitude, frequency, tension, mu, running,
+        waveType, amplitude, frequency, tension, mu, bulkModulus, density, running,
         time: 0,
         particles: Array.from({ length: 60 }, (_, i) => ({ x: i * 15, y: 0 }))
     });
@@ -33,8 +35,10 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         stateRef.current.frequency = frequency;
         stateRef.current.tension = tension;
         stateRef.current.mu = mu;
+        stateRef.current.bulkModulus = bulkModulus;
+        stateRef.current.density = density;
         stateRef.current.running = running;
-    }, [waveType, amplitude, frequency, tension, mu, running]);
+    }, [waveType, amplitude, frequency, tension, mu, bulkModulus, density, running]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -57,6 +61,8 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         const W = canvas.width, H = canvas.height;
         if (W < 10 || H < 10) { animRef.current = requestAnimationFrame(draw); return; }
 
+        const SCALE = 0.01; // 1 canvas pixel = 0.01 metres
+
         const s = stateRef.current;
         if (s.running) s.time += 0.016;
 
@@ -64,7 +70,7 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         ctx.fillStyle = '#f8fafc';
         ctx.fillRect(0, 0, W, H);
 
-        const v = Math.sqrt(s.tension / s.mu);
+        const v = s.waveType === 'transverse' ? Math.sqrt(s.tension / s.mu) : Math.sqrt(s.bulkModulus / s.density);
         const omega = 2 * Math.PI * s.frequency;
         const k = omega / v;
 
@@ -111,7 +117,10 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                 py = pivotY;
                 
                 // Draw compression shading for longitudinal
-                ctx.fillStyle = `rgba(37, 99, 235, ${0.1 + Math.max(0, -disp/s.amplitude) * 0.3})`;
+                const grad = -k * s.amplitude * Math.cos(phase); // ∝ ∂y/∂x
+                const normalised = Math.max(-1, Math.min(1, grad / (k * s.amplitude + 1e-9)));
+                const alpha = normalised > 0 ? 0.05 + normalised * 0.35 : 0.02;
+                ctx.fillStyle = `rgba(37, 99, 235, ${alpha})`;
                 ctx.fillRect(px - 10, py - 40, 20, 80);
             }
 
@@ -125,16 +134,19 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                 ctx.fillStyle = '#ef4444';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('TRACER (Matter stays)', px, py - 15);
+                ctx.fillText('Tracer — oscillates about mean position', px, py - 15);
             }
         });
 
         // --- HUD / Labels ---
+        const v_display = v * SCALE;
+        const lambda_display = (v / s.frequency) * SCALE;
+        
         ctx.fillStyle = '#1e293b';
         ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(`Wave Speed (v): ${v.toFixed(1)} m/s`, 20, 90);
-        ctx.fillText(`Wavelength (W): ${(v / s.frequency).toFixed(1)} m`, 20, 115);
+        ctx.fillText(`Wave Speed (v): ${v_display.toFixed(2)} m/s`, 20, 90);
+        ctx.fillText(`Wavelength (λ): ${lambda_display.toFixed(2)} m`, 20, 115);
 
         animRef.current = requestAnimationFrame(draw);
     }, []);
@@ -149,6 +161,8 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         setFrequency(2.0);
         setTension(500);
         setMu(0.5);
+        setBulkModulus(140000);
+        setDensity(1.2);
         stateRef.current.time = 0;
     };
 
@@ -199,19 +213,35 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                         <input type="range" min="10" max="80" step="1" value={amplitude} onChange={(e) => setAmplitude(Number(e.target.value))} className="w-full accent-blue-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                     </div>
 
-                    <div className="space-y-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
-                        <label className="flex justify-between text-sm font-bold">
-                            <span>Tension (T)</span>
-                            <span className="text-blue-600">{tension} N</span>
-                        </label>
-                        <input type="range" min="100" max="2000" step="50" value={tension} onChange={(e) => setTension(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+                    {waveType === 'transverse' ? (
+                        <div className="space-y-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                            <label className="flex justify-between text-sm font-bold">
+                                <span>Tension (T)</span>
+                                <span className="text-blue-600">{tension} N</span>
+                            </label>
+                            <input type="range" min="100" max="2000" step="50" value={tension} onChange={(e) => setTension(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
 
-                        <label className="flex justify-between text-sm font-bold pt-2">
-                            <span>Inertia (mu)</span>
-                            <span className="text-blue-600">{mu.toFixed(2)} kg/m</span>
-                        </label>
-                        <input type="range" min="0.1" max="2" step="0.05" value={mu} onChange={(e) => setMu(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
-                    </div>
+                            <label className="flex justify-between text-sm font-bold pt-2">
+                                <span>Inertia (mu)</span>
+                                <span className="text-blue-600">{mu.toFixed(2)} kg/m</span>
+                            </label>
+                            <input type="range" min="0.1" max="2" step="0.05" value={mu} onChange={(e) => setMu(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+                        </div>
+                    ) : (
+                        <div className="space-y-4 p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                            <label className="flex justify-between text-sm font-bold">
+                                <span>Bulk Modulus (B)</span>
+                                <span className="text-blue-600">{bulkModulus} Pa</span>
+                            </label>
+                            <input type="range" min="50000" max="500000" step="10000" value={bulkModulus} onChange={(e) => setBulkModulus(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+
+                            <label className="flex justify-between text-sm font-bold pt-2">
+                                <span>Air Density (ρ)</span>
+                                <span className="text-blue-600">{density.toFixed(2)} kg/m³</span>
+                            </label>
+                            <input type="range" min="0.5" max="5.0" step="0.1" value={density} onChange={(e) => setDensity(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">

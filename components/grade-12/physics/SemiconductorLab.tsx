@@ -27,6 +27,8 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     const [isPlaying, setIsPlaying] = useState(true);
     const [showForces, setShowForces] = useState(true);
     const [phase, setPhase] = useState<Phase>('initial');
+    const [selectedMaterial, setSelectedMaterial] = useState<'Si' | 'Ge'>('Si');
+    const barrierVoltage = selectedMaterial === 'Si' ? 0.7 : 0.3;
     const [depletionWidth, setDepletionWidth] = useState(0);
     
     // Playback control state
@@ -298,8 +300,10 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
             graphCtx.stroke();
             if (barrierHeight > 10) {
                 graphCtx.fillStyle = '#8b5cf6'; graphCtx.font = 'bold 14px sans-serif'; graphCtx.textAlign = 'left';
-                graphCtx.fillText(`V₀ = ${(barrierHeight / 50 * 0.7).toFixed(2)}V`, graphCanvas.width - 80, baseline - barrierHeight / 2);
+                graphCtx.fillText(`V₀ = ${(barrierHeight / 50 * barrierVoltage).toFixed(2)} V (${selectedMaterial})`, graphCanvas.width - 145, baseline - barrierHeight / 2);
             }
+            graphCtx.font = '10px sans-serif'; graphCtx.fillStyle = '#94a3b8'; graphCtx.textAlign = 'center';
+            graphCtx.fillText('Depletion width is schematic (not to scale).', graphCanvas.width / 2, graphCanvas.height - 6);
             graphCtx.font = 'bold 12px sans-serif'; graphCtx.fillStyle = '#1e40af'; graphCtx.textAlign = 'left'; graphCtx.fillText('P', 55, 25);
             graphCtx.fillStyle = '#be185d'; graphCtx.textAlign = 'right'; graphCtx.fillText('N', graphCanvas.width - 15, 25);
 
@@ -368,6 +372,19 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                 </div>
 
                 <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Material</label>
+                        <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                            <button onClick={() => setSelectedMaterial('Si')} disabled={joined}
+                                className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${selectedMaterial === 'Si' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'} ${joined ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                Silicon (V₀ ≈ 0.7 V)
+                            </button>
+                            <button onClick={() => setSelectedMaterial('Ge')} disabled={joined}
+                                className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${selectedMaterial === 'Ge' ? 'bg-white shadow text-emerald-600' : 'text-slate-500 hover:text-slate-700'} ${joined ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                Germanium (V₀ ≈ 0.3 V)
+                            </button>
+                        </div>
+                    </div>
                     <button onClick={handleJoin} disabled={joined}
                         className={`w-full py-4 rounded-xl font-bold font-display shadow-md transition-all flex items-center justify-center gap-2 ${joined ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white hover:shadow-lg hover:-translate-y-0.5 animate-pulse'}`}>
                         {joined ? 'Junction Formed' : '▶ Join P-N Junction'}

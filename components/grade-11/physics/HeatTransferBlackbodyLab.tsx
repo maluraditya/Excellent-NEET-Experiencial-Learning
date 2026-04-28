@@ -236,7 +236,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 <StatCard label="Heat Flow" value={`${conductionRate.toFixed(1)} W`} color="text-orange-600" icon={<Zap size={14}/>} />
                 <StatCard label="Convection" value={`${convectionRate.toFixed(1)} W`} color="text-cyan-600" icon={<Droplets size={14}/>} />
-                <StatCard label="Radiation" value={`${radiationPower.toFixed(1)} W`} color="text-rose-600" icon={<CloudSun size={14}/>} />
+                <StatCard label="Net Radiation (P_net)" value={`${radiationPower.toFixed(1)} W`} color="text-rose-600" icon={<CloudSun size={14}/>} />
                 <StatCard label="Peak Lambda" value={`${peakNm.toFixed(0)} nm`} color="text-purple-600" icon={<Activity size={14}/>} />
             </div>
 
@@ -248,7 +248,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                     <SliderRow label="Area" valueLabel={`${areaCm2.toFixed(1)} cm²`} minLabel="1 cm²" maxLabel="8 cm²">
                         <input type="range" min="1" max="8" step="0.5" value={areaCm2} onChange={(e) => setAreaCm2(Number(e.target.value))} className="w-full accent-orange-600 h-2 md:h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                     </SliderRow>
-                    {(station === 'conduction' || station === 'convection') && (
+                    {station === 'conduction' && (
                         <SliderRow label="Length" valueLabel={`${lengthM.toFixed(2)} m`} minLabel="0.20 m" maxLabel="1.20 m">
                             <input type="range" min="0.2" max="1.2" step="0.05" value={lengthM} onChange={(e) => setLengthM(Number(e.target.value))} className="w-full accent-blue-600 h-2 md:h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                         </SliderRow>
@@ -280,6 +280,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
                                 <Sun size={32} className="text-rose-500 mb-2 animate-pulse" />
                                 <p className="text-xs text-slate-500 font-bold">Radiation is independent of material.</p>
                                 <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tighter">Emission depends only on Temperature and Area.</p>
+                                <p className="text-[10px] text-rose-500 mt-2 font-bold bg-rose-50 px-2 py-1 rounded">P_net = σA(T⁴ − T₀⁴), where T₀ = 300 K ambient</p>
                             </div>
                         )}
                         <button onClick={reset} className="mt-4 flex items-center justify-center gap-2 w-full px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-200 transition-all font-bold text-sm shadow-sm active:scale-95"><RotateCcw size={16} /> RESET LAB</button>

@@ -13,7 +13,7 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
     const [flowRate, setFlowRate] = useState(50);
     const [constrictionArea, setConstrictionArea] = useState(100);
 
-    const A1_val = 100; 
+    const A1_val = 100;
     const rho_val = 1000;
     const v1_val = flowRate / A1_val;
     const v2_val = flowRate / constrictionArea;
@@ -72,14 +72,29 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         const fs = (base: number) => Math.max(10, Math.min(base * scale, W * 0.025, H * 0.045));
         const pad = Math.min(W * 0.03, H * 0.035, scale * 24);
 
-        const midlineY = H * 0.35;
-        const pipeFullR_val = (H * 0.2); 
+        const pipeFullR_val = H * 0.2;
+        const panelMinH_val = Math.max(96 * scale, H * 0.22);
+        const titleY_val = pad * 1.6;
+        const titleFontSize_val = fs(18);
+        const titleBandBottom_val = titleY_val + titleFontSize_val + pad * 1.4;
+        const manoTargetH_val = Math.min(H * 0.18, Math.max(56 * scale, H * 0.14));
+        const midlineLowerBound_val = titleBandBottom_val + manoTargetH_val + pipeFullR_val + pad * 0.8;
+        const midlineUpperBound_val = Math.max(
+            midlineLowerBound_val,
+            H - panelMinH_val - pipeFullR_val - pad * 2.6
+        );
+        const midlineY = Math.max(midlineLowerBound_val, Math.min(H * 0.36, midlineUpperBound_val));
+        const panelY_val = Math.min(
+            H - panelMinH_val - pad,
+            Math.max(H * 0.62, midlineY + pipeFullR_val + pad * 1.4)
+        );
+        const panelH_val = H - panelY_val - pad;
 
         const getRadiusAtX_val = (x: number) => {
             const normX = x / W;
             const startNarrow = 0.35, endNarrow = 0.45;
             const transLen = 0.12;
-            
+
             if (normX < startNarrow - transLen) return pipeFullR_val;
             if (normX > endNarrow + transLen) return pipeFullR_val;
             if (normX >= startNarrow && normX <= endNarrow) return (constrictionArea / A1_val) * pipeFullR_val;
@@ -135,26 +150,44 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
             const x = normX * W;
             const rx = getRadiusAtX_val(x);
             const topY_val = midlineY - rx;
-            const manoH_val = H * 0.22;
+            const manoTopY_val = titleBandBottom_val + pad * 0.2;
+            const manoH_val = Math.max(0, topY_val - manoTopY_val);
             const pNorm_val = Math.min(1, pVal / P1_display_val);
             const waterLevel_val = manoH_val * pNorm_val;
-            
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 14 * scale, topY_val - manoH_val, 28 * scale, manoH_val);
+
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 14 * scale, manoTopY_val, 28 * scale, manoH_val);
             ctx.strokeStyle = '#475569'; ctx.lineWidth = 2.5 * scale;
-            ctx.strokeRect(x - 14 * scale, topY_val - manoH_val, 28 * scale, manoH_val);
-            
+            ctx.strokeRect(x - 14 * scale, manoTopY_val, 28 * scale, manoH_val);
+
             ctx.fillStyle = '#2563eb'; ctx.fillRect(x - 11 * scale, topY_val - waterLevel_val, 22 * scale, waterLevel_val);
             ctx.fillStyle = '#1e293b'; ctx.font = `bold ${fs(12)}px sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText(label.toUpperCase(), x, topY_val - manoH_val - 10 * scale);
-            ctx.fillStyle = '#2563eb'; ctx.font = `bold ${fs(14)}px monospace`;
-            ctx.fillText(`${(pVal / 1000).toFixed(1)} kPa`, x, topY_val - waterLevel_val - 8 * scale);
+            ctx.fillText(label.toUpperCase(), x, manoTopY_val - 10 * scale);
+
+            const pressureText_val = `${(pVal / 1000).toFixed(1)} kPa`;
+            const pressureFontSize_val = fs(13);
+            ctx.font = `bold ${pressureFontSize_val}px monospace`;
+            const textMetrics_val = ctx.measureText(pressureText_val);
+            const badgePadX_val = 8 * scale;
+            const badgeH_val = pressureFontSize_val + 10 * scale;
+            const badgeW_val = textMetrics_val.width + badgePadX_val * 2;
+            const preferredBadgeTop_val = topY_val - waterLevel_val - badgeH_val - 8 * scale;
+            const badgeY_val = Math.max(titleBandBottom_val + pad * 0.35, preferredBadgeTop_val);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.96)';
+            roundRect(ctx, x - badgeW_val / 2, badgeY_val, badgeW_val, badgeH_val, 8 * scale);
+            ctx.fill();
+            ctx.strokeStyle = '#93c5fd';
+            ctx.lineWidth = 1.5 * scale;
+            roundRect(ctx, x - badgeW_val / 2, badgeY_val, badgeW_val, badgeH_val, 8 * scale);
+            ctx.stroke();
+
+            ctx.fillStyle = '#1d4ed8';
+            ctx.fillText(pressureText_val, x, badgeY_val + badgeH_val * 0.72);
         };
         drawMano_val(0.2, 'P₁', P1_display_val);
         drawMano_val(0.42, 'P₂', P2_display_val);
 
         // Stats Panels (Bottom)
-        const panelY_val = H * 0.62;
-        const panelH_val = H - panelY_val - pad;
         const colW_val = (W - pad * 3) / 2;
         const maxKE_val = 0.5 * rho_val * (25) ** 2;
 
@@ -163,7 +196,7 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
             ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; roundRect(ctx, x, panelY_val, colW_val, panelH_val, 16); ctx.stroke();
             ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(13)}px sans-serif`; ctx.textAlign = 'center';
             ctx.fillText(title.toUpperCase(), x + colW_val / 2, panelY_val + pad * 1.2);
-            
+
             const barY_val = panelY_val + pad * 2.8, barH_val = panelH_val - pad * 5.5, bw_val = colW_val * 0.18;
             const drawBar_val = (bx: number, val: number, max: number, bCol: string, bLab: string) => {
                 ctx.fillStyle = '#f8fafc'; roundRect(ctx, bx, barY_val, bw_val, barH_val, 6); ctx.fill();
@@ -179,8 +212,8 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         drawStats_val(pad * 2 + colW_val, 'Narrow (A₂)', KE2_val, P2_display_val, '#2563eb');
 
         // Header Title
-        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(18)}px sans-serif`; ctx.textAlign = 'left';
-        ctx.fillText('Fluid Mechanics: Bernoulli\'s Principle', pad, pad * 1.3);
+        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${titleFontSize_val}px sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText('Fluid Mechanics: Bernoulli\'s Principle', W / 2, titleY_val, W * 0.58);
 
         animRef.current = requestAnimationFrame(draw);
     }, [isPlaying, constrictionArea, flowRate, A1_val, v1_val, v2_val, KE1_val, KE2_val, P1_display_val, P2_display_val]);

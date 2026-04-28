@@ -194,7 +194,7 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
         let sumV2 = 0;
         mols.forEach(m => { sumV2 += m.vx * m.vx + m.vy * m.vy; });
         const avgV2 = mols.length > 0 ? sumV2 / mols.length : 0;
-        const rawP = s.N * avgV2 / (chamberW * chamberH || 1) * 500;
+        const rawP = (s.N * avgV2) / (chamberW * chamberH * s.volFrac || 1) * 500;
         pressureRef.current = pressureRef.current * 0.9 + rawP * 0.1;
         const P_val = pressureRef.current;
 
@@ -254,15 +254,18 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
             
             // Draw formula on the left
             ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'left';
-            ctx.fillText('P = ⅓ n m ⟨v²⟩', chamberX + pad * 2, fY + fH * 0.45);
+            ctx.fillText('P = ⅓ (N/V) m ⟨v²⟩', chamberX + pad * 2, fY + fH * 0.45);
             ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(12)}px sans-serif`;
-            ctx.fillText('Average KE = 3/2 kᵦT', chamberX + pad * 2, fY + fH * 0.8);
+            ctx.fillText('n = N/V (number density, m⁻³)', chamberX + pad * 2, fY + fH * 0.7);
+            ctx.fillText('Average KE = 3/2 kᵦT', chamberX + pad * 2, fY + fH * 0.9);
 
             // Draw current stats on the right inside this bottom panel
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(18)}px monospace`; ctx.textAlign = 'right';
-            ctx.fillText(`PRESSURE: ${P_val.toFixed(2)}`, chamberX + chamberW - pad * 2, fY + fH * 0.45);
+            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'right';
+            ctx.fillText(`Relative Pressure: ${P_val.toFixed(2)}`, chamberX + chamberW - pad * 2, fY + fH * 0.45);
+            ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(11)}px sans-serif`;
+            ctx.fillText('(simulation units — actual P ∝ NkT/V)', chamberX + chamberW - pad * 2, fY + fH * 0.65);
             ctx.fillStyle = '#16a34a'; ctx.font = `bold ${fs(14)}px monospace`;
-            ctx.fillText(`MOLS: ${s.N}`, chamberX + chamberW - pad * 2, fY + fH * 0.8);
+            ctx.fillText(`MOLS: ${s.N}`, chamberX + chamberW - pad * 2, fY + fH * 0.9);
         }
 
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(18)}px sans-serif`; ctx.textAlign = 'left';
@@ -303,7 +306,7 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
                     <div className="text-sm md:text-2xl font-bold text-emerald-600 font-mono tracking-tight">{molCount}</div>
                 </div>
                 <div className="bg-white rounded-xl p-2 md:p-4 text-center border border-slate-200 shadow-sm">
-                    <div className="text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5 md:mb-1">Pressure</div>
+                    <div className="text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5 md:mb-1">Relative Pressure</div>
                     <div className="text-sm md:text-2xl font-bold text-amber-600 font-mono tracking-tight">{pressureRef.current.toFixed(2)}</div>
                 </div>
             </div>

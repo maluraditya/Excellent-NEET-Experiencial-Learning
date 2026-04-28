@@ -346,7 +346,7 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
                 <StatCard label="Surface Tension" value={`${currentLiquid.surfaceTension.toFixed(3)} N/m`} color="text-blue-600" />
                 <StatCard label="Contact Angle" value={`${contactAngleDeg.toFixed(0)} deg`} color="text-amber-600" />
                 <StatCard label="Capillary Height" value={`${liveHeightCm.toFixed(2)} cm`} color={liveHeightCm >= 0 ? 'text-emerald-600' : 'text-red-600'} />
-                <StatCard label="P inside" value={`${livePressureInside.toFixed(2)} kPa`} color="text-slate-700" />
+                <StatCard label="P below meniscus" value={`${livePressureInside.toFixed(2)} kPa`} color="text-slate-700" tooltip="For wetting liquids (θ < 90°): P_below = P_atm − 2T cosθ / r (lower, drives rise). For non-wetting (θ > 90°): P_below > P_atm (higher, causes depression)." />
             </div>
 
             <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4 md:gap-6">
@@ -418,8 +418,8 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
     );
 };
 
-const StatCard = ({ label, value, color }: { label: string; value: string; color: string }) => (
-    <div className="bg-white rounded-xl p-3 md:p-4 text-center border border-slate-200 shadow-sm">
+const StatCard = ({ label, value, color, tooltip }: { label: string; value: string; color: string; tooltip?: string }) => (
+    <div className="bg-white rounded-xl p-3 md:p-4 text-center border border-slate-200 shadow-sm" title={tooltip}>
         <div className="text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</div>
         <div className={`text-sm md:text-lg font-bold font-mono tracking-tight ${color}`}>{value}</div>
     </div>
@@ -578,7 +578,7 @@ function drawMacroView(
 
     const pressureInside = pressureInsideKPa(liquid.surfaceTension, thetaDeg, activeRadius);
     drawGaugeBox(ctx, x + w - pad - w * 0.2, beakerY + 10, w * 0.2, 52, fs, 'P outside', `${ATM_KPA.toFixed(2)} kPa`, '#475569');
-    drawGaugeBox(ctx, x + w - pad - w * 0.2, beakerY + 74, w * 0.2, 52, fs, 'P inside', `${pressureInside.toFixed(2)} kPa`, pressureInside < ATM_KPA ? '#2563eb' : '#dc2626');
+    drawGaugeBox(ctx, x + w - pad - w * 0.2, beakerY + 74, w * 0.2, 52, fs, 'P below', `${pressureInside.toFixed(2)} kPa`, pressureInside < ATM_KPA ? '#2563eb' : '#dc2626');
 
     ctx.fillStyle = '#64748b';
     ctx.font = `${fs(10)}px sans-serif`;

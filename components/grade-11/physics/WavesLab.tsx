@@ -90,7 +90,7 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
         // ─── Title ───
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(17)}px "Inter", sans-serif`; ctx.textAlign = 'left';
         ctx.fillText('Superposition, Reflection & Standing Waves', pad, titleH * 0.7);
-        
+
         // Status badge
         if (isResonant) {
             const badgeW = fs(14) * 16;

@@ -108,60 +108,6 @@ export const TOPICS: Topic[] = [
     coverImage: '/images/semiconductors_cover.png'
   },
 
-  // UNIT 1: SOLID STATE
-  {
-    id: 'solids_classification',
-    subject: 'Chemistry',
-    chapter: 'The Solid State',
-    branch: 'Physical Chemistry',
-    grade: '12th',
-    unit: 'Unit I',
-    title: 'Classification of Solids',
-    description: 'Distinguish between Molecular, Ionic, Metallic, and Covalent solids. Test their properties like conductivity, malleability, and brittleness in a virtual lab.',
-    thumbnailIcon: 'cuboid',
-    youtubeVideoIds: ['Qutg3ifbg_c'],
-    coverImage: '/images/solids_classification.png'
-  },
-  {
-    id: 'unit_cells',
-    subject: 'Chemistry',
-    chapter: 'The Solid State',
-    branch: 'Physical Chemistry',
-    grade: '12th',
-    unit: 'Unit I',
-    title: 'Unit Cells & Atomic Count',
-    description: 'Visualize Simple Cubic, BCC, and FCC lattices. Use the "Slicer" tool to see how atoms are shared between adjacent cells and calculate Z.',
-    thumbnailIcon: 'grid',
-    youtubeVideoIds: ['qAeaHYSX0hs'],
-    coverImage: '/images/unit_cells.png'
-  },
-  {
-    id: 'packing',
-    subject: 'Chemistry',
-    chapter: 'The Solid State',
-    branch: 'Physical Chemistry',
-    grade: '12th',
-    unit: 'Unit I',
-    title: 'Packing Efficiency',
-    description: 'Compare void spaces in SCC, BCC, and FCC lattices. Derive the radius relationships and understand why FCC is the most efficient structure.',
-    thumbnailIcon: 'percent',
-    youtubeVideoIds: ['B1JzFAD1GAo'],
-    coverImage: '/images/packing.png'
-  },
-  {
-    id: 'defects',
-    subject: 'Chemistry',
-    chapter: 'The Solid State',
-    branch: 'Physical Chemistry',
-    grade: '12th',
-    unit: 'Unit I',
-    title: 'Point Defects',
-    description: 'Create Frenkel and Schottky defects in an ionic crystal grid. Observe the effects on density and electrical neutrality.',
-    thumbnailIcon: 'alert',
-    youtubeVideoIds: ['Z0Ks3wjFnrk'],
-    coverImage: '/images/defects.png'
-  },
-
   // UNIT 2: ELECTROCHEMISTRY
   {
     id: 'electrochemistry',

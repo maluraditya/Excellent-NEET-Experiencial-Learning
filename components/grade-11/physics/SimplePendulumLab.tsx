@@ -37,7 +37,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
 
     const graphRef = useRef<{ t: number; theta: number; theoryTheta: number }[]>([]);
     const frameRef = useRef(0);
-    const timerRef = useRef({ start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0 });
+    const timerRef = useRef({ start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0, halfwayFlag: false });
 
     // Sync React state to Ref
     useEffect(() => {
@@ -108,20 +108,28 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
                 tRef.elapsed += dt;
                 setElapsedTime(tRef.elapsed);
 
-                // Count a full oscillation only when the bob returns to the same-side extreme
-                const returnedToInitialExtreme =
-                    s.initTheta >= 0
-                        ? (tRef.lastOmega > 0 && s.omega <= 0)
-                        : (tRef.lastOmega < 0 && s.omega >= 0);
-
-                if (returnedToInitialExtreme) {
-                    tRef.oscCount += 1;
-                    if (tRef.oscCount >= 10) { // Stop at 10 full oscillations
-                        tRef.active = false;
-                        setIsTiming(false);
-                        setMeasuredPeriod(tRef.elapsed / 10);
-                        s.running = false; // Stop simulation after 10 oscillations
-                        setRunning(false);
+                // Count one full oscillation when bob returns to the SAME side it started from.
+                if (!tRef.halfwayFlag) {
+                    // First half: omega crosses zero in the "away" direction
+                    const goneAway = s.initTheta >= 0
+                        ? (tRef.lastOmega >= 0 && s.omega < 0)
+                        : (tRef.lastOmega <= 0 && s.omega > 0);
+                    if (goneAway && tRef.elapsed > 0.1) tRef.halfwayFlag = true;
+                } else {
+                    // Second half: omega crosses zero returning to start side
+                    const returned = s.initTheta >= 0
+                        ? (tRef.lastOmega <= 0 && s.omega > 0)
+                        : (tRef.lastOmega >= 0 && s.omega < 0);
+                    if (returned) {
+                        tRef.halfwayFlag = false;
+                        tRef.oscCount += 1;
+                        if (tRef.oscCount >= 10) { // Stop at 10 full oscillations
+                            tRef.active = false;
+                            setIsTiming(false);
+                            setMeasuredPeriod(tRef.elapsed / 10);
+                            s.running = false; // Stop simulation after 10 oscillations
+                            setRunning(false);
+                        }
                     }
                 }
             }
@@ -334,7 +342,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         stateRef.current.initTheta = thetaRad;
         stateRef.current.running = false;
         graphRef.current = [];
-        timerRef.current = { start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0 };
+        timerRef.current = { start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0, halfwayFlag: false };
         setElapsedTime(0); setIsTiming(true); setMeasuredPeriod(null);
         setRunning(false);
     };

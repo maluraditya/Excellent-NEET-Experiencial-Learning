@@ -135,19 +135,22 @@ const WaveOpticsLab: React.FC<WaveOpticsLabProps> = ({ topic, onExit }) => {
                 ctx.fillStyle = '#94a3b8'; ctx.font = '12px sans-serif';
                 ctx.fillText('Screen', screenX - 20, 15);
 
-                // Calculate Intensity graph: I = 4 I0 cos^2 (pi * d * y / lambda * D)
-                // Visually map y to screen height centered at centerY
+                // Unit-consistent intensity calculation
+                const pixelsPerMeter = 200;  // 1 m = 200 px (visual scale)
+                const lambda_m = wavelength * 1e-9;
+                const d_m = slitSeparation * 1e-3;
+                const D_m = screenDistance;
+
                 ctx.beginPath();
                 ctx.strokeStyle = `${waveColorBase}, 0.8)`;
                 ctx.lineWidth = 2;
 
                 for (let y = 20; y < height - 20; y += 2) {
-                    // Precise Path difference delta = d * sin(theta) ≈ d * (y - centerY) / D
-                    const pathDiff = (slitSeparation * (y - centerY)) / (screenDistance * 100);
-                    // phase = 2pi * pathDiff / lambda_visual
-                    const phase = (2 * Math.PI * pathDiff) / (wavelength / 100);
+                    const y_m = (y - centerY) / pixelsPerMeter;
+                    const pathDiff_m = (d_m * y_m) / D_m;
+                    const phase = (2 * Math.PI * pathDiff_m) / lambda_m;
 
-                    // Intensity factor
+                    // Intensity factor I = cos²(phase/2)
                     const intensity = Math.pow(Math.cos(phase / 2), 2);
 
                     // Draw Intensity Graph Curve spreading to the right
@@ -158,6 +161,12 @@ const WaveOpticsLab: React.FC<WaveOpticsLabProps> = ({ topic, onExit }) => {
                     // Draw bright fringes physically on the screen line
                     if (intensity > 0.1) {
                         ctx.fillStyle = `${waveColorBase}, ${intensity})`;
+                        ctx.fillRect(screenX - 4, y, 8, 2);
+                    }
+
+                    // Dark fringe markers
+                    if (intensity < 0.05) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                         ctx.fillRect(screenX - 4, y, 8, 2);
                     }
                 }
@@ -172,6 +181,24 @@ const WaveOpticsLab: React.FC<WaveOpticsLabProps> = ({ topic, onExit }) => {
                 ctx.setLineDash([5, 5]);
                 ctx.beginPath(); ctx.moveTo(s1.x, centerY); ctx.lineTo(screenX + 80, centerY); ctx.stroke();
                 ctx.setLineDash([]);
+
+                // Label bright fringe positions n=0, ±1, ±2
+                const fringeLabelOrders = [0, 1, -1, 2, -2];
+                fringeLabelOrders.forEach(n => {
+                    const y_n_m = (n * lambda_m * D_m) / d_m;
+                    const y_n_px = centerY + y_n_m * pixelsPerMeter;
+                    if (y_n_px > 20 && y_n_px < height - 20) {
+                        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(`n=${n}`, screenX + 75, y_n_px + 4);
+                        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 4]);
+                        ctx.beginPath(); ctx.moveTo(screenX + 4, y_n_px); ctx.lineTo(screenX + 74, y_n_px); ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                });
 
                 animationRef.current = requestAnimationFrame(render);
             } catch (error) {
@@ -191,7 +218,7 @@ const WaveOpticsLab: React.FC<WaveOpticsLabProps> = ({ topic, onExit }) => {
 
     const simulationCombo = (
         <div className="w-full h-full relative bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex flex-col">
-            <div className="absolute top-4 left-4 z-10 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700 pointer-events-none">
+            <div className="absolute top-16 left-4 md:top-4 md:left-44 z-10 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700 pointer-events-none">
                 <div className="flex flex-col gap-1 text-xs font-mono text-slate-300">
                     <span className="font-bold text-white mb-1">YDSE Setup</span>
                     <span>λ = {wavelength} nm</span>

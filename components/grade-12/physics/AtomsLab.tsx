@@ -119,16 +119,26 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
             ctx.fillStyle = grad;
             ctx.beginPath(); ctx.arc(nucX, nucY, deflectionRadius, 0, Math.PI * 2); ctx.fill();
 
+            // Interaction zone label
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.25)';
+            ctx.setLineDash([4, 6]); ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(nucX, nucY, deflectionRadius, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(250,204,21,0.6)'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('Interaction zone (schematic — Coulomb force has infinite range)', nucX, nucY - deflectionRadius - 6);
+
             // Electrons (simplified)
             const electronShells = targetZ === AU_Z ? [
-                { r: 35, e: 2, speed: 0.03, label: 'K' },
-                { r: 60, e: 8, speed: 0.02, label: 'L' },
-                { r: 90, e: 18, speed: 0.012, label: 'M' },
-                { r: 125, e: 32, speed: 0.008, label: 'N' }
+                { r: 35, e: 2, speed: 0.03, label: 'K', dotR: 3 },
+                { r: 55, e: 8, speed: 0.02, label: 'L', dotR: 3 },
+                { r: 80, e: 18, speed: 0.012, label: 'M', dotR: 2 },
+                { r: 108, e: 32, speed: 0.008, label: 'N', dotR: 2 },
+                { r: 130, e: 18, speed: 0.006, label: 'O', dotR: 2 },
+                { r: 148, e: 1, speed: 0.004, label: 'P', dotR: 2 }
             ] : [
-                { r: 40, e: 2, speed: 0.03, label: 'K' },
-                { r: 75, e: 8, speed: 0.02, label: 'L' },
-                { r: 110, e: 3, speed: 0.015, label: 'M' }
+                { r: 40, e: 2, speed: 0.03, label: 'K', dotR: 3 },
+                { r: 75, e: 8, speed: 0.02, label: 'L', dotR: 3 },
+                { r: 110, e: 3, speed: 0.015, label: 'M', dotR: 2 }
             ];
 
             const time = frameRef.current * 0.016;
@@ -144,7 +154,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                     const eY = nucY + shell.r * Math.sin(angle);
 
                     ctx.fillStyle = '#60a5fa';
-                    ctx.beginPath(); ctx.arc(eX, eY, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(eX, eY, shell.dotR, 0, Math.PI * 2); ctx.fill();
                 }
             });
             ctx.setLineDash([]);
@@ -220,9 +230,12 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
 
             // Legend
             if (showLabels) {
-                const lx = width - 150, ly = 20;
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.8)'; ctx.fillRect(lx, ly, 140, 90);
-                ctx.strokeStyle = '#334155'; ctx.strokeRect(lx, ly, 140, 90);
+                const legendW = 148;
+                const legendH = 90;
+                const lx = width - legendW - 12;
+                const ly = 70;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)'; ctx.fillRect(lx, ly, legendW, legendH);
+                ctx.strokeStyle = '#334155'; ctx.strokeRect(lx, ly, legendW, legendH);
                 ctx.font = '10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
 
                 ctx.fillStyle = '#fbbf24'; ctx.fillRect(lx + 10, ly + 15, 15, 3);

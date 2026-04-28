@@ -34,6 +34,8 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
     const [currentTempB, setCurrentTempB] = useState(20);
     const [currentTempC, setCurrentTempC] = useState(50);
 
+    const [guidedStep, setGuidedStep] = useState(0);
+
     const stateRef = useRef({ tempA, tempB, tempC, wallAC, wallBC, wallAB, currentTempA, currentTempB, currentTempC });
 
     useEffect(() => {
@@ -147,20 +149,21 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
         let newTempB = currentTempB;
         let newTempC = currentTempC;
 
+        const kHeat = 0.008;
         if (wAC === 'diathermic') {
-            const avgAC = (newTempA + newTempC) / 2;
-            newTempA = newTempA + (avgAC - newTempA) * 0.02;
-            newTempC = newTempC + (avgAC - newTempC) * 0.02;
+            const diff = newTempC - newTempA;
+            newTempA += kHeat * diff;
+            newTempC -= kHeat * diff;
         }
         if (wBC === 'diathermic') {
-            const avgBC = (newTempB + newTempC) / 2;
-            newTempB = newTempB + (avgBC - newTempB) * 0.02;
-            newTempC = newTempC + (avgBC - newTempC) * 0.02;
+            const diff = newTempC - newTempB;
+            newTempB += kHeat * diff;
+            newTempC -= kHeat * diff;
         }
         if (wAB === 'diathermic') {
-            const avgAB = (newTempA + newTempB) / 2;
-            newTempA = newTempA + (avgAB - newTempA) * 0.02;
-            newTempB = newTempB + (avgAB - newTempB) * 0.02;
+            const diff = newTempB - newTempA;
+            newTempA += kHeat * diff;
+            newTempB -= kHeat * diff;
         }
 
         setCurrentTempA(newTempA);
@@ -324,6 +327,21 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
         return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
     }, [draw]);
 
+    const handleStep1 = () => {
+        setGuidedStep(1);
+        setTempA(80); setTempB(20); setTempC(50);
+        setCurrentTempA(80); setCurrentTempB(20); setCurrentTempC(50);
+        setWallAC('diathermic'); setWallBC('adiabatic'); setWallAB('adiabatic');
+    };
+    const handleStep2 = () => {
+        setGuidedStep(2);
+        setWallAC('diathermic'); setWallBC('adiabatic'); setWallAB('adiabatic');
+    };
+    const handleStep3 = () => {
+        setGuidedStep(3);
+        setWallAC('diathermic'); setWallBC('diathermic'); setWallAB('adiabatic');
+    };
+
     const reset = () => {
         setCurrentTempA(tempA);
         setCurrentTempB(tempB);
@@ -332,6 +350,7 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
         setWallBC('diathermic');
         setWallAB('adiabatic');
         initParticles();
+        setGuidedStep(0);
     };
 
     const setInitialTemps = () => {
@@ -384,6 +403,21 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
                     <span className="text-blue-600 font-bold">T<sub>B</sub>={currentTempB.toFixed(1)}°</span>
                     <span className="text-amber-600 font-bold">T<sub>C</sub>={currentTempC.toFixed(1)}°</span>
                 </div>
+            </div>
+
+            {/* Guided Mode */}
+            <div className="flex flex-col gap-2 bg-blue-50 rounded-xl p-3 border border-blue-100">
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-blue-800 uppercase">Guided Zeroth Law Sequence:</span>
+                </div>
+                <div className="flex gap-2">
+                    <button onClick={handleStep1} className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${guidedStep === 1 ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>Step 1</button>
+                    <button onClick={handleStep2} className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${guidedStep === 2 ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>Step 2</button>
+                    <button onClick={handleStep3} className={`flex-1 py-1.5 rounded text-xs font-bold transition-all ${guidedStep === 3 ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'}`}>Step 3</button>
+                </div>
+                {guidedStep === 1 && <div className="text-xs text-blue-800 font-medium mt-1">Step 1: Set T_A ≠ T_B ≠ T_C. Open wall A-C only.</div>}
+                {guidedStep === 2 && <div className="text-xs text-blue-800 font-medium mt-1">Step 2: Wait for A-C equilibrium. Now T_A = T_C.</div>}
+                {guidedStep === 3 && <div className="text-xs text-blue-800 font-medium mt-1">Step 3: Open wall B-C. B equilibrates to same T. Now T_A = T_B = T_C — Zeroth Law!</div>}
             </div>
 
             {/* Wall Controls */}

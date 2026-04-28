@@ -531,6 +531,8 @@ function drawExpansionScene(ctx: CanvasRenderingContext2D, p: any) {
                 ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(14)}px sans-serif`; ctx.textAlign = 'center';
                 ctx.fillText(`MAXIMUM DENSITY at 4°C`, 0, -bl*1.3);
             }
+            ctx.fillStyle = '#ef4444'; ctx.font = `italic ${fs(12)}px sans-serif`; ctx.textAlign = 'center';
+            ctx.fillText(`Exaggerated scale for visibility`, 0, bl*1.3);
         } else {
             // 3D cube projection
             const drawCube = (size: number, isOutline: boolean) => {
@@ -586,8 +588,8 @@ function drawExpansionGraph(ctx: CanvasRenderingContext2D, p: any) {
     if (state.expMaterial === 'water') {
         for(let t=0; t<=15; t+=0.5) {
             const vol = getWaterVolumeFactor(t);
-            // graph from 1.0000 to 1.0020
-            const py = gy + gh - ((vol - 1.0) / 0.002) * gh;
+            // graph from 1.0000 to 1.0010
+            const py = gy + gh - ((vol - 1.0) / 0.001) * gh;
             const px = gx + (t / 15) * gw;
             if (t===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
         }
@@ -596,7 +598,7 @@ function drawExpansionGraph(ctx: CanvasRenderingContext2D, p: any) {
         // current dot
         const c_vol = getWaterVolumeFactor(state.expTemp);
         const cx = gx + (state.expTemp / 15) * gw;
-        const cy = gy + gh - ((c_vol - 1.0) / 0.002) * gh;
+        const cy = gy + gh - ((c_vol - 1.0) / 0.001) * gh;
         ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
         
         ctx.fillStyle = '#64748b'; ctx.font = `${fs(10)}px sans-serif`;

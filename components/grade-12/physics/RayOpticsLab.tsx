@@ -445,6 +445,13 @@ const RayOpticsLab: React.FC<RayOpticsLabProps> = ({ topic, onExit }) => {
                     <div className="flex flex-col items-center"><span className="text-slate-400 text-xs">Object Dist (u)</span><span className="text-emerald-400 font-bold">{uD.toFixed(1)} cm</span></div>
                     <div className="flex flex-col items-center border-l border-slate-600 pl-8"><span className="text-slate-400 text-xs">Image Dist (v)</span><span className="text-violet-400 font-bold">{!isFinite(vD) ? '∞' : vD.toFixed(1)} cm</span></div>
                     <div className="flex flex-col items-center border-l border-slate-600 pl-8"><span className="text-slate-400 text-xs">Magnification (m)</span><span className={`font-bold ${mD > 0 ? 'text-blue-400' : 'text-red-400'}`}>{!isFinite(mD) ? '∞' : mD.toFixed(2)}x</span></div>
+                    <div className="flex flex-col items-center border-l border-slate-600 pl-8 text-center">
+                        <span className="text-slate-400 text-xs">Image Nature</span>
+                        <span className="text-amber-300 font-bold text-xs">
+                            {!isFinite(vD) ? 'Image at infinity' : vD > 0 ? 'Real, Inverted' : 'Virtual, Erect'}
+                            {isFinite(vD) && isFinite(mD) && ` • ${Math.abs(mD) > 1 ? 'Magnified' : 'Diminished'}`}
+                        </span>
+                    </div>
                 </div>
             )}
 
@@ -470,7 +477,7 @@ const RayOpticsLab: React.FC<RayOpticsLabProps> = ({ topic, onExit }) => {
                 <div className="text-center p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-indigo-900 text-sm">
                     {device === 'convex_lens' && <span><strong>Convex Lenses</strong> converge light rays. Real images form when |u| {'>'} f. <br /><span className="font-mono">1/v − 1/u = 1/f</span></span>}
                     {device === 'concave_lens' && <span><strong>Concave Lenses</strong> diverge light rays. Images are always virtual, erect, and diminished. <br /><span className="font-mono">1/v − 1/u = 1/f  (f {'<'} 0)</span></span>}
-                    {device === 'prism' && <span><strong>Prism Dispersion:</strong> Refractive index varies with wavelength. Violet bends most, red bends least. <br /><span className="font-mono">δ = (μ − 1) A</span></span>}
+                    {device === 'prism' && <span><strong>Prism Dispersion:</strong> Refractive index varies with wavelength. Violet bends most, red bends least. <br /><span className="font-mono">Thin prism approximation: δ ≈ (μ − 1)A</span><br /><span className="text-xs text-indigo-700">For general case: μ = sin((A + δm)/2) / sin(A/2)</span></span>}
                 </div>
 
                 <div className="space-y-6">
@@ -483,7 +490,7 @@ const RayOpticsLab: React.FC<RayOpticsLabProps> = ({ topic, onExit }) => {
 
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase flex justify-between"><span className="flex items-center gap-1"><MoveHorizontal size={14} /> Object Distance (u)</span><span className="text-emerald-600 font-mono bg-emerald-50 px-2 rounded">{-objectU} cm</span></label>
-                                <input type="range" min={device === 'convex_lens' ? Math.max(30, Math.ceil(focalLength * 1.5)) : 30} max="400" step="5" value={Math.max(objectU, device === 'convex_lens' ? Math.ceil(focalLength * 1.5) : 30)} onChange={(e) => setObjectU(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+                                <input type="range" min={device === 'convex_lens' ? Math.max(30, focalLength + 5) : 30} max="400" step="5" value={Math.max(objectU, device === 'convex_lens' ? Math.max(30, focalLength + 5) : 30)} onChange={(e) => setObjectU(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
                             </div>
 
                             <div className="space-y-2">

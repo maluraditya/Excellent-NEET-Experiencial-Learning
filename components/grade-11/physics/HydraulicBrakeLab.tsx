@@ -20,8 +20,8 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
     const pedalRef = useRef(false);
     useEffect(() => { pedalRef.current = pedalDown; }, [pedalDown]);
 
-    const pressure_val = fluidType === 'liquid' ? force1 / area1 : (force1 / area1) * 0.05;
-    const force2_val = pressure_val * area2;
+    const pressure_val = force1 / (area1 * 1e-4);
+    const force2_val = pressure_val * (area2 * 1e-4);
     const mechanicalAdv_val = area2 / area1;
 
     const stateRef = useRef({
@@ -90,10 +90,14 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         const scale = W < 1000 ? 1.0 : (W > 1500 ? 1.3 : 1.0 + (W - 1000) * 0.0006);
         const fs_val = (base: number) => Math.max(10, Math.min(base * scale, W * 0.025, H * 0.045));
         const pad_val = Math.min(W * 0.03, H * 0.035, scale * 24);
+        const headerSafeLeft_val = Math.max(pad_val, 170 * scale);
+        const headerSafeRight_val = pad_val;
+        const headerCenterX_val = headerSafeLeft_val + (W - headerSafeLeft_val - headerSafeRight_val) * 0.5;
+        const headerMaxW_val = Math.max(140, W - headerSafeLeft_val - headerSafeRight_val);
 
         const midlineY = H * 0.42;
         const masterX_pos = pad_val * 3, masterW_val = W * 0.20;
-        
+
         // ─── AREA-PROPORTIONAL CYLINDER HEIGHTS ───
         // Scale cylinder heights based on area values
         // sqrt(area) gives a diameter-like visual scaling
@@ -104,7 +108,7 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         const maxWheelH = H * 0.32;
         const masterH_val = minCylH + a1Norm * (maxMasterH - minCylH);
         const wheelH_val = minCylH + a2Norm * (maxWheelH - minCylH);
-        
+
         const wheelX_pos = W - pad_val * 3 - W * 0.22 - W * 0.08;
 
         // --- MASTER CYLINDER ---
@@ -134,13 +138,13 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
 
         // Pressure Gauge
         const gx_val = (pipeStart_val + pipeEnd_val) * 0.5, gy_val = midlineY - pad_val * 5;
-        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(gx_val, gy_val, pad_val * 2.2, 0, Math.PI * 2); ctx.fill(); 
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(gx_val, gy_val, pad_val * 2.2, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#475569'; ctx.lineWidth = 3 * scale; ctx.stroke();
-        
+
         const gAng_val = -Math.PI * 0.75 + (Math.min(pressure_val, 50) / 50) * Math.PI * 1.5;
         ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 4 * scale;
         ctx.beginPath(); ctx.moveTo(gx_val, gy_val); ctx.lineTo(gx_val + Math.cos(gAng_val) * pad_val * 1.6, gy_val + Math.sin(gAng_val) * pad_val * 1.6); ctx.stroke();
-        
+
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs_val(10)}px sans-serif`; ctx.textAlign = 'center';
         ctx.fillText('PRESSURE', gx_val, gy_val - pad_val * 0.8);
         ctx.fillStyle = '#2563eb'; ctx.font = `bold ${fs_val(16)}px monospace`;
@@ -148,9 +152,9 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
 
         // --- WHEEL CYLINDER (area-proportional height) ---
         const wheelW = W * 0.20;
-        ctx.fillStyle = '#ffffff'; roundRect(ctx, wheelX_pos, midlineY - wheelH_val * 0.5, wheelW, wheelH_val, 12); ctx.fill(); 
+        ctx.fillStyle = '#ffffff'; roundRect(ctx, wheelX_pos, midlineY - wheelH_val * 0.5, wheelW, wheelH_val, 12); ctx.fill();
         ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3 * scale; ctx.stroke();
-        
+
         // ─── DISC is FIXED at the right edge of the wheel cylinder ───
         const discR_val = Math.max(wheelH_val * 0.6, H * 0.10);
         const padW = 10 * scale;
@@ -167,9 +171,9 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
 
         // Fluid pushing from the left
         const fluidCurrentW = fluidBaseW + current_p2Travel;
-        ctx.fillStyle = fluidCol_val; 
+        ctx.fillStyle = fluidCol_val;
         ctx.fillRect(wheelX_pos + 6 * scale, midlineY - wheelH_val * 0.5 + 6 * scale, fluidCurrentW, wheelH_val - 12 * scale);
-        
+
         // Piston
         const pistonX = wheelX_pos + 6 * scale + fluidCurrentW;
         ctx.fillStyle = '#475569'; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2 * scale;
@@ -177,11 +181,11 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
 
         // Brake Pad
         const padX = pistonX + pistonW;
-        ctx.fillStyle = '#7c2d12'; 
+        ctx.fillStyle = '#7c2d12';
         roundRect(ctx, padX, midlineY - wheelH_val * 0.4, padW, wheelH_val * 0.8, 3); ctx.fill();
 
         ctx.save(); ctx.translate(discCX_val, discCY_val); ctx.rotate(s.discAngle * Math.PI / 180);
-        ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(0, 0, discR_val, 0, Math.PI * 2); ctx.fill(); 
+        ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(0, 0, discR_val, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#64748b'; ctx.lineWidth = 5 * scale; ctx.stroke();
         for (let i = 0; i < 6; i++) {
             ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(Math.cos(i * Math.PI / 3) * discR_val * 0.7, Math.sin(i * Math.PI / 3) * discR_val * 0.7, 7 * scale, 0, Math.PI * 2); ctx.fill();
@@ -201,7 +205,7 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
         if (footerH_val > 25) {
             ctx.fillStyle = '#ffffff'; roundRect(ctx, pad_val, footerY_val, W - pad_val * 2, footerH_val, 18); ctx.fill();
             ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2; ctx.stroke();
-            
+
             const colW_val = (W - pad_val * 2) / 5;
             const metrics_data = [
                 { l: 'INPUT F₁', v: `${force1}N`, c: '#d97706' },
@@ -218,10 +222,24 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
             });
         }
 
-        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs_val(18)}px sans-serif`; ctx.textAlign = 'left';
-        ctx.fillText('Hydraulic Systems: Pascal\'s Law & Braking', pad_val, pad_val * 1.3);
+        ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs_val(18)}px sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText('Hydraulic Systems: Pascal\'s Law & Braking', headerCenterX_val, pad_val * 1.3, headerMaxW_val);
         ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs_val(12)}px sans-serif`;
-        ctx.fillText('HOLD ON CANVAS TO APPLY BRAKE', pad_val, pad_val * 1.3 + fs_val(19));
+        ctx.fillText('HOLD ON CANVAS TO APPLY BRAKE', headerCenterX_val, pad_val * 1.3 + fs_val(19), headerMaxW_val);
+        if (!isLiquid) {
+            ctx.fillStyle = '#d97706';
+            ctx.fillText('Gas is compressible — piston moves less but pressure transmits per Pascal\'s Law.', pad_val, pad_val * 1.3 + fs_val(19) * 2);
+        }
+
+        if (!isLiquid) {
+            const gasNoteY_val = pad_val * 1.3 + fs_val(19) * 2;
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, gasNoteY_val - fs_val(14), W, fs_val(20) * 1.5);
+            ctx.fillStyle = '#d97706';
+            ctx.font = `bold ${fs_val(12)}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Gas is compressible: piston moves less, so braking is weaker.', headerCenterX_val, gasNoteY_val, headerMaxW_val);
+        }
 
         animRef.current = requestAnimationFrame(draw);
     }, [force1, area1, area2, fluidType, pressure_val, force2_val, mechanicalAdv_val, pedalDown]);
@@ -247,7 +265,7 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
                 <div className="space-y-2 md:space-y-4">
                     <div className="space-y-2 md:space-y-3 p-3 md:p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
                         <label className="text-sm md:text-base font-bold text-slate-700 flex justify-between items-center mb-1">
-                            <span>Master Area (A₁)</span> 
+                            <span>Master Area (A₁)</span>
                             <span className="text-violet-700 font-mono text-base md:text-lg bg-violet-50 border border-violet-100 px-3 py-0.5 md:py-1 rounded shadow-sm">{area1.toFixed(1)} cm²</span>
                         </label>
                         <input type="range" min="5" max="50" step="5" value={area1} onChange={(e) => setArea1(Number(e.target.value))}
@@ -255,7 +273,7 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
                     </div>
                     <div className="space-y-2 md:space-y-3 p-3 md:p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
                         <label className="text-sm md:text-base font-bold text-slate-700 flex justify-between items-center mb-1">
-                            <span>Wheel Area (A₂)</span> 
+                            <span>Wheel Area (A₂)</span>
                             <span className="text-blue-700 font-mono text-base md:text-lg bg-blue-50 border border-blue-100 px-3 py-0.5 md:py-1 rounded shadow-sm">{area2.toFixed(1)} cm²</span>
                         </label>
                         <input type="range" min="50" max="500" step="10" value={area2} onChange={(e) => setArea2(Number(e.target.value))}
@@ -265,18 +283,18 @@ const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) 
                 <div className="space-y-2 md:space-y-4">
                     <div className="space-y-2 md:space-y-3 p-3 md:p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
                         <label className="text-sm md:text-base font-bold text-slate-700 flex justify-between items-center mb-1">
-                            <span>Input Pedal Force (F₁)</span> 
+                            <span>Input Pedal Force (F₁)</span>
                             <span className="text-amber-700 font-mono text-base md:text-lg bg-amber-50 border border-amber-100 px-3 py-0.5 md:py-1 rounded shadow-sm">{force1} N</span>
                         </label>
                         <input type="range" min="10" max="500" step="10" value={force1} onChange={(e) => setForce1(Number(e.target.value))}
                             className="w-full accent-amber-600 h-2 md:h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
                     </div>
                     <div className="flex bg-slate-100 p-1 md:p-2 rounded-xl border border-slate-200 mt-1 md:mt-2 shadow-sm">
-                        <button onClick={() => setFluidType('liquid')} 
+                        <button onClick={() => setFluidType('liquid')}
                             className={`flex-1 py-3 md:py-4 text-xs md:text-sm font-bold rounded-lg transition-all active:scale-95 ${fluidType === 'liquid' ? 'bg-white text-emerald-700 shadow-md border border-emerald-100' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}>
                             LIQUID
                         </button>
-                        <button onClick={() => setFluidType('gas')} 
+                        <button onClick={() => setFluidType('gas')}
                             className={`flex-1 py-3 md:py-4 text-xs md:text-sm font-bold rounded-lg transition-all active:scale-95 ${fluidType === 'gas' ? 'bg-white text-amber-700 shadow-md border border-amber-100' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}>
                             GAS
                         </button>
