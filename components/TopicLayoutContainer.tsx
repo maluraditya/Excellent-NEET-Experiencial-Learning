@@ -87,7 +87,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
             </div>
 
             {/* 1. Main Interaction Area (Left Side Desktop / Top Half Mobile) */}
-            <div className="relative h-[58dvh] min-h-[360px] max-h-[72dvh] flex-none lg:h-full lg:min-h-0 lg:max-h-none lg:flex-1 flex flex-col items-center justify-start shrink-0 border-b lg:border-b-0 lg:border-r border-white/10 overflow-hidden bg-slate-900/50" id="tour-simulation">
+            <div className="relative h-[64dvh] min-h-[420px] max-h-[78dvh] flex-none lg:h-full lg:min-h-0 lg:max-h-none lg:flex-1 flex flex-col items-center justify-start shrink-0 border-b lg:border-b-0 lg:border-r border-white/10 overflow-hidden bg-slate-900/50" id="tour-simulation">
 
                 {/* Optional Floating Top Nav */}
                 {FloatingNavComponent && (
@@ -104,8 +104,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 )}
 
                 {/* Visual Canvas containing the Simulation element */}
-                {/* flex-1 allows it to take up all remaining space ABOVE the controls without overlapping them */}
-                <div className="flex-1 w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0">
+                <div className="w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0" style={{ flex: ControlsComponent ? '3 1 0' : '1 1 100%' }}>
                     <div className="w-full h-full max-w-[1800px] max-h-[1200px] relative flex items-center justify-center min-h-0">
                         <DynamicSimulationStage>
                             {SimulationComponent}
@@ -115,8 +114,8 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 
                 {/* Bottom Control Bar / Overlay naturally flowing at the bottom */}
                 {ControlsComponent && (
-                    <div className="w-full px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 shrink-0 flex justify-center z-30 pointer-events-auto">
-                        <div className="w-full max-w-[min(100%,800px)] max-h-[34dvh] lg:max-h-[42dvh] overflow-y-auto overscroll-contain bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4">
+                    <div className="w-full min-h-0 px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 flex justify-center z-30 pointer-events-auto" style={{ flex: '1 1 0' }}>
+                        <div className="w-full h-full max-w-[min(100%,800px)] overflow-y-auto overscroll-contain bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4">
                             {ControlsComponent}
                         </div>
                     </div>
