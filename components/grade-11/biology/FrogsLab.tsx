@@ -152,18 +152,24 @@ const FrogsLab: React.FC<FrogsLabProps> = ({ topic, onExit }) => {
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Food Trigger</span>
                         <span className="text-xs font-bold text-slate-700">Step {foodStep}/3</span>
                     </div>
-                    <input
-                        type="range"
-                        min="0"
-                        max="3"
-                        step="1"
-                        value={foodStep}
-                        onChange={(e) => { setSystemView('Digestive'); setFoodStep(parseInt(e.target.value, 10)); }}
-                        className="w-full accent-amber-600"
-                    />
-                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                        <span>Insect</span>
-                        <span>Absorption</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                            { step: 0, label: 'Insect' },
+                            { step: 1, label: 'Tongue' },
+                            { step: 2, label: 'Stomach' },
+                            { step: 3, label: 'Absorption' },
+                        ].map((item) => (
+                            <button
+                                key={item.step}
+                                onClick={() => {
+                                    setSystemView('Digestive');
+                                    setFoodStep(item.step);
+                                }}
+                                className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${foodStep === item.step ? 'bg-amber-600 text-white border-amber-600 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300 hover:bg-amber-50'}`}
+                            >
+                                {item.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 

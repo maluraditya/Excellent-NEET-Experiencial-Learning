@@ -573,5 +573,57 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_cell_cycle_generated.png',
         youtubeVideoIds: ['placeholder']
+    },
+    {
+        id: 'mitosis-vs-meiosis-stages',
+        title: 'Mitosis vs Meiosis Stages',
+        subject: 'Biology',
+        unit: 'Unit III',
+        chapter: 'Cell Cycle and Cell Division',
+        description: 'Compare mitosis and meiosis I stage by stage. Observe single-file versus bivalent alignment, centromere splitting, crossing over, and how chromosome number changes from 2n to n.',
+        thumbnailIcon: 'Activity',
+        branch: 'Cell Biology',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_mitosis_meiosis_stages_generated.png',
+        youtubeVideoIds: ['placeholder']
+    },
+    {
+        id: 'photosynthesis-light-reaction',
+        title: 'Photosynthesis in Higher Plants (Light Reaction)',
+        subject: 'Biology',
+        unit: 'Unit IV',
+        chapter: 'Photosynthesis in Higher Plants',
+        description: 'Understand how light energy drives PS II and PS I, water splitting, oxygen release, electron transport, proton-gradient formation, ATP synthesis, and NADPH production.',
+        thumbnailIcon: 'Activity',
+        branch: 'Botany',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_photosynthesis_light_reaction_generated.png',
+        youtubeVideoIds: ['placeholder']
+    },
+    {
+        id: 'calvin-cycle-c3-c4-pathways',
+        title: 'Calvin Cycle & C3-C4 Pathways',
+        subject: 'Biology',
+        unit: 'Unit IV',
+        chapter: 'Photosynthesis in Higher Plants',
+        description: 'Compare the Calvin cycle, C3 pathway, C4 pathway, and photorespiration. See how PEPcase and bundle sheath cells help C4 plants reduce energy waste in hot conditions.',
+        thumbnailIcon: 'Activity',
+        branch: 'Botany',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_calvin_cycle_c3_c4_generated.png',
+        youtubeVideoIds: ['placeholder']
+    },
+    {
+        id: 'respiration-in-plants',
+        title: 'Respiration in Plants',
+        subject: 'Biology',
+        unit: 'Unit IV',
+        chapter: 'Respiration in Plants',
+        description: 'Process glucose through glycolysis, switch oxygen on or off, compare fermentation with aerobic respiration, and track ATP, NADH, FADH2, and CO2 yield.',
+        thumbnailIcon: 'Activity',
+        branch: 'Botany',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_respiration_in_plants.png',
+        youtubeVideoIds: ['placeholder']
     }
 ];

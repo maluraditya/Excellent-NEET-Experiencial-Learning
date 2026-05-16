@@ -3066,6 +3066,257 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
   // --- BIOLOGY TOPICS ---
 
+  if (topic?.id === 'angiosperms-double-fertilisation-seed-development') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Angiosperms: Double Fertilisation and Seed Development</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Angiosperms are flowering plants. Their ovules are enclosed inside the ovary, and after fertilisation the ovule becomes a seed while the ovary develops into a fruit.
+        </p>
+
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 mb-8">
+          <h3 className="text-lg font-bold text-emerald-900 mb-2">NCERT Reference</h3>
+          <p className="text-sm text-emerald-900">
+            Class 11 Biology, Unit 1: Diversity in the Living World, Chapter 3: Plant Kingdom, Section 3.5 Angiosperms. Also connected to Unit 2, Chapter 5: Morphology of Flowering Plants, Sections 5.7 The Seed and 5.7.2 Structure of Monocotyledonous Seed.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">1. Pollen Tube Growth</h3>
+        <p>
+          After pollination, the pollen grain lands on the stigma and germinates. It forms a <strong>pollen tube</strong> that grows through the style and reaches the ovule. This tube delivers the two male gametes directly into the embryo sac.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">2. The Double Fertilisation Event</h3>
+        <p>
+          Double fertilisation is a special feature of angiosperms. The pollen tube releases <strong>two male gametes</strong> inside the embryo sac.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-pink-50 p-4 rounded-xl border border-pink-200">
+            <h4 className="font-bold text-pink-900 mb-2">Syngamy</h4>
+            <p className="text-sm text-slate-700">One male gamete fuses with the egg cell. This forms a diploid <strong>zygote</strong>, which later develops into the embryo.</p>
+          </div>
+          <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">Triple Fusion</h4>
+            <p className="text-sm text-slate-700">The second male gamete fuses with the secondary nucleus. This forms the triploid <strong>Primary Endosperm Nucleus (PEN)</strong>.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">3. Endosperm: The Food Bank</h3>
+        <p>
+          The PEN develops into the <strong>endosperm</strong>. Endosperm stores reserve food and nourishes the developing embryo. This is why double fertilisation is efficient: the plant forms the embryo and its food supply at the same time.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">4. Seed Maturation</h3>
+        <p>
+          After fertilisation, the ovule becomes the seed. A typical seed has a <strong>seed coat</strong> for protection and an embryo with a radicle, embryonal axis, and cotyledons.
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Maize and cereals:</strong> Endosperm remains bulky. The aleurone layer separates it from the embryo.</li>
+          <li><strong>Castor:</strong> Endosperm persists in the mature seed, so it is an endospermic seed.</li>
+          <li><strong>Pea and bean:</strong> Endosperm is used up during development, and cotyledons become fleshy. These are non-endospermic seeds.</li>
+        </ul>
+
+        <div className="mt-10 pt-8 border-t border-slate-200">
+          <h3 className="text-2xl font-display font-bold text-brand-primary mb-4">Real World Examples</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">Tender Coconut</h4>
+              <p className="text-sm text-slate-600">Coconut water is liquid endosperm. The white malai is solid endosperm.</p>
+            </div>
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">Rice and Wheat</h4>
+              <p className="text-sm text-slate-600">The grain we eat is mostly stored endosperm, which was made to feed the young embryo.</p>
+            </div>
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">Castor Oil</h4>
+              <p className="text-sm text-slate-600">Castor seeds store rich reserves in the endosperm. Oil is extracted from these stored reserves.</p>
+            </div>
+            <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+              <h4 className="font-bold text-slate-800 mb-2">Seed as a Life-Support Capsule</h4>
+              <p className="text-sm text-slate-600">The seed coat protects, the embryo is the young plant, and the endosperm is the packed food supply.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 text-slate-100 p-5 rounded-xl mt-8">
+          <h3 className="text-lg font-bold text-white mb-2">Learning Outcome</h3>
+          <p className="text-sm text-slate-300">
+            Double fertilisation is a two-in-one process: one fusion makes the embryo, and the second fusion makes the lunchbox called endosperm.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (topic?.id === 'gametogenesis-hormonal-regulation') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Gametogenesis and Hormonal Regulation</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Gametogenesis is the formation of haploid gametes: sperms in males and ova in females. It is not an isolated event. It is controlled by hormones released from the pituitary gland.
+        </p>
+
+        <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200 mb-8">
+          <h3 className="text-lg font-bold text-indigo-900 mb-2">NCERT Reference</h3>
+          <p className="text-sm text-indigo-900">
+            Class 11 Biology, Unit 2: Structural Organisation in Plants and Animals, Chapter 7, Section 7.2.2 Anatomy. Also connected to Unit 5: Human Physiology, Chapter 19, Sections 19.2.1 Pituitary Gland, 19.2.9 Testis, and 19.2.10 Ovary.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">1. The Control Center: Pituitary Gland</h3>
+        <p>
+          The pituitary gland releases two important gonadotrophins: <strong>FSH</strong> and <strong>LH</strong>. These hormones travel in blood and act on the gonads: testis in males and ovary in females.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+            <h4 className="font-bold text-blue-900 mb-2">FSH</h4>
+            <p className="text-sm text-slate-700">Follicle Stimulating Hormone supports spermatogenesis in males and follicle growth in females.</p>
+          </div>
+          <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
+            <h4 className="font-bold text-rose-900 mb-2">LH</h4>
+            <p className="text-sm text-slate-700">Luteinizing Hormone stimulates Leydig cells in males and triggers ovulation in females.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">2. In Males</h3>
+        <p>
+          In the testis, <strong>LH</strong> acts on Leydig cells. These cells secrete androgens, mainly testosterone. <strong>FSH and androgens together</strong> regulate spermatogenesis inside seminiferous tubules.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">LH &rarr; Leydig cells &rarr; Androgens</p>
+          <p className="font-mono text-lg text-brand-primary text-center mt-2">FSH + Androgens &rarr; Spermatogenesis</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">3. In Females</h3>
+        <p>
+          In the ovary, <strong>FSH</strong> stimulates growth and development of ovarian follicles. Growing follicles secrete estrogen. A high <strong>LH</strong> pulse induces ovulation, and the remaining follicle becomes the corpus luteum, which secretes progesterone.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">FSH &rarr; Follicle growth &rarr; Estrogen</p>
+          <p className="font-mono text-lg text-brand-primary text-center mt-2">LH surge &rarr; Ovulation &rarr; Corpus luteum &rarr; Progesterone</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">4. Why Meiosis Matters</h3>
+        <p>
+          Gametes are haploid. This means chromosome number is reduced from <strong>2n to n</strong> by meiosis. During fertilisation, two haploid gametes fuse and restore the diploid condition in the zygote.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">5. Real World Examples</h3>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">School Principal Analogy</h4>
+            <p className="text-sm text-slate-600">The pituitary is like the principal. FSH and LH are permission slips that allow the gonads to begin work.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Production Systems</h4>
+            <p className="text-sm text-slate-600">Spermatogenesis is continuous mass production. Oogenesis prepares one high-quality ovum periodically.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Indian Bullfrog</h4>
+            <p className="text-sm text-slate-600">During monsoon, male frogs use vocal sacs and copulatory pads to support successful external fertilisation in water.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Medical Application</h4>
+            <p className="text-sm text-slate-600">Understanding hormone action helps explain hormone therapy for reproductive imbalance, just as insulin therapy helps diabetes.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 text-slate-100 p-5 rounded-xl mt-8">
+          <h3 className="text-lg font-bold text-white mb-2">Learning Outcome</h3>
+          <p className="text-sm text-slate-300">
+            Students should understand that gamete formation is controlled by a brain-to-gonad hormone pathway. FSH and LH are the key signals that unlock sperm formation, follicle maturation, and ovulation.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (topic?.id === 'pregnancy-hormonal-control-rh-incompatibility') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Hormonal Control of Pregnancy and Rh Incompatibility</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A successful pregnancy needs chemical support from hormones and a secure placental barrier that keeps maternal and foetal blood properly separated.
+        </p>
+
+        <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200 mb-8">
+          <h3 className="text-lg font-bold text-indigo-900 mb-2">NCERT Reference</h3>
+          <p className="text-sm text-indigo-900">
+            Class 11 Biology, Unit 5: Human Physiology. Chapter 15: Body Fluids and Circulation, Section 15.1.3.2 Rh Grouping. Chapter 19: Chemical Coordination and Integration, Sections 19.2.10 Ovary and 19.2.1 Pituitary.
+          </p>
+          <p className="text-sm text-indigo-900 mt-2">
+            Note: detailed blastocyst attachment and chorionic villi anatomy are mainly handled in Class 12. This lab focuses on Class 11 components: progesterone support, oxytocin role, placental blood separation, and Rh incompatibility logic.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">1. Hormonal Maintenance of Pregnancy</h3>
+        <p>
+          <strong>Progesterone</strong> is secreted by the corpus luteum after ovulation. Its major role is to support pregnancy by maintaining a suitable uterine environment for the developing foetus.
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Progesterone:</strong> supports pregnancy and keeps the uterine environment stable.</li>
+          <li><strong>Estrogens:</strong> support growth and activity of female secondary sex organs.</li>
+          <li><strong>Oxytocin:</strong> stimulates strong uterine contractions during childbirth.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">2. Placental Barrier Principle</h3>
+        <p>
+          The placenta is a selective interface between mother and foetus. Under normal conditions, maternal blood and foetal blood are <strong>well separated</strong>. This separation is important because the two blood systems may carry different antigens.
+        </p>
+        <div className="bg-blue-50 p-5 rounded-xl border border-blue-200 my-6">
+          <h4 className="font-bold text-blue-900 mb-2">Simple idea</h4>
+          <p className="text-sm text-blue-900">Nutrients and oxygen can pass through controlled exchange, but maternal and foetal RBCs should not directly mix.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">3. Rh Incompatibility</h3>
+        <p>
+          Rh incompatibility becomes important when the mother is <strong>Rh-negative</strong> and the foetus is <strong>Rh-positive</strong>. During the first pregnancy, the blood is normally separated. But during delivery, a small amount of foetal Rh-positive blood may enter the mother.
+        </p>
+        <ol className="list-decimal pl-5 space-y-2">
+          <li>Rh-positive foetal RBCs enter the Rh-negative mother's blood during delivery.</li>
+          <li>The mother's immune system starts making antibodies against Rh antigen.</li>
+          <li>In a later Rh-positive pregnancy, these antibodies may cross the placenta.</li>
+          <li>The antibodies can destroy foetal RBCs, a condition called <strong>erythroblastosis foetalis</strong>.</li>
+        </ol>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">4. Prevention Logic</h3>
+        <p>
+          Anti-Rh antibodies can be given to an Rh-negative mother after delivery to remove leaked Rh-positive foetal cells before the mother's immune system forms long-term memory against them.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">Rh+ foetal cells leak &rarr; Anti-Rh cleanup &rarr; No immune memory</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">5. Real World Analogies</h3>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Security Fence</h4>
+            <p className="text-sm text-slate-600">The placenta is like a guarded border. Useful materials pass, but the two blood-cell populations should not mix.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Selective Membrane</h4>
+            <p className="text-sm text-slate-600">Like a water purifier membrane, the placenta permits selected exchange while blocking direct mixing of cells.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Pregnancy Glue</h4>
+            <p className="text-sm text-slate-600">Progesterone acts like support glue that keeps the uterine environment ready for pregnancy.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Immune Memory</h4>
+            <p className="text-sm text-slate-600">The danger is usually not the first exposure itself, but the antibodies remembered for a later Rh-positive pregnancy.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 text-slate-100 p-5 rounded-xl mt-8">
+          <h3 className="text-lg font-bold text-white mb-2">Learning Outcome</h3>
+          <p className="text-sm text-slate-300">
+            Students should understand that pregnancy depends on constant hormonal support and that Rh incompatibility is dangerous because immune memory from the first delivery can affect a later pregnancy.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (topic?.id === 'genetics_linkage') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans">
@@ -4646,6 +4897,413 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </div>
 
         <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'mitosis-vs-meiosis-stages') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Mitosis vs Meiosis Stages</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Cell division forms daughter cells from a parent cell. The important question is whether the chromosome number stays the same, as in mitosis, or becomes half, as in meiosis I.
+        </p>
+
+        <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200 my-6">
+          <h4 className="font-bold text-indigo-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-indigo-900">
+            Class 11 Biology, Unit 3: Cell: Structure and Functions, Chapter 10: Cell Cycle and Cell Division. Relevant sections: 10.2 M Phase, 10.2.1 to 10.2.4 Mitosis Stages, 10.4 Meiosis, and 10.4.1 to 10.4.2 Meiosis I and II.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Equational and Reductional Division</h3>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+            <h4 className="font-bold text-emerald-900 mb-2">Mitosis: Equational Division</h4>
+            <p className="text-sm text-emerald-900">The chromosome number remains the same. A diploid parent cell forms diploid daughter cells: <strong>2n to 2n</strong>.</p>
+          </div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
+            <h4 className="font-bold text-sky-900 mb-2">Meiosis I: Reductional Division</h4>
+            <p className="text-sm text-sky-900">Homologous chromosomes separate and chromosome number becomes half: <strong>2n to n</strong>.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Stage-by-Stage Comparison</h3>
+        <div className="overflow-x-auto my-6">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-3 text-left font-bold">Stage</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">Mitosis</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">Meiosis I</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-slate-300 p-3 font-bold">Prophase</td>
+                <td className="border border-slate-300 p-3">Chromosomes condense. Each chromosome has two sister chromatids joined at the centromere. Nuclear envelope and nucleolus disappear.</td>
+                <td className="border border-slate-300 p-3">Homologous chromosomes pair by synapsis. Crossing over can exchange segments between non-sister chromatids.</td>
+              </tr>
+              <tr className="bg-slate-50">
+                <td className="border border-slate-300 p-3 font-bold">Metaphase</td>
+                <td className="border border-slate-300 p-3">Chromosomes align singly at the metaphase plate.</td>
+                <td className="border border-slate-300 p-3">Bivalents, or paired homologous chromosomes, align at the equatorial plate.</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-300 p-3 font-bold">Anaphase</td>
+                <td className="border border-slate-300 p-3">Centromeres split and sister chromatids move to opposite poles.</td>
+                <td className="border border-slate-300 p-3">Homologous chromosomes separate, but sister chromatids remain joined at their centromeres.</td>
+              </tr>
+              <tr className="bg-slate-50">
+                <td className="border border-slate-300 p-3 font-bold">Telophase</td>
+                <td className="border border-slate-300 p-3">Two identical daughter cells form after cytokinesis.</td>
+                <td className="border border-slate-300 p-3">Two haploid cells form after meiosis I, each still containing duplicated chromosomes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. DNA Content and Chromosome Number</h3>
+        <p>
+          In G1, DNA content is <strong>2C</strong>. After S phase, DNA content becomes <strong>4C</strong>. In mitosis, chromosome number remains <strong>2n</strong>. In meiosis, chromosome number becomes <strong>n</strong> after meiosis I.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Analogies</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">Photocopy Machine</h4>
+            <p className="text-sm text-amber-900">Mitosis is like making an exact photocopy. The daughter cells receive the same chromosome set as the parent cell.</p>
+          </div>
+          <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+            <h4 className="font-bold text-green-900 mb-2">Indian Mango Tree</h4>
+            <p className="text-sm text-green-900">A mango tree uses mitosis to grow new leaves, but meiosis to produce haploid pollen and ovules for seeds.</p>
+          </div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200">
+            <h4 className="font-bold text-rose-900 mb-2">Wound Healing</h4>
+            <p className="text-sm text-rose-900">When skin is scraped, mitosis replaces lost cells and helps close the wound.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore in the Simulation</h3>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
+            <li>Select <strong>Mitosis</strong> and move to metaphase. Notice the single-file chromosome alignment.</li>
+            <li>Move to anaphase and use the <strong>Scissors</strong> tool. Centromeres split and chromatids separate.</li>
+            <li>Select <strong>Meiosis I</strong> and go to prophase. Turn on crossing over to see recombination.</li>
+            <li>Move to metaphase I. Notice paired bivalents at the equator.</li>
+            <li>Move to anaphase I. The X-shaped chromosomes stay intact, but homologous pairs separate.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'photosynthesis-light-reaction') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Photosynthesis in Higher Plants: Light Reaction</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The light reaction is the photochemical phase of photosynthesis. It converts light energy into chemical energy in the form of <strong>ATP</strong> and <strong>NADPH</strong>, and releases oxygen from water.
+        </p>
+
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-emerald-900">
+            Class 11 Biology, Unit 4: Plant Physiology, Chapter 11: Photosynthesis in Higher Plants. Relevant sections: 11.5 What is Light Reaction?, 11.6 The Electron Transport, 11.6.1 Splitting of Water, 11.6.2 Cyclic and Non-cyclic Photophosphorylation, and 11.6.3 Chemiosmotic Hypothesis.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. What Happens in the Light Reaction?</h3>
+        <p>
+          Light reaction occurs on the <strong>thylakoid membrane</strong> of chloroplasts. Pigments absorb light, electrons move through carriers, water is split, oxygen is released, and a proton gradient is formed across the membrane.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">{'2H2O -> 4H+ + O2 + 4e-'}</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">This water-splitting step supplies electrons to PS II and releases oxygen.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. PS II and PS I</h3>
+        <div className="overflow-x-auto my-6">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-3 text-left font-bold">Photosystem</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">Reaction Centre</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">Main Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-slate-300 p-3 font-bold">PS II</td>
+                <td className="border border-slate-300 p-3">P680</td>
+                <td className="border border-slate-300 p-3">Absorbs light near 680 nm, starts electron flow, and replaces electrons by splitting water.</td>
+              </tr>
+              <tr className="bg-slate-50">
+                <td className="border border-slate-300 p-3 font-bold">PS I</td>
+                <td className="border border-slate-300 p-3">P700</td>
+                <td className="border border-slate-300 p-3">Absorbs light near 700 nm and helps reduce NADP+ to NADPH.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Electron Transport and Photophosphorylation</h3>
+        <p>
+          In <strong>non-cyclic photophosphorylation</strong>, electrons move from PS II to PS I and finally to NADP+. This produces <strong>ATP, NADPH, and oxygen</strong>. The path is often shown as a <strong>Z-scheme</strong> because of the rise and fall of electron energy.
+        </p>
+        <p>
+          In <strong>cyclic photophosphorylation</strong>, only PS I is used. Electrons return to the transport chain instead of reducing NADP+. This mainly produces <strong>ATP only</strong>.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Chemiosmotic Hypothesis</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">1. Proton Build-up</h4>
+            <p className="text-sm text-amber-900">Water splitting and electron transport increase H+ concentration inside the thylakoid lumen. This makes the lumen more acidic than the stroma.</p>
+          </div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
+            <h4 className="font-bold text-sky-900 mb-2">2. ATP Synthase</h4>
+            <p className="text-sm text-sky-900">ATP synthase has a membrane channel called CF0 and a head called CF1 facing the stroma.</p>
+          </div>
+          <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
+            <h4 className="font-bold text-violet-900 mb-2">3. ATP Formation</h4>
+            <p className="text-sm text-violet-900">When H+ flows from the lumen to the stroma through CF0, CF1 changes shape and forms ATP from ADP and inorganic phosphate.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Simple Analogies</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
+            <h4 className="font-bold text-blue-900 mb-2">Hydroelectric Dam</h4>
+            <p className="text-sm text-blue-900">The lumen is like a water reservoir. H+ ions are like stored water. ATP synthase is the turbine that uses the flow to make ATP.</p>
+          </div>
+          <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+            <h4 className="font-bold text-emerald-900 mb-2">Solar Panel</h4>
+            <p className="text-sm text-emerald-900">Light harvesting complexes work like solar panels. Many pigments collect light and pass the energy to a reaction centre.</p>
+          </div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200">
+            <h4 className="font-bold text-rose-900 mb-2">Chemical Battery</h4>
+            <p className="text-sm text-rose-900">ATP and NADPH are like charged batteries. They carry energy to the next stage of photosynthesis, where sugar is made.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Select <strong>680 nm</strong> light and press Shine Light to activate PS II, split water, and supply electrons forward.</li>
+            <li>Increase light intensity to add more H+ ions into the lumen and lower the lumen pH.</li>
+            <li>Switch to <strong>700 nm</strong> after PS II has supplied electrons. PS I then helps form NADPH.</li>
+            <li>Keep the CF0 gate closed first. ATP does not form unless H+ can flow through ATP synthase.</li>
+            <li>Open the CF0 gate and keep ADP + Pi available. H+ flows through the channel and ATP forms near CF1.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'calvin-cycle-c3-c4-pathways') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Calvin Cycle & C3-C4 Pathways</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The Calvin cycle is the sugar-making phase of photosynthesis. It uses ATP and NADPH from the light reaction to fix carbon dioxide and form carbohydrates.
+        </p>
+
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-emerald-900">
+            Class 11 Biology, Unit 4: Plant Physiology, Chapter 11: Photosynthesis in Higher Plants. Relevant sections: 11.7 Where are the ATP and NADPH used?, 11.8 The C4 Pathway, and 11.9 Photorespiration.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Biosynthetic Phase</h3>
+        <p>
+          The light reaction produces <strong>ATP</strong> and <strong>NADPH</strong>. These molecules are then used in the stroma of the chloroplast to reduce carbon dioxide into sugar. This stage is often called the dark reaction, but it still depends on products made in light.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Calvin Cycle: C3 Pathway</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
+            <h4 className="font-bold text-sky-900 mb-2">1. Carboxylation</h4>
+            <p className="text-sm text-sky-900">CO2 combines with RuBP, a 5-carbon acceptor. The enzyme RuBisCO catalyses this step and forms two molecules of 3-PGA.</p>
+          </div>
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">2. Reduction</h4>
+            <p className="text-sm text-amber-900">ATP and NADPH reduce 3-PGA into sugar-forming molecules. This is where light reaction energy is used.</p>
+          </div>
+          <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
+            <h4 className="font-bold text-violet-900 mb-2">3. Regeneration</h4>
+            <p className="text-sm text-violet-900">RuBP is regenerated so the cycle can continue fixing more CO2.</p>
+          </div>
+        </div>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-bold text-center text-brand-primary">For one glucose molecule</p>
+          <p className="text-sm text-slate-700 text-center mt-2">6 turns of the Calvin cycle use <strong>18 ATP</strong> and <strong>12 NADPH</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. C4 Pathway</h3>
+        <p>
+          C4 plants are common in hot tropical regions. They have <strong>Kranz anatomy</strong>, where large bundle sheath cells surround vascular bundles. This arrangement helps concentrate CO2 near RuBisCO.
+        </p>
+        <div className="overflow-x-auto my-6">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-3 text-left font-bold">Step</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">Cell Type</th>
+                <th className="border border-slate-300 p-3 text-left font-bold">What Happens</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-slate-300 p-3 font-bold">Primary fixation</td>
+                <td className="border border-slate-300 p-3">Mesophyll cell</td>
+                <td className="border border-slate-300 p-3">PEPcase fixes CO2 with PEP to form a 4-carbon acid.</td>
+              </tr>
+              <tr className="bg-slate-50">
+                <td className="border border-slate-300 p-3 font-bold">Transport</td>
+                <td className="border border-slate-300 p-3">Mesophyll to bundle sheath</td>
+                <td className="border border-slate-300 p-3">The 4-carbon acid moves into bundle sheath cells.</td>
+              </tr>
+              <tr>
+                <td className="border border-slate-300 p-3 font-bold">Calvin cycle</td>
+                <td className="border border-slate-300 p-3">Bundle sheath cell</td>
+                <td className="border border-slate-300 p-3">CO2 is released near RuBisCO, and the Calvin cycle makes sugar.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Photorespiration</h3>
+        <p>
+          RuBisCO can bind both CO2 and O2. In C3 plants, high temperature and high oxygen can make RuBisCO bind O2. This causes <strong>photorespiration</strong>, where ATP is consumed, CO2 is released, and sugar is not made efficiently.
+        </p>
+        <p>
+          C4 plants reduce photorespiration because PEPcase first captures CO2, and the bundle sheath cell keeps CO2 concentration high around RuBisCO.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Simple Analogies</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
+            <h4 className="font-bold text-blue-900 mb-2">Crowded Counter</h4>
+            <p className="text-sm text-blue-900">RuBisCO is like a cashier. CO2 is a real customer, but O2 distracts the cashier. C4 plants create a protected counter where CO2 gets priority.</p>
+          </div>
+          <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+            <h4 className="font-bold text-emerald-900 mb-2">Tropical Crops</h4>
+            <p className="text-sm text-emerald-900">Maize and sorghum are C4 plants. They can keep producing well in hot Indian field conditions because photorespiration is reduced.</p>
+          </div>
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">Greenhouse CO2</h4>
+            <p className="text-sm text-amber-900">Adding CO2 in a greenhouse helps RuBisCO choose CO2 over O2, so crop yield can improve.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Select <strong>C3 Plant</strong> at 25 C and observe steady sugar formation.</li>
+            <li>Increase temperature to 40 C or 45 C. Watch photorespiration reduce sugar output in C3.</li>
+            <li>Set O2 to High and notice how RuBisCO becomes more likely to waste energy in C3.</li>
+            <li>Switch to <strong>C4 Plant</strong>. Observe PEPcase capture CO2 and send it to the bundle sheath cell.</li>
+            <li>Compare the sugar bin and waste meter for C3 and C4 under hot conditions.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'respiration-in-plants') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Respiration in Plants</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Cellular respiration breaks down food inside the cell and traps released energy for ATP synthesis.
+        </p>
+
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-emerald-900">
+            Class 11 Biology, Unit 4: Plant Physiology, Chapter 12: Respiration in Plants. Relevant sections: 12.2 Glycolysis, 12.3 Fermentation, 12.4 Aerobic Respiration, and 12.4.1 Tricarboxylic Acid Cycle.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Glycolysis: EMP Pathway</h3>
+        <p>
+          Glycolysis occurs in the <strong>cytoplasm</strong> and is present in all living organisms. One molecule of glucose is partially oxidised into two molecules of pyruvic acid.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">Glucose &rarr; 2 Pyruvate + 2 ATP + 2 NADH</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">Two ATP are used first, four ATP are produced later, so the net ATP gain is two.</p>
+        </div>
+        <ol className="list-decimal pl-5 space-y-2">
+          <li>Glucose is phosphorylated using ATP.</li>
+          <li>Fructose-6-phosphate is phosphorylated again using ATP.</li>
+          <li>The 6-carbon compound splits into two 3-carbon sugars.</li>
+          <li>PGAL is oxidised and NAD+ becomes NADH + H+.</li>
+          <li>ATP is formed by substrate-level phosphorylation.</li>
+          <li>PEP finally becomes pyruvic acid, producing more ATP.</li>
+        </ol>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Fermentation: Anaerobic Fate</h3>
+        <p>
+          When oxygen is absent, pyruvate remains in the cytoplasm. Fermentation reoxidises NADH to NAD+ so glycolysis can continue.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">Alcoholic Fermentation</h4>
+            <p className="text-sm text-slate-700">In yeast, pyruvate forms ethanol and CO2. This helps idli or dosa batter rise.</p>
+          </div>
+          <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
+            <h4 className="font-bold text-rose-900 mb-2">Lactic Acid Fermentation</h4>
+            <p className="text-sm text-slate-700">In muscle cells during hard exercise, pyruvate forms lactic acid and fatigue may occur.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Aerobic Respiration and TCA Cycle</h3>
+        <p>
+          When oxygen is available, pyruvate enters the mitochondrial matrix. It first forms <strong>Acetyl CoA</strong> through oxidative decarboxylation, releasing CO2 and NADH.
+        </p>
+        <p>
+          Acetyl CoA enters the TCA cycle by combining with oxaloacetic acid. The cycle releases CO2 and loads high-energy electron carriers like NADH and FADH2.
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">For one glucose: 6 CO2 + 10 NADH + 2 FADH2 + 4 ATP/GTP shown across the model</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">NCERT emphasizes that TCA extracts high-energy electrons, which later feed the ETS.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real World Connections</h3>
+        <div className="grid md:grid-cols-2 gap-4 my-6">
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Idli and Dosa Batter</h4>
+            <p className="text-sm text-slate-600">Microbes ferment sugars and release CO2, which helps the batter rise.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Sprint Fatigue</h4>
+            <p className="text-sm text-slate-600">When oxygen supply is low, muscles rely more on lactic acid fermentation.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Distillery</h4>
+            <p className="text-sm text-slate-600">Yeast converts sugars into ethanol, but high alcohol concentration becomes toxic to yeast.</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+            <h4 className="font-bold text-slate-800 mb-2">Power Turbine</h4>
+            <p className="text-sm text-slate-600">The TCA cycle processes fuel and loads NADH/FADH2 for the main energy-generating ETS.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 text-slate-100 p-5 rounded-xl mt-8">
+          <h3 className="text-lg font-bold text-white mb-2">Learning Outcome</h3>
+          <p className="text-sm text-slate-300">
+            Glycolysis is the universal entry pathway. Oxygen decides whether pyruvate enters low-yield fermentation or high-yield mitochondrial oxidation.
+          </p>
+        </div>
       </div>
     );
   }

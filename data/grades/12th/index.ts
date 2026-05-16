@@ -196,102 +196,51 @@ export const TOPICS: Topic[] = [
     coverImage: '/images/haloalkanes.png'
   },
 
-  // UNIT 7: GENETICS (BIOLOGY)
+  // BIOLOGY: ANGIOSPERMS
   {
-    id: 'genetics_assortment',
+    id: 'angiosperms-double-fertilisation-seed-development',
     subject: 'Biology',
-    chapter: 'Genetics and Evolution',
-    branch: 'Genetics',
-    grade: '12th',
-    unit: 'Unit VII',
-    title: 'Mendel’s Law of Independent Assortment',
-    description: 'Explore the Dihybrid Cross (Peas) and probabilities. Visualize the 9:3:3:1 ratio with an interactive Punnett Square.',
-    thumbnailIcon: 'grid',
-    youtubeVideoIds: ['7b34XYgADlM'],
-    coverImage: '/images/genetics_independent_assortment.png'
-  },
-  {
-    id: 'genetics_linkage',
-    subject: 'Biology',
-    category: 'Genetics',
-    grade: '12th',
-    unit: 'Unit VII',
-    chapter: 'Principles of Inheritance and Variation',
-    branch: 'Zoology', // Drosophila usually falls under Zoology context, or just general Genetics
-    title: 'Linkage and Crossing Over',
-    description: 'Discover how physical association of genes on a chromosome violates Mendel’s laws. Experiment with Morgan’s Drosophila crosses and genetic mapping.',
-    thumbnailIcon: 'activity',
-    coverImage: '/images/genetics_linkage.png',
-    youtubeVideoIds: ['8vj9e1DQ3aA']
-  },
-  {
-    id: 'transcription',
-    subject: 'Biology',
-    category: 'Genetics',
-    grade: '12th',
-    unit: 'Unit VII',
-    chapter: 'Molecular Basis of Inheritance',
-    branch: 'Genetics',
-    title: 'Transcription: Prokaryotes vs Eukaryotes',
-    description: 'Compare the simplicity of Prokaryotic transcription with the complexity of Eukaryotic "Post-transcriptional Processing" (Splicing, Capping, Tailing).',
-    thumbnailIcon: 'file-text',
-    coverImage: '/images/transcription.png',
-    youtubeVideoIds: ['JQP_yTeK-s']
-  },
-  {
-    id: 'lac_operon',
-    subject: 'Biology',
-    category: 'Genetics',
-    grade: '12th',
-    unit: 'Unit VII',
-    chapter: 'Molecular Basis of Inheritance',
-    branch: 'Genetics',
-    title: 'Lac Operon',
-    description: 'Understand gene regulation in E. coli. See how the Repressor and Inducer (Lactose) act like a "Master Key" to switch genes on and off.',
-    thumbnailIcon: 'lock',
-    coverImage: '/images/lac_operon.png',
-    youtubeVideoIds: ['h_1QLdtF8d0']
-  },
-  {
-    id: 'replication_fork',
-    subject: 'Biology',
-    category: 'Genetics',
-    grade: '12th',
-    unit: 'Unit VII',
-    chapter: 'Molecular Basis of Inheritance',
-    branch: 'Genetics',
-    title: 'Machinery of Transcription (Replication Fork)',
-    description: 'Visualize the unzipping of DNA. Compare the continuous "Leading Strand" with the discontinuous "Lagging Strand" (Okazaki fragments).',
-    thumbnailIcon: 'git-branch',
-    coverImage: '/images/replication_fork.png',
-    youtubeVideoIds: ['TNKWgcFPHqw']
-  },
-  {
-    id: 'rnai',
-    subject: 'Biology',
-    category: 'Biotechnology',
-    grade: '12th',
-    unit: 'Unit IX',
-    chapter: 'Biotechnology and Its Applications',
-    branch: 'Botany', // Often applied in plants (tobacco)
-    title: 'RNA Interference (RNAi)',
-    description: 'Explore this cellular defense mechanism. Use dsRNA as a "Censor Tape" to silence parasitic mRNA and protect the host.',
-    thumbnailIcon: 'shield-off',
-    coverImage: '/images/rnai.png',
-    youtubeVideoIds: ['cK-OGB1_ELE']
-  },
-  {
-    id: 'ti_plasmid',
-    subject: 'Biology',
-    category: 'Biotechnology',
-    grade: '12th',
-    unit: 'Unit IX',
-    chapter: 'Principles and Processes',
+    category: 'Plant Kingdom',
+    chapter: 'Plant Kingdom; Morphology of Flowering Plants',
     branch: 'Botany',
-    title: 'Agrobacterium & Ti Plasmid',
-    description: 'The natural genetic engineer. Learn how scientists disarm the Ti Plasmid to deliver beneficial genes like a "Trojan Horse".',
-    thumbnailIcon: 'truck',
-    coverImage: '/images/ti_plasmid.png',
-    youtubeVideoIds: ['U-i2f_J4z9g']
+    grade: '12th',
+    unit: 'NCERT Class 11 Unit I and II',
+    title: 'Angiosperms: Double Fertilisation and Seed Development',
+    description: 'Visualize pollen tube growth, the two fusion events of angiosperms, and how endosperm supports seed development in maize and pea.',
+    thumbnailIcon: 'activity',
+    thumbnailUrl: '/images/thumbnails/12th-biology/thumb_angiosperms_double_fertilisation.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  {
+    id: 'gametogenesis-hormonal-regulation',
+    subject: 'Biology',
+    category: 'Human Physiology',
+    chapter: 'Structural Organisation in Animals; Chemical Coordination and Integration',
+    branch: 'Zoology',
+    grade: '12th',
+    unit: 'NCERT Class 11 Unit II and V',
+    title: 'Gametogenesis and Hormonal Regulation',
+    description: 'Explore how pituitary FSH and LH regulate sperm formation, follicle maturation, ovulation, and reproductive hormone levels.',
+    thumbnailIcon: 'activity',
+    thumbnailUrl: '/images/thumbnails/12th-biology/thumb_gametogenesis_hormonal_regulation.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  {
+    id: 'pregnancy-hormonal-control-rh-incompatibility',
+    subject: 'Biology',
+    category: 'Human Physiology',
+    chapter: 'Body Fluids and Circulation; Chemical Coordination and Integration',
+    branch: 'Zoology',
+    grade: '12th',
+    unit: 'NCERT Class 11 Unit V',
+    title: 'Hormonal Control of Pregnancy and Rh Incompatibility',
+    description: 'Explore progesterone support of pregnancy, placental blood separation, Rh exposure at delivery, antibody memory, and anti-Rh prevention.',
+    thumbnailIcon: 'activity',
+    thumbnailUrl: '/images/thumbnails/12th-biology/thumb_pregnancy_rh_incompatibility.png',
+    youtubeVideoIds: [],
+    coverImage: ''
   }
+
 ];

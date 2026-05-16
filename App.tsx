@@ -54,6 +54,10 @@ import CellMembraneLab from './components/grade-11/biology/CellMembraneLab';
 import BiomoleculesLab from './components/grade-11/biology/BiomoleculesLab';
 import EnzymesLab from './components/grade-11/biology/EnzymesLab';
 import CellCycleLab from './components/grade-11/biology/CellCycleLab';
+import MitosisMeiosisStagesLab from './components/grade-11/biology/MitosisMeiosisStagesLab';
+import PhotosynthesisLightReactionLab from './components/grade-11/biology/PhotosynthesisLightReactionLab';
+import CalvinCycleC3C4Lab from './components/grade-11/biology/CalvinCycleC3C4Lab';
+import RespirationInPlantsLab from './components/grade-11/biology/RespirationInPlantsLab';
 import MorphologyFloweringPlantsLab from './components/grade-11/biology/MorphologyFloweringPlantsLab';
 import AnatomyFloweringPlantsLab from './components/grade-11/biology/AnatomyFloweringPlantsLab';
 import GymnospermsAngiospermsLab from './components/grade-11/biology/GymnospermsAngiospermsLab';
@@ -78,13 +82,9 @@ import HaloalkaneLab from './components/grade-12/chemistry/HaloalkaneLab';
 import PolymerLab from './components/grade-12/chemistry/PolymerLab';
 
 // Grade 12 - Biology
-import GeneticsCanvas from './components/grade-12/biology/GeneticsCanvas';
-import LinkageCanvas from './components/grade-12/biology/LinkageCanvas';
-import TranscriptionCanvas from './components/grade-12/biology/TranscriptionCanvas';
-import LacOperonCanvas from './components/grade-12/biology/LacOperonCanvas';
-import ReplicationCanvas from './components/grade-12/biology/ReplicationCanvas';
-import RNAiCanvas from './components/grade-12/biology/RNAiCanvas';
-import TiPlasmidCanvas from './components/grade-12/biology/TiPlasmidCanvas';
+import DoubleFertilisationSeedDevelopmentLab from './components/grade-12/biology/DoubleFertilisationSeedDevelopmentLab';
+import GametogenesisHormonalRegulationLab from './components/grade-12/biology/GametogenesisHormonalRegulationLab';
+import PregnancyRhIncompatibilityLab from './components/grade-12/biology/PregnancyRhIncompatibilityLab';
 
 // Shared / Utils
 import { MaxwellBoltzmannChart, PotentialEnergyDiagram } from './components/Charts';
@@ -92,7 +92,7 @@ import Assistant from './components/Assistant';
 import ReloadPrompt from './components/ReloadPrompt';
 import Breadcrumbs from './components/Breadcrumbs';
 import { startDashboardTour, startTopicTour } from './components/TourGuide';
-import { RotateCcw, Activity, ArrowLeft, Home, Battery, Box, Magnet, FlaskConical, Layers, Cuboid, Grid, Percent, AlertTriangle, Info, GraduationCap, HelpCircle, Maximize2, Minimize2 } from 'lucide-react';
+import { RotateCcw, ArrowLeft, Home, Battery, Box, Magnet, FlaskConical, Layers, Cuboid, Percent, AlertTriangle, Info, GraduationCap, HelpCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   // Navigation State
@@ -167,25 +167,12 @@ const App: React.FC = () => {
     mechanism: 'SN2'
   });
 
-  // --- POLYMER STATE ---
-  const [polyMode, setPolyMode] = useState<'synthesis' | 'conductivity'>('synthesis');
-
   // --- SOLID STATE ---
-  const [solidClassConfig, setSolidClassConfig] = useState<{ type: 'ionic' | 'metallic' | 'molecular' | 'covalent', action: 'none' | 'hammer' | 'heat' | 'battery' }>({
-    type: 'ionic',
-    action: 'none'
-  });
   const [unitCellConfig, setUnitCellConfig] = useState<{ type: 'scc' | 'bcc' | 'fcc', slicer: boolean }>({
     type: 'scc',
     slicer: false
   });
   const [defectMode, setDefectMode] = useState<'schottky' | 'frenkel'>('schottky');
-
-
-
-
-
-  const [isSimulationFullscreen, setIsSimulationFullscreen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
@@ -211,7 +198,6 @@ const App: React.FC = () => {
   const goHome = () => {
     setCurrentScreen('DASHBOARD');
     setActiveTopicId(null);
-    setIsSimulationFullscreen(false);
   };
 
   // --- AI CONTEXT GENERATION ---
@@ -532,6 +518,48 @@ const App: React.FC = () => {
         Concept: The cell cycle is genetically controlled and coordinated. G1 decides whether to divide or enter G0, S doubles DNA content from 2C to 4C while chromosome number remains 2n, G2 checks genome integrity, and M phase restores nucleo-cytoplasmic ratio.
         Simulation: Control environment request, nutrients, DNA repair, and proceed gates to discover G1/S and G2/M checkpoint logic.
       `;
+    } else if (activeTopicId === 'mitosis-vs-meiosis-stages') {
+      return `
+        Topic: Mitosis vs Meiosis Stages (NCERT Class 11 Biology, Unit 3, Chapter 10)
+        Concept: Mitosis is equational division where centromeres split and sister chromatids separate. Meiosis I is reductional division where homologous chromosomes separate while sister chromatids remain joined.
+        Simulation: Switch between mitosis and meiosis I, move through prophase to telophase, use crossing over in meiosis prophase I, and use scissors only in mitosis anaphase to compare centromere behaviour.
+      `;
+    } else if (activeTopicId === 'photosynthesis-light-reaction') {
+      return `
+        Topic: Photosynthesis in Higher Plants - Light Reaction (NCERT Class 11 Biology, Unit 4, Chapter 11)
+        Concept: Light reactions occur on thylakoid membranes. PS II (P680) starts electron flow and water splitting, PS I (P700) helps reduce NADP+ to NADPH, and the proton gradient across the membrane drives ATP synthase.
+        Simulation: Adjust wavelength and light intensity, build H+ in the lumen, open the CF0 channel, and observe CF1 forming ATP from ADP and Pi.
+      `;
+    } else if (activeTopicId === 'calvin-cycle-c3-c4-pathways') {
+      return `
+        Topic: Calvin Cycle and C3-C4 Pathways (NCERT Class 11 Biology, Unit 4, Chapter 11)
+        Concept: The Calvin cycle uses ATP and NADPH to fix CO2 into sugars. C3 plants fix CO2 directly with RuBisCO, while C4 plants first use PEPcase and bundle sheath cells to concentrate CO2 and reduce photorespiration.
+        Simulation: Compare C3 and C4 plants, change temperature and oxygen level with buttons, add CO2 pulses, and observe sugar output, ATP use, waste, and yield.
+      `;
+    } else if (activeTopicId === 'respiration-in-plants') {
+      return `
+        Topic: Respiration in Plants (NCERT Class 11 Biology, Unit 4, Chapter 12)
+        Concept: Glycolysis splits glucose into pyruvate in the cytoplasm. Without oxygen, pyruvate enters fermentation to regenerate NAD+. With oxygen, pyruvate enters the mitochondrion for link reaction and TCA cycle oxidation.
+        Simulation: Start glycolysis, toggle oxygen, run fermentation or drag pyruvate into the mitochondrion, and track ATP, NADH, FADH2, and CO2.
+      `;
+    } else if (activeTopicId === 'angiosperms-double-fertilisation-seed-development') {
+      return `
+        Topic: Angiosperms - Double Fertilisation and Seed Development (NCERT Class 11 Biology, Unit 1 and Unit 2)
+        Concept: Angiosperms show double fertilisation. One male gamete fuses with the egg to form a zygote, while the other fuses with the secondary nucleus to form PEN and then endosperm.
+        Simulation: Grow the pollen tube, guide the two gametes to their targets, and compare maize endosperm persistence with pea cotyledon development.
+      `;
+    } else if (activeTopicId === 'gametogenesis-hormonal-regulation') {
+      return `
+        Topic: Gametogenesis and Hormonal Regulation (NCERT Class 11 Biology, Unit 2 and Unit 5)
+        Concept: Pituitary FSH and LH act as gonadotrophins. In males, LH stimulates Leydig cells to secrete androgens, and FSH with androgens supports spermatogenesis. In females, FSH grows follicles and LH triggers ovulation.
+        Simulation: Release FSH and LH along the hormone highway, watch testis or ovary responses, adjust hormone levels, and observe gamete production progress.
+      `;
+    } else if (activeTopicId === 'pregnancy-hormonal-control-rh-incompatibility') {
+      return `
+        Topic: Hormonal Control of Pregnancy and Rh Incompatibility (NCERT Class 11 Biology, Unit 5)
+        Concept: Progesterone supports pregnancy by maintaining a suitable uterine environment. The placenta normally keeps maternal and foetal blood separated, but Rh exposure during delivery can create antibody memory in an Rh-negative mother carrying an Rh-positive foetus.
+        Simulation: Adjust progesterone, set Rh types, simulate delivery exposure, observe antibody formation, start a second pregnancy, and use anti-Rh cleanup.
+      `;
     } else if (activeTopicId === 'chordata') {
       return `
         Topic: Phylum – Chordata (NCERT Class 11 Biology, Unit 1, Chapter 4)
@@ -573,7 +601,7 @@ const App: React.FC = () => {
       `;
     }
     return "User is on the curriculum dashboard.";
-  }, [activeTopicId, kineticsConfig, reactionCount, externalVoltage, isomerConfig, selectedIon, haloConfig, polyMode, solidClassConfig, unitCellConfig, defectMode]);
+  }, [activeTopicId, kineticsConfig, reactionCount, externalVoltage, isomerConfig, selectedIon, haloConfig, unitCellConfig, defectMode]);
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-gray font-sans text-slate-900 overflow-x-hidden">
@@ -963,6 +991,38 @@ const App: React.FC = () => {
           />
         )}
 
+        {/* ================== MITOSIS VS MEIOSIS STAGES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'mitosis-vs-meiosis-stages' && (
+          <MitosisMeiosisStagesLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PHOTOSYNTHESIS LIGHT REACTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'photosynthesis-light-reaction' && (
+          <PhotosynthesisLightReactionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CALVIN CYCLE C3 C4 PATHWAYS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'calvin-cycle-c3-c4-pathways' && (
+          <CalvinCycleC3C4Lab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== RESPIRATION IN PLANTS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'respiration-in-plants' && (
+          <RespirationInPlantsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
         {/* ================== CHORDATA ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'chordata' && (
           <ChordataLab
@@ -1007,251 +1067,28 @@ const App: React.FC = () => {
           <PolymerLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}
 
-        {/* ================== GENETICS SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'genetics_assortment' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Grid size={18} className="text-brand-secondary" /> Interactive Punnett Square
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Unit VII: Genetics
-                  </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[520px] bg-slate-100">
-                  <GeneticsCanvas mode={solidClassConfig.type === 'ionic' ? 'punnett' : 'meiosis'} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200">
-                  <div className="flex gap-4 justify-center">
-                    <button
-                      onClick={() => setSolidClassConfig(p => ({ ...p, type: 'ionic' }))}
-                      className={`px-6 py-3 rounded-xl font-bold transition-all border-2 flex flex-col items-center gap-1 ${solidClassConfig.type === 'ionic' ? 'border-brand-primary bg-white text-brand-primary shadow-lg' : 'border-slate-200 text-slate-400 hover:bg-white'} `}
-                    >
-                      <span className="text-sm">Calculator</span>
-                      <span>Punnett Square (9:3:3:1)</span>
-                    </button>
-                    <button
-                      onClick={() => setSolidClassConfig(p => ({ ...p, type: 'metallic' }))}
-                      className={`px-6 py-3 rounded-xl font-bold transition-all border-2 flex flex-col items-center gap-1 ${solidClassConfig.type === 'metallic' ? 'border-brand-primary bg-white text-brand-primary shadow-lg' : 'border-slate-200 text-slate-400 hover:bg-white'} `}
-                    >
-                      <span className="text-sm">Mechanism</span>
-                      <span>Meiosis Animation</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* ================== LINKAGE SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'genetics_linkage' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Chromosomal Crossover Lab
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Unit VII: Genetics
-                  </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[550px] bg-slate-100">
-                  {/* Using a local state for mode switching would be better, but for now reuse solidClassConfig hack or just create a new state variable quickly?
-                      Cleaner to add a new state. Let's add 'linkageMode' to App state.
-                      Wait, I haven't added 'linkageMode' to App.tsx top level state yet.
-                      I will use the 'polyMode' state variable as a temporary proxy like before? NO, that's bad practice.
-                      I will add 'linkageMode' state in the next edit or now?
-                      I'll add the state variable definition at the top of the file in the same tool call if possible, or just default to 'crossover' and use a local toggle?
-                      Since I can't edit non-contiguous lines easily without multi-replace, I'll use a local state wrapper or just misuse an existing one?
-                      Actually, look at 'App.tsx'. I can use 'solidClassConfig' type again? No, that's messy.
-                      Let's just use 'polyMode' (synthesis/conductivity) mapping to (crossover/mapping) temporarily?
-                      'synthesis' -> 'crossover'
-                      'conductivity' -> 'mapping'
-                      Yes, that works without breaking 800 line limit.
-                  */}
-                  <LinkageCanvas mode={polyMode === 'synthesis' ? 'crossover' : 'mapping'} />
-                </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-200">
-                  <div className="flex gap-4 justify-center">
-                    <button
-                      onClick={() => setPolyMode('synthesis')}
-                      className={`px-6 py-3 rounded-xl font-bold transition-all border-2 flex flex-col items-center gap-1 ${polyMode === 'synthesis' ? 'border-brand-primary bg-white text-brand-primary shadow-lg' : 'border-slate-200 text-slate-400 hover:bg-white'} `}
-                    >
-                      <span className="text-sm">Animation</span>
-                      <span>Crossing Over</span>
-                    </button>
-                    <button
-                      onClick={() => setPolyMode('conductivity')}
-                      className={`px-6 py-3 rounded-xl font-bold transition-all border-2 flex flex-col items-center gap-1 ${polyMode === 'conductivity' ? 'border-brand-primary bg-white text-brand-primary shadow-lg' : 'border-slate-200 text-slate-400 hover:bg-white'} `}
-                    >
-                      <span className="text-sm">Interactive Map</span>
-                      <span>Distance vs Recombination</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* ================== ANGIOSPERMS DOUBLE FERTILISATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'angiosperms-double-fertilisation-seed-development' && (
+          <DoubleFertilisationSeedDevelopmentLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
         )}
 
-        {/* ================== TRANSCRIPTION SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'transcription' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Transcription Simulation
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Molecular Biology
-                  </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[500px] bg-slate-100">
-                  <TranscriptionCanvas mode={polyMode === 'synthesis' ? 'prokaryote' : 'eukaryote'} />
-                </div>
-                <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-center gap-4">
-                  <button onClick={() => setPolyMode('synthesis')} className={`px-4 py-2 rounded-lg font-bold ${polyMode === 'synthesis' ? 'bg-brand-primary text-white' : 'bg-white text-slate-500 shadow-sm border'} `}>Prokaryote</button>
-                  <button onClick={() => setPolyMode('conductivity')} className={`px-4 py-2 rounded-lg font-bold ${polyMode === 'conductivity' ? 'bg-brand-primary text-white' : 'bg-white text-slate-500 shadow-sm border'} `}>Eukaryote</button>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* ================== GAMETOGENESIS HORMONAL REGULATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'gametogenesis-hormonal-regulation' && (
+          <GametogenesisHormonalRegulationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
         )}
 
-        {/* ================== LAC OPERON SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'lac_operon' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Lac Operon Simulator
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    Gene Regulation
-                  </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[550px] bg-slate-100">
-                  <LacOperonCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ================== REPLICATION FORK SCREEN ================== */}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'replication_fork' && (
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-              </div>
-              <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                  <h3 className="font-display font-bold text-white flex items-center gap-2">
-                    <Activity size={18} className="text-brand-secondary" /> Replication Fork Simulator
-                  </h3>
-                  <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                    DNA Replication
-                  </div>
-
-                  <button
-                    onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                    title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                  >
-                    {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                  </button>
-                </div>
-                <div className="relative h-[550px] bg-slate-900">
-                  <ReplicationCanvas />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5 relative">
-              <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                  <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* ================== PREGNANCY RH INCOMPATIBILITY ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'pregnancy-hormonal-control-rh-incompatibility' && (
+          <PregnancyRhIncompatibilityLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
         )}
 
         {/* ================== PHYSICS SIMULATIONS ================== */}
@@ -1372,88 +1209,6 @@ const App: React.FC = () => {
               topic={currentTopics.find(t => t.id === activeTopicId)!}
               onExit={goHome}
             />
-          )
-        }
-
-        {/* ================== ASSISTANT ================== */}
-        {
-          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'rnai' && (
-            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-              <div className="lg:col-span-7 flex flex-col gap-6">
-                <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                  <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-                </div>
-                <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                  <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                    <h3 className="font-display font-bold text-white flex items-center gap-2">
-                      <Activity size={18} className="text-brand-secondary" /> RNA Interference Game
-                    </h3>
-                    <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                      Cell Defense
-                    </div>
-
-                    <button
-                      onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                      title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                    >
-                      {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                    </button>
-                  </div>
-                  <div className="relative h-[550px] bg-slate-900">
-                    <RNAiCanvas />
-                  </div>
-                </div>
-              </div>
-              <div className="lg:col-span-5 relative">
-                <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                    <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        }
-
-        {/* ================== Ti PLASMID SCREEN ================== */}
-        {
-          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ti_plasmid' && (
-            <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-              <div className="lg:col-span-7 flex flex-col gap-6">
-                <div className="flex items-center gap-2 mb-2 text-brand-primary/60 hover:text-brand-primary cursor-pointer w-fit" onClick={goHome}>
-                  <ArrowLeft size={18} /> <span className="text-sm font-medium">Back to Curriculum</span>
-                </div>
-                <div className={isSimulationFullscreen ? "fixed inset-0 z-[100] bg-slate-900 flex flex-col overflow-y-auto" : "bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden"}>
-                  <div className="bg-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-700">
-                    <h3 className="font-display font-bold text-white flex items-center gap-2">
-                      <Activity size={18} className="text-brand-secondary" /> Agrobacterium Transformation
-                    </h3>
-                    <div className="text-xs font-mono font-bold text-brand-secondary bg-white/10 px-2 py-1 rounded">
-                      Biotechnology
-                    </div>
-
-                    <button
-                      onClick={() => setIsSimulationFullscreen(!isSimulationFullscreen)}
-                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer ml-auto"
-                      title={isSimulationFullscreen ? "Minimize" : "Maximize"}
-                    >
-                      {isSimulationFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                    </button>
-                  </div>
-                  <div className="relative h-[550px] bg-emerald-50">
-                    <TiPlasmidCanvas />
-                  </div>
-                </div>
-              </div>
-              <div className="lg:col-span-5 relative">
-                <div className="sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 min-h-full">
-                    <TextbookContent topic={currentTopics.find(t => t.id === activeTopicId)} />
-                  </div>
-                </div>
-              </div>
-            </div>
           )
         }
 

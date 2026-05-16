@@ -87,7 +87,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
             </div>
 
             {/* 1. Main Interaction Area (Left Side Desktop / Top Half Mobile) */}
-            <div className="relative h-[64dvh] min-h-[420px] max-h-[78dvh] flex-none lg:h-full lg:min-h-0 lg:max-h-none lg:flex-1 flex flex-col items-center justify-start shrink-0 border-b lg:border-b-0 lg:border-r border-white/10 overflow-hidden bg-slate-900/50" id="tour-simulation">
+            <div className="relative h-[66dvh] min-h-[450px] max-h-[80dvh] flex-none lg:h-full lg:min-h-0 lg:max-h-none lg:flex-1 flex flex-col items-center justify-start shrink-0 border-b lg:border-b-0 lg:border-r border-white/10 overflow-hidden bg-slate-900/50" id="tour-simulation">
 
                 {/* Optional Floating Top Nav */}
                 {FloatingNavComponent && (
@@ -104,7 +104,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 )}
 
                 {/* Visual Canvas containing the Simulation element */}
-                <div className="w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0" style={{ flex: ControlsComponent ? '3 1 0' : '1 1 100%' }}>
+                <div className="w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0" style={{ flex: ControlsComponent ? '2 1 0' : '1 1 100%' }}>
                     <div className="w-full h-full max-w-[1800px] max-h-[1200px] relative flex items-center justify-center min-h-0">
                         <DynamicSimulationStage>
                             {SimulationComponent}
