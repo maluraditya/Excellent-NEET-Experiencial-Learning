@@ -272,12 +272,12 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
   const successfulClassifications = (Object.values(placedOrganisms) as Organism[][]).reduce((count, organisms) => count + organisms.length, 0);
 
   const simulationCombo = (
-    <div className="w-full h-full min-h-[600px] flex gap-4 p-4 bg-slate-900 rounded-2xl border border-slate-700 font-sans text-slate-200 overflow-hidden">
+    <div className="w-full h-full flex gap-5 p-5 pt-10 bg-slate-900 rounded-2xl border border-slate-700 font-sans text-slate-200 overflow-hidden shadow-2xl">
       
       {/* Left Column: Mystery Organisms & Scanner */}
-      <div className="w-[35%] min-w-0 min-h-0 flex flex-col gap-4">
+      <div className="w-[34%] min-w-0 min-h-0 flex flex-col gap-4">
           <div className="bg-slate-800 rounded-xl p-4 border border-slate-600 shadow-lg flex-1 min-h-0 flex flex-col">
-              <h3 className="font-bold text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-700 pb-2">
+              <h3 className="font-bold text-lg text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-700 pb-2">
                   <Activity size={18} className="text-cyan-400" /> Holding Area
               </h3>
               <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1 min-h-0">
@@ -285,10 +285,10 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
                       <button 
                           key={org.id}
                           onClick={() => handleSelectToScan(org)}
-                          className="bg-slate-700 hover:bg-slate-600 p-3 rounded-lg border border-slate-500 flex flex-col items-center justify-center gap-2 transition-all"
+                          className="bg-slate-700 hover:bg-slate-600 p-3 rounded-lg border border-slate-500 flex flex-col items-center justify-center gap-2 transition-all min-h-[92px]"
                       >
-                          <span className="text-3xl">{org.emoji}</span>
-                          <span className="text-xs font-semibold text-center leading-tight">{org.name}</span>
+                          <span className="text-4xl">{org.emoji}</span>
+                          <span className="text-sm font-semibold text-center leading-tight">{org.name}</span>
                       </button>
                   ))}
                   {unplacedOrganisms.length === 0 && !scannerItem && (
@@ -301,7 +301,7 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
 
           {/* Scanner Area */}
           <div className="bg-slate-800 rounded-xl p-4 border border-slate-600 shadow-lg min-h-0 flex-1 relative overflow-hidden flex flex-col">
-               <h3 className="font-bold text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-700 pb-2">
+               <h3 className="font-bold text-lg text-slate-100 flex items-center gap-2 mb-4 border-b border-slate-700 pb-2">
                   <Search size={18} className="text-cyan-400" /> Info-Scanner
               </h3>
               
@@ -333,37 +333,37 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
 
       {/* Right Column: Kingdom Portals & Feedback */}
       <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-4">
-          <div className="bg-slate-800 rounded-xl p-4 border border-slate-600 shadow-lg flex justify-between items-center">
-              <div className="text-sm font-medium text-slate-300">
-                  Successful Classifications: <span className="font-bold text-emerald-400 text-lg ml-2">{successfulClassifications}/{MYSTERY_ORGANISMS.length}</span>
+          <div className="bg-slate-800 rounded-xl p-4 border border-slate-600 shadow-lg flex justify-between items-center gap-3">
+              <div className="text-base font-medium text-slate-300">
+                  Successful Classifications: <span className="font-bold text-emerald-400 text-xl ml-2">{successfulClassifications}/{MYSTERY_ORGANISMS.length}</span>
               </div>
               <div className="flex items-center gap-2">
                   <button
                       onClick={handleReset}
-                      className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors border border-slate-500"
+                      className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors border border-slate-500"
                   >
                       <RotateCcw size={16} /> Reset
                   </button>
                   <button 
                       onClick={handleRevealAll}
-                      className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors border border-emerald-500"
+                      className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors border border-emerald-500"
                   >
                       <Eye size={16} /> Reveal All
                   </button>
                   <button 
                       onClick={() => setShowTableRef(true)}
-                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-colors"
+                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors"
                   >
                       <TableIcon size={16} /> NCERT Table 2.1 Ref
                   </button>
               </div>
           </div>
 
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 min-h-0">
               {KINGDOMS.map(kingdom => (
                   <div key={kingdom} className="bg-slate-800 rounded-xl border border-slate-600 flex flex-col overflow-hidden shadow-lg relative">
                       <div className="bg-slate-700 py-2 px-3 border-b border-slate-600 flex justify-between items-center">
-                          <span className="font-bold tracking-wide text-indigo-200">{kingdom}</span>
+                          <span className="font-bold tracking-wide text-lg text-indigo-200">{kingdom}</span>
                           <span className="text-xs bg-slate-900 px-2 py-0.5 rounded-full">{placedOrganisms[kingdom].length}</span>
                       </div>
                       <div className="flex-1 p-3 flex flex-wrap gap-2 content-start min-h-[100px]">
@@ -382,7 +382,7 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
                           <button 
                               onClick={() => handlePlaceInKingdom(kingdom)}
                               disabled={!scannerItem}
-                              className={`w-full py-2 rounded font-bold text-sm transition-all ${scannerItem ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
+                              className={`w-full py-3 rounded font-bold text-base transition-all ${scannerItem ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
                           >
                               Place Here
                           </button>
@@ -392,11 +392,11 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
           </div>
 
           {/* Feedback Area */}
-          <div className={`h-16 rounded-xl border flex items-center px-4 shadow-lg transition-colors ${feedback.type === 'error' ? 'bg-rose-950/50 border-rose-800 text-rose-300' : feedback.type === 'success' ? 'bg-emerald-950/50 border-emerald-800 text-emerald-300' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>
+          <div className={`min-h-16 rounded-xl border flex items-center px-4 py-3 shadow-lg transition-colors ${feedback.type === 'error' ? 'bg-rose-950/50 border-rose-800 text-rose-300' : feedback.type === 'success' ? 'bg-emerald-950/50 border-emerald-800 text-emerald-300' : 'bg-slate-800 border-slate-600 text-slate-400'}`}>
               {feedback.type === 'error' && <XCircle className="mr-3" />}
               {feedback.type === 'success' && <CheckCircle className="mr-3" />}
               {!feedback.type && <Info className="mr-3" />}
-              <span className="font-medium text-sm">
+              <span className="font-medium text-base">
                   {feedback.message || 'Scan characteristics carefully before assigning an organism to a kingdom.'}
               </span>
           </div>
@@ -476,9 +476,9 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
   );
 
   const controlsCombo = (
-    <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm mt-4">
-        <h3 className="font-bold text-slate-800 mb-2">Instructions</h3>
-        <p className="text-sm text-slate-600 mb-4">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-3">
+        <h3 className="font-bold text-slate-800 mb-1">Instructions</h3>
+        <p className="text-sm text-slate-600">
             1. Select a mystery organism from the <strong>Holding Area</strong> to load it into the Info-Scanner.<br/>
             2. Click on the <strong>Scan</strong> buttons to reveal its biological characteristics based on Whittaker's 5 criteria.<br/>
             3. Deduce which of the five kingdoms it belongs to using the <strong>NCERT Table 2.1 Ref</strong>.<br/>
@@ -494,6 +494,10 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
         onExit={onExit} 
         SimulationComponent={simulationCombo} 
         ControlsComponent={controlsCombo} 
+        simulationAreaFlex="5 1 0"
+        controlsAreaFlex="0 0 auto"
+        simulationStageWidth={900}
+        simulationStageHeight={560}
     />
   );
 };
@@ -501,7 +505,7 @@ const FiveKingdomClassificationLab: React.FC<{ topic: any, onExit: () => void }>
 const ScannerRow: React.FC<{ label: string, value: string, isScanned: boolean, onScan: () => void }> = ({ label, value, isScanned, onScan }) => {
     return (
         <div className="flex items-center justify-between bg-slate-900 rounded p-2 border border-slate-700">
-            <span className="text-xs font-bold text-slate-400 w-24">{label}:</span>
+            <span className="text-sm font-bold text-slate-400 w-28">{label}:</span>
             {isScanned ? (
                 <span className="text-sm font-medium text-emerald-300 flex-1 ml-2 animate-in slide-in-from-right-2 duration-300">
                     {value}
@@ -509,7 +513,7 @@ const ScannerRow: React.FC<{ label: string, value: string, isScanned: boolean, o
             ) : (
                 <button 
                     onClick={onScan}
-                    className="flex-1 ml-2 bg-slate-700 hover:bg-cyan-600 text-cyan-200 text-xs font-bold py-1 px-2 rounded transition-colors text-left"
+                    className="flex-1 ml-2 bg-slate-700 hover:bg-cyan-600 text-cyan-200 text-sm font-bold py-1.5 px-2 rounded transition-colors text-left"
                 >
                     [ Click to Scan ]
                 </button>

@@ -12,12 +12,20 @@ interface TopicLayoutContainerProps {
     FloatingNavComponent?: React.ReactNode;
     // Optional status badge (e.g., staggered/eclipsed warning)
     StatusBadgeComponent?: React.ReactNode;
+    simulationAreaFlex?: string;
+    controlsAreaFlex?: string;
+    simulationStageWidth?: number;
+    simulationStageHeight?: number;
 }
 
 const DESIGN_STAGE_WIDTH = 1280;
 const DESIGN_STAGE_HEIGHT = 760;
 
-const DynamicSimulationStage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const DynamicSimulationStage: React.FC<{ children: React.ReactNode; width?: number; height?: number }> = ({
+    children,
+    width = DESIGN_STAGE_WIDTH,
+    height = DESIGN_STAGE_HEIGHT
+}) => {
     const viewportRef = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -47,16 +55,16 @@ const DynamicSimulationStage: React.FC<{ children: React.ReactNode }> = ({ child
 
     const scale = useMemo(() => {
         if (!size.width || !size.height) return 1;
-        return Math.min(size.width / DESIGN_STAGE_WIDTH, size.height / DESIGN_STAGE_HEIGHT);
-    }, [size.height, size.width]);
+        return Math.min(size.width / width, size.height / height);
+    }, [height, size.height, size.width, width]);
 
     return (
         <div ref={viewportRef} className="relative w-full h-full min-h-0 overflow-hidden">
             <div
                 className="absolute left-1/2 top-1/2 origin-center"
                 style={{
-                    width: DESIGN_STAGE_WIDTH,
-                    height: DESIGN_STAGE_HEIGHT,
+                    width,
+                    height,
                     transform: `translate(-50%, -50%) scale(${scale})`,
                     ['--simulation-scale' as string]: scale
                 }}
@@ -73,8 +81,18 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     SimulationComponent,
     ControlsComponent,
     FloatingNavComponent,
-    StatusBadgeComponent
+    StatusBadgeComponent,
+    simulationAreaFlex,
+    controlsAreaFlex,
+    simulationStageWidth,
+    simulationStageHeight
 }) => {
+    const usesClass11BiologyLayout = topic.grade === '11th' && topic.subject === 'Biology';
+    const resolvedSimulationAreaFlex = simulationAreaFlex ?? (ControlsComponent ? (usesClass11BiologyLayout ? '5 1 0' : '2 1 0') : '1 1 100%');
+    const resolvedControlsAreaFlex = controlsAreaFlex ?? (usesClass11BiologyLayout ? '0 0 clamp(170px, 30%, 240px)' : '1 1 0');
+    const resolvedSimulationStageWidth = simulationStageWidth ?? (usesClass11BiologyLayout ? 1040 : undefined);
+    const resolvedSimulationStageHeight = simulationStageHeight ?? (usesClass11BiologyLayout ? 620 : undefined);
+
     return (
         <div className="fixed inset-0 z-[100] bg-[#0f172a] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-800 via-slate-950 to-black text-slate-100 font-sans overflow-hidden flex flex-col lg:flex-row animate-in fade-in duration-500">
 
@@ -104,9 +122,9 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 )}
 
                 {/* Visual Canvas containing the Simulation element */}
-                <div className="w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0" style={{ flex: ControlsComponent ? '2 1 0' : '1 1 100%' }}>
+                <div className="w-full flex items-center justify-center pointer-events-auto z-10 p-3 sm:p-4 lg:p-6 relative min-h-0" style={{ flex: resolvedSimulationAreaFlex }}>
                     <div className="w-full h-full max-w-[1800px] max-h-[1200px] relative flex items-center justify-center min-h-0">
-                        <DynamicSimulationStage>
+                        <DynamicSimulationStage width={resolvedSimulationStageWidth} height={resolvedSimulationStageHeight}>
                             {SimulationComponent}
                         </DynamicSimulationStage>
                     </div>
@@ -114,7 +132,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 
                 {/* Bottom Control Bar / Overlay naturally flowing at the bottom */}
                 {ControlsComponent && (
-                    <div className="w-full min-h-0 px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 flex justify-center z-30 pointer-events-auto" style={{ flex: '1 1 0' }}>
+                    <div className="w-full min-h-0 px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 flex justify-center z-30 pointer-events-auto" style={{ flex: resolvedControlsAreaFlex }}>
                         <div className="w-full h-full max-w-[min(100%,800px)] overflow-y-auto overscroll-contain bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4">
                             {ControlsComponent}
                         </div>

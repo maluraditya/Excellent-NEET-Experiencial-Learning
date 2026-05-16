@@ -175,13 +175,13 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
 
 
   const simulationCombo = (
-    <div className="w-full h-[600px] flex gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+    <div className="w-full h-full flex gap-5 p-5 pt-10 bg-slate-50 rounded-2xl border border-slate-200 shadow-2xl">
       {/* LEFT: Sorting Tray */}
-      <div className="w-1/4 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-        <div className="bg-slate-100 p-3 border-b border-slate-200 font-bold text-slate-700">
+      <div className="w-1/4 min-w-0 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        <div className="bg-slate-100 p-4 border-b border-slate-200 font-bold text-base text-slate-700">
           Sorting Tray
         </div>
-        <div className="p-3 flex-1 overflow-y-auto flex flex-col gap-2">
+        <div className="p-3 flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-2">
           {ORGANISMS.map(org => {
             const isPlaced = placedOrganisms.some(p => p.organismId === org.id);
             const isSelected = selectedOrganismId === org.id;
@@ -190,10 +190,10 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
                 key={org.id}
                 onClick={() => handleOrganismSelect(org.id)}
                 disabled={isPlaced}
-                className={`p-3 rounded-lg border text-left flex items-center justify-between transition-all ${isPlaced ? 'opacity-50 bg-slate-50 border-slate-200' : isSelected ? 'ring-2 ring-brand-primary bg-blue-50 border-blue-200' : 'hover:bg-slate-50 border-slate-200 bg-white shadow-sm'}`}
+                className={`p-4 rounded-xl border text-left flex items-center justify-between gap-2 transition-all ${isPlaced ? 'opacity-50 bg-slate-50 border-slate-200' : isSelected ? 'ring-2 ring-brand-primary bg-blue-50 border-blue-200' : 'hover:bg-slate-50 border-slate-200 bg-white shadow-sm'}`}
               >
-                <span className="text-xl">{org.emoji}</span>
-                <span className="font-semibold text-slate-700">{org.commonName}</span>
+                <span className="text-2xl shrink-0">{org.emoji}</span>
+                <span className="min-w-0 whitespace-nowrap text-sm font-semibold text-slate-700">{org.commonName}</span>
                 {isPlaced && <CheckCircle size={16} className="text-green-500" />}
               </button>
             )
@@ -205,21 +205,21 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
       <div className="flex-1 flex flex-col gap-4">
         {selectedOrganism ? (
             // NAMING STATION
-            <div className="flex-1 bg-white rounded-xl shadow-sm border border-brand-primary/30 p-6 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-                <div className="text-6xl mb-4">{selectedOrganism.emoji}</div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-6">Identify & Name: {selectedOrganism.commonName}</h2>
+            <div className="flex-1 bg-white rounded-xl shadow-sm border border-brand-primary/30 p-8 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                <div className="text-7xl mb-4">{selectedOrganism.emoji}</div>
+                <h2 className="text-3xl font-bold text-slate-800 mb-6">Identify & Name: {selectedOrganism.commonName}</h2>
                 
                 <div className="w-full max-w-md bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
                     <div className="flex bg-slate-200 p-1 rounded-lg">
                         <button 
                             onClick={() => setFormatMode('printed')} 
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md font-bold text-sm transition-all ${formatMode === 'printed' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:bg-slate-300'}`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-md font-bold text-base transition-all ${formatMode === 'printed' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:bg-slate-300'}`}
                         >
                             <Type size={16} /> Printed
                         </button>
                         <button 
                             onClick={() => setFormatMode('handwritten')} 
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md font-bold text-sm transition-all ${formatMode === 'handwritten' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:bg-slate-300'}`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-md font-bold text-base transition-all ${formatMode === 'handwritten' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:bg-slate-300'}`}
                         >
                             <PenTool size={16} /> Handwritten
                         </button>
@@ -231,7 +231,7 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
                             placeholder="Type scientific name..." 
                             value={typedName}
                             onChange={(e) => setTypedName(e.target.value)}
-                            className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-primary outline-none transition-all text-slate-900 ${isItalic ? 'italic' : ''} ${isUnderlined ? 'underline underline-offset-4 decoration-2' : ''}`}
+                            className={`flex-1 px-5 py-4 border rounded-lg focus:ring-2 focus:ring-brand-primary outline-none transition-all text-lg text-slate-900 ${isItalic ? 'italic' : ''} ${isUnderlined ? 'underline underline-offset-4 decoration-2' : ''}`}
                             style={{ 
                                 textDecorationStyle: isUnderlined ? 'solid' : 'initial',
                                 textDecorationLine: isUnderlined ? 'underline' : 'none'
@@ -243,14 +243,14 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
                         {formatMode === 'printed' ? (
                             <button 
                                 onClick={() => setIsItalic(!isItalic)}
-                                className={`px-4 py-2 rounded-lg font-bold border transition-all ${isItalic ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-300'}`}
+                                className={`px-5 py-3 rounded-lg font-bold border transition-all ${isItalic ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-300'}`}
                             >
                                 <span className="italic">I</span> Italicize
                             </button>
                         ) : (
                             <button 
                                 onClick={() => setIsUnderlined(!isUnderlined)}
-                                className={`px-4 py-2 rounded-lg font-bold border transition-all flex items-center gap-2 ${isUnderlined ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-300'}`}
+                                className={`px-5 py-3 rounded-lg font-bold border transition-all flex items-center gap-2 ${isUnderlined ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-300'}`}
                             >
                                 <span className="underline decoration-2">U</span> Separate Underline
                             </button>
@@ -258,7 +258,7 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
                     </div>
 
                     {namingError && (
-                        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm font-medium flex items-start gap-2">
+                        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-base font-medium flex items-start gap-2">
                             <XCircle size={16} className="mt-0.5 shrink-0" />
                             <span>{namingError}</span>
                         </div>
@@ -266,7 +266,7 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
 
                     <button 
                         onClick={validateName}
-                        className="w-full py-3 bg-brand-primary text-white font-bold rounded-lg shadow-md hover:bg-brand-primary/90 transition-all active:scale-95"
+                        className="w-full py-4 bg-brand-primary text-white text-lg font-bold rounded-lg shadow-md hover:bg-brand-primary/90 transition-all active:scale-95"
                     >
                         Verify & Add to Hierarchy
                     </button>
@@ -275,14 +275,14 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
         ) : (
             // HIERARCHY VIEW
             <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-                 <div className="bg-slate-100 p-3 border-b border-slate-200 flex justify-between items-center">
-                    <span className="font-bold text-slate-700">Digital Hierarchy Ladder</span>
-                    <div className="flex bg-white rounded-lg p-1 border border-slate-300 text-xs font-bold">
+                 <div className="bg-slate-100 p-4 border-b border-slate-200 flex justify-between items-center gap-3">
+                    <span className="font-bold text-lg text-slate-700">Digital Hierarchy Ladder</span>
+                    <div className="flex bg-white rounded-lg p-1 border border-slate-300 text-sm font-bold">
                         {RANKS.map(rank => (
                             <button 
                                 key={rank}
                                 onClick={() => setCurrentRankView(rank)}
-                                className={`px-2 py-1 rounded transition-all ${currentRankView === rank ? 'bg-brand-secondary text-brand-dark' : 'text-slate-500 hover:bg-slate-50'}`}
+                                className={`px-3 py-2 rounded transition-all ${currentRankView === rank ? 'bg-brand-secondary text-brand-dark' : 'text-slate-500 hover:bg-slate-50'}`}
                             >
                                 {rank}
                             </button>
@@ -292,8 +292,8 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
                 <div className="flex-1 p-6 overflow-y-auto bg-slate-50 flex flex-col gap-4">
                     {placedOrganisms.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                            <Search size={48} className="mb-4 opacity-50" />
-                            <p className="font-medium">Select an organism from the Sorting Tray to identify it.</p>
+                            <Search size={64} className="mb-4 opacity-50" />
+                            <p className="text-lg font-medium">Select an organism from the Sorting Tray to identify it.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -323,8 +323,8 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
       </div>
 
       {/* RIGHT: Character List */}
-      <div className="w-1/4 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-        <div className="bg-slate-100 p-3 border-b border-slate-200 font-bold text-slate-700">
+      <div className="w-[18%] min-w-0 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        <div className="bg-slate-100 p-4 border-b border-slate-200 font-bold text-base text-slate-700">
           Character List
         </div>
         <div className="p-4 flex-1 overflow-y-auto bg-slate-50">
@@ -361,17 +361,17 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
   );
 
   const controlsCombo = (
-    <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm mt-4 flex flex-col md:flex-row gap-6">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex flex-col md:flex-row gap-4">
         <div className="flex-1">
-            <h3 className="font-bold text-slate-800 mb-2">Instructions</h3>
-            <p className="text-sm text-slate-600 mb-4">
+            <h3 className="font-bold text-slate-800 mb-1">Instructions</h3>
+            <p className="text-sm text-slate-600">
                 1. Select an organism from the <strong>Sorting Tray</strong>.<br/>
                 2. Enter its correct scientific name applying the rules of <strong>Binomial Nomenclature</strong>. Remember capitalization and formatting!<br/>
                 3. Once verified, view how organisms group together as you switch the <strong>Rank View</strong> from Species up to Kingdom.<br/>
                 4. Observe the <strong>Character List</strong> to see how shared traits decrease at higher taxonomic categories.
             </p>
         </div>
-        <div className="flex flex-col gap-2 justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6 min-w-[200px]">
+        <div className="flex flex-col gap-2 justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-4 min-w-[200px]">
             <button 
                 onClick={() => {
                     const allPlaced = ORGANISMS.map(org => ({
@@ -405,6 +405,10 @@ const BinomialNomenclatureLab: React.FC<{ topic: any, onExit: () => void }> = ({
         onExit={onExit} 
         SimulationComponent={simulationCombo} 
         ControlsComponent={controlsCombo} 
+        simulationAreaFlex="5 1 0"
+        controlsAreaFlex="0 0 auto"
+        simulationStageWidth={1040}
+        simulationStageHeight={600}
     />
   );
 };
