@@ -94,14 +94,68 @@ import Breadcrumbs from './components/Breadcrumbs';
 import { startDashboardTour, startTopicTour } from './components/TourGuide';
 import { RotateCcw, ArrowLeft, Home, Battery, Box, Magnet, FlaskConical, Layers, Cuboid, Percent, AlertTriangle, Info, GraduationCap, HelpCircle } from 'lucide-react';
 
+const getInitialState = () => {
+  const path = window.location.pathname;
+  const parts = path.split('/').filter(Boolean);
+  
+  let initialGrade: Grade = '12th';
+  let initialSubject: Subject = 'Physics';
+  let initialTopicId: string | null = null;
+  let initialScreen: Screen = 'DASHBOARD';
+
+  if (parts.length >= 1) {
+    if (parts[0] === '11th' || parts[0] === '12th') initialGrade = parts[0] as Grade;
+  }
+  if (parts.length >= 2) {
+    const subj = parts[1].toLowerCase();
+    if (subj === 'physics') initialSubject = 'Physics';
+    else if (subj === 'chemistry') initialSubject = 'Chemistry';
+    else if (subj === 'biology') initialSubject = 'Biology';
+  }
+  if (parts.length >= 3) {
+    initialTopicId = parts[2];
+    initialScreen = 'TOPIC_VIEW';
+  }
+
+  return { initialGrade, initialSubject, initialTopicId, initialScreen };
+};
+
 const App: React.FC = () => {
+  const initialState = useMemo(getInitialState, []);
+
   // Navigation State
-  const [activeGrade, setActiveGrade] = useState<Grade>('12th');
-  const [currentScreen, setCurrentScreen] = useState<Screen>('DASHBOARD');
-  const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
-  const [activeSubject, setActiveSubject] = useState<Subject>('Chemistry');
+  const [activeGrade, setActiveGrade] = useState<Grade>(initialState.initialGrade);
+  const [currentScreen, setCurrentScreen] = useState<Screen>(initialState.initialScreen);
+  const [activeTopicId, setActiveTopicId] = useState<string | null>(initialState.initialTopicId);
+  const [activeSubject, setActiveSubject] = useState<Subject>(initialState.initialSubject);
 
   const currentTopics = useMemo(() => getTopics(activeGrade), [activeGrade]);
+
+  // --- URL SYNCHRONIZATION ---
+  useEffect(() => {
+    let newPath = '/';
+    if (currentScreen === 'TOPIC_VIEW' && activeTopicId) {
+      newPath = `/${activeGrade}/${activeSubject.toLowerCase()}/${activeTopicId}`;
+    } else {
+      newPath = `/${activeGrade}/${activeSubject.toLowerCase()}`;
+    }
+    
+    if (window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath);
+    }
+  }, [activeGrade, activeSubject, activeTopicId, currentScreen]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const state = getInitialState();
+      setActiveGrade(state.initialGrade);
+      setActiveSubject(state.initialSubject);
+      setActiveTopicId(state.initialTopicId);
+      setCurrentScreen(state.initialScreen);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // --- SCROLL TO TOP ON NAVIGATION ---
   useEffect(() => {
