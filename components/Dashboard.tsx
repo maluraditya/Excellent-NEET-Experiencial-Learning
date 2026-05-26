@@ -549,7 +549,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                       <span className="truncate">{topic.youtubeVideoIds.length} Videos</span>
                     </div>
                     <button className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group-hover:bg-${themeColor}-500 group-hover:shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] sm:px-5 sm:py-2.5 sm:text-sm`}>
-                      Launch Lab <Sparkles size={14} className="opacity-70 group-hover:opacity-100" />
+                      Launch <Sparkles size={14} className="opacity-70 group-hover:opacity-100" />
                     </button>
                   </div>
                 </div>
