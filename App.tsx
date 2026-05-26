@@ -693,7 +693,7 @@ const App: React.FC = () => {
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium text-white/90">
             <button
               onClick={() => currentScreen === 'DASHBOARD' ? startDashboardTour(handleDashboardTourFinish) : startTopicTour()}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all border border-white/15 text-xs font-bold uppercase tracking-wider hover:shadow-md"
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all border border-white/15 text-xs font-bold uppercase tracking-wider hover:shadow-md"
               title="Start Guided Tour"
             >
               <HelpCircle size={14} className="text-brand-secondary" /> Tour
@@ -710,7 +710,7 @@ const App: React.FC = () => {
               >Class 12</button>
             </div>
 
-            <span className="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs text-white border border-white/15 shadow-sm flex items-center gap-2">
+            <span className="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-xl text-xs text-white border border-white/15 shadow-sm flex items-center gap-2">
               <GraduationCap size={12} className="text-brand-secondary" />
               {activeGrade} • {activeSubject}
             </span>

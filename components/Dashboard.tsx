@@ -199,9 +199,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
 
       {/* Hero Section */}
       <div className="text-center mb-8 sm:mb-14 space-y-4 sm:space-y-5 pt-2 sm:pt-6 md:pt-8" id="tour-welcome">
-        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold text-slate-900 tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-slate-900 tracking-tight leading-[1.05] animate-in fade-in slide-in-from-bottom-4 duration-700">
           Don’t Just Study. <br />
-          <span className="bg-gradient-to-r from-brand-primary via-indigo-500 to-brand-secondary bg-clip-text text-transparent drop-shadow-sm">
+          <span className="text-brand-primary underline decoration-brand-secondary/30 decoration-4 underline-offset-4">
             Experience It.
           </span>
         </h2>
@@ -275,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
               }}
               onBlur={() => window.setTimeout(() => setShowSuggestions(false), 120)}
               placeholder={`Search ${activeSubject}`}
-              className="h-9 w-full rounded-full border border-slate-200 bg-white/90 pl-9 pr-8 text-xs font-semibold text-slate-700 shadow-sm outline-none transition-all placeholder:text-slate-400 focus:border-brand-primary/60 focus:ring-4 focus:ring-brand-primary/10"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-white/90 pl-9 pr-8 text-xs font-semibold text-slate-700 shadow-sm outline-none transition-all placeholder:text-slate-400 focus:border-brand-primary/60 focus:ring-4 focus:ring-brand-primary/10"
             />
             {searchQuery && (
               <button
@@ -319,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                 setShowSuggestions(false);
                 setActiveTool(activeTool === 'filter' ? null : 'filter');
               }}
-              className={`flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'filter'
+              className={`flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'filter'
                 ? 'border-brand-primary bg-white text-brand-primary'
                 : 'border-slate-200 bg-white/90 text-slate-500 hover:border-slate-300 hover:text-slate-800'
                 }`}
@@ -368,7 +368,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                 setShowSuggestions(false);
                 setActiveTool(activeTool === 'sort' ? null : 'sort');
               }}
-              className={`flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'sort'
+              className={`flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'sort'
                 ? 'border-brand-primary bg-white text-brand-primary'
                 : 'border-slate-200 bg-white/90 text-slate-500 hover:border-slate-300 hover:text-slate-800'
                 }`}
@@ -504,14 +504,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                   <div className={`absolute top-5 right-5 bg-${themeColor}-500/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[10px] font-bold text-white uppercase tracking-wider shadow-lg transform transition-transform duration-500 group-hover:scale-105 z-20`}>
                     {topic.branch}
                   </div>
-                  <div className="absolute bottom-5 left-5 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-bold text-slate-700 uppercase tracking-wider shadow-lg border border-white/50 transform transition-transform duration-500 group-hover:-translate-y-1 z-20">
+                  <div className="absolute bottom-5 left-5 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-xl text-[10px] font-bold text-slate-700 uppercase tracking-wider shadow-lg border border-white/50 transform transition-transform duration-500 group-hover:-translate-y-1 z-20">
                     {topic.unit}
                   </div>
                 </div>
 
                 <div className="relative z-20 flex min-h-0 flex-1 flex-col bg-gradient-to-b from-transparent to-white p-5 sm:p-8">
                   <div className="min-h-0">
-                    <h3 className="mb-2 line-clamp-2 min-h-[3.1rem] font-display text-xl font-bold leading-tight text-slate-800 transition-colors group-hover:text-slate-900 sm:mb-3 sm:min-h-[4rem] sm:text-2xl">
+                    <h3 className="mb-2 line-clamp-2 min-h-[3.1rem] font-display text-xl font-extrabold leading-tight text-slate-800 transition-colors group-hover:text-slate-900 sm:mb-3 sm:min-h-[4rem] sm:text-2xl">
                       {topic.title}
                     </h3>
                     <p className="h-[4.5rem] overflow-hidden break-normal text-sm leading-relaxed text-slate-500 [hyphens:none] [overflow-wrap:normal] sm:h-[4.75rem]">
@@ -523,7 +523,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                       <PlayCircle size={18} className={`text-${themeColor}-500`} />
                       <span className="truncate">{topic.youtubeVideoIds.length} Videos</span>
                     </div>
-                    <button className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group-hover:bg-${themeColor}-500 group-hover:shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] sm:px-5 sm:py-2.5 sm:text-sm`}>
+                    <button className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group-hover:bg-${themeColor}-500 group-hover:shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] sm:px-5 sm:py-2.5 sm:text-sm`}>
                       Launch Lab <Sparkles size={14} className="opacity-70 group-hover:opacity-100" />
                     </button>
                   </div>
@@ -547,7 +547,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
               setTypeFilter('all');
               setSortOption('default');
             }}
-            className="mt-7 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-brand-primary hover:shadow-lg"
+            className="mt-7 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-brand-primary hover:shadow-lg"
           >
             Reset Filters
           </button>
@@ -562,7 +562,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
           <p className="text-lg text-slate-500 max-w-md mx-auto relative z-10">We are currently developing next-generation {activeSubject} simulations.</p>
           <button
             onClick={() => setActiveSubject('Chemistry')}
-            className="mt-8 text-brand-primary font-bold hover:text-brand-secondary transition-colors relative z-10 px-6 py-3 rounded-full bg-white shadow-sm hover:shadow-md"
+            className="mt-8 text-brand-primary font-bold hover:text-brand-secondary transition-colors relative z-10 px-6 py-3 rounded-2xl bg-white shadow-sm hover:shadow-md"
           >
             Explore Available Labs
           </button>

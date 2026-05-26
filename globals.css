@@ -102,3 +102,9 @@ html {
   border-left-color: #ffffff !important;
   border-right-color: #ffffff !important;
 }
+
+/* Global Focus Ring for Accessibility */
+*:focus-visible {
+  outline: 2px solid #B3202F;
+  outline-offset: 2px;
+}

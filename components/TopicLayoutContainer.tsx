@@ -169,7 +169,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 
                 <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 justify-center px-4 md:flex">
                     <div
-                        className="flex max-w-[44vw] items-center overflow-hidden rounded-full border border-white/15 bg-white/10 px-5 py-2 font-display text-lg font-bold leading-tight text-white shadow-sm backdrop-blur-sm lg:text-xl 2xl:max-w-[680px]"
+                        className="flex max-w-[44vw] items-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 px-5 py-2 font-display text-lg font-bold leading-tight text-white shadow-sm backdrop-blur-sm lg:text-xl 2xl:max-w-[680px]"
                         title={topic.title}
                     >
                         <span className="block truncate">
@@ -179,7 +179,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                    <span className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm sm:flex">
+                    <span className="hidden items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm sm:flex">
                         <GraduationCap size={12} className="text-brand-secondary" />
                         {topic.grade} &bull; {topic.subject}
                     </span>
