@@ -14,7 +14,7 @@ html {
 }
 
 .driver-popover-title {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Manrope', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1.25rem !important;
   color: #B3202F !important; /* Brand Primary */
@@ -22,7 +22,7 @@ html {
 }
 
 .driver-popover-description {
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-size: 0.95rem !important;
   line-height: 1.6 !important;
   color: #64748b !important;
@@ -48,7 +48,7 @@ html {
 }
 
 .driver-popover-next-btn, .driver-popover-prev-btn, .driver-popover-close-btn {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Manrope', sans-serif !important;
   font-weight: 600 !important;
   font-size: 0.8rem !important;
   text-transform: uppercase !important;
@@ -89,7 +89,7 @@ html {
 }
 
 .driver-popover-progress-text {
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-size: 0.85rem !important;
   font-weight: 600 !important;
   color: #94a3b8 !important;

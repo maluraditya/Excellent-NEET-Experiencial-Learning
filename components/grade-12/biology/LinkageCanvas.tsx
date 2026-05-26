@@ -66,7 +66,7 @@ const LinkageCanvas: React.FC<LinkageCanvasProps> = ({ mode }) => {
 
             ctx.textAlign = 'center';
             ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold 20px Poppins';
+            ctx.font = 'bold 20px Manrope';
             ctx.fillText(statusText, cx, 50);
 
             // Draw Chromosomes
@@ -155,7 +155,7 @@ const LinkageCanvas: React.FC<LinkageCanvasProps> = ({ mode }) => {
             ctx.fillStyle = '#3b82f6';
             ctx.beginPath(); ctx.arc(ax, cy, 15, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold 16px Poppins';
+            ctx.font = 'bold 16px Manrope';
             ctx.textAlign = 'center';
             ctx.fillText("Gene A", ax, cy - 40);
             ctx.fillText("(White Eye)", ax, cy + 50);
@@ -195,15 +195,15 @@ const LinkageCanvas: React.FC<LinkageCanvasProps> = ({ mode }) => {
 
             ctx.fillStyle = '#1e293b';
             ctx.textAlign = 'left';
-            ctx.font = 'bold 16px Poppins';
+            ctx.font = 'bold 16px Manrope';
             ctx.fillText("Data Analysis", logicalWidth / 2 - 130, 380);
 
-            ctx.font = '14px Roboto';
+            ctx.font = '14px Inter';
             ctx.fillStyle = '#475569';
             ctx.fillText(`Physical Distance: ${distance} map units`, logicalWidth / 2 - 130, 410);
             ctx.fillText(`Recombination Freq: ${recombFreq}%`, logicalWidth / 2 - 130, 435);
 
-            ctx.font = 'bold 14px Roboto';
+            ctx.font = 'bold 14px Inter';
             ctx.fillStyle = recombFreq < 10 ? '#dc2626' : (recombFreq > 40 ? '#16a34a' : '#d97706');
             const conclusion = recombFreq < 10 ? "TIGHTLY LINKED (Inherited Together)" : (recombFreq > 40 ? "LOOSELY LINKED (Independent)" : "LINKED (Some Crossing Over)");
             ctx.fillText(conclusion, logicalWidth / 2 - 130, 460);

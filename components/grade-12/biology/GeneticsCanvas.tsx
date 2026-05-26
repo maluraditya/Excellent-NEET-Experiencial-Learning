@@ -46,7 +46,7 @@ const GeneticsCanvas: React.FC<GeneticsCanvasProps> = ({ mode }) => {
 
             // Draw Headers
             ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold 16px Poppins';
+            ctx.font = 'bold 16px Manrope';
             ctx.textAlign = 'center';
 
             // Gamete Labels
@@ -121,7 +121,7 @@ const GeneticsCanvas: React.FC<GeneticsCanvasProps> = ({ mode }) => {
 
             ctx.fillStyle = '#1e293b';
             ctx.textAlign = 'left';
-            ctx.font = 'bold 14px Poppins';
+            ctx.font = 'bold 14px Manrope';
             ctx.fillText("Phenotype Ratio", 35, 130);
 
             const stats = [
@@ -136,13 +136,13 @@ const GeneticsCanvas: React.FC<GeneticsCanvasProps> = ({ mode }) => {
                 ctx.fillStyle = s.color;
                 ctx.beginPath(); ctx.arc(40, sy - 5, 6, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#475569';
-                ctx.font = '12px Roboto';
+                ctx.font = '12px Inter';
                 ctx.fillText(`${s.label}: ${s.count}`, 55, sy);
                 sy += 30;
             });
 
             ctx.fillStyle = '#0f172a';
-            ctx.font = 'bold 16px Poppins';
+            ctx.font = 'bold 16px Manrope';
             ctx.fillText("Ratio: 9 : 3 : 3 : 1", 35, 300);
         }
 
@@ -178,9 +178,9 @@ const GeneticsCanvas: React.FC<GeneticsCanvasProps> = ({ mode }) => {
 
             ctx.textAlign = 'center';
             ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold 20px Poppins';
+            ctx.font = 'bold 20px Manrope';
             ctx.fillText(possibility === 1 ? "Possibility I" : "Possibility II", cx, 50);
-            ctx.font = '14px Roboto';
+            ctx.font = '14px Inter';
             ctx.fillStyle = '#64748b';
             ctx.fillText(possibility === 1 ? "Maternal/Paternal align together" : "Maternal/Paternal mix independently", cx, 80);
 
