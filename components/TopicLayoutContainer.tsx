@@ -143,15 +143,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     );
     const secondaryHeader = (
         <header className="absolute inset-x-0 top-0 z-50 bg-gradient-to-r from-brand-primary via-brand-primary to-rose-700 shadow-lg">
-            <button
-                type="button"
-                onClick={onExit}
-                className="absolute left-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-900/60 text-white shadow-lg backdrop-blur-md transition-all hover:bg-slate-800/80"
-                title="Back to Curriculum"
-            >
-                <ArrowLeft size={20} />
-                <span className="sr-only">Back to Curriculum</span>
-            </button>
+
 
             <div className="relative mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
                 <div className="flex min-w-0 items-center gap-3">
@@ -191,7 +183,8 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     const contentPanel = (
         <>
             {/* Sticky Header with Navigation Breadcrumbs */}
-            <div className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-8 py-4">
+            <div className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center gap-4">
+                
                 {topicBreadcrumbs}
             </div>
 
@@ -210,7 +203,18 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     if (contentPanelMode === 'left-drawer') {
         return (
             <div className={`fixed inset-0 z-[100] ${rootClasses} font-sans overflow-hidden flex flex-col animate-in fade-in duration-500`}>
-                {secondaryHeader}
+                
+{secondaryHeader}
+
+                {/* Global Back Button */}
+                <button
+                    onClick={onExit}
+                    className="absolute left-4 top-[76px] sm:top-[88px] z-[60] flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
+                >
+                    <ArrowLeft size={14} />
+                    Back
+                </button>
+
 
                 <div className={`absolute ${isRightDrawer ? 'right-4' : 'left-4'} top-1/2 z-[110] flex -translate-y-1/2 flex-col items-center gap-2`}>
                     <button
@@ -292,7 +296,18 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 
     return (
         <div className={`fixed inset-0 z-[100] ${rootClasses} font-sans overflow-hidden flex flex-col lg:flex-row animate-in fade-in duration-500`}>
-            {secondaryHeader}
+            
+{secondaryHeader}
+
+                {/* Global Back Button */}
+                <button
+                    onClick={onExit}
+                    className="absolute left-4 top-[76px] sm:top-[88px] z-[60] flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
+                >
+                    <ArrowLeft size={14} />
+                    Back
+                </button>
+
 
             {/* 1. Main Interaction Area (Left Side Desktop / Top Half Mobile) */}
             <div className={`relative h-[66dvh] min-h-[450px] max-h-[80dvh] flex-none pt-20 lg:h-full lg:min-h-0 lg:max-h-none lg:flex-1 flex flex-col items-center justify-start shrink-0 ${simulationClasses}`} id="tour-simulation">
@@ -334,14 +349,9 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
             <div className="flex-1 lg:flex-none w-full lg:w-[450px] xl:w-[500px] 2xl:w-[600px] shrink-0 bg-slate-50 lg:bg-white text-slate-900 overflow-y-auto custom-scrollbar lg:shadow-[-10px_0_30px_rgba(0,0,0,0.5)] z-[70] relative" id="tour-content">
 
                 {/* Sticky Header with Navigation Breadcrumbs */}
-                <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-8 py-4">
-                    <div className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        <span>{topic.subject}</span>
-                        <span className="text-slate-300">&bull;</span>
-                        <span>{topic.branch}</span>
-                        <span className="text-slate-300">&bull;</span>
-                        <span className="text-brand-primary/80 truncate">{topic.unit}</span>
-                    </div>
+                <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-8 py-4 flex items-center gap-4">
+                    
+                    {topicBreadcrumbs}
                 </div>
 
                 {/* Main Content Body */}
