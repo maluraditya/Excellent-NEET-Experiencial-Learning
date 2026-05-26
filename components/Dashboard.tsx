@@ -201,7 +201,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
       <div className="text-center mb-8 sm:mb-14 space-y-4 sm:space-y-5 pt-2 sm:pt-6 md:pt-8" id="tour-welcome">
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-slate-900 tracking-tight leading-[1.05] animate-in fade-in slide-in-from-bottom-4 duration-700">
           Don’t Just Study. <br />
-          <span className="text-brand-primary underline decoration-brand-secondary/30 decoration-4 underline-offset-4">
+          <span className="bg-gradient-to-r from-brand-primary via-indigo-500 to-brand-secondary bg-clip-text text-transparent drop-shadow-sm">
             Experience It.
           </span>
         </h2>
@@ -319,13 +319,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                 setShowSuggestions(false);
                 setActiveTool(activeTool === 'filter' ? null : 'filter');
               }}
-              className={`flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'filter'
+              className={`relative flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'filter' || unitFilter !== 'all' || typeFilter !== 'all'
                 ? 'border-brand-primary bg-white text-brand-primary'
                 : 'border-slate-200 bg-white/90 text-slate-500 hover:border-slate-300 hover:text-slate-800'
                 }`}
             >
               <SlidersHorizontal size={14} />
               Filter
+              {(unitFilter !== 'all' || typeFilter !== 'all') && (
+                <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-primary opacity-75"></span>
+                  <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-brand-primary shadow-sm"></span>
+                </span>
+              )}
             </button>
 
             {activeTool === 'filter' && (
@@ -357,6 +363,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                     ))}
                   </select>
                 </label>
+
+                {(unitFilter !== 'all' || typeFilter !== 'all') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUnitFilter('all');
+                      setTypeFilter('all');
+                    }}
+                    className="mt-1 w-full rounded-xl bg-slate-100 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                  >
+                    Clear Filters
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -368,13 +387,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectTopic, activeSubject, set
                 setShowSuggestions(false);
                 setActiveTool(activeTool === 'sort' ? null : 'sort');
               }}
-              className={`flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'sort'
+              className={`relative flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-bold uppercase tracking-widest shadow-sm transition-colors ${activeTool === 'sort' || sortOption !== 'default'
                 ? 'border-brand-primary bg-white text-brand-primary'
                 : 'border-slate-200 bg-white/90 text-slate-500 hover:border-slate-300 hover:text-slate-800'
                 }`}
             >
               <ArrowUpAZ size={14} />
               Sort
+              {sortOption !== 'default' && (
+                <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-primary opacity-75"></span>
+                  <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-brand-primary shadow-sm"></span>
+                </span>
+              )}
             </button>
 
             {activeTool === 'sort' && (
