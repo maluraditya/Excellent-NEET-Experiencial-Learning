@@ -69,6 +69,6 @@ We have explicitly moved away from the generic "pill" look (`rounded-full`). Fol
 
 ## 8. General AI Anti-Patterns to Avoid
 
-- **No Gradient Text**: Avoid `bg-gradient-to-r ... bg-clip-text text-transparent`. It looks like generic AI slop. Use solid brand colors with creative underlines or font weights instead.
+- **Sparing Gradient Text**: You may use `bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent` exclusively for massive Hero headings to create a "wow" moment. Avoid using it for standard body text, buttons, or small labels to prevent a generic AI-generated aesthetic.
 - **No Over-stuffed Grids**: Give elements room to breathe.
 - **No nested cards**: Use dividers, spacing, or typography to create hierarchy within a card, not another card.
