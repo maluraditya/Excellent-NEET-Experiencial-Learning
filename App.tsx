@@ -665,10 +665,13 @@ const App: React.FC = () => {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={goHome}>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden border-2 border-white/80 transform hover:scale-105 transition-transform">
-              <img src="/logo.png" alt="Excellent Academy" className="w-full h-full object-cover" />
+              <img src="/logo1.webp" alt="Excellent Group of Institutions" className="w-full h-full object-contain p-0.5" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-base sm:text-xl font-display font-bold text-white tracking-wide leading-tight">Excellent Academy</h1>
+              <h1 className="font-display font-bold text-white tracking-wide leading-none">
+                <span className="block text-xl !leading-none sm:text-2xl">Excellent</span>
+                <span className="mt-0.5 block text-[10px] font-semibold uppercase leading-none tracking-widest text-white/85 sm:text-[11px]">Group of Institutions</span>
+              </h1>
             </div>
           </div>
 
@@ -1282,10 +1285,10 @@ const App: React.FC = () => {
         <div className="relative z-10 text-center space-y-5">
           {/* Logo + Brand */}
           <div className="flex items-center justify-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/15 shadow-lg">
-              <img src="/logo.png" alt="Excellent Academy" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/15 shadow-lg bg-white flex items-center justify-center">
+              <img src="/logo1.webp" alt="Excellent Group of Institutions" className="w-full h-full object-contain p-0.5" />
             </div>
-            <span className="text-white font-display font-bold text-lg tracking-wide">Excellent Academy</span>
+            <span className="text-white font-display font-bold text-lg tracking-wide">Excellent Group of Institutions</span>
           </div>
 
           {/* Copyright */}

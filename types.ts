@@ -48,7 +48,7 @@ export interface Topic {
   youtubeVideoIds: string[]; // For embedded videos
 
   // Tags
-  branch: 'Physical Chemistry' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Mechanics' | 'Electromagnetism' | 'Thermodynamics' | 'Statistical Mechanics' | 'Oscillations' | 'Genetics' | 'Botany' | 'Zoology' | 'Cell Biology' | 'Optics' | 'Modern Physics' | 'Electronics' | 'Taxonomy and Systematics' | 'Biological Classification';
+  branch: 'Physical Chemistry' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Mechanics' | 'Measurement' | 'Kinematics' | 'Dynamics' | 'Energy' | 'Rotational' | 'Gravitation' | 'Solids' | 'Fluids' | 'Thermal' | 'Thermodynamics' | 'Kinetic Theory' | 'Statistical Mechanics' | 'Oscillations' | 'Waves' | 'Electrostatics' | 'Current Electricity' | 'Magnetism' | 'Electromagnetism' | 'EM Waves' | 'Optics' | 'Modern Physics' | 'Electronics' | 'Genetics' | 'Botany' | 'Zoology' | 'General Biology' | 'Cell Biology' | 'Biochemistry' | 'Plant Physiology' | 'Human Physiology' | 'Molecular Biology' | 'Evolutionary Biology' | 'Human Biology' | 'Microbiology' | 'Biotechnology' | 'Ecology' | 'Neurobiology' | 'Endocrinology' | 'Taxonomy and Systematics' | 'Biological Classification';
   unit: string;
   grade: '11th' | '12th';
 }

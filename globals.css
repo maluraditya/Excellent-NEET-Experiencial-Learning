@@ -1,3 +1,7 @@
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Premium Driver.js Theme */
 .driverjs-theme {
   background-color: #ffffff !important;
