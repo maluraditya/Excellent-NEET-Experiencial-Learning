@@ -13,8 +13,9 @@ export const TOPICS: Topic[] = [
     title: 'Faraday’s Law & AC Generator',
     description: 'Visualize a rotating coil in a magnetic field. See how changing flux induces an EMF (ϵ = -dΦ/dt) and generates sinusoidal AC voltage.',
     thumbnailIcon: 'magnet',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_emi_ac_generator.png',
     youtubeVideoIds: ['K95wcRVwh80'],
-    coverImage: '/images/emi_cover.png'
+    coverImage: ''
   },
   {
     id: 'ac',
@@ -26,8 +27,9 @@ export const TOPICS: Topic[] = [
     title: 'The Transformer',
     description: 'Experiment with Step-up and Step-down transformers. Adjust primary/secondary turns to change voltage/current ratios while conserving power.',
     thumbnailIcon: 'zap',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_transformer.png',
     youtubeVideoIds: ['zf8vnCcETqM'],
-    coverImage: '/images/transformer_cover.png'
+    coverImage: ''
   },
   {
     id: 'em_waves',
@@ -39,8 +41,9 @@ export const TOPICS: Topic[] = [
     title: 'EM Wave Propagation',
     description: 'See how an oscillating charge generates self-sustaining Electric and Magnetic fields. Visualize the transverse nature of EM waves in 3D.',
     thumbnailIcon: 'activity',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_em_waves.png',
     youtubeVideoIds: ['p0AwOTqgTTk'],
-    coverImage: '/images/em_waves_cover.png'
+    coverImage: ''
   },
   {
     id: 'ray_optics',
@@ -52,8 +55,9 @@ export const TOPICS: Topic[] = [
     title: 'Lenses, Prisms & Instruments',
     description: 'Ray tracing for convex/concave lenses and prisms. Explore image formation in Microscopes and Telescopes.',
     thumbnailIcon: 'microscope', // Need to ensure Dashboard handles this, or falls back
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_ray_optics.png',
     youtubeVideoIds: ['1R5vH6KIpIk'],
-    coverImage: '/images/ray_optics_cover.png'
+    coverImage: ''
   },
   {
     id: 'wave_optics',
@@ -65,8 +69,9 @@ export const TOPICS: Topic[] = [
     title: 'Interference & Diffraction',
     description: 'Observe the wave nature of light. Simulate Young’s Double Slit Experiment (YDSE) fringes and Diffraction patterns.',
     thumbnailIcon: 'layers',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_wave_optics.png',
     youtubeVideoIds: ['X_NMkbbb974'],
-    coverImage: '/images/wave_optics_cover.png'
+    coverImage: ''
   },
   {
     id: 'dual_nature',
@@ -78,8 +83,9 @@ export const TOPICS: Topic[] = [
     title: 'Photoelectric Effect',
     description: 'Prove the particle nature of light. Hit metals with photons of different frequencies to eject electrons (if hν > Φ).',
     thumbnailIcon: 'sun',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_photoelectric_effect.png',
     youtubeVideoIds: ['SgXW4foFGpw'],
-    coverImage: '/images/photoelectric_cover.png'
+    coverImage: ''
   },
   {
     id: 'atoms',
@@ -91,8 +97,9 @@ export const TOPICS: Topic[] = [
     title: 'Alpha Scattering Experiment',
     description: 'Recreate Rutherford’s gold foil experiment. Fire alpha particles at a nucleus and observe deflection angles based on impact parameter.',
     thumbnailIcon: 'atom',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_rutherford_scattering.png',
     youtubeVideoIds: ['QmRFtM08F4A'],
-    coverImage: '/images/atoms_cover.png'
+    coverImage: ''
   },
   {
     id: 'semiconductors',
@@ -104,8 +111,9 @@ export const TOPICS: Topic[] = [
     title: 'Formation of P-N Junction',
     description: 'Join p-type and n-type materials. Watch diffusion create a Depletion Region and Barrier Potential that controls current flow.',
     thumbnailIcon: 'grid',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_semiconductors_pn_junction.png',
     youtubeVideoIds: ['qu9reCzzrco'],
-    coverImage: '/images/semiconductors_cover.png'
+    coverImage: ''
   },
 
   // UNIT 2: ELECTROCHEMISTRY
@@ -119,8 +127,9 @@ export const TOPICS: Topic[] = [
     title: 'Galvanic vs. Electrolytic Cells',
     description: 'Visualize the flow of ions and electrons in spontaneous and non-spontaneous electrochemical cells. Control the voltage to reverse the reaction.',
     thumbnailIcon: 'zap',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_electrochemistry_cells.png',
     youtubeVideoIds: ['cNs7CPevcYs'],
-    coverImage: '/images/electrochemistry.png'
+    coverImage: ''
   },
 
   // UNIT 3: KINETICS
@@ -134,8 +143,9 @@ export const TOPICS: Topic[] = [
     title: 'Collision Theory & Activation Energy',
     description: 'Explore the microscopic criteria for chemical reactions: energy barriers and molecular orientation. Visualize how temperature affects reaction rates.',
     thumbnailIcon: 'activity',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_collision_activation_energy.png',
     youtubeVideoIds: ['wbGgIfHsx-I'],
-    coverImage: '/images/kinetics.png'
+    coverImage: ''
   },
 
   // UNIT 4: INORGANIC & POLYMERS
@@ -149,8 +159,9 @@ export const TOPICS: Topic[] = [
     title: 'Magnetic Properties & Color',
     description: 'Connect electron configuration to bulk properties. Visualize Crystal Field Splitting, d-d transitions, and calculate Magnetic Moment.',
     thumbnailIcon: 'magnet',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_dblock_magnetic_color.png',
     youtubeVideoIds: ['LzZWHSdYaxw'],
-    coverImage: '/images/dblock.png'
+    coverImage: ''
   },
   {
     id: 'polymers',
@@ -162,8 +173,9 @@ export const TOPICS: Topic[] = [
     title: 'Polymerization & Conductivity',
     description: 'Understand Ziegler-Natta catalysis for chain growth and explore how conjugated organic polymers can conduct electricity like metals.',
     thumbnailIcon: 'layers',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_polymerization_conductivity.png',
     youtubeVideoIds: ['AEGd8Ky9B3U'],
-    coverImage: '/images/polymers.png'
+    coverImage: ''
   },
 
   // UNIT 5: COORDINATION
@@ -177,8 +189,9 @@ export const TOPICS: Topic[] = [
     title: 'Stereoisomerism in Complexes',
     description: 'Master 3D molecular geometry. Visualize Cis/Trans, Fac/Mer isomers and perform the Mirror Test to understand Optical Isomerism and Chirality.',
     thumbnailIcon: 'box',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_coordination_stereoisomerism.png',
     youtubeVideoIds: ['CGpGpQ3bzLI'],
-    coverImage: '/images/stereochemistry.png'
+    coverImage: ''
   },
 
   // UNIT 6: HALOALKANES
@@ -192,8 +205,9 @@ export const TOPICS: Topic[] = [
     title: 'SN1 vs SN2 Reactions',
     description: 'Compare nucleophilic substitution mechanisms. Visualize the backside attack, Walden inversion, and carbocation intermediates.',
     thumbnailIcon: 'flask',
+    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_haloalkanes_sn1_sn2.png',
     youtubeVideoIds: ['yAjEqu--LVs'],
-    coverImage: '/images/haloalkanes.png'
+    coverImage: ''
   },
 
   // BIOLOGY: ANGIOSPERMS

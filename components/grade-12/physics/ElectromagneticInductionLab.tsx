@@ -1,560 +1,1537 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Eye, EyeOff, Zap, Activity } from 'lucide-react';
+import { Play, Pause, RotateCcw, Eye, EyeOff, Zap, Activity, GitCommit } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 
-type SimulationMode = 'faraday' | 'acgenerator';
+type SimulationMode = 'faraday' | 'acgenerator' | 'motional';
 
 interface EMILabProps {
     topic: any;
     onExit: () => void;
 }
 
+type TrailParticle = { x: number; y: number; life: number; maxLife: number };
+type LiveValues = {
+    flux: number;
+    emf: number;
+    velocity: number;
+    angle: number;
+    peakEmf: number;
+    frequency: number;
+    current: number;
+    force: number;
+};
+
+const CANVAS_W = 1280;
+const CANVAS_H = 760;
+const HISTORY_SIZE = 300;
+
 const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationRef = useRef<number>();
+    const lastTimeRef = useRef<number>(performance.now());
 
     const [mode, setMode] = useState<SimulationMode>('faraday');
     const [isPlaying, setIsPlaying] = useState(true);
     const [showFieldLines, setShowFieldLines] = useState(true);
+    const [showLenz, setShowLenz] = useState(true);
+    const [showStageLabels, setShowStageLabels] = useState(true);
 
-    // Faraday mode state
-    const [magnetX, setMagnetX] = useState(0.15); // fraction of width
-    const [magnetVelocity, setMagnetVelocity] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-    const lastMouseX = useRef(0);
+    const [angularSpeed, setAngularSpeed] = useState(2);
+    const [turns, setTurns] = useState(100);
+    const [magneticField, setMagneticField] = useState(2);
+    const [rodVelocity, setRodVelocity] = useState(3);
+    const [resistance, setResistance] = useState(5);
+    const [liveValues, setLiveValues] = useState<LiveValues>({
+        flux: 0,
+        emf: 0,
+        velocity: 0,
+        angle: 0,
+        peakEmf: 0,
+        frequency: 0,
+        current: 0,
+        force: 0,
+    });
+
+    const draggingRef = useRef(false);
+    const magnetXRef = useRef(80);
+    const prevMagnetXRef = useRef(80);
+    const magnetVelocityRef = useRef(0);
     const galvAngleRef = useRef(0);
-    const bulbRef = useRef(0);
+    const coilDotAngleRef = useRef(0);
+    const faradayPhaseRef = useRef(0);
 
-    // AC Generator mode state
-    const [angularSpeed, setAngularSpeed] = useState(1);
     const coilAngleRef = useRef(0);
-    const fluxHistory = useRef<number[]>([]);
-    const emfHistory = useRef<number[]>([]);
+    const fluxHistoryRef = useRef<number[]>([]);
+    const emfHistoryRef = useRef<number[]>([]);
 
-    const handleReset = useCallback(() => {
-        setMagnetX(0.15);
-        setMagnetVelocity(0);
+    const rodXRef = useRef(200);
+    const rodDirRef = useRef(1);
+    const rodTrailRef = useRef<TrailParticle[]>([]);
+    const faradayFluxHistoryRef = useRef<number[]>([]);
+    const faradayEmfHistoryRef = useRef<number[]>([]);
+    const motionalEmfHistoryRef = useRef<number[]>([]);
+    const motionalForceHistoryRef = useRef<number[]>([]);
+    const lastLiveUpdateRef = useRef(0);
+
+    const resetSimulation = useCallback(() => {
+        magnetXRef.current = 80;
+        prevMagnetXRef.current = 80;
+        magnetVelocityRef.current = 0;
         galvAngleRef.current = 0;
-        bulbRef.current = 0;
+        coilDotAngleRef.current = 0;
+        faradayPhaseRef.current = 0;
         coilAngleRef.current = 0;
-        fluxHistory.current = [];
-        emfHistory.current = [];
-    }, []);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (mode !== 'faraday') return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const rect = canvas.getBoundingClientRect();
-        const mouseXFrac = (e.clientX - rect.left) / rect.width;
-        const magW = 0.15;
-        if (mouseXFrac >= magnetX && mouseXFrac <= magnetX + magW) {
-            setIsDragging(true);
-            lastMouseX.current = mouseXFrac;
-        }
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || mode !== 'faraday') return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const rect = canvas.getBoundingClientRect();
-        const mouseXFrac = (e.clientX - rect.left) / rect.width;
-        const delta = mouseXFrac - lastMouseX.current;
-        setMagnetVelocity(delta * 60);
-        setMagnetX(prev => Math.max(0.02, Math.min(prev + delta, 0.75)));
-        lastMouseX.current = mouseXFrac;
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        setMagnetVelocity(0);
-    };
-
-    // Dynamic canvas resize
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const parent = canvas.parentElement;
-        if (!parent) return;
-        const resizeObserver = new ResizeObserver(() => {
-            canvas.width = parent.clientWidth;
-            canvas.height = parent.clientHeight;
-        });
-        resizeObserver.observe(parent);
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-        return () => resizeObserver.disconnect();
+        fluxHistoryRef.current = [];
+        emfHistoryRef.current = [];
+        faradayFluxHistoryRef.current = [];
+        faradayEmfHistoryRef.current = [];
+        motionalEmfHistoryRef.current = [];
+        motionalForceHistoryRef.current = [];
+        rodXRef.current = 200;
+        rodDirRef.current = 1;
+        rodTrailRef.current = [];
+        lastTimeRef.current = performance.now();
     }, []);
 
     useEffect(() => {
-        if (!isPlaying) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+    }, []);
 
-        let lastTime = performance.now();
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (!canvas || !ctx) return;
 
         const render = (time: number) => {
-            const W = canvas.width;
-            const H = canvas.height;
-            if (W < 10 || H < 10) { animationRef.current = requestAnimationFrame(render); return; }
-            const dt = (time - lastTime) / 1000;
-            lastTime = time;
+            const dt = isPlaying ? Math.min((time - lastTimeRef.current) / 1000, 0.1) : 0;
+            lastTimeRef.current = time;
 
-            ctx.clearRect(0, 0, W, H);
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, W, H);
-
-            const scale = W < 1000 ? 1.0 : (W > 1500 ? 1.3 : 1.0 + (W - 1000) * 0.0006);
-            const fs = (base: number) => Math.max(10, Math.min(base * scale, W * 0.025, H * 0.045));
-            const pad = Math.min(W * 0.03, H * 0.035, scale * 24);
+            drawBackground(ctx);
 
             if (mode === 'faraday') {
-                renderFaraday(ctx, W, H, dt, scale, fs, pad);
+                drawFaradayMode(ctx, dt, time, isPlaying, showFieldLines, showLenz);
+            } else if (mode === 'acgenerator') {
+                drawACGeneratorMode(ctx, dt, time, isPlaying, angularSpeed, turns, showFieldLines);
             } else {
-                renderACGenerator(ctx, W, H, dt, scale, fs, pad);
+                drawMotionalMode(ctx, dt, time, isPlaying, magneticField, rodVelocity, resistance, showFieldLines);
             }
 
             animationRef.current = requestAnimationFrame(render);
         };
 
-        const renderFaraday = (ctx: CanvasRenderingContext2D, W: number, H: number, _dt: number, scale: number, fs: (b: number) => number, pad: number) => {
-            const centerY = H * 0.42;
-            const headerSafeLeft = Math.max(pad, 170 * scale);
-            const headerCenterX = headerSafeLeft + (W - headerSafeLeft - pad) * 0.5;
-            const headerMaxW = Math.max(180, W - headerSafeLeft - pad);
-
-            // -- Coil position (responsive) --
-            const COIL_CX = W * 0.55;
-            const COIL_LEFT = COIL_CX - W * 0.06;
-            const COIL_RIGHT = COIL_CX + W * 0.06;
-            const coilRadius = Math.min(55, H * 0.13);
-
-            // -- Magnet position (responsive) --
-            const magPxX = magnetX * W;
-            const magW = W * 0.13;
-            const magH = Math.min(55, H * 0.12);
-            const magCenterX = magPxX + magW / 2;
-
-            // -- Flux calculation --
-            const dist = magCenterX - COIL_CX;
-            const w_width = W * 0.12;
-            const flux = Math.exp(-(dist * dist) / (w_width * w_width));
-            const dFluxDx = -2 * dist / (w_width * w_width) * flux;
-            const v = magnetVelocity * W;
-            const emf = -dFluxDx * v * 50;
-
-            // Galvanometer + bulb (spring-damper)
-            const targetAngle = Math.max(-50, Math.min(50, emf));
-            galvAngleRef.current = galvAngleRef.current * 0.82 + targetAngle * 0.18;
-            const absEmf = Math.abs(emf);
-            const targetBright = Math.min(1, absEmf / 18);
-            bulbRef.current = bulbRef.current * 0.85 + targetBright * 0.15;
-
-            // -- Draw coil --
-            const numTurns = 14;
-            ctx.strokeStyle = '#92400e'; ctx.lineWidth = 3 * scale;
-            for (let i = 0; i < numTurns; i++) {
-                const x = COIL_LEFT + (i / numTurns) * (COIL_RIGHT - COIL_LEFT);
-                ctx.beginPath();
-                ctx.ellipse(x, centerY, 8 * scale, coilRadius, 0, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-            ctx.strokeStyle = '#78350f'; ctx.lineWidth = 2;
-            ctx.strokeRect(COIL_LEFT, centerY - coilRadius, COIL_RIGHT - COIL_LEFT, coilRadius * 2);
-
-            // -- Flux highlight in coil --
-            if (flux > 0.05) {
-                ctx.fillStyle = `rgba(250, 204, 21, ${flux * 0.35})`;
-                ctx.fillRect(COIL_LEFT, centerY - coilRadius, COIL_RIGHT - COIL_LEFT, coilRadius * 2);
-            }
-
-            // -- DYNAMIC FIELD LINES --
-            if (showFieldLines) {
-                const nLines = 10;
-                // Determine how many lines are currently actively linking based on flux (from 0 to 10)
-                const numActiveLines = Math.max(0, Math.round(flux * nLines));
-                
-                for (let i = 0; i < nLines; i++) {
-                    // Only draw the lines that are active, growing symmetrically from the center
-                    const isCentralEnough = Math.abs(i - 4.5) < (numActiveLines / 2);
-                    if (!isCentralEnough) continue;
-                    
-                    const offset = ((i - (nLines - 1) / 2) / (nLines / 2)) * coilRadius * 0.9;
-                    const startX = magPxX + magW;
-                    const startY = centerY + offset * 0.3;
-
-                    // Since it's an active line, it passes through the coil
-                    const endX = Math.min(COIL_CX + W * 0.2, W * 0.9);
-                    const endY = centerY + offset * 1.8;
-
-                    // Curve through coil
-                    const ctrlX = (startX + endX) / 2;
-                    const ctrlY = centerY + offset * 0.6;
-
-                    ctx.strokeStyle = `rgba(59, 130, 246, 0.5)`;
-                    ctx.lineWidth = 2.5 * scale;
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-                    ctx.stroke();
-
-                    // Arrowhead at midpoint
-                    const t = 0.6;
-                    const ax = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * ctrlX + t * t * endX;
-                    const ay = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * ctrlY + t * t * endY;
-                    const dx = 2 * (1 - t) * (ctrlX - startX) + 2 * t * (endX - ctrlX);
-                    const dy = 2 * (1 - t) * (ctrlY - startY) + 2 * t * (endY - ctrlY);
-                    const angle = Math.atan2(dy, dx);
-                    const hl = 8 * scale;
-                    ctx.fillStyle = `rgba(59, 130, 246, 0.5)`;
-                    ctx.beginPath();
-                    ctx.moveTo(ax + hl * Math.cos(angle), ay + hl * Math.sin(angle));
-                    ctx.lineTo(ax - hl * Math.cos(angle - 0.5), ay - hl * Math.sin(angle - 0.5));
-                    ctx.lineTo(ax - hl * Math.cos(angle + 0.5), ay - hl * Math.sin(angle + 0.5));
-                    ctx.closePath(); ctx.fill();
-                }
-            }
-
-            // -- Flux meter bar --
-            const meterX = W * 0.82, meterY = pad * 3, meterW = W * 0.04, meterH = H * 0.35;
-            ctx.fillStyle = '#f1f5f9';
-            roundRect(ctx, meterX, meterY, meterW, meterH, 8); ctx.fill();
-            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5;
-            roundRect(ctx, meterX, meterY, meterW, meterH, 8); ctx.stroke();
-            const fillH = flux * meterH;
-            if (fillH > 2) {
-                ctx.fillStyle = '#facc15';
-                roundRect(ctx, meterX, meterY + meterH - fillH, meterW, fillH, 8); ctx.fill();
-            }
-            ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('Phi', meterX + meterW / 2, meterY - 8);
-            ctx.fillText(`${(flux * 100).toFixed(0)}%`, meterX + meterW / 2, meterY + meterH + fs(12) + 4);
-
-            // -- Magnet --
-            const magnetY = centerY - magH / 2;
-            ctx.fillStyle = '#1d4ed8';
-            roundRect(ctx, magPxX, magnetY, magW / 2, magH, 6); ctx.fill();
-            ctx.fillStyle = '#b91c1c';
-            roundRect(ctx, magPxX + magW / 2, magnetY, magW / 2, magH, 6); ctx.fill();
-            ctx.fillStyle = 'white'; ctx.font = `bold ${fs(18)}px sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('S', magPxX + magW * 0.25, centerY + fs(18) * 0.35);
-            ctx.fillText('N', magPxX + magW * 0.75, centerY + fs(18) * 0.35);
-
-            if (!isDragging) {
-                ctx.fillStyle = '#64748b'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`;
-                ctx.fillText('Drag Magnet', magPxX + magW / 2, magnetY - 12);
-            }
-
-            // -- Wires --
-            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 3 * scale;
-            ctx.beginPath();
-            ctx.moveTo(COIL_LEFT, centerY + coilRadius);
-            ctx.lineTo(COIL_LEFT, H * 0.82);
-            ctx.lineTo(W * 0.62, H * 0.82);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(COIL_RIGHT, centerY + coilRadius);
-            ctx.lineTo(COIL_RIGHT, H * 0.75);
-            ctx.lineTo(W * 0.78, H * 0.75);
-            ctx.lineTo(W * 0.78, H * 0.82);
-            ctx.stroke();
-
-            // -- Bulb --
-            const bulbX = W * 0.62, bulbY = H * 0.82;
-            const brightness = bulbRef.current;
-            if (brightness > 0.05) {
-                const glow = ctx.createRadialGradient(bulbX, bulbY - 20, 0, bulbX, bulbY - 20, 55 * brightness);
-                glow.addColorStop(0, `rgba(250, 204, 21, ${brightness})`);
-                glow.addColorStop(1, 'rgba(250, 204, 21, 0)');
-                ctx.fillStyle = glow;
-                ctx.beginPath(); ctx.arc(bulbX, bulbY - 20, 55, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.fillStyle = brightness > 0.1 ? `rgba(250,204,21,${0.5 + brightness * 0.5})` : '#f1f5f9';
-            ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.arc(bulbX, bulbY - 20, 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('Bulb', bulbX, bulbY + 18);
-
-            // -- Galvanometer --
-            const galvoX = W * 0.78, galvoY = H * 0.82;
-            ctx.fillStyle = '#e2e8f0'; ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.arc(galvoX, galvoY, 36 * scale, Math.PI, 0); ctx.fill(); ctx.stroke();
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(10)}px monospace`; ctx.textAlign = 'center';
-            ctx.fillText('-  0  +', galvoX, galvoY - 8);
-
-            ctx.save();
-            ctx.translate(galvoX, galvoY);
-            ctx.rotate(galvAngleRef.current * Math.PI / 180);
-            ctx.fillStyle = '#dc2626';
-            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-2, -30 * scale); ctx.lineTo(2, -30 * scale); ctx.fill();
-            ctx.restore();
-            ctx.fillStyle = '#475569'; ctx.font = `bold ${fs(11)}px "Inter", sans-serif`;
-            ctx.fillText('G', galvoX, galvoY + 18);
-
-            // -- EMF indicator bar --
-            const emfBarX = pad, emfBarY = H * 0.88, emfBarW = W * 0.35;
-            ctx.fillStyle = '#f1f5f9';
-            roundRect(ctx, emfBarX, emfBarY, emfBarW, 20 * scale, 6); ctx.fill();
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-            roundRect(ctx, emfBarX, emfBarY, emfBarW, 20 * scale, 6); ctx.stroke();
-            const emfFill = Math.min(1, Math.abs(emf) / 25);
-            if (emfFill > 0.01) {
-                const emfColor = emf > 0 ? '#16a34a' : '#dc2626';
-                ctx.fillStyle = emfColor;
-                const halfW = emfBarW / 2;
-                if (emf > 0) {
-                    roundRect(ctx, emfBarX + halfW, emfBarY, emfFill * halfW, 20 * scale, 6); ctx.fill();
-                } else {
-                    roundRect(ctx, emfBarX + halfW - emfFill * halfW, emfBarY, emfFill * halfW, 20 * scale, 6); ctx.fill();
-                }
-            }
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('EMF: e = -dPhi/dt', emfBarX + emfBarW / 2, emfBarY - 6);
-        };
-
-        const renderACGenerator = (ctx: CanvasRenderingContext2D, W: number, H: number, dt: number, scale: number, fs: (b: number) => number, pad: number) => {
-            const centerX = W * 0.35;
-            const centerY = H * 0.38;
-            const headerSafeLeft = Math.max(pad, 170 * scale);
-            const headerCenterX = headerSafeLeft + (W - headerSafeLeft - pad) * 0.5;
-            const headerMaxW = Math.max(180, W - headerSafeLeft - pad);
-
-            coilAngleRef.current += angularSpeed * dt;
-            const cAngle = coilAngleRef.current;
-
-            const flux = Math.cos(cAngle);
-            const emf = angularSpeed * Math.sin(cAngle);
-
-            fluxHistory.current.push(flux);
-            emfHistory.current.push(emf);
-            if (fluxHistory.current.length > 200) {
-                fluxHistory.current.shift();
-                emfHistory.current.shift();
-            }
-
-            // Magnets
-            const magW = 35 * scale, magH = 120 * scale;
-            ctx.fillStyle = '#ef4444';
-            roundRect(ctx, centerX - W * 0.15, centerY - magH / 2, magW, magH, 6); ctx.fill();
-            ctx.fillStyle = 'white'; ctx.font = `bold ${fs(20)}px sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('N', centerX - W * 0.15 + magW / 2, centerY + fs(20) * 0.35);
-
-            ctx.fillStyle = '#3b82f6';
-            roundRect(ctx, centerX + W * 0.15 - magW, centerY - magH / 2, magW, magH, 6); ctx.fill();
-            ctx.fillStyle = 'white';
-            ctx.fillText('S', centerX + W * 0.15 - magW / 2, centerY + fs(20) * 0.35);
-
-            // B-Field
-            if (showFieldLines) {
-                ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1.5;
-                for (let i = -2; i <= 2; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(centerX - W * 0.15 + magW, centerY + i * 20 * scale);
-                    ctx.lineTo(centerX + W * 0.15 - magW, centerY + i * 20 * scale);
-                    ctx.stroke();
-                    // Arrowheads
-                    const ax = centerX, ay = centerY + i * 20 * scale;
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.beginPath(); ctx.moveTo(ax + 6, ay); ctx.lineTo(ax - 4, ay - 4); ctx.lineTo(ax - 4, ay + 4); ctx.fill();
-                }
-            }
-
-            // Coil
-            const coilW = 90 * scale, coilH = 90 * scale;
-            const projW = coilW * Math.abs(Math.cos(cAngle));
-            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 5 * scale;
-            ctx.strokeRect(centerX - projW / 2, centerY - coilH / 2, projW, coilH);
-
-            // Rotation arrow
-            ctx.strokeStyle = '#d97706'; ctx.lineWidth = 2 * scale;
-            ctx.beginPath(); ctx.arc(centerX, centerY - coilH / 2 - 15 * scale, 12 * scale, 0, Math.PI * 1.5); ctx.stroke();
-
-            // Slip rings + wire
-            ctx.fillStyle = '#fbbf24';
-            ctx.fillRect(centerX - 8 * scale, centerY + coilH / 2, 16 * scale, 10 * scale);
-            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2 * scale;
-            ctx.beginPath(); ctx.moveTo(centerX, centerY + coilH / 2 + 10 * scale); ctx.lineTo(centerX, H * 0.62); ctx.stroke();
-
-            // Lamp
-            const brightness = Math.min(1, Math.abs(emf) / 10);
-            const lampX = centerX + 40 * scale, lampY = H * 0.62;
-            ctx.strokeStyle = '#475569'; ctx.lineWidth = 2 * scale;
-            ctx.beginPath(); ctx.moveTo(centerX, lampY); ctx.lineTo(lampX, lampY); ctx.stroke();
-
-            if (brightness > 0.05) {
-                const glow = ctx.createRadialGradient(lampX, lampY - 12, 0, lampX, lampY - 12, 35 * brightness);
-                glow.addColorStop(0, `rgba(250, 204, 21, ${brightness})`);
-                glow.addColorStop(1, 'rgba(250, 204, 21, 0)');
-                ctx.fillStyle = glow;
-                ctx.beginPath(); ctx.arc(lampX, lampY - 12, 35, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.fillStyle = brightness > 0.1 ? `rgba(250,204,21,${0.3 + brightness * 0.7})` : '#e2e8f0';
-            ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(lampX, lampY - 12, 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-            // Angular speed label
-            ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(13)}px monospace`; ctx.textAlign = 'center';
-            ctx.fillText(`omega = ${angularSpeed.toFixed(1)} rad/s`, centerX, centerY - coilH / 2 - 35 * scale);
-
-            // -- Graphs panel (right side) --
-            const graphX = W * 0.58, graphY = pad * 2.5, graphW = W * 0.38, graphH = H * 0.82;
-            ctx.fillStyle = '#ffffff';
-            roundRect(ctx, graphX, graphY, graphW, graphH, 14); ctx.fill();
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5;
-            roundRect(ctx, graphX, graphY, graphW, graphH, 14); ctx.stroke();
-
-            const halfGH = graphH / 2;
-            const gPad = 30;
-
-            // Flux graph
-            ctx.fillStyle = '#3b82f6'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`; ctx.textAlign = 'left';
-            ctx.fillText('Magnetic Flux Phi(t) = NAB cos(omega t)', graphX + gPad, graphY + 20);
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(graphX + gPad, graphY + halfGH / 2 + 10); ctx.lineTo(graphX + graphW - gPad, graphY + halfGH / 2 + 10); ctx.stroke();
-
-            ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            fluxHistory.current.forEach((v, i) => {
-                const x = graphX + gPad + (i / 200) * (graphW - gPad * 2);
-                const y = graphY + halfGH / 2 + 10 - v * (halfGH / 2 - 20);
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-
-            // EMF graph
-            const emfGY = graphY + halfGH;
-            ctx.fillStyle = '#ef4444'; ctx.font = `bold ${fs(12)}px "Inter", sans-serif`;
-            ctx.fillText('EMF e(t) = NAB omega sin(omega t)', graphX + gPad, emfGY + 20);
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(graphX + gPad, emfGY + halfGH / 2 + 10); ctx.lineTo(graphX + graphW - gPad, emfGY + halfGH / 2 + 10); ctx.stroke();
-
-            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            emfHistory.current.forEach((v, i) => {
-                const x = graphX + gPad + (i / 200) * (graphW - gPad * 2);
-                const y = emfGY + halfGH / 2 + 10 - (v / 10) * (halfGH / 2 - 20);
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-
-            // Current values
-            ctx.fillStyle = '#3b82f6'; ctx.font = `bold ${fs(16)}px monospace`; ctx.textAlign = 'right';
-            ctx.fillText(`Phi = ${flux.toFixed(2)}`, graphX + graphW - gPad, graphY + 20);
-            ctx.fillStyle = '#ef4444';
-            ctx.fillText(`e = ${emf.toFixed(2)}`, graphX + graphW - gPad, emfGY + 20);
-        };
-
         animationRef.current = requestAnimationFrame(render);
-        return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
-    }, [isPlaying, mode, magnetX, magnetVelocity, showFieldLines, angularSpeed, isDragging]);
+        return () => {
+            if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        };
+    }, [mode, isPlaying, showFieldLines, showLenz, showStageLabels, angularSpeed, turns, magneticField, rodVelocity, resistance]);
 
-    const simulationCombo = (
-        <div className="w-full h-full relative bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-inner flex flex-col">
-            <div className="flex-1 relative min-h-[300px]">
-                <canvas
-                    ref={canvasRef}
-                    className="absolute inset-0 w-full h-full cursor-pointer"
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
-                />
+    const canvasPoint = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return { x: 0, y: 0 };
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left) * (CANVAS_W / rect.width),
+            y: (e.clientY - rect.top) * (CANVAS_H / rect.height),
+        };
+    };
 
-                <div className="absolute top-3 left-40 right-20 md:left-44 md:right-24 pointer-events-none">
-                    <div className="bg-slate-50/98 rounded-lg px-3 py-2 shadow-sm">
-                        <p className="text-sm md:text-lg font-bold text-slate-900 text-center">
-                            {mode === 'faraday'
-                                ? "Faraday's Law - Electromagnetic Induction"
-                                : 'AC Generator - Electromagnetic Induction'}
-                        </p>
-                    </div>
-                </div>
+    const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        if (mode !== 'faraday') return;
+        const { x, y } = canvasPoint(e);
+        if (x >= magnetXRef.current && x <= magnetXRef.current + 160 && y >= 300 && y <= 380) {
+            e.currentTarget.setPointerCapture(e.pointerId);
+            draggingRef.current = true;
+            setIsPlaying(true);
+        }
+    };
+
+    const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        if (mode !== 'faraday' || !draggingRef.current) return;
+        const { x } = canvasPoint(e);
+        magnetXRef.current = clamp(x - 80, 40, 440);
+    };
+
+    const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+        draggingRef.current = false;
+        magnetVelocityRef.current = 0;
+    };
+
+    const switchMode = (nextMode: SimulationMode) => {
+        setMode(nextMode);
+        resetSimulation();
+    };
+
+    const updateLiveValues = (time: number, next: Partial<LiveValues>) => {
+        if (time - lastLiveUpdateRef.current < 90) return;
+        lastLiveUpdateRef.current = time;
+        setLiveValues((previous) => ({ ...previous, ...next }));
+    };
+
+    const drawBackground = (ctx: CanvasRenderingContext2D) => {
+        ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= CANVAS_W; x += 40) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, CANVAS_H);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= CANVAS_H; y += 40) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(CANVAS_W, y);
+            ctx.stroke();
+        }
+    };
+
+    const drawFaradayMode = (
+        ctx: CanvasRenderingContext2D,
+        dt: number,
+        time: number,
+        playing: boolean,
+        fieldLinesVisible: boolean,
+        lenzVisible: boolean
+    ) => {
+        if (playing && !draggingRef.current) {
+            faradayPhaseRef.current += dt * 0.85;
+            magnetXRef.current = 90 + (Math.sin(faradayPhaseRef.current) + 1) * 170;
+        }
+
+        const magnetX = magnetXRef.current;
+        const velocity = dt > 0 ? (magnetX - prevMagnetXRef.current) / dt : 0;
+        magnetVelocityRef.current = velocity * 0.65 + magnetVelocityRef.current * 0.35;
+        prevMagnetXRef.current = magnetX;
+
+        const coilCX = 640;
+        const coilY = 340;
+        const coilLeft = 560;
+        const coilRight = 720;
+        const magnetCenter = magnetX + 80;
+        const distance = coilCX - magnetCenter;
+        const flux = clamp(Math.exp(-(distance * distance) / (260 * 260)), 0, 1);
+        const fluxGradient = (2 * distance / (260 * 260)) * flux;
+        const rawEmf = -fluxGradient * magnetVelocityRef.current * 180;
+        const emf = Math.abs(magnetVelocityRef.current) < 4 ? 0 : clamp(rawEmf, -50, 50);
+        const brightness = clamp(Math.abs(emf) / 38, 0, 1);
+        pushHistory(faradayFluxHistoryRef.current, flux);
+        pushHistory(faradayEmfHistoryRef.current, emf);
+        updateLiveValues(time, {
+            flux,
+            emf,
+            velocity: magnetVelocityRef.current,
+            angle: 0,
+            peakEmf: 0,
+            frequency: 0,
+            current: emf / 10,
+            force: 0,
+        });
+
+        drawTitle(ctx, "Faraday's Law: moving magnet changes magnetic flux", 'ΦB = B · A = BA cos θ    |    ε = −dΦB/dt    |    ε = −N dΦB/dt');
+
+        if (fieldLinesVisible) {
+            drawFaradayFieldLines(ctx, magnetX, flux);
+        }
+
+        drawCoil(ctx, coilLeft, coilRight, coilY, flux);
+        if (lenzVisible) {
+            drawLenzIndicator(ctx, coilCX, coilY, emf, dt, coilDotAngleRef);
+        }
+        drawBarMagnet(ctx, magnetX, coilY, Math.abs(magnetVelocityRef.current) > 12);
+        drawFaradayCircuit(ctx, brightness, emf);
+        drawGalvanometer(ctx, 900, 560, emf, galvAngleRef);
+        drawFluxMeter(ctx, 1180, 80, 30, 300, flux);
+        drawFaradayReadouts(ctx, flux, emf, magnetVelocityRef.current);
+    };
+
+    const drawACGeneratorMode = (
+        ctx: CanvasRenderingContext2D,
+        dt: number,
+        time: number,
+        playing: boolean,
+        omega: number,
+        nTurns: number,
+        fieldLinesVisible: boolean
+    ) => {
+        if (playing) coilAngleRef.current = (coilAngleRef.current + omega * dt) % (Math.PI * 2);
+        const theta = coilAngleRef.current;
+        const degrees = ((theta * 180 / Math.PI) + 360) % 360;
+        const flux = Math.cos(theta);
+        const peakEmf = Math.max(0.1, omega);
+        const emf = peakEmf * Math.sin(theta);
+
+        pushHistory(fluxHistoryRef.current, flux);
+        pushHistory(emfHistoryRef.current, emf);
+        updateLiveValues(time, {
+            flux,
+            emf,
+            velocity: 0,
+            angle: degrees,
+            peakEmf: nTurns * omega,
+            frequency: omega / (2 * Math.PI),
+            current: emf / 10,
+            force: 0,
+        });
+
+        drawTitle(ctx, 'AC Generator: mechanical energy → electrical energy', 'ΦB = BA cos(ωt)    |    ε = NBAω sin(ωt)    |    ε₀ = NBAω    |    ε = ε₀ sin(2πνt)');
+        drawGeneratorApparatus(ctx, theta, degrees, omega, emf, fieldLinesVisible);
+    };
+
+    const drawMotionalMode = (
+        ctx: CanvasRenderingContext2D,
+        dt: number,
+        time: number,
+        playing: boolean,
+        bField: number,
+        velocitySetting: number,
+        rValue: number,
+        fieldLinesVisible: boolean
+    ) => {
+        const pixelsPerMeter = 32;
+        if (playing) {
+            rodXRef.current += rodDirRef.current * velocitySetting * dt * pixelsPerMeter;
+            if (rodXRef.current > 850) {
+                rodXRef.current = 850;
+                rodDirRef.current = -1;
+            }
+            if (rodXRef.current < 150) {
+                rodXRef.current = 150;
+                rodDirRef.current = 1;
+            }
+            for (let i = 0; i < 2; i++) {
+                rodTrailRef.current.push({
+                    x: rodXRef.current,
+                    y: 245 + Math.random() * 230,
+                    life: 30,
+                    maxLife: 30,
+                });
+            }
+        }
+
+        rodTrailRef.current = rodTrailRef.current
+            .map((p) => ({ ...p, x: p.x - rodDirRef.current * velocitySetting * 0.3, life: p.life - 1 }))
+            .filter((p) => p.life > 0);
+
+        const signedVelocity = rodDirRef.current * velocitySetting;
+        const rodLength = 1;
+        const emf = bField * rodLength * signedVelocity;
+        const current = emf / rValue;
+        const force = (bField * bField * rodLength * rodLength * signedVelocity) / rValue;
+        pushHistory(motionalEmfHistoryRef.current, emf);
+        pushHistory(motionalForceHistoryRef.current, force);
+        updateLiveValues(time, {
+            flux: bField,
+            emf,
+            velocity: signedVelocity,
+            angle: 0,
+            peakEmf: Math.abs(bField * rodLength * velocitySetting),
+            frequency: 0,
+            current,
+            force,
+        });
+
+        drawTitle(ctx, 'Motional EMF: conducting rod sliding on rails', 'ε = Blv    |    I = ε/R = Blv/R    |    F = BIl = B²l²v/R');
+        drawMotionalApparatus(ctx, bField, signedVelocity, emf, current, force, fieldLinesVisible, rodXRef.current, rodTrailRef.current);
+    };
+
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 z-20 hidden w-[380px] 2xl:block">
+            <div className="flex flex-col gap-3">
+                {mode === 'faraday' && (
+                    <>
+                        <GraphCard title="Magnetic Flux Through Coil" subtitle="Flux rises as the N-pole links more field through the coil">
+                            <HistorySvg
+                                data={faradayFluxHistoryRef.current}
+                                amplitude={1}
+                                color="#facc15"
+                                yLabel="ΦB"
+                                xLabel="time"
+                                readout={`ΦB = ${liveValues.flux.toFixed(2)} Wb`}
+                            />
+                        </GraphCard>
+                        <GraphCard title="Induced EMF" subtitle="Only non-zero while flux is changing">
+                            <HistorySvg
+                                data={faradayEmfHistoryRef.current}
+                                amplitude={50}
+                                color={liveValues.emf >= 0 ? '#22c55e' : '#f59e0b'}
+                                yLabel="ε"
+                                xLabel="time"
+                                readout={`ε = ${liveValues.emf.toFixed(1)} V`}
+                            />
+                        </GraphCard>
+                    </>
+                )}
 
                 {mode === 'acgenerator' && (
-                    <div className="absolute top-[9%] right-[4%] w-[38%] h-[82%] pointer-events-none">
-                        <div className="absolute left-3 right-3 top-3 bg-white/98 rounded-xl px-4 py-3 shadow-sm">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <p className="text-[11px] md:text-xs font-bold text-blue-500">Magnetic Flux Phi(t) = NAB cos(omega t)</p>
-                                    <p className="text-[9px] md:text-[10px] text-slate-400">Normalized (N = A = B = 1). Real peak EMF = N*A*B*omega</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="absolute left-3 right-3 top-1/2 mt-3 bg-white/98 rounded-xl px-4 py-3 shadow-sm">
-                            <p className="text-[11px] md:text-xs font-bold text-red-500">EMF e(t) = NAB omega sin(omega t)</p>
-                            <p className="text-[9px] md:text-[10px] text-slate-400">Normalized (N = A = B = 1). Real peak EMF = N*A*B*omega</p>
-                        </div>
-                    </div>
+                    <>
+                        <GraphCard title="Magnetic Flux Φ(t)" subtitle="ΦB = NAB cos(ωt)">
+                            <HistorySvg
+                                data={fluxHistoryRef.current}
+                                amplitude={1}
+                                color="#3b82f6"
+                                yLabel="Φ"
+                                xLabel="one cycle"
+                                readout={`Φ = ${liveValues.flux.toFixed(2)}`}
+                                stageMarkers={showStageLabels}
+                            />
+                        </GraphCard>
+                        <GraphCard title="Induced EMF ε(t)" subtitle="NCERT Fig. 6.14 stage markers">
+                            <HistorySvg
+                                data={emfHistoryRef.current}
+                                amplitude={Math.max(0.5, angularSpeed)}
+                                color="#ef4444"
+                                yLabel="ε"
+                                xLabel="T/4, T/2, 3T/4, T"
+                                readout={`ε = ${liveValues.emf.toFixed(2)} V`}
+                                stageMarkers={showStageLabels}
+                            />
+                        </GraphCard>
+                    </>
+                )}
+
+                {mode === 'motional' && (
+                    <>
+                        <GraphCard title="Motional EMF" subtitle="ε = Blv, so B or v increases the induced EMF">
+                            <HistorySvg
+                                data={motionalEmfHistoryRef.current}
+                                amplitude={Math.max(2, magneticField * rodVelocity)}
+                                color="#facc15"
+                                yLabel="ε"
+                                xLabel="time"
+                                readout={`ε = ${liveValues.emf.toFixed(1)} V`}
+                            />
+                        </GraphCard>
+                        <GraphCard title="Opposing Magnetic Force" subtitle="F = B²l²v/R from Lenz's law">
+                            <HistorySvg
+                                data={motionalForceHistoryRef.current}
+                                amplitude={Math.max(1, (magneticField * magneticField * rodVelocity) / resistance)}
+                                color="#ef4444"
+                                yLabel="F"
+                                xLabel="time"
+                                readout={`F = ${liveValues.force.toFixed(2)} N`}
+                            />
+                        </GraphCard>
+                    </>
                 )}
             </div>
+        </aside>
+    );
 
-            <div className="absolute top-3 right-3 flex gap-2">
-                <button onClick={() => setShowFieldLines(!showFieldLines)} className={`p-2 rounded-lg text-sm font-bold shadow transition-colors ${showFieldLines ? 'bg-blue-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
-                    {showFieldLines ? <Eye size={18} /> : <EyeOff size={18} />}
-                </button>
-                <button onClick={() => setIsPlaying(!isPlaying)} className="p-2 rounded-lg text-sm font-bold shadow transition-colors bg-white text-slate-700 hover:bg-slate-50">
-                    {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                </button>
-                <button onClick={handleReset} className="p-2 rounded-lg text-sm shadow transition-colors bg-white text-slate-700 hover:bg-slate-50">
-                    <RotateCcw size={18} />
-                </button>
+    const formulaPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 z-20 hidden w-[320px] 2xl:block">
+            <div className="rounded-xl border border-amber-200 bg-amber-50/95 p-4 text-amber-950 shadow-xl backdrop-blur">
+                <div className="text-base font-extrabold">{sideInfo[mode].title}</div>
+                <div className="mt-2 space-y-1.5 text-sm leading-snug text-amber-900">
+                    {sideInfo[mode].points.map((point) => (
+                        <p key={point}>{point}</p>
+                    ))}
+                </div>
             </div>
+
+            <div className="mt-3 rounded-xl border border-slate-200 bg-white/95 p-4 text-slate-900 shadow-xl backdrop-blur">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                    <h3 className="text-base font-extrabold text-slate-900">Real-time values</h3>
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-slate-500">Live</span>
+                </div>
+                <div className="grid gap-2">
+                    {getReadoutItems(mode, liveValues, angularSpeed, turns, magneticField, rodVelocity, resistance).map((item) => (
+                        <div key={item.label} className={`rounded-lg border border-slate-100 ${item.bg} px-3 py-2.5`}>
+                            <div className="text-xs font-bold uppercase tracking-wide text-slate-500">{item.label}</div>
+                            <div className={`mt-1 font-mono text-base font-extrabold ${item.color}`}>{item.value}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </aside>
+    );
+
+    const simulationCombo = (
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-slate-900 shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-slate-900">
+                <canvas
+                    ref={canvasRef}
+                    width={CANVAS_W}
+                    height={CANVAS_H}
+                    className="absolute inset-0 h-[760px] w-[1280px] cursor-grab touch-none active:cursor-grabbing"
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerUp}
+                />
+            </div>
+            {graphPanel}
+            {formulaPanel}
         </div>
     );
 
     const controlsCombo = (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 flex flex-col gap-4 md:gap-6 w-full">
-            <div className="flex justify-center gap-3 border-b border-slate-100 pb-4">
-                <button onClick={() => { setMode('faraday'); handleReset(); }} className={`flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-bold text-sm md:text-base transition-all ${mode === 'faraday' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}>
+        <div className="w-full space-y-4 p-4">
+            <div className="grid grid-cols-3 gap-2">
+                <button
+                    onClick={() => switchMode('faraday')}
+                    className={tabClass(mode === 'faraday')}
+                >
                     <Zap size={18} /> Faraday's Law
                 </button>
-                <button onClick={() => { setMode('acgenerator'); handleReset(); }} className={`flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-bold text-sm md:text-base transition-all ${mode === 'acgenerator' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100'}`}>
+                <button
+                    onClick={() => switchMode('acgenerator')}
+                    className={tabClass(mode === 'acgenerator')}
+                >
                     <Activity size={18} /> AC Generator
+                </button>
+                <button
+                    onClick={() => switchMode('motional')}
+                    className={tabClass(mode === 'motional')}
+                >
+                    <GitCommit size={18} /> Motional EMF
                 </button>
             </div>
 
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <p className="font-bold text-base">{modeInfo[mode].primary}</p>
+                <p className="mt-1 leading-relaxed">{modeInfo[mode].secondary}</p>
+            </div>
+
             {mode === 'faraday' && (
-                <div className="text-center p-3 md:p-4 bg-amber-50 rounded-lg text-amber-800 text-sm">
-                    An induced EMF is generated whenever there is a <strong>rate of change of magnetic flux</strong> linked with the circuit.<br /><br />
-                    <em>Drag the magnet — watch the field lines passing through the coil change! The bulb glows only when the magnet is <strong>moving</strong>.</em>
+                <div className="grid gap-3 md:grid-cols-4">
+                    <ToggleButton active={showFieldLines} onClick={() => setShowFieldLines((v) => !v)} label="Field Lines" />
+                    <ToggleButton active={showLenz} onClick={() => setShowLenz((v) => !v)} label="Lenz's Law" />
+                    <ControlButton onClick={() => setIsPlaying((v) => !v)} icon={isPlaying ? <Pause size={18} /> : <Play size={18} />} label={isPlaying ? 'Pause' : 'Play'} />
+                    <ControlButton onClick={resetSimulation} icon={<RotateCcw size={18} />} label="Reset" />
                 </div>
             )}
 
             {mode === 'acgenerator' && (
-                <div className="space-y-4">
-                    <div className="text-center p-3 md:p-4 bg-amber-50 rounded-lg text-amber-800 text-sm">
-                        EMF = N*A*B*omega*sin(omega*t). Peak voltage is proportional to rotation speed (omega).
-                    </div>
-                    <div className="space-y-2 p-3 md:p-4 bg-white rounded-xl border border-slate-200">
-                        <label className="text-sm font-bold text-slate-700 uppercase flex justify-between items-center">
-                            <span>Angular Speed (omega)</span>
-                            <span className="text-amber-700 bg-amber-100 px-3 py-1 rounded-lg font-mono">{angularSpeed.toFixed(1)} rad/s</span>
-                        </label>
-                        <input type="range" min="1" max="10" step="0.5" value={angularSpeed}
-                            onChange={(e) => setAngularSpeed(Number(e.target.value))}
-                            className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" />
-                    </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <SliderCard label="Angular Speed (ω)" value={`${angularSpeed.toFixed(1)} rad/s`}>
+                        <input className="w-full accent-amber-500" type="range" min="0.5" max="12" step="0.5" value={angularSpeed} onChange={(e) => setAngularSpeed(Number(e.target.value))} />
+                        <p className="text-xs text-slate-500">f = ω/2π = {(angularSpeed / (2 * Math.PI)).toFixed(2)} Hz</p>
+                    </SliderCard>
+                    <SliderCard label="Number of Turns (N)" value={`${turns}`}>
+                        <input className="w-full accent-amber-500" type="range" min="50" max="500" step="50" value={turns} onChange={(e) => setTurns(Number(e.target.value))} />
+                        <p className="text-xs text-slate-500">Peak EMF ε₀ ∝ N. More turns increase induced EMF.</p>
+                    </SliderCard>
+                    <ToggleButton active={showFieldLines} onClick={() => setShowFieldLines((v) => !v)} label="Field Lines" />
+                    <ToggleButton active={showStageLabels} onClick={() => setShowStageLabels((v) => !v)} label="Stage Labels" />
+                    <ControlButton onClick={() => setIsPlaying((v) => !v)} icon={isPlaying ? <Pause size={18} /> : <Play size={18} />} label={isPlaying ? 'Pause' : 'Play'} />
+                    <ControlButton onClick={resetSimulation} icon={<RotateCcw size={18} />} label="Reset" />
+                </div>
+            )}
+
+            {mode === 'motional' && (
+                <div className="grid gap-4 md:grid-cols-2">
+                    <SliderCard label="Magnetic Field (B)" value={`${magneticField.toFixed(1)} T`}>
+                        <input className="w-full accent-blue-500" type="range" min="0.5" max="5" step="0.5" value={magneticField} onChange={(e) => setMagneticField(Number(e.target.value))} />
+                    </SliderCard>
+                    <SliderCard label="Rod Velocity (v)" value={`${rodVelocity.toFixed(1)} m/s`}>
+                        <input className="w-full accent-green-500" type="range" min="0.5" max="10" step="0.5" value={rodVelocity} onChange={(e) => setRodVelocity(Number(e.target.value))} />
+                    </SliderCard>
+                    <SliderCard label="Resistance (R)" value={`${resistance} Ω`}>
+                        <input className="w-full accent-rose-500" type="range" min="1" max="20" step="1" value={resistance} onChange={(e) => setResistance(Number(e.target.value))} />
+                    </SliderCard>
+                    <ToggleButton active={showFieldLines} onClick={() => setShowFieldLines((v) => !v)} label="Field Lines" />
+                    <ControlButton onClick={() => setIsPlaying((v) => !v)} icon={isPlaying ? <Pause size={18} /> : <Play size={18} />} label={isPlaying ? 'Pause' : 'Play'} />
+                    <ControlButton onClick={resetSimulation} icon={<RotateCcw size={18} />} label="Reset" />
                 </div>
             )}
         </div>
     );
 
     return (
-        <TopicLayoutContainer topic={topic} onExit={onExit}
-            SimulationComponent={simulationCombo} ControlsComponent={controlsCombo} />
+        <TopicLayoutContainer
+            topic={topic}
+            onExit={onExit}
+            SimulationComponent={simulationCombo}
+            ControlsComponent={controlsCombo}
+        />
     );
 };
 
+function drawTitle(ctx: CanvasRenderingContext2D, title: string, formulas: string) {
+    ctx.fillStyle = 'rgba(15,23,42,0.82)';
+    roundRect(ctx, 270, 18, 740, 58, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(250,204,21,0.35)';
+    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '700 18px Inter, monospace';
+    ctx.fillText(title, 640, 42);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '600 14px Inter, monospace';
+    ctx.fillText(formulas, 640, 64);
+}
+
+function drawCoil(ctx: CanvasRenderingContext2D, left: number, right: number, cy: number, flux: number) {
+    if (flux > 0.05) {
+        const glow = ctx.createRadialGradient((left + right) / 2, cy, 0, (left + right) / 2, cy, 120);
+        glow.addColorStop(0, `rgba(250,204,21,${0.25 * flux})`);
+        glow.addColorStop(1, 'rgba(250,204,21,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(left - 45, cy - 105, right - left + 90, 210);
+    }
+
+    for (let i = 0; i < 16; i++) {
+        const x = left + i * ((right - left) / 15);
+        ctx.save();
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 4 + flux * 14;
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(x, cy, 12, 70, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    ctx.strokeStyle = '#92400e';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(left, cy - 70, right - left, 140);
+    ctx.fillStyle = '#facc15';
+    ctx.font = '700 14px Inter, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Stationary N-turn coil', (left + right) / 2, cy + 102);
+}
+
+function drawBarMagnet(ctx: CanvasRenderingContext2D, x: number, cy: number, moving: boolean) {
+    const y = cy - 40;
+    ctx.save();
+    if (moving) {
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 20;
+    }
+    ctx.fillStyle = '#3b82f6';
+    roundRect(ctx, x, y, 80, 80, 10);
+    ctx.fill();
+    ctx.fillStyle = '#ef4444';
+    roundRect(ctx, x + 80, y, 80, 80, 10);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(x + 78, y + 8, 4, 64);
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.font = '800 24px Inter, monospace';
+    ctx.fillText('S', x + 40, cy + 8);
+    ctx.fillText('N', x + 120, cy + 8);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '700 13px Inter, sans-serif';
+    ctx.fillText('Drag →', x + 80, y - 18);
+}
+
+function drawFaradayFieldLines(ctx: CanvasRenderingContext2D, magnetX: number, flux: number) {
+    const startX = magnetX + 160;
+    const opacity = 0.12 + flux * 0.58;
+    for (let i = 0; i < 8; i++) {
+        const offset = (i - 3.5) * 24;
+        const startY = 340 + offset * 0.55;
+        const endX = 690 + flux * 80;
+        const endY = 340 + offset * 1.15;
+        const controlX = 445 + flux * 135;
+        const controlY = 340 + offset * 1.5;
+        ctx.strokeStyle = `rgba(239,68,68,${opacity})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+        ctx.stroke();
+
+        const t = 0.55;
+        const ax = quadraticPoint(startX, controlX, endX, t);
+        const ay = quadraticPoint(startY, controlY, endY, t);
+        const dx = 2 * (1 - t) * (controlX - startX) + 2 * t * (endX - controlX);
+        const dy = 2 * (1 - t) * (controlY - startY) + 2 * t * (endY - controlY);
+        drawArrowHead(ctx, ax, ay, Math.atan2(dy, dx), `rgba(239,68,68,${opacity})`, 9);
+    }
+}
+
+function drawLenzIndicator(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    emf: number,
+    dt: number,
+    dotAngleRef: React.MutableRefObject<number>
+) {
+    const strength = clamp(Math.abs(emf) / 40, 0, 1);
+    if (strength < 0.03) return;
+    const positive = emf > 0;
+    const color = positive ? '#22c55e' : '#f59e0b';
+    dotAngleRef.current += (positive ? 1 : -1) * dt * (1.2 + strength);
+
+    ctx.save();
+    ctx.globalAlpha = strength;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 88, 88, 0, positive ? 0.25 : 1.2, positive ? Math.PI * 1.75 : Math.PI * 2.7, !positive);
+    ctx.stroke();
+    const arrowAngle = positive ? 0.55 : -0.55;
+    drawArrowHead(ctx, cx + 78, cy - 40, arrowAngle, color, 14);
+
+    const dotX = cx + Math.cos(dotAngleRef.current) * 72;
+    const dotY = cy + Math.sin(dotAngleRef.current) * 62;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = color;
+    ctx.font = '800 14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(positive ? 'CCW current: Opposes ↑ Flux' : 'CW current: Opposes ↓ Flux', cx, cy - 112);
+}
+
+function drawFaradayCircuit(ctx: CanvasRenderingContext2D, brightness: number, emf: number) {
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(560, 410);
+    ctx.lineTo(560, 560);
+    ctx.lineTo(798, 560);
+    ctx.moveTo(720, 410);
+    ctx.lineTo(720, 500);
+    ctx.lineTo(820, 500);
+    ctx.lineTo(820, 538);
+    ctx.moveTo(842, 560);
+    ctx.lineTo(850, 560);
+    ctx.moveTo(950, 560);
+    ctx.lineTo(1030, 560);
+    ctx.lineTo(1030, 500);
+    ctx.lineTo(720, 500);
+    ctx.stroke();
+
+    drawBulb(ctx, 820, 560, brightness, 'Bulb');
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '700 13px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(emf === 0 ? 'Stationary magnet: ε = 0' : emf > 0 ? 'Approaching: deflection +' : 'Withdrawing: deflection −', 70, 690);
+}
+
+function drawBulb(ctx: CanvasRenderingContext2D, x: number, y: number, brightness: number, label?: string) {
+    if (brightness > 0.02) {
+        ctx.save();
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, 60 * brightness);
+        glow.addColorStop(0, `rgba(250,204,21,${0.8 * brightness})`);
+        glow.addColorStop(1, 'rgba(250,204,21,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, 60 * brightness, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+    ctx.fillStyle = brightness > 0.05 ? `rgba(250,204,21,${0.4 + brightness * 0.6})` : '#1e293b';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y + 3);
+    ctx.quadraticCurveTo(x, y - 8, x + 10, y + 3);
+    ctx.stroke();
+    if (label) {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '700 12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x, y + 45);
+    }
+}
+
+function drawGalvanometer(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    emf: number,
+    angleRef: React.MutableRefObject<number>
+) {
+    const targetAngle = clamp(emf, -50, 50);
+    angleRef.current = angleRef.current * 0.85 + targetAngle * 0.15;
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 50, Math.PI, 0);
+    ctx.lineTo(x - 50, y);
+    ctx.fill();
+    ctx.stroke();
+
+    for (const angle of [-50, -30, 0, 30, 50]) {
+        const a = (-90 + angle) * Math.PI / 180;
+        ctx.strokeStyle = '#64748b';
+        ctx.beginPath();
+        ctx.moveTo(x + Math.cos(a) * 38, y + Math.sin(a) * 38);
+        ctx.lineTo(x + Math.cos(a) * 46, y + Math.sin(a) * 46);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '800 13px Inter, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('−', x - 40, y - 10);
+    ctx.fillText('0', x, y - 42);
+    ctx.fillText('+', x + 40, y - 10);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((angleRef.current * Math.PI) / 180);
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-3, -42);
+    ctx.lineTo(3, -42);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '900 16px Inter, monospace';
+    ctx.fillText('G', x, y + 30);
+}
+
+function drawFluxMeter(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, flux: number) {
+    ctx.fillStyle = '#1e293b';
+    roundRect(ctx, x, y, w, h, 8);
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    roundRect(ctx, x, y + h - flux * h, w, flux * h, 8);
+    ctx.fill();
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, w, h, 8);
+    ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '800 16px Inter, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Φ', x + w / 2, y - 12);
+    ctx.font = '700 12px Inter, sans-serif';
+    ctx.fillText(`${Math.round(flux * 100)}%`, x + w / 2, y + h + 22);
+}
+
+function drawFaradayReadouts(ctx: CanvasRenderingContext2D, flux: number, emf: number, velocity: number) {
+    ctx.fillStyle = 'rgba(2,6,23,0.78)';
+    roundRect(ctx, 38, 92, 360, 96, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(148,163,184,0.25)';
+    ctx.stroke();
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '800 15px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('NCERT observations', 58, 120);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '600 12px Inter, sans-serif';
+    ctx.fillText('Moving magnet → changing ΦB → induced ε', 58, 144);
+    ctx.fillText('Lenz current opposes the change that produced it', 58, 166);
+
+    ctx.fillStyle = '#020617';
+    roundRect(ctx, 470, 650, 350, 60, 12);
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    ctx.font = '800 14px Inter, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`ΦB = ${flux.toFixed(2)} Wb (relative)`, 575, 684);
+    ctx.fillStyle = emf >= 0 ? '#22c55e' : '#f59e0b';
+    ctx.fillText(`ε = ${emf.toFixed(1)} V`, 705, 684);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText(`v = ${velocity.toFixed(0)} px/s`, 790, 684);
+}
+
+function drawGeneratorApparatus(
+    ctx: CanvasRenderingContext2D,
+    theta: number,
+    degrees: number,
+    omega: number,
+    emf: number,
+    showFieldLines: boolean
+) {
+    const cx = 300;
+    const cy = 300;
+    ctx.fillStyle = '#ef4444';
+    roundRect(ctx, 80, 190, 60, 220, 10);
+    ctx.fill();
+    ctx.fillStyle = '#3b82f6';
+    roundRect(ctx, 460, 190, 60, 220, 10);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 26px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('N', 110, 310);
+    ctx.fillText('S', 490, 310);
+
+    if (showFieldLines) {
+        for (let y = 220; y <= 380; y += 26) {
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(140, y);
+            ctx.lineTo(460, y);
+            ctx.stroke();
+            drawArrowHead(ctx, 300, y, 0, '#94a3b8', 10);
+        }
+    }
+
+    const coilHalfW = 80 * Math.abs(Math.cos(theta));
+    const glow = Math.abs(Math.sin(theta));
+    ctx.save();
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 30 * glow;
+    ctx.strokeStyle = '#f59e0b';
+    if (Math.abs(Math.cos(theta)) < 0.05) {
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(cx, 230);
+        ctx.lineTo(cx, 370);
+        ctx.stroke();
+    } else {
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(cx - coilHalfW, 230);
+        ctx.lineTo(cx + coilHalfW, 230);
+        ctx.lineTo(cx + coilHalfW, 370);
+        ctx.lineTo(cx - coilHalfW, 370);
+        ctx.closePath();
+        ctx.stroke();
+    }
+    ctx.restore();
+
+    const stage = getGeneratorStage(degrees);
+    ctx.fillStyle = 'rgba(2,6,23,0.76)';
+    roundRect(ctx, 174, 154, 252, 32, 10);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(250,204,21,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#facc15';
+    ctx.font = '800 13px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${stage}  θ=${degrees.toFixed(0)}°`, cx, 175);
+
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx, 205, 20, 0.15, Math.PI * 1.55);
+    ctx.stroke();
+    drawArrowHead(ctx, cx - 4, 185, -2.4, '#d97706', 10);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '700 13px Inter, monospace';
+    ctx.fillText(`ω = ${omega.toFixed(1)} rad/s`, cx, 445);
+
+    drawSlipRingsAndBrushes(ctx, cx, 390);
+    drawBulb(ctx, 300, 525, clamp(Math.abs(emf) / Math.max(omega, 1), 0, 1), 'External lamp');
+
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(260, 430);
+    ctx.lineTo(260, 485);
+    ctx.lineTo(278, 510);
+    ctx.moveTo(340, 430);
+    ctx.lineTo(340, 485);
+    ctx.lineTo(322, 510);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(2,6,23,0.76)';
+    roundRect(ctx, 54, 94, 310, 60, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(148,163,184,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#3b82f6';
+    ctx.font = '800 15px Inter, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('ΦB = BA cos(ωt)', 76, 122);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('ε = NBAω sin(ωt)', 76, 145);
+}
+
+function drawSlipRingsAndBrushes(ctx: CanvasRenderingContext2D, cx: number, y: number) {
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(cx - 40, y + 14, 12, -Math.PI * 0.65, Math.PI * 0.9);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx + 40, y + 14, 12, Math.PI * 0.1, Math.PI * 1.65);
+    ctx.stroke();
+
+    ctx.fillStyle = '#475569';
+    roundRect(ctx, cx - 52, y + 38, 24, 12, 3);
+    ctx.fill();
+    roundRect(ctx, cx + 28, y + 38, 24, 12, 3);
+    ctx.fill();
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '700 11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('slip rings + carbon brushes', cx, y + 74);
+}
+
+function drawACGraphPanel(
+    ctx: CanvasRenderingContext2D,
+    flux: number,
+    emf: number,
+    peakEmf: number,
+    omega: number,
+    turns: number,
+    theta: number,
+    showStageLabels: boolean,
+    fluxHistory: number[],
+    emfHistory: number[]
+) {
+    const x = 580;
+    const y = 60;
+    const w = 670;
+    const h = 640;
+    ctx.fillStyle = 'rgba(15,23,42,0.94)';
+    roundRect(ctx, x, y, w, h, 16);
+    ctx.fill();
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    drawTimeGraph(ctx, x + 40, y + 54, w - 80, 240, fluxHistory, 1, '#3b82f6', 'Magnetic Flux  Φ(t) = NAB cos(ωt)', `Φ = ${flux.toFixed(2)}`, theta, showStageLabels, false);
+    drawTimeGraph(ctx, x + 40, y + 368, w - 80, 240, emfHistory, peakEmf, '#ef4444', 'Induced EMF  ε(t) = NBAω sin(ωt)', `ε = ${emf.toFixed(2)} V`, theta, showStageLabels, true);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '800 13px Inter, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`ε₀ = NBAω = ${turns} × B × A × ${omega.toFixed(1)}  (peak ∝ Nω)`, x + 42, y + h - 18);
+}
+
+function drawTimeGraph(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    data: number[],
+    amplitude: number,
+    color: string,
+    title: string,
+    readout: string,
+    theta: number,
+    stageLabels: boolean,
+    emfGraph: boolean
+) {
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '800 13px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(title, x, y - 24);
+    ctx.fillStyle = color;
+    ctx.textAlign = 'right';
+    ctx.fillText(readout, x + w, y - 24);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const gy = y + (h * i) / 4;
+        ctx.beginPath();
+        ctx.moveTo(x, gy);
+        ctx.lineTo(x + w, gy);
+        ctx.stroke();
+    }
+    ctx.strokeStyle = '#64748b';
+    ctx.beginPath();
+    ctx.moveTo(x, y + h / 2);
+    ctx.lineTo(x + w, y + h / 2);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + h);
+    ctx.stroke();
+
+    if (stageLabels) {
+        const cycle = Math.PI * 2;
+        const visibleSpan = cycle;
+        const startAngle = theta - visibleSpan;
+        const markers = [
+            { a: Math.PI / 2, label: '90°/MAX' },
+            { a: Math.PI, label: '180°/0' },
+            { a: Math.PI * 1.5, label: '270°/−MAX' },
+        ];
+        for (const marker of markers) {
+            let markerAngle = marker.a;
+            while (markerAngle < startAngle) markerAngle += cycle;
+            while (markerAngle > theta) markerAngle -= cycle;
+            const gx = x + ((markerAngle - startAngle) / visibleSpan) * w;
+            if (gx >= x && gx <= x + w) {
+                ctx.save();
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#facc15';
+                ctx.beginPath();
+                ctx.moveTo(gx, y);
+                ctx.lineTo(gx, y + h);
+                ctx.stroke();
+                ctx.restore();
+                ctx.fillStyle = '#facc15';
+                ctx.font = '700 11px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(marker.label, gx, y + 14);
+            }
+        }
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    data.forEach((value, i) => {
+        const gx = x + (i / (HISTORY_SIZE - 1)) * w;
+        const gy = y + h / 2 - (value / amplitude) * (h * 0.42);
+        if (i === 0) ctx.moveTo(gx, gy);
+        else ctx.lineTo(gx, gy);
+    });
+    ctx.stroke();
+
+    if (emfGraph) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '700 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('T/4', x + w * 0.25, y + h + 20);
+        ctx.fillText('T/2', x + w * 0.5, y + h + 20);
+        ctx.fillText('3T/4', x + w * 0.75, y + h + 20);
+        ctx.fillText('T', x + w, y + h + 20);
+        ctx.fillStyle = '#facc15';
+        ctx.fillText('MAX', x + w * 0.25, y + 30);
+        ctx.fillText('−MAX', x + w * 0.75, y + h - 18);
+    } else {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '700 11px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('max', x + 8, y + 14);
+        ctx.fillText('0', x + 8, y + h / 2 - 6);
+        ctx.fillText('−max', x + 8, y + h - 8);
+    }
+}
+
+function drawMotionalApparatus(
+    ctx: CanvasRenderingContext2D,
+    bField: number,
+    velocity: number,
+    emf: number,
+    current: number,
+    force: number,
+    showFieldLines: boolean,
+    rodX: number,
+    rodTrail: TrailParticle[]
+) {
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(100, 240);
+    ctx.lineTo(900, 240);
+    ctx.moveTo(100, 480);
+    ctx.lineTo(900, 480);
+    ctx.stroke();
+
+    if (showFieldLines) {
+        for (let col = 0; col < 10; col++) {
+            for (let row = 0; row < 4; row++) {
+                drawCrossField(ctx, 150 + col * 75, 285 + row * 45, clamp(bField / 5, 0.3, 1));
+            }
+        }
+    }
+
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(900, 240);
+    ctx.lineTo(950, 240);
+    ctx.lineTo(950, 338);
+    ctx.moveTo(950, 382);
+    ctx.lineTo(950, 480);
+    ctx.lineTo(900, 480);
+    ctx.stroke();
+    drawBulb(ctx, 950, 360, clamp(Math.abs(emf) / 20, 0, 1), 'Load');
+
+    for (const p of rodTrail) {
+        const alpha = p.life / p.maxLife;
+        ctx.fillStyle = `rgba(245,158,11,${alpha * 0.45})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5 * alpha, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.save();
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 20 * clamp(Math.abs(velocity) / 10, 0, 1);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(rodX, 240);
+    ctx.lineTo(rodX, 480);
+    ctx.stroke();
+    ctx.restore();
+
+    drawDoubleArrow(ctx, rodX + 26, 240, rodX + 26, 480, '#cbd5e1');
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '800 14px Inter, monospace';
+    ctx.fillText('l', rodX + 42, 365);
+
+    drawArrow(ctx, rodX, 360, rodX + Math.sign(velocity) * (54 + Math.abs(velocity) * 5), 360, '#22c55e', 4);
+    ctx.fillStyle = '#22c55e';
+    ctx.font = '800 14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('v', rodX + Math.sign(velocity) * 82, 350);
+
+    drawArrow(ctx, rodX, 420, rodX - Math.sign(force || velocity) * (45 + Math.min(70, Math.abs(force) * 18)), 420, '#ef4444', 4);
+    ctx.fillStyle = '#ef4444';
+    ctx.font = '800 13px Inter, sans-serif';
+    ctx.fillText('F = B²l²v/R opposes motion', rodX - Math.sign(force || velocity) * 95, 444);
+
+    const arrowColor = '#22c55e';
+    const alpha = clamp(Math.abs(current) / 2, 0.15, 1);
+    ctx.globalAlpha = alpha;
+    const direction = Math.sign(current || 1);
+    for (let x = 160; x < 860; x += 80) {
+        drawArrowHead(ctx, x, direction > 0 ? 240 : 480, direction > 0 ? Math.PI : 0, arrowColor, 9);
+        drawArrowHead(ctx, x, direction > 0 ? 480 : 240, direction > 0 ? 0 : Math.PI, arrowColor, 9);
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = 'rgba(2,6,23,0.74)';
+    roundRect(ctx, 84, 560, 760, 72, 14);
+    ctx.fill();
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '800 15px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Lenz law in the sliding rod: induced current creates magnetic force opposite to motion.', 110, 594);
+    ctx.fillStyle = '#facc15';
+    ctx.font = '800 14px Inter, monospace';
+    ctx.fillText(`ε = ${emf.toFixed(1)} V   I = ${current.toFixed(2)} A   direction reverses when rod bounces`, 110, 618);
+}
+
+function drawMotionalFormulaPanel(
+    ctx: CanvasRenderingContext2D,
+    bField: number,
+    length: number,
+    velocity: number,
+    resistance: number,
+    emf: number,
+    current: number,
+    force: number
+) {
+    ctx.fillStyle = '#1e293b';
+    roundRect(ctx, 920, 100, 330, 430, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(148,163,184,0.25)';
+    ctx.stroke();
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '900 24px Inter, monospace';
+    ctx.fillText('ε = Blv', 950, 150);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '800 17px Inter, monospace';
+    ctx.fillText('I = ε/R = Blv/R', 950, 188);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('F = BIl = B²l²v/R', 950, 224);
+
+    const rows = [
+        `B = ${bField.toFixed(1)} T`,
+        `l = ${length.toFixed(1)} m`,
+        `v = ${velocity.toFixed(1)} m/s`,
+        `R = ${resistance.toFixed(0)} Ω`,
+        `ε = ${emf.toFixed(1)} V`,
+        `I = ${current.toFixed(2)} A`,
+        `F = ${force.toFixed(2)} N`,
+    ];
+    ctx.font = '800 15px Inter, monospace';
+    rows.forEach((row, i) => {
+        ctx.fillStyle = i >= 4 ? '#facc15' : '#cbd5e1';
+        ctx.fillText(row, 950, 274 + i * 28);
+    });
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '800 13px Inter, sans-serif';
+    ctx.fillText("Lenz's Law: Force OPPOSES motion", 950, 494);
+}
+
+function drawCrossField(ctx: CanvasRenderingContext2D, x: number, y: number, opacity: number) {
+    ctx.strokeStyle = `rgba(59,130,246,${opacity * 0.55})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.moveTo(x - 5, y - 5);
+    ctx.lineTo(x + 5, y + 5);
+    ctx.moveTo(x + 5, y - 5);
+    ctx.lineTo(x - 5, y + 5);
+    ctx.stroke();
+}
+
+function getGeneratorStage(degrees: number) {
+    if (degrees < 20 || degrees > 340) return 'Stage 1: ε = 0 (Φ max)';
+    if (degrees > 70 && degrees < 110) return 'Stage 2: ε = ε₀ (MAX)';
+    if (degrees > 160 && degrees < 200) return 'Stage 3: ε = 0';
+    if (degrees > 250 && degrees < 290) return 'Stage 4: ε = −ε₀ (MAX)';
+    return 'Rotating armature';
+}
+
+function pushHistory(history: number[], value: number) {
+    history.push(value);
+    if (history.length > HISTORY_SIZE) history.shift();
+}
+
+function tabClass(active: boolean) {
+    return `flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-extrabold transition-all ${
+        active
+            ? 'border-2 border-amber-400 bg-amber-100 text-amber-800 shadow-sm'
+            : 'border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100'
+    }`;
+}
+
+function GraphCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+    return (
+        <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+            <div className="mb-2">
+                <div className="text-lg font-extrabold text-white">{title}</div>
+                <div className="mt-1 text-sm font-semibold text-slate-300">{subtitle}</div>
+            </div>
+            {children}
+        </div>
+    );
+}
+
+function HistorySvg({
+    data,
+    amplitude,
+    color,
+    yLabel,
+    xLabel,
+    readout,
+    stageMarkers = false,
+}: {
+    data: number[];
+    amplitude: number;
+    color: string;
+    yLabel: string;
+    xLabel: string;
+    readout: string;
+    stageMarkers?: boolean;
+}) {
+    const graphW = 300;
+    const graphH = 178;
+    const safeAmplitude = Math.max(0.001, amplitude);
+    const path = historyPath(data, graphW, graphH, safeAmplitude);
+    const markers = [
+        { x: graphW * 0.25, label: '90°/MAX' },
+        { x: graphW * 0.5, label: '180°/0' },
+        { x: graphW * 0.75, label: '270°/-MAX' },
+    ];
+
+    return (
+        <svg viewBox={`0 0 ${graphW + 58} ${graphH + 62}`} className="h-[238px] w-full">
+            <g transform="translate(42 12)">
+                <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.55)" strokeWidth="1.4" />
+                {[1, 2, 3].map((line) => (
+                    <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.16)" />
+                ))}
+                <line x1="0" x2={graphW} y1={graphH / 2} y2={graphH / 2} stroke="rgba(226,232,240,0.3)" strokeDasharray="4 5" />
+                {stageMarkers && markers.map((marker) => (
+                    <g key={marker.label}>
+                        <line x1={marker.x} x2={marker.x} y1="0" y2={graphH} stroke="#facc15" strokeDasharray="5 6" opacity="0.75" />
+                        <text x={marker.x} y="12" textAnchor="middle" className="fill-amber-200 text-[10px] font-bold">{marker.label}</text>
+                    </g>
+                ))}
+                <path d={path} fill="none" stroke={color} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                <text x="-32" y="-3" className="fill-slate-400 text-[11px] font-bold">{yLabel}</text>
+                <text x={graphW / 2} y={graphH + 38} textAnchor="middle" className="fill-slate-400 text-[11px]">{xLabel}</text>
+                <text x={graphW - 4} y={graphH - 9} textAnchor="end" className="fill-slate-300 text-[12px] font-bold">{readout}</text>
+            </g>
+        </svg>
+    );
+}
+
+function historyPath(data: number[], graphW: number, graphH: number, amplitude: number) {
+    if (data.length === 0) return `M0 ${graphH / 2}`;
+    return data.map((value, index) => {
+        const x = (index / Math.max(1, HISTORY_SIZE - 1)) * graphW;
+        const y = graphH / 2 - (clamp(value / amplitude, -1, 1) * graphH * 0.42);
+        return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+    }).join(' ');
+}
+
+function ToggleButton({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+    return (
+        <button
+            onClick={onClick}
+            className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition-all ${
+                active ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+            }`}
+        >
+            {active ? <Eye size={18} /> : <EyeOff size={18} />}
+            {label}
+        </button>
+    );
+}
+
+function ControlButton({ onClick, icon, label }: { onClick: () => void; icon: React.ReactNode; label: string }) {
+    return (
+        <button
+            onClick={onClick}
+            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
+        >
+            {icon}
+            {label}
+        </button>
+    );
+}
+
+function SliderCard({ label, value, children }: { label: string; value: string; children: React.ReactNode }) {
+    return (
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-sm font-extrabold uppercase tracking-wide text-slate-600">{label}</span>
+                <span className="rounded-lg bg-slate-100 px-3 py-1 font-mono text-sm font-bold text-slate-800">{value}</span>
+            </div>
+            <div className="space-y-2">{children}</div>
+        </div>
+    );
+}
+
+const modeInfo: Record<SimulationMode, { primary: string; secondary: string }> = {
+    faraday: {
+        primary: 'ε = −N dΦB/dt',
+        secondary: "Drag the bar magnet toward or away from the coil. EMF is induced ONLY when flux is CHANGING. Lenz's law determines direction.",
+    },
+    acgenerator: {
+        primary: 'ε = NBAω sin(ωt)   ε₀ = NBAω',
+        secondary: 'At θ=0°: Φ is max, ε=0. At θ=90°: Φ changes fastest, ε=ε₀. Frequency in India: 50 Hz.',
+    },
+    motional: {
+        primary: 'ε = Blv',
+        secondary: "A rod of length l moving at velocity v in field B generates EMF. Induced current creates force opposing motion (Lenz's law).",
+    },
+};
+
+const sideInfo: Record<SimulationMode, { title: string; points: string[] }> = {
+    faraday: {
+        title: "Faraday's law",
+        points: [
+            'Magnetic flux: ΦB = B · A = BA cos θ.',
+            'Single loop: ε = −dΦB/dt.',
+            'N-turn coil: ε = −N dΦB/dt.',
+            "Lenz's law: induced current opposes the flux change.",
+        ],
+    },
+    acgenerator: {
+        title: 'AC generator',
+        points: [
+            'Flux: ΦB = BA cos(ωt).',
+            'EMF: ε = NBAω sin(ωt).',
+            'Peak EMF: ε₀ = NBAω.',
+            'At 90° and 270°, EMF magnitude is maximum.',
+        ],
+    },
+    motional: {
+        title: 'Motional EMF',
+        points: [
+            'Rod moving in field: ε = Blv.',
+            'Current: I = ε/R = Blv/R.',
+            'Opposing force: F = BIl = B²l²v/R.',
+            "Lenz's law makes the force oppose the rod motion.",
+        ],
+    },
+};
+
+function getReadoutItems(
+    mode: SimulationMode,
+    values: LiveValues,
+    angularSpeed: number,
+    turns: number,
+    magneticField: number,
+    rodVelocity: number,
+    resistance: number
+) {
+    if (mode === 'faraday') {
+        return [
+            { label: 'Flux linked', value: `${values.flux.toFixed(2)} Wb`, color: 'text-amber-700', bg: 'bg-amber-50' },
+            { label: 'Induced EMF', value: `${values.emf.toFixed(1)} V`, color: values.emf >= 0 ? 'text-emerald-700' : 'text-orange-700', bg: 'bg-emerald-50' },
+            { label: 'Magnet speed', value: `${values.velocity.toFixed(0)} px/s`, color: 'text-sky-700', bg: 'bg-sky-50' },
+            { label: 'Bulb status', value: Math.abs(values.emf) > 0.5 ? 'Glowing' : 'Dark', color: 'text-slate-800', bg: 'bg-slate-50' },
+        ];
+    }
+
+    if (mode === 'acgenerator') {
+        return [
+            { label: 'Angle θ', value: `${values.angle.toFixed(0)}°`, color: 'text-amber-700', bg: 'bg-amber-50' },
+            { label: 'Frequency', value: `${values.frequency.toFixed(2)} Hz`, color: 'text-blue-700', bg: 'bg-blue-50' },
+            { label: 'Turns N', value: `${turns}`, color: 'text-slate-800', bg: 'bg-slate-50' },
+            { label: 'Angular speed', value: `${angularSpeed.toFixed(1)} rad/s`, color: 'text-purple-700', bg: 'bg-purple-50' },
+            { label: 'Peak EMF ε0', value: `${values.peakEmf.toFixed(0)} rel. V`, color: 'text-rose-700', bg: 'bg-rose-50' },
+            { label: 'Instant EMF', value: `${values.emf.toFixed(2)} V`, color: 'text-red-700', bg: 'bg-red-50' },
+        ];
+    }
+
+    return [
+        { label: 'Magnetic field', value: `${magneticField.toFixed(1)} T`, color: 'text-blue-700', bg: 'bg-blue-50' },
+        { label: 'Rod velocity', value: `${values.velocity.toFixed(1)} m/s`, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+        { label: 'Resistance', value: `${resistance} Ω`, color: 'text-slate-800', bg: 'bg-slate-50' },
+        { label: 'Motional EMF', value: `${values.emf.toFixed(1)} V`, color: 'text-amber-700', bg: 'bg-amber-50' },
+        { label: 'Current', value: `${values.current.toFixed(2)} A`, color: 'text-yellow-700', bg: 'bg-yellow-50' },
+        { label: 'Opposing force', value: `${values.force.toFixed(2)} N`, color: 'text-rose-700', bg: 'bg-rose-50' },
+        { label: 'Slider speed', value: `${rodVelocity.toFixed(1)} m/s`, color: 'text-purple-700', bg: 'bg-purple-50' },
+    ];
+}
+
+function clamp(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function quadraticPoint(a: number, b: number, c: number, t: number) {
+    return (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c;
+}
+
+function drawArrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color: string, width: number) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    drawArrowHead(ctx, x2, y2, Math.atan2(y2 - y1, x2 - x1), color, 12);
+}
+
+function drawDoubleArrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color: string) {
+    drawArrow(ctx, x1, y1, x2, y2, color, 2);
+    drawArrowHead(ctx, x1, y1, Math.atan2(y1 - y2, x1 - x2), color, 10);
+}
+
+function drawArrowHead(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, color: string, size: number) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - size * Math.cos(angle - 0.45), y - size * Math.sin(angle - 0.45));
+    ctx.lineTo(x - size * Math.cos(angle + 0.45), y - size * Math.sin(angle + 0.45));
+    ctx.closePath();
+    ctx.fill();
+}
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
 }
 
 export default ElectromagneticInductionLab;
-
