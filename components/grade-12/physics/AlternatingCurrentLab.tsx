@@ -7,12 +7,35 @@ interface ACLabProps {
   onExit: () => void;
 }
 
-type SimulationMode = 'transformer' | 'transmission';
+type SimulationMode = 'transformer' | 'transmission' | 'rlc';
+
+interface RLCValues {
+  resistance: number;
+  inductanceH: number;
+  capacitanceF: number;
+  frequency: number;
+  omega: number;
+  xl: number;
+  xc: number;
+  reactance: number;
+  impedance: number;
+  phiRad: number;
+  phiDeg: number;
+  im: number;
+  irms: number;
+  vrms: number;
+  power: number;
+  cosPhi: number;
+  resonantFrequency: number;
+  qFactor: number;
+  isResonant: boolean;
+}
 
 const CANVAS_W = 1280;
 const CANVAS_H = 760;
 const HISTORY_SIZE = 200;
 const OMEGA_VISUAL = 2 * Math.PI * 1.5; // visual angular frequency (not real 50Hz)
+const RLC_VM = 220;
 
 // ── Helper utilities ──────────────────────────────────────────────────────────
 
@@ -101,6 +124,62 @@ function strokeWire(ctx: CanvasRenderingContext2D, path: WirePath, color: string
   ctx.stroke();
 }
 
+function getRLCValues(
+  resistance: number,
+  inductanceMh: number,
+  capacitanceUf: number,
+  frequency: number
+): RLCValues {
+  const inductanceH = inductanceMh / 1000;
+  const capacitanceF = capacitanceUf * 1e-6;
+  const omega = 2 * Math.PI * frequency;
+  const xl = omega * inductanceH;
+  const xc = 1 / Math.max(omega * capacitanceF, 1e-12);
+  const reactance = xc - xl;
+  const impedance = Math.sqrt(resistance * resistance + reactance * reactance);
+  const safeImpedance = Math.max(impedance, 0.001);
+  const phiRad = Math.atan2(reactance, resistance);
+  const cosPhi = impedance > 0 ? clamp(resistance / impedance, 0, 1) : 1;
+  const im = RLC_VM / safeImpedance;
+  const irms = im / Math.SQRT2;
+  const vrms = RLC_VM / Math.SQRT2;
+  const power = vrms * irms * cosPhi;
+  const resonantFrequency =
+    inductanceH > 0 && capacitanceF > 0
+      ? 1 / (2 * Math.PI * Math.sqrt(inductanceH * capacitanceF))
+      : Infinity;
+  const qFactor =
+    resistance > 0 && Number.isFinite(resonantFrequency)
+      ? (2 * Math.PI * resonantFrequency * inductanceH) / resistance
+      : Infinity;
+  const resonanceError =
+    Number.isFinite(resonantFrequency)
+      ? Math.abs(frequency - resonantFrequency) / Math.max(resonantFrequency, 1)
+      : Infinity;
+
+  return {
+    resistance,
+    inductanceH,
+    capacitanceF,
+    frequency,
+    omega,
+    xl,
+    xc,
+    reactance,
+    impedance,
+    phiRad,
+    phiDeg: (phiRad * 180) / Math.PI,
+    im,
+    irms,
+    vrms,
+    power,
+    cosPhi,
+    resonantFrequency,
+    qFactor,
+    isResonant: resonanceError <= 0.04,
+  };
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
@@ -116,6 +195,12 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
   const [secondaryTurns, setSecondaryTurns] = useState(200);
   const [inputVoltagePeak, setInputVoltagePeak] = useState(220);
   const [showLosses, setShowLosses] = useState(false);
+
+  // Series RLC controls (NCERT Sections 7.4-7.7)
+  const [rlcResistance, setRlcResistance] = useState(60);
+  const [rlcInductance, setRlcInductance] = useState(120);
+  const [rlcCapacitance, setRlcCapacitance] = useState(47);
+  const [rlcFrequency, setRlcFrequency] = useState(60);
 
   // Sim time
   const tRef = useRef(0);
@@ -162,6 +247,8 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
     psW: 707.7,
     transformerType: 'STEP-UP',
   });
+
+  const rlcValues = getRLCValues(rlcResistance, rlcInductance, rlcCapacitance, rlcFrequency);
 
   // ── Canvas init (fixed 1280×760, once on mount) ──────────────────────────────
   useEffect(() => {
@@ -283,6 +370,12 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
           secondaryTopDotsRef.current, secondaryBotDotsRef.current,
           efficiency, ipRms, isRms, vpRms, vsRms, ppW, psW
         );
+      } else if (mode === 'rlc') {
+        drawRLCCircuitMode(
+          ctx,
+          t,
+          getRLCValues(rlcResistance, rlcInductance, rlcCapacitance, rlcFrequency)
+        );
       } else {
         drawTransmissionMode(ctx, t, omega, transDotsRef.current);
       }
@@ -292,7 +385,18 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
 
     animRef.current = requestAnimationFrame(render);
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [mode, isPlaying, primaryTurns, secondaryTurns, inputVoltagePeak, showLosses]);
+  }, [
+    mode,
+    isPlaying,
+    primaryTurns,
+    secondaryTurns,
+    inputVoltagePeak,
+    showLosses,
+    rlcResistance,
+    rlcInductance,
+    rlcCapacitance,
+    rlcFrequency,
+  ]);
 
   // ── Derived values for controls display ──────────────────────────────────────
   const ratio = (secondaryTurns / primaryTurns).toFixed(2);
@@ -303,6 +407,15 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
       ? 'STEP-DOWN ▼'
       : 'ISOLATION =';
   const vpRmsDisplay = (inputVoltagePeak / Math.SQRT2).toFixed(1);
+  const rlcReadoutItems = [
+    { label: 'XL = omega L', value: `${rlcValues.xl.toFixed(1)} Ohm`, color: 'text-blue-700', bg: 'bg-blue-50' },
+    { label: 'XC = 1 / omega C', value: `${rlcValues.xc.toFixed(1)} Ohm`, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Impedance Z', value: `${rlcValues.impedance.toFixed(1)} Ohm`, color: 'text-slate-800', bg: 'bg-slate-50' },
+    { label: 'Phase phi', value: `${rlcValues.phiDeg.toFixed(1)} deg`, color: rlcValues.phiDeg >= 0 ? 'text-orange-700' : 'text-indigo-700', bg: rlcValues.phiDeg >= 0 ? 'bg-orange-50' : 'bg-indigo-50' },
+    { label: 'Peak current Im', value: `${rlcValues.im.toFixed(2)} A`, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Power factor', value: `${rlcValues.cosPhi.toFixed(3)}`, color: 'text-purple-700', bg: 'bg-purple-50' },
+    { label: 'Resonant nu0', value: `${Number.isFinite(rlcValues.resonantFrequency) ? rlcValues.resonantFrequency.toFixed(1) : 'inf'} Hz`, color: 'text-rose-700', bg: 'bg-rose-50' },
+  ];
 
   // ── Side panels (layout standard) ────────────────────────────────────────────
   const graphPanel = (
@@ -310,9 +423,9 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
       <div className="flex flex-col gap-3">
         {mode === 'transformer' && (
           <>
-            <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
-              <div className="text-lg font-extrabold text-white">Voltage Waveforms</div>
-              <div className="mt-1 text-sm font-semibold text-slate-300">Vp(t) vs Vs(t) — same phase, scaled by Ns/Np</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+              <div className="text-lg font-extrabold text-slate-950">Voltage Waveforms</div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">Vp(t) vs Vs(t) — same phase, scaled by Ns/Np</div>
               <WaveformSvg
                 series={[
                   { data: vpHistRef.current, color: '#ef4444', label: 'Vp' },
@@ -322,9 +435,9 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
                 readout={`Vp=${liveData.vpRms}V rms  Vs=${liveData.vsRms}V rms`}
               />
             </div>
-            <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
-              <div className="text-lg font-extrabold text-white">Magnetic Flux Φ(t)</div>
-              <div className="mt-1 text-sm font-semibold text-slate-300">Φ lags voltage by 90° (NCERT §7.8)</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+              <div className="text-lg font-extrabold text-slate-950">Magnetic Flux Φ(t)</div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">Φ lags voltage by 90° (NCERT §7.8)</div>
               <WaveformSvg
                 series={[{ data: fluxHistRef.current, color: '#facc15', label: 'Φ' }]}
                 amplitude={Math.max(0.0001, inputVoltagePeak / (primaryTurns * OMEGA_VISUAL))}
@@ -335,11 +448,11 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
           </>
         )}
         {mode === 'transmission' && (
-          <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
-            <div className="text-lg font-extrabold text-white">Power Loss Analysis</div>
-            <div className="mt-1 text-sm font-semibold text-slate-300">Pc = I²Rc — minimized at high V, low I</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+            <div className="text-lg font-extrabold text-slate-950">Power Loss Analysis</div>
+            <div className="mt-1 text-sm font-semibold text-slate-600">Pc = I²Rc — minimized at high V, low I</div>
             <svg viewBox="0 0 340 220" className="mt-2 w-full">
-              <rect x="0" y="0" width="340" height="220" fill="#020617" rx="8" />
+              <rect x="0" y="0" width="340" height="220" fill="#ffffff" rx="8" />
               {[11, 33, 132].map((v, i) => {
                 const barH = Math.max(4, (1 / (v * v)) * 18000);
                 const x = 30 + i * 90;
@@ -358,6 +471,13 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
             </svg>
           </div>
         )}
+        {mode === 'rlc' && (
+          <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+            <div className="text-lg font-extrabold text-white">Resonance Curve</div>
+            <div className="mt-1 text-sm font-semibold text-slate-300">Im vs frequency: peak at nu0</div>
+            <RLCResonanceSvg values={rlcValues} />
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -366,7 +486,11 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
     <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 z-20 hidden w-[310px] 2xl:block">
       <div className="rounded-xl border border-amber-200 bg-amber-50/95 p-4 text-amber-950 shadow-xl backdrop-blur">
         <div className="text-base font-extrabold">
-          {mode === 'transformer' ? 'Transformer — NCERT §7.8' : 'Power Transmission — NCERT §7.8 p.196'}
+          {mode === 'transformer'
+            ? 'Transformer — NCERT §7.8'
+            : mode === 'rlc'
+            ? 'Series RLC Circuit — NCERT §7.4-7.7'
+            : 'Power Transmission — NCERT §7.8 p.196'}
         </div>
         <div className="mt-2 space-y-1.5 text-sm leading-snug text-amber-900">
           {mode === 'transformer' ? (
@@ -377,6 +501,14 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
               <p className="font-bold">Ip × Vp = Is × Vs (Eq. 7.34)</p>
               <p>Is = (Np/Ns) × Ip (Eq. 7.36)</p>
               <p>Efficiency &gt; 95% (well-designed)</p>
+            </>
+          ) : mode === 'rlc' ? (
+            <>
+              <p className="font-bold">Z = sqrt(R^2 + (XC-XL)^2) [NCERT Eq. 7.26]</p>
+              <p>phi = tan^-1((XC-XL)/R) [NCERT Eq. 7.27]</p>
+              <p>omega0 = 1/sqrt(LC) [NCERT Eq. 7.28]</p>
+              <p className="font-bold">P = V I cos phi [summary point 5]</p>
+              <p>Wattless current: cos phi = 0 for pure L or C.</p>
             </>
           ) : (
             <>
@@ -412,6 +544,21 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
               </div>
             ))}
           </div>
+        ) : mode === 'rlc' ? (
+          <div className="grid gap-2">
+            {rlcReadoutItems.map((item) => (
+              <div key={item.label} className={`rounded-lg border border-slate-100 ${item.bg} px-3 py-2.5`}>
+                <div className="text-xs font-bold uppercase tracking-wide text-slate-500">{item.label}</div>
+                <div className={`mt-1 font-mono text-base font-extrabold ${item.color}`}>{item.value}</div>
+              </div>
+            ))}
+            <div className={`rounded-lg border px-3 py-2.5 ${rlcValues.isResonant ? 'border-emerald-200 bg-emerald-50' : 'border-slate-100 bg-slate-50'}`}>
+              <div className="text-xs font-bold uppercase tracking-wide text-slate-500">Resonance status</div>
+              <div className={`mt-1 font-mono text-base font-extrabold ${rlcValues.isResonant ? 'text-emerald-700' : 'text-slate-700'}`}>
+                {rlcValues.isResonant ? 'At resonance' : 'Off resonance'}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="grid gap-2">
             {[
@@ -433,8 +580,8 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
   );
 
   const simulationCombo = (
-    <div className="relative h-full w-full overflow-visible rounded-2xl bg-slate-900 shadow-inner">
-      <div className="relative h-full w-full overflow-hidden rounded-2xl bg-slate-900">
+    <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+      <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full"
@@ -449,7 +596,7 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
   const controlsCombo = (
     <div className="w-full space-y-4 p-4">
       {/* Mode tabs */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <button
           onClick={() => { setMode('transformer'); reset(); }}
           className={tabCls(mode === 'transformer')}
@@ -461,6 +608,12 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
           className={tabCls(mode === 'transmission')}
         >
           <Activity size={18} /> Power Transmission
+        </button>
+        <button
+          onClick={() => { setMode('rlc'); reset(); }}
+          className={tabCls(mode === 'rlc')}
+        >
+          <Activity size={18} /> RLC Circuit
         </button>
       </div>
 
@@ -555,6 +708,63 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
         </div>
       )}
 
+      {mode === 'rlc' && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <RLCSlider
+            label="Resistance R"
+            value={`${rlcResistance} Ohm`}
+            min={0}
+            max={200}
+            step={1}
+            current={rlcResistance}
+            onChange={setRlcResistance}
+            accent="accent-rose-500"
+          />
+          <RLCSlider
+            label="Inductance L"
+            value={`${rlcInductance} mH`}
+            min={0}
+            max={500}
+            step={5}
+            current={rlcInductance}
+            onChange={setRlcInductance}
+            accent="accent-blue-500"
+          />
+          <RLCSlider
+            label="Capacitance C"
+            value={`${rlcCapacitance} uF`}
+            min={1}
+            max={100}
+            step={1}
+            current={rlcCapacitance}
+            onChange={setRlcCapacitance}
+            accent="accent-amber-500"
+          />
+          <RLCSlider
+            label="Frequency nu"
+            value={`${rlcFrequency} Hz`}
+            min={10}
+            max={500}
+            step={1}
+            current={rlcFrequency}
+            onChange={setRlcFrequency}
+            accent="accent-emerald-500"
+          />
+          <div className={`rounded-xl border p-4 text-sm md:col-span-2 ${
+            rlcValues.isResonant
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+              : 'border-slate-200 bg-white text-slate-700'
+          }`}>
+            <div className="font-bold">
+              {rlcValues.isResonant ? 'Resonance: Im maximum, Z = R, cos phi = 1' : 'Tune nu near nu0 to reach resonance'}
+            </div>
+            <div className="mt-1 font-mono text-xs">
+              nu = {rlcValues.frequency.toFixed(1)} Hz | nu0 = {Number.isFinite(rlcValues.resonantFrequency) ? rlcValues.resonantFrequency.toFixed(1) : 'inf'} Hz | Q = {Number.isFinite(rlcValues.qFactor) ? rlcValues.qFactor.toFixed(2) : 'inf'}
+            </div>
+          </div>
+        </div>
+      )}
+
       {mode === 'transmission' && (
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 text-sm space-y-1">
           <p className="font-bold">Step-up at generator → High-V transmission → Step-down at sub-station → 240V homes</p>
@@ -602,6 +812,93 @@ function tabCls(active: boolean) {
   }`;
 }
 
+function RLCSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  current,
+  onChange,
+  accent,
+}: {
+  label: string;
+  value: string;
+  min: number;
+  max: number;
+  step: number;
+  current: number;
+  onChange: (value: number) => void;
+  accent: string;
+}) {
+  return (
+    <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <label className="flex items-center justify-between text-xs font-bold uppercase tracking-wide text-slate-500">
+        <span>{label}</span>
+        <span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-slate-800">{value}</span>
+      </label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={current}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className={`h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 ${accent}`}
+      />
+    </div>
+  );
+}
+
+function RLCResonanceSvg({ values }: { values: RLCValues }) {
+  const graphW = 300;
+  const graphH = 184;
+  const xMin = 10;
+  const xMax = 500;
+  const samples = 110;
+  const currentAt = (frequency: number) =>
+    getRLCValues(values.resistance, values.inductanceH * 1000, values.capacitanceF * 1e6, frequency).im;
+  const rawPoints = Array.from({ length: samples }, (_, index) => {
+    const frequency = xMin + ((xMax - xMin) * index) / (samples - 1);
+    return { frequency, current: currentAt(frequency) };
+  });
+  const maxCurrent = Math.max(values.im, ...rawPoints.map((point) => point.current), 0.1);
+  const mapX = (frequency: number) => ((frequency - xMin) / (xMax - xMin)) * graphW;
+  const mapY = (current: number) => graphH - clamp(current / maxCurrent, 0, 1) * (graphH - 12) - 4;
+  const path = rawPoints
+    .map((point, index) => `${index === 0 ? 'M' : 'L'}${mapX(point.frequency).toFixed(1)} ${mapY(point.current).toFixed(1)}`)
+    .join(' ');
+  const currentX = mapX(values.frequency);
+  const currentY = mapY(values.im);
+  const resonanceX = Number.isFinite(values.resonantFrequency) ? mapX(values.resonantFrequency) : -100;
+
+  return (
+    <svg viewBox={`0 0 ${graphW + 58} ${graphH + 74}`} className="mt-2 h-[240px] w-full">
+      <g transform="translate(42 14)">
+        <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.68)" strokeWidth="1.4" />
+        {[1, 2, 3].map((line) => (
+          <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.24)" />
+        ))}
+        {resonanceX >= 0 && resonanceX <= graphW && (
+          <g>
+            <line x1={resonanceX} x2={resonanceX} y1="0" y2={graphH} stroke="#22c55e" strokeDasharray="6 7" strokeWidth="1.8" />
+            <text x={resonanceX} y="14" textAnchor="middle" className="fill-emerald-300 text-[11px] font-bold">nu0</text>
+          </g>
+        )}
+        <path d={path} fill="none" stroke="#facc15" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={currentX} cy={currentY} r="5.5" fill={values.isResonant ? '#22c55e' : '#38bdf8'} />
+        <text x="-32" y="-4" className="fill-slate-200 text-[11px] font-bold">Im</text>
+        <text x={graphW / 2} y={graphH + 34} textAnchor="middle" className="fill-slate-300 text-[11px] font-semibold">frequency nu (Hz)</text>
+        <text x={graphW - 4} y={graphH - 10} textAnchor="end" className="fill-slate-200 text-[12px] font-bold">
+          Q = {Number.isFinite(values.qFactor) ? values.qFactor.toFixed(2) : 'inf'}
+        </text>
+        <text x="0" y={graphH + 18} className="fill-slate-400 text-[10px] font-bold">10</text>
+        <text x={graphW} y={graphH + 18} textAnchor="end" className="fill-slate-400 text-[10px] font-bold">500 Hz</text>
+      </g>
+    </svg>
+  );
+}
+
 // ── SVG Waveform component (for side panel) ───────────────────────────────────
 
 function WaveformSvg({
@@ -639,7 +936,7 @@ function WaveformSvg({
 
   return (
     <svg viewBox={`0 0 ${totalW} ${totalH}`} className="mt-2 w-full">
-      <rect width={totalW} height={totalH} fill="#020617" rx="8" />
+      <rect width={totalW} height={totalH} fill="#ffffff" rx="8" />
 
       {/* horizontal grid */}
       {[0.25, 0.5, 0.75].map((f) => (
@@ -647,15 +944,15 @@ function WaveformSvg({
           key={f}
           x1={PAD_L} y1={PAD_T + H * f}
           x2={PAD_L + W} y2={PAD_T + H * f}
-          stroke={f === 0.5 ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.07)'}
+          stroke={f === 0.5 ? 'rgba(15,23,42,0.28)' : 'rgba(15,23,42,0.08)'}
           strokeDasharray={f === 0.5 ? '6 5' : undefined}
         />
       ))}
 
       {/* Y axis */}
-      <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + H} stroke="rgba(255,255,255,0.25)" />
+      <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + H} stroke="rgba(15,23,42,0.42)" />
       {/* X axis (bottom of graph) */}
-      <line x1={PAD_L} y1={PAD_T + H} x2={PAD_L + W} y2={PAD_T + H} stroke="rgba(255,255,255,0.18)" />
+      <line x1={PAD_L} y1={PAD_T + H} x2={PAD_L + W} y2={PAD_T + H} stroke="rgba(15,23,42,0.34)" />
 
       {/* axis labels */}
       <text x={PAD_L - 2} y={PAD_T + 10} textAnchor="end" fill="#64748b" fontSize="11" fontWeight="bold">+</text>
@@ -715,10 +1012,10 @@ function WaveformSvg({
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   // grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+  ctx.strokeStyle = 'rgba(15,23,42,0.06)';
   ctx.lineWidth = 1;
   for (let x = 0; x <= CANVAS_W; x += 40) {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, CANVAS_H); ctx.stroke();
@@ -935,14 +1232,14 @@ function drawIronCore(
   // Build gradient color based on flux direction
   const grad = ctx.createLinearGradient(x, y, x + w, y + h);
   if (flux > 0) {
-    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(0, '#f8fafc');
     grad.addColorStop(1, `rgba(239,68,68,${fluxIntensity * 0.3})`);
   } else if (flux < 0) {
-    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(0, '#f8fafc');
     grad.addColorStop(1, `rgba(59,130,246,${fluxIntensity * 0.3})`);
   } else {
-    grad.addColorStop(0, '#1e293b');
-    grad.addColorStop(1, '#1e293b');
+    grad.addColorStop(0, '#f8fafc');
+    grad.addColorStop(1, '#f8fafc');
   }
 
   // outer rect
@@ -956,11 +1253,11 @@ function drawIronCore(
   // hollow center
   ctx.clearRect(x + thick, y + thick, w - thick * 2, h - thick * 2);
   // re-draw background inside hole
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(x + thick, y + thick, w - thick * 2, h - thick * 2);
 
   // lamination lines across walls
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.strokeStyle = 'rgba(15,23,42,0.08)';
   ctx.lineWidth = 1;
   for (let lx = x; lx < x + w; lx += 8) {
     ctx.beginPath();
@@ -970,7 +1267,7 @@ function drawIronCore(
   }
   // re-clip hole after lamination
   ctx.clearRect(x + thick + 1, y + thick + 1, w - thick * 2 - 2, h - thick * 2 - 2);
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(x + thick + 1, y + thick + 1, w - thick * 2 - 2, h - thick * 2 - 2);
 }
 
@@ -1253,6 +1550,240 @@ function drawBottomStrip(
     `Pp = ${ppW.toFixed(0)} W   Ps = ${psW.toFixed(0)} W   Efficiency = ${Math.round(efficiency * 100)}%`,
     col2, y + 100
   );
+}
+
+function drawRLCCircuitMode(ctx: CanvasRenderingContext2D, t: number, values: RLCValues) {
+  const sourceX = 150;
+  const topY = 235;
+  const bottomY = 510;
+  const midY = (topY + bottomY) / 2;
+  const pulse = 0.45 + 0.55 * Math.abs(Math.sin(OMEGA_VISUAL * t));
+  const currentStrength = clamp(values.im / 10, 0.12, 1);
+
+  ctx.save();
+  if (values.isResonant) {
+    ctx.fillStyle = 'rgba(34,197,94,0.10)';
+    roundRect(ctx, 34, 52, CANVAS_W - 68, 650, 24);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(34,197,94,0.55)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '900 30px Inter, sans-serif';
+  ctx.fillText('Series RLC Circuit', 60, 74);
+  ctx.fillStyle = values.isResonant ? '#047857' : '#475569';
+  ctx.font = '800 15px Inter, sans-serif';
+  ctx.fillText(
+    values.isResonant
+      ? 'Resonance: XL = XC, Z = R, power factor = 1'
+      : values.reactance > 0
+      ? 'Capacitive net reactance: current leads source voltage'
+      : 'Inductive net reactance: current lags source voltage',
+    62,
+    102
+  );
+
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(sourceX, topY - 42);
+  ctx.lineTo(sourceX, topY);
+  ctx.lineTo(275, topY);
+  ctx.moveTo(1010, topY);
+  ctx.lineTo(1115, topY);
+  ctx.lineTo(1115, bottomY);
+  ctx.lineTo(sourceX, bottomY);
+  ctx.lineTo(sourceX, topY + 42);
+  ctx.stroke();
+
+  drawACSource(ctx, sourceX, midY, RLC_VM * Math.sin(OMEGA_VISUAL * t), RLC_VM, t, OMEGA_VISUAL);
+  drawResistorSymbol(ctx, 275, topY, 170, '#ef4444');
+  drawInductorSymbol(ctx, 500, topY, 190, '#3b82f6');
+  drawCapacitorSymbol(ctx, 760, topY, '#f59e0b');
+
+  ctx.fillStyle = '#ef4444';
+  ctx.font = '900 18px Inter, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`R = ${values.resistance.toFixed(0)} Ohm`, 360, topY - 42);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillText(`L = ${(values.inductanceH * 1000).toFixed(0)} mH`, 595, topY - 42);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText(`C = ${(values.capacitanceF * 1e6).toFixed(0)} uF`, 820, topY - 42);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '800 14px Inter, monospace';
+  ctx.fillText(`AC source Vm = ${RLC_VM} V, nu = ${values.frequency.toFixed(0)} Hz`, 610, bottomY + 42);
+
+  ctx.save();
+  ctx.globalAlpha = 0.35 + currentStrength * 0.65;
+  ctx.fillStyle = '#facc15';
+  ctx.shadowColor = '#facc15';
+  ctx.shadowBlur = 12 * pulse;
+  const dots: WirePath = [
+    [210, topY],
+    [350, topY],
+    [590, topY],
+    [830, topY],
+    [1080, topY],
+    [1115, 370],
+    [980, bottomY],
+    [700, bottomY],
+    [420, bottomY],
+    [190, bottomY],
+  ];
+  for (let i = 0; i < 18; i++) {
+    const [x, y] = pointOnWire(dots, (i / 18 + (t * 0.18) % 1) % 1);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  drawPhasorDiagram(ctx, 910, 470, values);
+  ctx.restore();
+}
+
+function drawResistorSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  const segments = 8;
+  for (let i = 1; i <= segments; i++) {
+    const px = x + (width * i) / segments;
+    const py = y + (i % 2 === 0 ? -24 : 24);
+    ctx.lineTo(px, py);
+  }
+  ctx.lineTo(x + width + 35, y);
+  ctx.stroke();
+}
+
+function drawInductorSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + 18, y);
+  ctx.stroke();
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.arc(x + 38 + i * 30, y, 17, Math.PI, 0);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + width - 18, y);
+  ctx.lineTo(x + width + 36, y);
+  ctx.stroke();
+}
+
+function drawCapacitorSymbol(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + 58, y);
+  ctx.moveTo(x + 58, y - 42);
+  ctx.lineTo(x + 58, y + 42);
+  ctx.moveTo(x + 90, y - 42);
+  ctx.lineTo(x + 90, y + 42);
+  ctx.moveTo(x + 90, y);
+  ctx.lineTo(x + 250, y);
+  ctx.stroke();
+}
+
+function drawPhasorDiagram(ctx: CanvasRenderingContext2D, cx: number, cy: number, values: RLCValues) {
+  const vr = values.im * values.resistance;
+  const vl = values.im * values.xl;
+  const vc = values.im * values.xc;
+  const vertical = vl - vc;
+  const maxV = Math.max(RLC_VM, Math.abs(vr), Math.abs(vl), Math.abs(vc), 1);
+  const scale = 145 / maxV;
+  const vx = vr * scale;
+  const vy = -vertical * scale;
+
+  ctx.fillStyle = 'rgba(15,23,42,0.92)';
+  roundRect(ctx, cx - 250, cy - 190, 340, 330, 18);
+  ctx.fill();
+  ctx.strokeStyle = values.isResonant ? '#22c55e' : 'rgba(148,163,184,0.35)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = '900 18px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Phasor Diagram', cx - 226, cy - 158);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = '700 12px Inter, sans-serif';
+  ctx.fillText('VR along I, VL ahead, VC behind', cx - 226, cy - 136);
+
+  ctx.strokeStyle = 'rgba(148,163,184,0.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - 210, cy);
+  ctx.lineTo(cx + 58, cy);
+  ctx.moveTo(cx - 76, cy - 122);
+  ctx.lineTo(cx - 76, cy + 122);
+  ctx.stroke();
+
+  drawVector(ctx, cx - 76, cy, cx - 76 + vx, cy, '#ef4444', 'VR');
+  drawVector(ctx, cx - 76 + vx, cy, cx - 76 + vx, cy - vl * scale, '#3b82f6', 'VL');
+  drawVector(ctx, cx - 76 + vx + 18, cy, cx - 76 + vx + 18, cy + vc * scale, '#f59e0b', 'VC');
+  drawVector(ctx, cx - 76, cy, cx - 76 + vx, cy + vy, values.isResonant ? '#22c55e' : '#f8fafc', 'V');
+
+  ctx.fillStyle = values.isResonant ? '#86efac' : '#facc15';
+  ctx.font = '900 13px Inter, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(`phi = ${values.phiDeg.toFixed(1)} deg`, cx - 226, cy + 104);
+  ctx.fillText(`cos phi = ${values.cosPhi.toFixed(3)}`, cx - 72, cy + 104);
+}
+
+function drawVector(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+  label: string
+) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  drawArrowHead(ctx, x2, y2, Math.atan2(y2 - y1, x2 - x1), color, 10);
+  ctx.fillStyle = color;
+  ctx.font = '900 12px Inter, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, x2 + 14, y2 - 8);
+}
+
+function drawRLCReadoutStrip(ctx: CanvasRenderingContext2D, x: number, y: number, values: RLCValues) {
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  roundRect(ctx, x, y, 760, 110, 16);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(148,163,184,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  const rows = [
+    `XL = ${values.xl.toFixed(1)} Ohm    XC = ${values.xc.toFixed(1)} Ohm    Z = ${values.impedance.toFixed(1)} Ohm`,
+    `Im = ${values.im.toFixed(2)} A    P = ${values.power.toFixed(1)} W    cos phi = ${values.cosPhi.toFixed(3)}`,
+    `nu0 = ${Number.isFinite(values.resonantFrequency) ? values.resonantFrequency.toFixed(1) : 'inf'} Hz    omega0 = 1/sqrt(LC)`,
+  ];
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '900 16px Inter, monospace';
+  ctx.fillText('NCERT RLC live values', x + 24, y + 26);
+  rows.forEach((row, index) => {
+    ctx.fillStyle = index === 1 ? '#047857' : '#334155';
+    ctx.font = '800 14px Inter, monospace';
+    ctx.fillText(row, x + 24, y + 52 + index * 23);
+  });
 }
 
 // ── Canvas draw: power transmission mode ─────────────────────────────────────

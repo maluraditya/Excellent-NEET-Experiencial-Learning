@@ -88,7 +88,7 @@ const BANDS: Band[] = [
         x1: 900,
         wavelength: '1 nm – 400 nm',
         frequency: '10¹⁵ – 10¹⁷ Hz',
-        production: 'Inner shell electron transitions in atoms',
+        production: 'Outer shell electron transitions; emitted by hot bodies and arcs',
         application: 'Sterilization; causes sunburn',
     },
     {
@@ -97,7 +97,7 @@ const BANDS: Band[] = [
         color: '#93c5fd',
         x0: 900,
         x1: 1100,
-        wavelength: '10⁻¹³ m – 10⁻⁸ m',
+        wavelength: '10⁻¹⁰ m – 10⁻⁸ m',
         frequency: '10¹⁶ – 10²⁰ Hz',
         production: 'High-energy electrons bombarding metal target',
         application: 'Medical diagnosis; cancer treatment',
@@ -242,11 +242,11 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
                             <MiniWaveGeometry />
                         </InfoGraphCard>
                         <InfoGraphCard title="Maxwell Link" subtitle="Oscillating fields regenerate each other">
-                            <div className="space-y-2 text-sm font-semibold text-slate-200">
-                                <div className="rounded-lg bg-slate-900 px-3 py-2 text-rose-300">Changing E → magnetic field</div>
-                                <div className="rounded-lg bg-slate-900 px-3 py-2 text-sky-300">Changing B → electric field</div>
-                                <div className="rounded-lg bg-slate-900 px-3 py-2 text-emerald-300">E × B → Z propagation</div>
-                                <div className="text-xs leading-relaxed text-slate-400">No material medium is required; the coupled fields carry energy through space.</div>
+                            <div className="space-y-2 text-sm font-semibold text-slate-800">
+                                <div className="rounded-lg bg-rose-50 px-3 py-2 text-rose-700">Changing E → magnetic field</div>
+                                <div className="rounded-lg bg-sky-50 px-3 py-2 text-sky-700">Changing B → electric field</div>
+                                <div className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">E × B → Z propagation</div>
+                                <div className="text-xs leading-relaxed text-slate-600">No material medium is required; the coupled fields carry energy through space.</div>
                             </div>
                         </InfoGraphCard>
                     </>
@@ -256,9 +256,9 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
                             <SpectrumMiniBar />
                         </InfoGraphCard>
                         <InfoGraphCard title="Selected Band" subtitle="Hover the canvas spectrum bar">
-                            <div className="rounded-xl border border-slate-700 bg-slate-900 p-3">
-                                <div className="text-lg font-extrabold text-white">{liveValues.hoveredBand}</div>
-                                <div className="mt-2 text-sm leading-relaxed text-slate-300">
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <div className="text-lg font-extrabold text-slate-950">{liveValues.hoveredBand}</div>
+                                <div className="mt-2 text-sm leading-relaxed text-slate-600">
                                     There is no sharp boundary between neighbouring EM-wave regions.
                                 </div>
                             </div>
@@ -309,8 +309,8 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
     );
 
     const simulationCombo = (
-        <div className="relative h-full w-full overflow-visible rounded-2xl bg-slate-900 shadow-inner">
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-[#0f172a]">
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
                 <canvas
                     ref={canvasRef}
                     width={CANVAS_W}
@@ -430,10 +430,10 @@ const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
 
 function drawBackground(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+    ctx.strokeStyle = 'rgba(15,23,42,0.06)';
     ctx.lineWidth = 1;
     for (let x = 0; x <= CANVAS_W; x += 40) {
         ctx.beginPath();
@@ -547,7 +547,7 @@ function drawWaveMode(
     ctx.fill();
     ctx.restore();
 
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#0f172a';
     ctx.font = 'italic 13px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('E and B are IN PHASE', 735, 120);
@@ -608,28 +608,28 @@ function drawAxes(
 
     ctx.font = '800 13px Inter, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.fillText('Z (Propagation)', zEnd.x - 112, zEnd.y - 12);
     ctx.fillStyle = '#ef4444';
     ctx.fillText('X (Electric Field E)', xEnd.x + 12, xEnd.y - 8);
     ctx.fillStyle = '#3b82f6';
     ctx.fillText('Y (Magnetic Field B)', Math.max(12, yEnd.x + 8), yEnd.y + 24);
 
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 15px Inter, monospace';
     ctx.fillText('c →', 520, 462);
 }
 
 function drawWaveFormulaPanel(ctx: CanvasRenderingContext2D, wavelength: number, speed: number, amplitude: number) {
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     roundRect(ctx, 910, 30, 350, 700, 12);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.strokeStyle = 'rgba(15,23,42,0.12)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.font = '800 11px Inter, sans-serif';
     ctx.fillText('KEY EQUATIONS', 932, 64);
     ctx.fillStyle = '#ef4444';
@@ -647,12 +647,12 @@ function drawWaveFormulaPanel(ctx: CanvasRenderingContext2D, wavelength: number,
     ctx.lineTo(1238, 166);
     ctx.stroke();
 
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '800 14px Inter, monospace';
     const rows = ['k = 2π/λ', 'c = 1/√(μ₀ε₀)', 'B₀ = E₀/c', 'νλ = c', 'v = 1/√(με)'];
     rows.forEach((row, index) => ctx.fillText(row, 932, 198 + index * 26));
 
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.font = '800 11px Inter, sans-serif';
     ctx.fillText("MAXWELL'S EQUATIONS", 932, 346);
     const equations = [
@@ -663,7 +663,7 @@ function drawWaveFormulaPanel(ctx: CanvasRenderingContext2D, wavelength: number,
     ];
     equations.forEach(([eq, label], index) => {
         const y = 378 + index * 34;
-        ctx.fillStyle = '#f1f5f9';
+        ctx.fillStyle = '#0f172a';
         ctx.font = '700 11px Inter, monospace';
         ctx.fillText(eq, 932, y);
         ctx.fillStyle = '#64748b';
@@ -677,12 +677,12 @@ function drawWaveFormulaPanel(ctx: CanvasRenderingContext2D, wavelength: number,
     ctx.lineTo(1238, 520);
     ctx.stroke();
 
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.font = '800 11px Inter, sans-serif';
     ctx.fillText('CURRENT VALUES', 932, 550);
     const valueRows = [
-        [`λ = ${wavelength} px (visual)`, '#f1f5f9'],
-        [`ν = ${(speed / wavelength).toFixed(2)} (visual)`, '#f1f5f9'],
+        [`λ = ${wavelength} px (visual)`, '#0f172a'],
+        [`ν = ${(speed / wavelength).toFixed(2)} (visual)`, '#0f172a'],
         [`E₀ = ${amplitude} (arb.)`, '#ef4444'],
         [`B₀ = ${(amplitude * B_VISUAL_RATIO).toFixed(1)} (scaled)`, '#3b82f6'],
         ['B₀ ≪ E₀ in reality', '#64748b'],
@@ -732,7 +732,7 @@ function drawSpectrumBar(ctx: CanvasRenderingContext2D) {
 
     BANDS.forEach(band => {
         const mid = (band.x0 + band.x1) / 2;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#0f172a';
         ctx.font = band.shortName === 'VISIBLE' ? '900 13px Inter, sans-serif' : '800 12px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(band.shortName, mid, 65);
@@ -754,7 +754,7 @@ function drawSpectrumBar(ctx: CanvasRenderingContext2D) {
         ['10²⁰Hz', 1080],
         ['10²³Hz', 1200],
     ];
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.font = '800 11px Inter, monospace';
     freqLabels.forEach(([label, pos]) => ctx.fillText(label, Number(pos), 220));
     const waveLabels: Array<[string, number]> = [
@@ -766,14 +766,14 @@ function drawSpectrumBar(ctx: CanvasRenderingContext2D) {
         ['10⁻⁹m', 940],
         ['10⁻¹²m', 1120],
     ];
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#334155';
     waveLabels.forEach(([label, pos]) => ctx.fillText(label, Number(pos), 240));
 }
 
 function drawSpectrumCursor(ctx: CanvasRenderingContext2D, x: number, band: Band) {
     ctx.save();
     ctx.setLineDash([6, 4]);
-    ctx.strokeStyle = 'rgba(255,255,255,0.72)';
+    ctx.strokeStyle = 'rgba(15,23,42,0.48)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(x, 58);
@@ -783,17 +783,17 @@ function drawSpectrumCursor(ctx: CanvasRenderingContext2D, x: number, band: Band
 
     const bubbleW = 285;
     const bubbleX = clamp(x - bubbleW / 2, 80, 1200 - bubbleW);
-    ctx.fillStyle = 'rgba(2,6,23,0.93)';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     roundRect(ctx, bubbleX, 36, bubbleW, 116, 14);
     ctx.fill();
     ctx.strokeStyle = band.color;
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 14px Inter, sans-serif';
     ctx.fillText(band.name.toUpperCase(), bubbleX + 16, 60);
-    ctx.fillStyle = '#cbd5e1';
+    ctx.fillStyle = '#475569';
     ctx.font = '700 11px Inter, sans-serif';
     ctx.fillText(`λ: ${band.wavelength}`, bubbleX + 16, 82);
     ctx.fillText(`ν: ${band.frequency}`, bubbleX + 16, 102);
@@ -805,10 +805,10 @@ function drawSpectrumCursor(ctx: CanvasRenderingContext2D, x: number, band: Band
 function drawVisibleInset(ctx: CanvasRenderingContext2D) {
     const x = 82;
     const y = 278;
-    ctx.fillStyle = 'rgba(2,6,23,0.72)';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
     roundRect(ctx, x, y, 260, 74, 12);
     ctx.fill();
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 13px Inter, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Visible light inset', x + 14, y + 22);
@@ -821,7 +821,7 @@ function drawVisibleInset(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = g;
     roundRect(ctx, x + 18, y + 32, 220, 24, 6);
     ctx.fill();
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#475569';
     ctx.font = '700 10px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('400nm violet', x + 30, y + 68);
@@ -848,17 +848,17 @@ function drawBandCards(ctx: CanvasRenderingContext2D) {
 function drawBandCard(ctx: CanvasRenderingContext2D, band: Band, x: number, y: number) {
     const w = 200;
     const h = 172;
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     roundRect(ctx, x, y, w, h, 12);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.strokeStyle = 'rgba(15,23,42,0.12)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.fillStyle = band.color;
     ctx.beginPath();
     ctx.arc(x + 18, y + 22, 8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 14px Inter, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(band.name, x + 34, y + 27);
@@ -868,23 +868,23 @@ function drawBandCard(ctx: CanvasRenderingContext2D, band: Band, x: number, y: n
     ctx.fillStyle = '#64748b';
     ctx.font = '700 11px Inter, sans-serif';
     ctx.fillText(`ν: ${band.frequency}`, x + 14, y + 76);
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#334155';
     wrapText(ctx, band.production, x + 14, y + 101, 170, 13, 2);
     ctx.fillStyle = '#22c55e';
     wrapText(ctx, band.application, x + 14, y + 140, 170, 13, 2);
 }
 
 function drawSpectrumFormulaNotes(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = 'rgba(15,23,42,0.78)';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     roundRect(ctx, 970, 492, 230, 172, 12);
     ctx.fill();
     ctx.strokeStyle = 'rgba(148,163,184,0.18)';
     ctx.stroke();
-    ctx.fillStyle = '#f8fafc';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 13px Inter, monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Core formulas', 990, 520);
-    ctx.fillStyle = '#cbd5e1';
+    ctx.fillStyle = '#334155';
     ctx.font = '800 12px Inter, monospace';
     ctx.fillText('νλ = c', 990, 548);
     ctx.fillText('c = 1/√(μ₀ε₀)', 990, 574);
@@ -896,17 +896,17 @@ function drawSpectrumFormulaNotes(ctx: CanvasRenderingContext2D) {
 }
 
 function drawCanvasTitle(ctx: CanvasRenderingContext2D, title: string, subtitle: string) {
-    ctx.fillStyle = 'rgba(2,6,23,0.78)';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
     roundRect(ctx, 255, 18, 770, 52, 14);
     ctx.fill();
     ctx.strokeStyle = 'rgba(129,140,248,0.35)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 16px Inter, sans-serif';
     ctx.fillText(title, 640, 40);
-    ctx.fillStyle = '#cbd5e1';
+    ctx.fillStyle = '#334155';
     ctx.font = '700 12px Inter, monospace';
     ctx.fillText(subtitle, 640, 60);
 }
@@ -937,10 +937,10 @@ function getReadoutItems(mode: SimulationMode, values: LiveValues) {
 
 function InfoGraphCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
             <div className="mb-2">
-                <div className="text-lg font-extrabold text-white">{title}</div>
-                <div className="mt-1 text-sm font-semibold text-slate-300">{subtitle}</div>
+                <div className="text-lg font-extrabold text-slate-950">{title}</div>
+                <div className="mt-1 text-sm font-semibold text-slate-600">{subtitle}</div>
             </div>
             {children}
         </div>
@@ -959,11 +959,11 @@ function MiniWaveGeometry() {
             <line x1="44" y1="118" x2="12" y2="148" stroke="#3b82f6" strokeWidth="2" />
             <path d="M44 118 C84 62 124 62 164 118 S244 174 284 118" fill="none" stroke="#ef4444" strokeWidth="3" filter="url(#glow-red)" />
             <path d="M44 118 C84 142 124 142 164 118 S244 94 284 118" fill="none" stroke="#3b82f6" strokeWidth="3" filter="url(#glow-blue)" />
-            <text x="292" y="109" className="fill-slate-300 text-[12px] font-bold">Z</text>
+            <text x="292" y="109" className="fill-slate-700 text-[12px] font-bold">Z</text>
             <text x="54" y="34" className="fill-red-300 text-[12px] font-bold">X/E</text>
             <text x="16" y="169" className="fill-blue-300 text-[12px] font-bold">Y/B</text>
-            <rect x="136" y="86" width="62" height="20" rx="6" className="fill-slate-950/80" />
-            <text x="167" y="100" textAnchor="middle" className="fill-emerald-300 text-[11px] font-bold">E x B →</text>
+            <rect x="136" y="86" width="62" height="20" rx="6" className="fill-emerald-50" />
+            <text x="167" y="100" textAnchor="middle" className="fill-emerald-700 text-[11px] font-bold">E x B →</text>
         </svg>
     );
 }
@@ -983,14 +983,14 @@ function SpectrumMiniBar() {
                 </linearGradient>
             </defs>
             <rect x="18" y="70" width="284" height="56" rx="14" fill="url(#mini-spectrum)" />
-            <text x="20" y="52" className="fill-slate-300 text-[11px] font-bold">Radio</text>
-            <text x="106" y="52" className="fill-slate-300 text-[11px] font-bold">IR</text>
+            <text x="20" y="52" className="fill-slate-700 text-[11px] font-bold">Radio</text>
+            <text x="106" y="52" className="fill-slate-700 text-[11px] font-bold">IR</text>
             <text x="158" y="52" className="fill-white text-[11px] font-black">Visible</text>
-            <text x="220" y="52" className="fill-slate-300 text-[11px] font-bold">X/γ</text>
-            <text x="18" y="150" className="fill-slate-400 text-[11px]">Long λ, low ν</text>
-            <text x="202" y="150" className="fill-slate-400 text-[11px]">Short λ, high ν</text>
+            <text x="220" y="52" className="fill-slate-700 text-[11px] font-bold">X/γ</text>
+            <text x="18" y="150" className="fill-slate-700 text-[11px]">Long λ, low ν</text>
+            <text x="202" y="150" className="fill-slate-700 text-[11px]">Short λ, high ν</text>
             <path d="M30 170 H290" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)" />
-            <text x="96" y="196" className="fill-slate-300 text-[12px] font-bold">Increasing frequency</text>
+            <text x="96" y="196" className="fill-slate-700 text-[12px] font-bold">Increasing frequency</text>
         </svg>
     );
 }

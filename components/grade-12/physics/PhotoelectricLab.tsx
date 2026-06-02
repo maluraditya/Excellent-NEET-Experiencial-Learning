@@ -482,10 +482,10 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
     };
 
     const drawBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
 
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.06)';
         ctx.lineWidth = 1;
         for (let x = 0; x <= width; x += 48) {
             ctx.beginPath();
@@ -501,8 +501,8 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
         }
 
         const glow = ctx.createRadialGradient(width * 0.18, height * 0.16, 0, width * 0.18, height * 0.16, width * 0.6);
-        glow.addColorStop(0, 'rgba(56, 189, 248, 0.12)');
-        glow.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        glow.addColorStop(0, 'rgba(56, 189, 248, 0.10)');
+        glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, width, height);
     };
@@ -564,9 +564,9 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
         ctx.fill();
         ctx.stroke();
 
-        drawLabel(ctx, `Emitter C: ${snapshot.material.name} (${snapshot.material.symbol})`, emitterX, plateTop + plateH + 28, '#f8fafc', 'center', 'bold 13px Inter, ui-sans-serif');
+        drawLabel(ctx, `Emitter C: ${snapshot.material.name} (${snapshot.material.symbol})`, emitterX, plateTop + plateH + 28, '#0f172a', 'center', 'bold 13px Inter, ui-sans-serif');
         drawLabel(ctx, `Φ0 = ${snapshot.material.workFunction.toFixed(2)} eV`, emitterX, plateTop + plateH + 48, '#fbbf24', 'center', '12px Inter, ui-sans-serif');
-        drawLabel(ctx, 'Collector (A)', collectorX, plateTop + plateH + 34, '#bfdbfe', 'center', 'bold 13px Inter, ui-sans-serif');
+        drawLabel(ctx, 'Collector (A)', collectorX, plateTop + plateH + 34, '#1d4ed8', 'center', 'bold 13px Inter, ui-sans-serif');
 
         const beamColor = wavelengthColor(snapshot.wavelength, 0.45);
         ctx.strokeStyle = beamColor;
@@ -654,7 +654,7 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
         snapshot: Snapshot
     ) => {
         const { emitterX, collectorX, plateTop, plateH, circuitY } = geometry;
-        const wireColor = 'rgba(148, 163, 184, 0.82)';
+        const wireColor = 'rgba(51, 65, 85, 0.72)';
         const ammeterX = width * 0.39;
         const batteryX = width * 0.55;
         const commutatorX = width * 0.66;
@@ -794,9 +794,9 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
             return (
                 <svg viewBox={`0 0 ${graphW + 58} ${graphH + 58}`} className="h-[238px] w-full">
                     <g transform="translate(38 12)">
-                        <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.5)" strokeWidth="1.4" />
+                        <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(15,23,42,0.48)" strokeWidth="1.4" />
                         {[1, 2, 3].map(line => (
-                            <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.16)" />
+                            <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(15,23,42,0.10)" />
                         ))}
                         {[30, 60, 100].map(sampleIntensity => (
                             <path
@@ -809,8 +809,8 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
                         ))}
                         <line x1={mapVoltageX(-kMax)} x2={mapVoltageX(-kMax)} y1="0" y2={graphH} stroke="#fb7185" strokeDasharray="6 7" strokeWidth="1.3" />
                         <text x={mapVoltageX(-kMax)} y={graphH + 18} textAnchor="middle" className="fill-rose-300 text-[11px] font-bold">-V0</text>
-                        <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-400 text-[11px]">Applied voltage V</text>
-                        <text x="-30" y="-3" className="fill-slate-400 text-[11px]">I</text>
+                        <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-700 text-[11px] font-semibold">Applied voltage V</text>
+                        <text x="-30" y="-3" className="fill-slate-700 text-[11px] font-semibold">I</text>
                     </g>
                 </svg>
             );
@@ -825,9 +825,9 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
         return (
                 <svg viewBox={`0 0 ${graphW + 58} ${graphH + 58}`} className="h-[238px] w-full">
                 <g transform="translate(38 12)">
-                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.5)" strokeWidth="1.4" />
+                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(15,23,42,0.48)" strokeWidth="1.4" />
                     {[1, 2, 3].map(line => (
-                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.16)" />
+                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(15,23,42,0.10)" />
                     ))}
                     {MATERIALS.map(item => (
                         <path
@@ -840,11 +840,11 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
                     ))}
                     <line x1={thresholdX} x2={thresholdX} y1="0" y2={graphH} stroke="#fb7185" strokeDasharray="6 7" strokeWidth="1.3" />
                     <line x1="0" x2={graphW} y1={workY} y2={workY} stroke="#fb7185" strokeDasharray="6 7" strokeWidth="1.3" />
-                    <circle cx={currentPoint.x} cy={currentPoint.y} r="5" className="fill-white" />
+                    <circle cx={currentPoint.x} cy={currentPoint.y} r="5" className="fill-slate-900" />
                     <text x={thresholdX} y={graphH + 18} textAnchor="middle" className="fill-rose-300 text-[11px] font-bold">ν0</text>
                     <text x="3" y={workY - 7} className="fill-rose-300 text-[11px]">-Φ0/e</text>
-                    <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-400 text-[11px]">ν (x10^14 Hz)</text>
-                    <text x="-31" y="-3" className="fill-slate-400 text-[11px]">V0</text>
+                    <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-700 text-[11px] font-semibold">ν (x10^14 Hz)</text>
+                    <text x="-31" y="-3" className="fill-slate-700 text-[11px] font-semibold">V0</text>
                 </g>
             </svg>
         );
@@ -883,24 +883,24 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
         <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-4 z-20 hidden w-[340px] xl:block">
             {graphVisible && (
                 <div className="flex flex-col gap-3">
-                    <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
                         <div className="mb-1">
-                            <div className="text-sm font-extrabold text-white">
+                            <div className="text-sm font-extrabold text-slate-950">
                                 Stopping potential vs frequency
                             </div>
-                            <div className="mt-1 text-[11px] font-semibold text-slate-300">
+                            <div className="mt-1 text-[11px] font-semibold text-slate-600">
                                 Parallel lines: slope = h/e
                             </div>
                         </div>
                         {renderGraph('vnu')}
                     </div>
 
-                    <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
                         <div className="mb-1">
-                            <div className="text-sm font-extrabold text-white">
+                            <div className="text-sm font-extrabold text-slate-950">
                                 Photocurrent vs voltage
                             </div>
-                            <div className="mt-1 text-[11px] font-semibold text-slate-300">
+                            <div className="mt-1 text-[11px] font-semibold text-slate-600">
                                 Same V0, different saturation current
                             </div>
                         </div>
@@ -912,8 +912,8 @@ const PhotoelectricLab: React.FC<PhotoelectricLabProps> = ({ topic, onExit }) =>
     );
 
     const simulationCombo = (
-        <div className="relative flex h-full w-full flex-col overflow-visible rounded-2xl bg-slate-900 shadow-inner">
-            <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-slate-900">
+        <div className="relative flex h-full w-full flex-col overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-white">
                 <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
             </div>
 

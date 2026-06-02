@@ -44,12 +44,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <p>
           <strong>Elasticity</strong> is the property of a body to regain its original size and shape when a deforming force is removed.
           <br />
-          <strong>Stress (σ)</strong> = Restoring Force / Area (F/A)
+          <strong>Stress (Ïƒ)</strong> = Restoring Force / Area (F/A)
           <br />
-          <strong>Strain (ε)</strong> = Change in Dimension / Original Dimension (ΔL/L)
+          <strong>Strain (Îµ)</strong> = Change in Dimension / Original Dimension (Î”L/L)
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">Hooke's Law: σ = Y × ε</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Hooke's Law: Ïƒ = Y Ã— Îµ</p>
           <p className="text-sm text-slate-600 mt-2 text-center">For small deformations, stress is directly proportional to strain. Y is Young's Modulus.</p>
         </div>
 
@@ -62,7 +62,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </ul>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6" id="tour-real-world">
-          <h4 className="font-bold text-amber-900 mb-2">🏗️ Real-World Analogy: Cranes & Mountains</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ—ï¸ Real-World Analogy: Cranes & Mountains</h4>
           <p className="text-sm">
             <strong>Cranes:</strong> Use steel ropes because steel has a high Yield Strength. If the load exceeds this limit, the rope stretches permanently and becomes unsafe.
             <br /><br />
@@ -80,33 +80,33 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-2xl font-display font-bold text-brand-primary mt-12 mb-6 border-t border-slate-200 pt-8">Young's Modulus</h3>
         <p className="lead text-xl text-slate-600 mb-8">
-          Young's Modulus (Y) is the ratio of tensile stress to longitudinal strain within the elastic limit. It quantifies a material's <strong>stiffness</strong> — its resistance to being stretched or compressed.
+          Young's Modulus (Y) is the ratio of tensile stress to longitudinal strain within the elastic limit. It quantifies a material's <strong>stiffness</strong> â€” its resistance to being stretched or compressed.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Concept Foundation — Hooke's Law</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Concept Foundation â€” Hooke's Law</h3>
         <p>
           Robert Hooke observed that for small deformations, the <strong>stress developed in a body is directly proportional to the strain produced</strong>. Young's Modulus is the proportionality constant specifically for materials undergoing changes in length.
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">Hooke's Law: σ = Y × ε</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Hooke's Law: Ïƒ = Y Ã— Îµ</p>
           <p className="text-sm text-slate-600 mt-2 text-center">Valid only in the linear (elastic) region of the stress-strain curve.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Formulas</h3>
         <div className="my-6 p-5 bg-blue-50 rounded-xl border border-blue-200 space-y-3">
-          <p className="font-mono text-lg text-brand-primary text-center">Tensile Stress (σ) = F / A</p>
-          <p className="font-mono text-lg text-brand-primary text-center">Longitudinal Strain (ε) = ΔL / L</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Tensile Stress (Ïƒ) = F / A</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Longitudinal Strain (Îµ) = Î”L / L</p>
           <div className="border-t border-blue-200 pt-3">
-            <p className="font-mono text-xl text-brand-primary text-center font-bold">Y = σ / ε = (F × L) / (A × ΔL)</p>
+            <p className="font-mono text-xl text-brand-primary text-center font-bold">Y = Ïƒ / Îµ = (F Ã— L) / (A Ã— Î”L)</p>
           </div>
           <ul className="list-disc ml-6 mt-3 text-sm text-slate-700">
             <li><strong>F:</strong> Applied force (N)</li>
-            <li><strong>A:</strong> Cross-sectional area = πr² (m²)</li>
+            <li><strong>A:</strong> Cross-sectional area = Ï€rÂ² (mÂ²)</li>
             <li><strong>L:</strong> Original length (m)</li>
-            <li><strong>ΔL:</strong> Elongation or compression (m)</li>
+            <li><strong>Î”L:</strong> Elongation or compression (m)</li>
           </ul>
           <p className="text-sm text-slate-600 mt-2 text-center">
-            <strong>SI Unit:</strong> Nm⁻² or Pascal (Pa) — since strain is dimensionless.
+            <strong>SI Unit:</strong> Nmâ»Â² or Pascal (Pa) â€” since strain is dimensionless.
           </p>
         </div>
 
@@ -115,7 +115,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           On a stress-strain curve, the region from the origin (O) to the proportional limit (A) is a <strong>straight line</strong> where Hooke's Law is obeyed. The <strong>slope</strong> of this linear portion represents the Young's Modulus of the material.
         </p>
         <p className="mt-2">
-          A steeper slope means a higher Young's Modulus — the material is <em>stiffer</em> and resists deformation more effectively. Beyond the yield point, the material undergoes permanent plastic deformation, and Y is no longer applicable.
+          A steeper slope means a higher Young's Modulus â€” the material is <em>stiffer</em> and resists deformation more effectively. Beyond the yield point, the material undergoes permanent plastic deformation, and Y is no longer applicable.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Molecular Level Understanding</h3>
@@ -123,12 +123,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           When a wire is stretched, work is done against internal <strong>inter-atomic forces</strong>. This work is stored as elastic potential energy within the molecular lattice. The tighter the coupling between atoms, the higher the Young's Modulus.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. NCERT Table 8.1 — Young's Modulus Values</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. NCERT Table 8.1 â€” Young's Modulus Values</h3>
         <table className="w-full text-sm mt-4">
           <thead>
             <tr className="border-b">
               <th className="text-left py-2">Material</th>
-              <th className="text-center">Y (10⁹ Pa)</th>
+              <th className="text-center">Y (10â¹ Pa)</th>
             </tr>
           </thead>
           <tbody>
@@ -143,28 +143,28 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🔩 Steel vs. Rubber — Who's More Elastic?</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ”© Steel vs. Rubber â€” Who's More Elastic?</h4>
           <p className="text-sm">
-            In daily language, rubber seems "more elastic." But in physics, <strong>Steel is far more elastic</strong> (Y = 200 GPa vs. ~0.01 GPa for rubber). Why? A steel wire resists stretching far more effectively — it requires a significantly larger force to produce a small change in length. That resistance is what physics calls "elasticity."
+            In daily language, rubber seems "more elastic." But in physics, <strong>Steel is far more elastic</strong> (Y = 200 GPa vs. ~0.01 GPa for rubber). Why? A steel wire resists stretching far more effectively â€” it requires a significantly larger force to produce a small change in length. That resistance is what physics calls "elasticity."
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🏗️ Engineering: Bridge Design</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ—ï¸ Engineering: Bridge Design</h4>
           <p className="text-sm">
-            Bridges use steel beams because of their high Young's Modulus. The sagging (δ) of a beam under a load is <strong>inversely proportional to Y</strong>. A high Y ensures the bridge remains stiff and safe under heavy traffic loads.
+            Bridges use steel beams because of their high Young's Modulus. The sagging (Î´) of a beam under a load is <strong>inversely proportional to Y</strong>. A high Y ensures the bridge remains stiff and safe under heavy traffic loads.
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🦴 Nature: Human Thighbone (Femur)</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ¦´ Nature: Human Thighbone (Femur)</h4>
           <p className="text-sm">
-            The femur has Y = 9.4 × 10⁹ Pa. This allows it to support the weight of the upper body with a compression of only about <strong>0.0091%</strong>, maintaining skeletal integrity under heavy loads.
+            The femur has Y = 9.4 Ã— 10â¹ Pa. This allows it to support the weight of the upper body with a compression of only about <strong>0.0091%</strong>, maintaining skeletal integrity under heavy loads.
           </p>
         </div>
 
         <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm my-4">
-          <h4 className="font-bold text-purple-900 mb-2">🏗️ Industrial: Crane Ropes</h4>
+          <h4 className="font-bold text-purple-900 mb-2">ðŸ—ï¸ Industrial: Crane Ropes</h4>
           <p className="text-sm">
             Cranes use thick ropes made of braided steel wires. By calculating the required cross-sectional area based on the material's yield strength and Y, engineers ensure the rope doesn't permanently stretch while lifting 10-tonne loads.
           </p>
@@ -176,20 +176,20 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <ol className="list-decimal pl-6 space-y-3 text-sm">
             <li>
               <strong>Step 1:</strong> Select "Steel," set Length to 1 m and Radius to 10 mm. Add 100 kN force.<br />
-              <span className="text-slate-500">→ Observe: ΔL ≈ 1.59 mm. Stress is 318 MPa.</span>
+              <span className="text-slate-500">â†’ Observe: Î”L â‰ˆ 1.59 mm. Stress is 318 MPa.</span>
             </li>
             <li>
               <strong>Step 2:</strong> Keep Force constant, change material to "Copper."<br />
-              <span className="text-slate-500">→ The rod stretches significantly more! Copper has Y = 110 GPa vs. Steel's 200 GPa.</span>
+              <span className="text-slate-500">â†’ The rod stretches significantly more! Copper has Y = 110 GPa vs. Steel's 200 GPa.</span>
             </li>
             <li>
               <strong>Step 3:</strong> Double the Radius to 20 mm (keeping Copper).<br />
-              <span className="text-slate-500">→ ΔL drops to one-fourth! Area = πr² means doubling r quadruples A.</span>
+              <span className="text-slate-500">â†’ Î”L drops to one-fourth! Area = Ï€rÂ² means doubling r quadruples A.</span>
             </li>
           </ol>
           <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mt-3">
             <p className="text-sm text-blue-800 text-center">
-              <strong>Learning Outcome:</strong> ΔL is <em>directly proportional</em> to Force and Length, but <em>inversely proportional</em> to Area and Young's Modulus.
+              <strong>Learning Outcome:</strong> Î”L is <em>directly proportional</em> to Force and Length, but <em>inversely proportional</em> to Area and Young's Modulus.
             </p>
           </div>
         </div>
@@ -204,7 +204,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
   if (topic?.id === 'stokes-law') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Stokes’ Law and Terminal Velocity</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Stokesâ€™ Law and Terminal Velocity</h1>
         <p className="lead text-xl text-slate-600 mb-8">
           When an object falls through a fluid, it doesn't accelerate forever. It reaches a maximum constant speed called
           <strong> terminal velocity</strong>. Stokes' Law explains the invisible frictional force from the fluid that makes this happen.
@@ -215,11 +215,11 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           When a body moves through a fluid, it drags the layers of fluid in contact with it. This creates relative motion between different layers of the fluid, resulting in an internal frictional force known as <strong>viscosity</strong>.
         </p>
         <p>
-          In 1851, George Gabriel Stokes stated that the viscous drag force (F) on a spherical body of radius <em>a</em> moving with velocity <em>v</em> through a fluid of viscosity <em>η</em> is:
+          In 1851, George Gabriel Stokes stated that the viscous drag force (F) on a spherical body of radius <em>a</em> moving with velocity <em>v</em> through a fluid of viscosity <em>Î·</em> is:
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">F = 6πηav</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">This is known as <strong>Stokes’ Law</strong>.</p>
+          <p className="font-mono text-xl text-brand-primary text-center">F = 6Ï€Î·av</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">This is known as <strong>Stokesâ€™ Law</strong>.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Forces in Play</h3>
@@ -232,7 +232,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <p className="text-sm text-red-600 mt-1">Acting vertically downwards, trying to accelerate the sphere.</p>
           </div>
           <div className="p-4 bg-green-50 rounded-xl border border-green-100 shadow-sm ">
-            <p className="text-sm font-bold text-green-700">2. Buoyant Force (F♭)</p>
+            <p className="text-sm font-bold text-green-700">2. Buoyant Force (Fâ™­)</p>
             <p className="text-sm text-green-600 mt-1">Acting upwards, equal to the weight of the liquid displaced by the sphere.</p>
           </div>
           <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 shadow-sm ">
@@ -243,46 +243,46 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Reaching Terminal Velocity</h3>
         <p>
-          Initially, the sphere accelerates. As its speed increases, the upward viscous drag also increases (since F ∝ v).
+          Initially, the sphere accelerates. As its speed increases, the upward viscous drag also increases (since F âˆ v).
           Eventually, the sum of upward forces (buoyancy + drag) exactly equals the downward weight.
         </p>
         <p className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center font-bold text-amber-800 italic">
-          Net Force = 0 → Acceleration = 0 → Constant Velocity
+          Net Force = 0 â†’ Acceleration = 0 â†’ Constant Velocity
         </p>
         <p>
-          This maximum constant velocity is called <strong>terminal velocity (vₜ)</strong>.
+          This maximum constant velocity is called <strong>terminal velocity (vâ‚œ)</strong>.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. The Formula</h3>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="text-sm text-slate-600 text-center mb-3">At equilibrium: W = F♭ + 6πηavₜ</p>
-          <p className="font-mono text-2xl text-brand-primary text-center">vₜ = 2a²(ρ - σ)g / 9η</p>
+          <p className="text-sm text-slate-600 text-center mb-3">At equilibrium: W = Fâ™­ + 6Ï€Î·avâ‚œ</p>
+          <p className="font-mono text-2xl text-brand-primary text-center">vâ‚œ = 2aÂ²(Ï - Ïƒ)g / 9Î·</p>
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 font-mono">
             <span>a: Radius of sphere</span>
-            <span>η: Viscosity coefficient</span>
-            <span>ρ: Density of sphere</span>
-            <span>σ: Density of fluid</span>
+            <span>Î·: Viscosity coefficient</span>
+            <span>Ï: Density of sphere</span>
+            <span>Ïƒ: Density of fluid</span>
           </div>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
         <div className="grid gap-4">
           <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-bold text-brand-primary">🌧️ Raindrops</p>
+            <p className="text-sm font-bold text-brand-primary">ðŸŒ§ï¸ Raindrops</p>
             <p className="text-sm text-slate-600 mt-1">
               Without air viscosity, raindrops falling from 1km high would hit you at 500 km/h! Because of Stokes' Law,
               they reach a safe terminal velocity (~20-30 km/h) before hitting the ground.
             </p>
           </div>
           <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-bold text-brand-primary">🌬️ Dust & Mist</p>
+            <p className="text-sm font-bold text-brand-primary">ðŸŒ¬ï¸ Dust & Mist</p>
             <p className="text-sm text-slate-600 mt-1">
-              Very fine particles have a tiny radius (a). Since vₜ ∝ a², they reach terminal velocity almost immediately
+              Very fine particles have a tiny radius (a). Since vâ‚œ âˆ aÂ², they reach terminal velocity almost immediately
               at extremely slow speeds, which is why dust appears to "float" in a room.
             </p>
           </div>
           <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-bold text-brand-primary">🧪 Falling Ball Viscometer</p>
+            <p className="text-sm font-bold text-brand-primary">ðŸ§ª Falling Ball Viscometer</p>
             <p className="text-sm text-slate-600 mt-1">
               In industry, the viscosity of oils is often measured by dropping a calibrated sphere and timing how long it
               takes to travel a certain distance at terminal velocity.
@@ -299,11 +299,11 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </li>
             <li>
               <strong>Step 2:</strong> Change fluid to "Glycerin" (high viscosity). Drop the same ball.<br />
-              <span className="text-slate-500">→ Observation: The ball slows down almost immediately. The blue "Drag" arrow reaches equilibrium with weight/buoyancy much faster.</span>
+              <span className="text-slate-500">â†’ Observation: The ball slows down almost immediately. The blue "Drag" arrow reaches equilibrium with weight/buoyancy much faster.</span>
             </li>
             <li>
               <strong>Step 3:</strong> Increase the "Radius" slider while in Glycerin.<br />
-              <span className="text-slate-500">→ Observation: Even in thick liquid, larger balls fall significantly faster because vₜ depends on the square of the radius (a²).</span>
+              <span className="text-slate-500">â†’ Observation: Even in thick liquid, larger balls fall significantly faster because vâ‚œ depends on the square of the radius (aÂ²).</span>
             </li>
           </ol>
           <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mt-3">
@@ -331,7 +331,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           When a fluid flows steadily, the path taken by the fluid particles is called a <strong>streamline</strong>. In a pipe with a varying thickness, the fluid must speed up in narrower regions to ensure the same amount of mass passes through every section in a given time.
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">Equation of Continuity: A × v = constant</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Equation of Continuity: A Ã— v = constant</p>
           <p className="text-sm text-slate-600 mt-2 text-center">Where <strong>A</strong> is the cross-sectional area and <strong>v</strong> is the fluid velocity.</p>
         </div>
         <p>
@@ -344,16 +344,16 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </p>
 
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">P + ½ρv² + ρgh = constant</p>
+          <p className="font-mono text-lg text-brand-primary text-center">P + Â½ÏvÂ² + Ïgh = constant</p>
           <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
             <li><strong>P:</strong> Pressure energy per unit volume</li>
-            <li><strong>½ρv²:</strong> Kinetic energy per unit volume</li>
-            <li><strong>ρgh:</strong> Potential energy per unit volume</li>
+            <li><strong>Â½ÏvÂ²:</strong> Kinetic energy per unit volume</li>
+            <li><strong>Ïgh:</strong> Potential energy per unit volume</li>
           </ul>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🌬️ Real-World Application: The Airplane Wing</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸŒ¬ï¸ Real-World Application: The Airplane Wing</h4>
           <p className="text-sm">
             An airplane wing (airfoil) is curved on top and relatively flat on the bottom. Air must travel faster over the top surface. According to Bernoulli's principle, this <strong>higher velocity</strong> creates <strong>lower pressure</strong> above the wing.
             <br /><br />
@@ -383,10 +383,10 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </p>
 
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">P₁ = P₂  =&gt;  F₁/A₁ = F₂/A₂</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Pâ‚ = Pâ‚‚  =&gt;  Fâ‚/Aâ‚ = Fâ‚‚/Aâ‚‚</p>
           <ul className="list-disc ml-6 mt-4 text-sm text-slate-700">
-            <li><strong>F₁ / A₁:</strong> Input Force and Area (Master Cylinder)</li>
-            <li><strong>F₂ / A₂:</strong> Output Force and Area (Wheel Cylinder)</li>
+            <li><strong>Fâ‚ / Aâ‚:</strong> Input Force and Area (Master Cylinder)</li>
+            <li><strong>Fâ‚‚ / Aâ‚‚:</strong> Output Force and Area (Wheel Cylinder)</li>
           </ul>
         </div>
         <p>
@@ -394,7 +394,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </p>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🚗 Real-World Application: Hydraulic Brakes</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸš— Real-World Application: Hydraulic Brakes</h4>
           <p className="text-sm">
             When you press the brake pedal in a car, you push a small piston connected to the master cylinder. The pressure is transmitted instantly through the brake fluid to a much larger wheel cylinder.
             Because the wheel cylinder has a larger area, it multiplies your initial foot force by up to 10 or 20 times, providing enough power to clamp the brake pads against the spinning disc and stop a heavily moving vehicle!
@@ -428,30 +428,30 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Formulas</h3>
         <div className="my-6 p-5 bg-blue-50 rounded-xl border border-blue-200 space-y-3">
-          <p className="font-mono text-lg text-brand-primary text-center">Surface Tension (S) = F / l (or Work / ΔArea)</p>
-          <p className="text-sm text-slate-600 text-center">SI Units: N m⁻¹ or J m⁻²</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Surface Tension (S) = F / l (or Work / Î”Area)</p>
+          <p className="text-sm text-slate-600 text-center">SI Units: N mâ»Â¹ or J mâ»Â²</p>
           <div className="border-t border-blue-200 pt-3">
-            <p className="font-bold text-brand-dark text-center mb-2">Excess Pressure (ΔP):</p>
-            <p className="font-mono text-lg text-brand-primary text-center">Liquid Drop (1 interface): Pᵢ − Pₒ = 2S / r</p>
-            <p className="font-mono text-lg text-brand-primary text-center">Soap Bubble (2 interfaces): Pᵢ − Pₒ = 4S / r</p>
+            <p className="font-bold text-brand-dark text-center mb-2">Excess Pressure (Î”P):</p>
+            <p className="font-mono text-lg text-brand-primary text-center">Liquid Drop (1 interface): Páµ¢ âˆ’ Pâ‚’ = 2S / r</p>
+            <p className="font-mono text-lg text-brand-primary text-center">Soap Bubble (2 interfaces): Páµ¢ âˆ’ Pâ‚’ = 4S / r</p>
           </div>
           <div className="border-t border-blue-200 pt-3">
             <p className="font-bold text-brand-dark text-center mb-2">Capillary Rise (h):</p>
-            <p className="font-mono text-xl text-brand-primary text-center font-bold">h = (2S cos θ) / (a ρ g)</p>
+            <p className="font-mono text-xl text-brand-primary text-center font-bold">h = (2S cos Î¸) / (a Ï g)</p>
           </div>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Angle of Contact (θ)</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Angle of Contact (Î¸)</h3>
         <p>
           This is the angle between the tangent to the liquid surface and the solid surface at the point of contact, measured <em>inside</em> the liquid.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <p className="font-bold text-brand-primary">Acute (θ &lt; 90°)</p>
+            <p className="font-bold text-brand-primary">Acute (Î¸ &lt; 90Â°)</p>
             <p className="text-sm">Liquid is strongly attracted to the solid (e.g., Water on Glass). The liquid <strong>"wets"</strong> the surface and rises in a tube.</p>
           </div>
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <p className="font-bold text-brand-primary">Obtuse (θ &gt; 90°)</p>
+            <p className="font-bold text-brand-primary">Obtuse (Î¸ &gt; 90Â°)</p>
             <p className="text-sm">Molecules attracted more to each other than to the solid (e.g., Mercury on Glass). It <strong>"does not wet"</strong> and falls in a tube.</p>
           </div>
         </div>
@@ -468,7 +468,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           </div>
           <div className="p-4 bg-sky-50 rounded-xl border border-sky-200 shadow-sm">
             <h4 className="font-bold text-sky-900 mb-2">Nature's Spheres</h4>
-            <p className="text-sm">Small water droplets and bubbles are spherical because the sphere is the shape with the minimum surface area for a given volume — representing the lowest energy state.</p>
+            <p className="text-sm">Small water droplets and bubbles are spherical because the sphere is the shape with the minimum surface area for a given volume â€” representing the lowest energy state.</p>
           </div>
           <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 shadow-sm">
             <h4 className="font-bold text-purple-900 mb-2">Paint Brushes</h4>
@@ -481,7 +481,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p className="text-sm font-bold text-brand-primary">Step-by-Step Discovery:</p>
           <ol className="list-decimal pl-6 space-y-3 text-sm text-slate-700">
             <li><strong>Step 1:</strong> Select <strong>Water</strong>. Look at the "Molecular Microscope" to see surface molecules being pulled inward.</li>
-            <li><strong>Step 2:</strong> Observe the 3 tubes. Water rises highest in the <strong>thinnest tube</strong> (h ∝ 1/a).</li>
+            <li><strong>Step 2:</strong> Observe the 3 tubes. Water rises highest in the <strong>thinnest tube</strong> (h âˆ 1/a).</li>
             <li><strong>Step 3:</strong> Switch to <strong>Mercury</strong>. Notice the level drops below the outside surface because the angle of contact is obtuse.</li>
             <li><strong>Step 4:</strong> Click <strong>"Add Detergent"</strong> while using water. Watch the rise height drop as surface tension is reduced.</li>
           </ol>
@@ -497,35 +497,35 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Carnot Engine and Carnot Cycle</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          The Carnot Engine is a theoretical, perfectly reversible heat engine that operates between a hot reservoir (T₁) and a cold reservoir (T₂), defining the absolute maximum efficiency any heat engine can achieve.
+          The Carnot Engine is a theoretical, perfectly reversible heat engine that operates between a hot reservoir (Tâ‚) and a cold reservoir (Tâ‚‚), defining the absolute maximum efficiency any heat engine can achieve.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Four Steps of the Carnot Cycle</h3>
         <ol className="list-decimal pl-6 space-y-3">
-          <li><strong>Isothermal Expansion (1→2):</strong> Gas absorbs heat Q₁ from the hot source at T₁. Temperature stays constant, gas expands.</li>
-          <li><strong>Adiabatic Expansion (2→3):</strong> Gas is insulated. It continues expanding, using its own internal energy. Temperature drops from T₁ to T₂.</li>
-          <li><strong>Isothermal Compression (3→4):</strong> Gas rejects heat Q₂ to the cold sink at T₂. Temperature stays constant, gas is compressed.</li>
-          <li><strong>Adiabatic Compression (4→1):</strong> Gas is insulated again. It is compressed back to its original state. Temperature rises from T₂ back to T₁.</li>
+          <li><strong>Isothermal Expansion (1â†’2):</strong> Gas absorbs heat Qâ‚ from the hot source at Tâ‚. Temperature stays constant, gas expands.</li>
+          <li><strong>Adiabatic Expansion (2â†’3):</strong> Gas is insulated. It continues expanding, using its own internal energy. Temperature drops from Tâ‚ to Tâ‚‚.</li>
+          <li><strong>Isothermal Compression (3â†’4):</strong> Gas rejects heat Qâ‚‚ to the cold sink at Tâ‚‚. Temperature stays constant, gas is compressed.</li>
+          <li><strong>Adiabatic Compression (4â†’1):</strong> Gas is insulated again. It is compressed back to its original state. Temperature rises from Tâ‚‚ back to Tâ‚.</li>
         </ol>
 
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">η = 1 − T₂/T₁</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Î· = 1 âˆ’ Tâ‚‚/Tâ‚</p>
           <p className="text-sm text-slate-600 mt-3 text-center">
             The efficiency depends <strong>only</strong> on the temperatures of the two reservoirs, completely independent of the working substance.
           </p>
         </div>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6">
-          <h4 className="font-bold text-amber-900 mb-2">🏭 Real-World Application: Steam Power Plants</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ­ Real-World Application: Steam Power Plants</h4>
           <p className="text-sm">
-            Modern thermal power plants heat water in a boiler (Hot Reservoir, T₁ ≈ 600K) and cool steam in a condenser (Cold Reservoir, T₂ ≈ 300K). The Carnot limit says their efficiency can never exceed 1 − 300/600 = <strong>50%</strong>. In practice, due to irreversibilities, real efficiencies are significantly lower.
+            Modern thermal power plants heat water in a boiler (Hot Reservoir, Tâ‚ â‰ˆ 600K) and cool steam in a condenser (Cold Reservoir, Tâ‚‚ â‰ˆ 300K). The Carnot limit says their efficiency can never exceed 1 âˆ’ 300/600 = <strong>50%</strong>. In practice, due to irreversibilities, real efficiencies are significantly lower.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🧊 Carnot Refrigerator</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ§Š Carnot Refrigerator</h4>
           <p className="text-sm">
-            A Carnot cycle run in reverse is a <strong>Carnot refrigerator</strong>. It takes heat Q₂ from a cold space, requires input work W, and exhausts Q₁ = Q₂ + W to a warm environment. This sets the theoretical maximum for the Coefficient of Performance (COP) of all cooling devices.
+            A Carnot cycle run in reverse is a <strong>Carnot refrigerator</strong>. It takes heat Qâ‚‚ from a cold space, requires input work W, and exhausts Qâ‚ = Qâ‚‚ + W to a warm environment. This sets the theoretical maximum for the Coefficient of Performance (COP) of all cooling devices.
           </p>
         </div>
 
@@ -582,19 +582,19 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <div className="grid gap-4">
           <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 shadow-sm">
             <h4 className="font-bold text-amber-900 mb-2">Daily Life: The Hot Tea</h4>
-            <p className="text-sm">Leave a cup of hot tea in a room. Heat flows from the tea to the environment until both reach the same temperature — thermal equilibrium.</p>
+            <p className="text-sm">Leave a cup of hot tea in a room. Heat flows from the tea to the environment until both reach the same temperature â€” thermal equilibrium.</p>
           </div>
           <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 shadow-sm">
             <h4 className="font-bold text-emerald-900 mb-2">Engineering: The Thermometer</h4>
-            <p className="text-sm">When a thermometer (System C) touches a human body (System A), it reaches thermal equilibrium. The thermometer reading tells us the body temperature — this works because of the Zeroth Law.</p>
+            <p className="text-sm">When a thermometer (System C) touches a human body (System A), it reaches thermal equilibrium. The thermometer reading tells us the body temperature â€” this works because of the Zeroth Law.</p>
           </div>
           <div className="p-4 bg-sky-50 rounded-xl border border-sky-200 shadow-sm">
             <h4 className="font-bold text-sky-900 mb-2">Nature: Lake and Air</h4>
-            <p className="text-sm">A lake and the air above it tend toward thermal equilibrium. If air stays at 25°C for a long time, the surface water eventually reaches the same temperature.</p>
+            <p className="text-sm">A lake and the air above it tend toward thermal equilibrium. If air stays at 25Â°C for a long time, the surface water eventually reaches the same temperature.</p>
           </div>
           <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 shadow-sm">
             <h4 className="font-bold text-purple-900 mb-2">Industrial: Thermacole Icebox</h4>
-            <p className="text-sm">We prevent thermal equilibrium between ice (inside) and hot air (outside) using an adiabatic (insulating) wall — keeping food cold.</p>
+            <p className="text-sm">We prevent thermal equilibrium between ice (inside) and hot air (outside) using an adiabatic (insulating) wall â€” keeping food cold.</p>
           </div>
         </div>
 
@@ -623,29 +623,29 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </p>
 
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">ΔQ = ΔU + ΔW</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Î”Q = Î”U + Î”W</p>
           <p className="text-sm text-slate-600 mt-3 text-center">
-            Heat (ΔQ) = Change in Internal Energy (ΔU) + Work Done by gas (ΔW = PΔV)
+            Heat (Î”Q) = Change in Internal Energy (Î”U) + Work Done by gas (Î”W = PÎ”V)
           </p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Four Special Thermodynamic Processes</h3>
         <ol className="list-decimal pl-6 space-y-4">
-          <li><strong>Isothermal (T = const):</strong> Temperature doesn't change → ΔU = 0 → ΔQ = ΔW. All heat converts to work. The P-V curve follows PV = nRT = constant (Boyle's Law).</li>
-          <li><strong>Adiabatic (Q = 0):</strong> No heat enters or leaves (insulated) → ΔU = −ΔW. Expansion cools the gas; compression heats it. Follows PV<sup>γ</sup> = constant, a steeper curve than isothermal.</li>
-          <li><strong>Isochoric (V = const):</strong> Volume doesn't change → ΔW = 0 → ΔQ = ΔU. All heat goes to changing internal energy. The P-V "curve" is a vertical line.</li>
-          <li><strong>Isobaric (P = const):</strong> Pressure stays constant. Heat goes partly to work (PΔV) and partly to ΔU. The P-V curve is a horizontal line.</li>
+          <li><strong>Isothermal (T = const):</strong> Temperature doesn't change â†’ Î”U = 0 â†’ Î”Q = Î”W. All heat converts to work. The P-V curve follows PV = nRT = constant (Boyle's Law).</li>
+          <li><strong>Adiabatic (Q = 0):</strong> No heat enters or leaves (insulated) â†’ Î”U = âˆ’Î”W. Expansion cools the gas; compression heats it. Follows PV<sup>Î³</sup> = constant, a steeper curve than isothermal.</li>
+          <li><strong>Isochoric (V = const):</strong> Volume doesn't change â†’ Î”W = 0 â†’ Î”Q = Î”U. All heat goes to changing internal energy. The P-V "curve" is a vertical line.</li>
+          <li><strong>Isobaric (P = const):</strong> Pressure stays constant. Heat goes partly to work (PÎ”V) and partly to Î”U. The P-V curve is a horizontal line.</li>
         </ol>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6">
-          <h4 className="font-bold text-amber-900 mb-2">☁️ Nature: Cloud Formation (Adiabatic Cooling)</h4>
+          <h4 className="font-bold text-amber-900 mb-2">â˜ï¸ Nature: Cloud Formation (Adiabatic Cooling)</h4>
           <p className="text-sm">
-            Rising warm air expands as atmospheric pressure drops. Since this happens quickly and air is a poor conductor, the process is nearly adiabatic (ΔQ ≈ 0). The expanding air does work on its surroundings, its internal energy drops, and temperature falls until water vapour condenses — forming clouds.
+            Rising warm air expands as atmospheric pressure drops. Since this happens quickly and air is a poor conductor, the process is nearly adiabatic (Î”Q â‰ˆ 0). The expanding air does work on its surroundings, its internal energy drops, and temperature falls until water vapour condenses â€” forming clouds.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🚗 Engineering: Internal Combustion Engine</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸš— Engineering: Internal Combustion Engine</h4>
           <p className="text-sm">
             In a car engine, fuel-air mixture is compressed adiabatically (temperature rises), ignited (rapid isochoric heating at near-constant volume), expands adiabatically doing work on the piston, then exhausts at constant volume. Each step demonstrates a different thermodynamic process governed by the First Law.
           </p>
@@ -665,14 +665,14 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Thermal Expansion</h3>
         <p>Most substances expand on heating and contract on cooling. This change in dimensions due to temperature increase is called thermal expansion.</p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Linear Expansion:</strong> The fractional change in length (Δl/l) is proportional to the change in temperature (ΔT): Δl = α<sub>l</sub> l ΔT, where α<sub>l</sub> is the coefficient of linear expansion.</li>
-          <li><strong>Area Expansion:</strong> The change in area (ΔA) is related to temperature change by ΔA = 2α<sub>l</sub> A ΔT.</li>
-          <li><strong>Volume Expansion:</strong> The fractional change in volume (ΔV/V) is ΔV = α<sub>v</sub> V ΔT. For solids, α<sub>v</sub> = 3α<sub>l</sub>.</li>
-          <li><strong>Anomalous Expansion of Water:</strong> Water contracts on heating between 0 °C and 4 °C. It reaches its maximum density at 4 °C.</li>
+          <li><strong>Linear Expansion:</strong> The fractional change in length (Î”l/l) is proportional to the change in temperature (Î”T): Î”l = Î±<sub>l</sub> l Î”T, where Î±<sub>l</sub> is the coefficient of linear expansion.</li>
+          <li><strong>Area Expansion:</strong> The change in area (Î”A) is related to temperature change by Î”A = 2Î±<sub>l</sub> A Î”T.</li>
+          <li><strong>Volume Expansion:</strong> The fractional change in volume (Î”V/V) is Î”V = Î±<sub>v</sub> V Î”T. For solids, Î±<sub>v</sub> = 3Î±<sub>l</sub>.</li>
+          <li><strong>Anomalous Expansion of Water:</strong> Water contracts on heating between 0 Â°C and 4 Â°C. It reaches its maximum density at 4 Â°C.</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Specific Heat Capacity (s)</h3>
-        <p>Every substance has a unique value for the amount of heat absorbed or rejected to change the temperature of unit mass by one unit. The formula is s = (1/m)(ΔQ/ΔT). Its SI unit is J kg⁻¹ K⁻¹. Water has the highest specific heat capacity among common substances, making it an excellent coolant.</p>
+        <p>Every substance has a unique value for the amount of heat absorbed or rejected to change the temperature of unit mass by one unit. The formula is s = (1/m)(Î”Q/Î”T). Its SI unit is J kgâ»Â¹ Kâ»Â¹. Water has the highest specific heat capacity among common substances, making it an excellent coolant.</p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Calorimetry and Change of State</h3>
         <p>Calorimetry is the measurement of heat. In an isolated system, heat lost by a hot body equals heat gained by a colder body. Matter changes state (solid to liquid, liquid to gas) when heat is exchanged with surroundings. During these transitions, the temperature remains constant.</p>
@@ -690,33 +690,33 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <li><strong>Convection:</strong> Heat transfer by actual motion of matter, occurring only in fluids. It can be natural (driven by buoyancy/gravity) or forced (driven by a pump).</li>
           <li><strong>Radiation:</strong> Transfer of energy via electromagnetic waves, requiring no medium.
             <ul className="list-disc pl-6 space-y-2 mt-2">
-              <li><strong>Stefan-Boltzmann Law:</strong> The energy emitted per unit time is H = σAeT⁴, where σ is the Stefan-Boltzmann constant, A is area, e is emissivity, and T is absolute temperature.</li>
-              <li><strong>Wien's Displacement Law:</strong> The wavelength (λ_m) of maximum emission decreases as temperature increases: λ_m T = constant.</li>
+              <li><strong>Stefan-Boltzmann Law:</strong> The energy emitted per unit time is H = ÏƒAeTâ´, where Ïƒ is the Stefan-Boltzmann constant, A is area, e is emissivity, and T is absolute temperature.</li>
+              <li><strong>Wien's Displacement Law:</strong> The wavelength (Î»_m) of maximum emission decreases as temperature increases: Î»_m T = constant.</li>
             </ul>
           </li>
         </ol>
 
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">Newton’s Law of Cooling</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">The rate of loss of heat (– dQ/dt) of a body is directly proportional to the difference in temperature between the body and its surroundings (ΔT = T₂ – T₁). This holds for small temperature differences.</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Newtonâ€™s Law of Cooling</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">The rate of loss of heat (â€“ dQ/dt) of a body is directly proportional to the difference in temperature between the body and its surroundings (Î”T = Tâ‚‚ â€“ Tâ‚). This holds for small temperature differences.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Analogy and Applications</h3>
         <div className="grid gap-4 my-6">
           <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm">
-            <h4 className="font-bold text-amber-900 mb-2">⚙️ Daily Life (Engineering)</h4>
+            <h4 className="font-bold text-amber-900 mb-2">âš™ï¸ Daily Life (Engineering)</h4>
             <p className="text-sm">Blacksmiths heat an iron ring before fitting it onto the wooden rim of a horse cart. Because the iron ring's diameter is slightly smaller than the rim at room temperature, heating causes it to expand (linear/area expansion), allowing it to slip onto the rim. As it cools, it contracts and grips the wheel tightly.</p>
           </div>
           <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm">
-            <h4 className="font-bold text-emerald-900 mb-2">❄️ Nature (Environmental)</h4>
-            <p className="text-sm">Anomalous expansion of water allows lakes to freeze at the top first. Since water at 4 °C is densest, it sinks, while colder water (less than 4 °C) stays on top and freezes. This preserves animal and plant life at the bottom of the lake.</p>
+            <h4 className="font-bold text-emerald-900 mb-2">â„ï¸ Nature (Environmental)</h4>
+            <p className="text-sm">Anomalous expansion of water allows lakes to freeze at the top first. Since water at 4 Â°C is densest, it sinks, while colder water (less than 4 Â°C) stays on top and freezes. This preserves animal and plant life at the bottom of the lake.</p>
           </div>
           <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm">
-            <h4 className="font-bold text-sky-900 mb-2">☀️ Daily Life (Heat Transfer)</h4>
+            <h4 className="font-bold text-sky-900 mb-2">â˜€ï¸ Daily Life (Heat Transfer)</h4>
             <p className="text-sm">We wear white clothes in summer because they reflect radiation, and dark clothes in winter because they absorb heat better. Cooking pot bottoms are often blackened to maximize heat absorption from the fire.</p>
           </div>
           <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm">
-            <h4 className="font-bold text-purple-900 mb-2">🚗 Engineering (Specific Heat)</h4>
+            <h4 className="font-bold text-purple-900 mb-2">ðŸš— Engineering (Specific Heat)</h4>
             <p className="text-sm">Water is used in automobile radiators as a coolant because its high specific heat allows it to absorb a large amount of heat with a relatively small rise in its own temperature.</p>
           </div>
         </div>
@@ -727,12 +727,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <ol className="list-decimal pl-6 space-y-3 text-sm">
             <li><strong>Step 1:</strong> Select the Copper rod. Turn the burner to 100W. Observe the Temperature rise and the rod length increase simultaneously. <em>Logic: Heat addition increases internal kinetic energy and causes expansion.</em></li>
             <li><strong>Step 2:</strong> Switch to the Glass rod. Notice for the same time interval, the expansion is significantly less. <em>Logic: Glass has a much smaller coefficient of linear expansion than Copper.</em></li>
-            <li><strong>Step 3:</strong> Select the Ice block. Start heating. Observe that the temperature stays at 0 °C for several minutes while the ice visibly turns to water. <em>Logic: Energy is being used for the Latent Heat of Fusion to break molecular bonds, not to increase temperature.</em></li>
-            <li><strong>Step 4:</strong> Heat the resulting Water. Observe the temperature rise until 100 °C. Notice the graph flatlines again. <em>Logic: Water is reaching its boiling point and absorbing Latent Heat of Vaporisation.</em></li>
+            <li><strong>Step 3:</strong> Select the Ice block. Start heating. Observe that the temperature stays at 0 Â°C for several minutes while the ice visibly turns to water. <em>Logic: Energy is being used for the Latent Heat of Fusion to break molecular bonds, not to increase temperature.</em></li>
+            <li><strong>Step 4:</strong> Heat the resulting Water. Observe the temperature rise until 100 Â°C. Notice the graph flatlines again. <em>Logic: Water is reaching its boiling point and absorbing Latent Heat of Vaporisation.</em></li>
           </ol>
           <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mt-3">
             <p className="text-sm text-blue-800 text-center">
-              <strong>Learning Outcome:</strong> Thermal properties are material-specific (different α_l, s). Heat causes macroscopic expansion and microscopic vibration. Phase changes require significant energy without temperature change.
+              <strong>Learning Outcome:</strong> Thermal properties are material-specific (different Î±_l, s). Heat causes macroscopic expansion and microscopic vibration. Phase changes require significant energy without temperature change.
             </p>
           </div>
         </div>
@@ -865,43 +865,43 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Pressure of an Ideal Gas (Kinetic Theory)</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          Gas pressure is not a static force — it is the macroscopic manifestation of billions of microscopic elastic collisions of gas molecules against the container walls.
+          Gas pressure is not a static force â€” it is the macroscopic manifestation of billions of microscopic elastic collisions of gas molecules against the container walls.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Derivation Summary</h3>
         <ol className="list-decimal pl-6 space-y-3">
           <li><strong>Elastic collision:</strong> A molecule of mass m hits the wall and rebounds. Momentum transferred to wall = 2mv<sub>x</sub>.</li>
-          <li><strong>Number of collisions:</strong> In time Δt, molecules within distance v<sub>x</sub>Δt from the wall can reach it. Count = ½ n A v<sub>x</sub> Δt.</li>
-          <li><strong>Total force:</strong> F = n m A ⟨v<sub>x</sub>²⟩. Since gas is isotropic, ⟨v<sub>x</sub>²⟩ = ⅓⟨v²⟩.</li>
+          <li><strong>Number of collisions:</strong> In time Î”t, molecules within distance v<sub>x</sub>Î”t from the wall can reach it. Count = Â½ n A v<sub>x</sub> Î”t.</li>
+          <li><strong>Total force:</strong> F = n m A âŸ¨v<sub>x</sub>Â²âŸ©. Since gas is isotropic, âŸ¨v<sub>x</sub>Â²âŸ© = â…“âŸ¨vÂ²âŸ©.</li>
         </ol>
 
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-lg text-brand-primary text-center">P = ⅓ n m ⟨v²⟩</p>
+          <p className="font-mono text-lg text-brand-primary text-center">P = â…“ n m âŸ¨vÂ²âŸ©</p>
           <p className="text-sm text-slate-600 mt-3 text-center">
-            n = N/V (number density), m = molecular mass, ⟨v²⟩ = mean square speed
+            n = N/V (number density), m = molecular mass, âŸ¨vÂ²âŸ© = mean square speed
           </p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Kinetic Interpretation of Temperature</h3>
-        <p>Comparing PV = ⅔E with PV = Nk<sub>B</sub>T gives:</p>
+        <p>Comparing PV = â…”E with PV = Nk<sub>B</sub>T gives:</p>
         <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-          <p className="font-mono text-lg text-emerald-700 text-center">½ m ⟨v²⟩ = 3/2 k<sub>B</sub> T</p>
+          <p className="font-mono text-lg text-emerald-700 text-center">Â½ m âŸ¨vÂ²âŸ© = 3/2 k<sub>B</sub> T</p>
           <p className="text-sm text-slate-600 mt-2 text-center">
             Absolute temperature is simply a measure of the average random kinetic energy of gas molecules.
           </p>
         </div>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6">
-          <h4 className="font-bold text-amber-900 mb-2">🎈 Daily Life: Why Balloons Stay Inflated</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸŽˆ Daily Life: Why Balloons Stay Inflated</h4>
           <p className="text-sm">
             Air molecules inside a balloon are in continuous random motion, colliding with the rubber walls. More molecules = more collisions per second = outward push that keeps the balloon inflated.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🚗 Engineering: Tyre Pressure Increase While Driving</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸš— Engineering: Tyre Pressure Increase While Driving</h4>
           <p className="text-sm">
-            Road friction heats tyres, raising air temperature inside. By ½m⟨v²⟩ = 3/2 k<sub>B</sub>T, molecules move faster, hit walls harder, and tyre pressure rises — which is why it's recommended to check tyre pressure when cold.
+            Road friction heats tyres, raising air temperature inside. By Â½mâŸ¨vÂ²âŸ© = 3/2 k<sub>B</sub>T, molecules move faster, hit walls harder, and tyre pressure rises â€” which is why it's recommended to check tyre pressure when cold.
           </p>
         </div>
 
@@ -920,23 +920,23 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Zig-Zag Path Problem</h3>
         <p className="text-sm">
-          Gas molecules travel at very high speeds (~500 m/s for nitrogen at room temperature) yet a perfume scent takes minutes to cross a room. This paradox is resolved by the mean free path — molecules constantly collide with each other, following a chaotic zig-zag path rather than a straight line.
+          Gas molecules travel at very high speeds (~500 m/s for nitrogen at room temperature) yet a perfume scent takes minutes to cross a room. This paradox is resolved by the mean free path â€” molecules constantly collide with each other, following a chaotic zig-zag path rather than a straight line.
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Derivation — The Collision Cylinder</h3>
-        <p className="text-sm">Consider a single molecule of diameter <strong>d</strong> moving with average speed <strong>⟨v⟩</strong>:</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Derivation â€” The Collision Cylinder</h3>
+        <p className="text-sm">Consider a single molecule of diameter <strong>d</strong> moving with average speed <strong>âŸ¨vâŸ©</strong>:</p>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li>In time Δt, it sweeps out a <strong>collision cylinder</strong> of volume <strong>πd²⟨v⟩Δt</strong></li>
+          <li>In time Î”t, it sweeps out a <strong>collision cylinder</strong> of volume <strong>Ï€dÂ²âŸ¨vâŸ©Î”t</strong></li>
           <li>Any molecule whose centre lies within this cylinder will be hit</li>
-          <li>Number of collisions = <strong>n · πd²⟨v⟩Δt</strong>, where n is the number density</li>
-          <li>Collision rate = <strong>n · πd²⟨v⟩</strong></li>
-          <li>Accounting for the relative motion of all molecules introduces the factor √2</li>
+          <li>Number of collisions = <strong>n Â· Ï€dÂ²âŸ¨vâŸ©Î”t</strong>, where n is the number density</li>
+          <li>Collision rate = <strong>n Â· Ï€dÂ²âŸ¨vâŸ©</strong></li>
+          <li>Accounting for the relative motion of all molecules introduces the factor âˆš2</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Formula</h3>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
-          <p className="font-mono text-xl text-brand-primary">l = 1 / (√2 · n · π · d²)</p>
-          <p className="text-sm text-slate-600 mt-2">where n = N/V (number density, m⁻³), d = molecular diameter (m)</p>
+          <p className="font-mono text-xl text-brand-primary">l = 1 / (âˆš2 Â· n Â· Ï€ Â· dÂ²)</p>
+          <p className="text-sm text-slate-600 mt-2">where n = N/V (number density, mâ»Â³), d = molecular diameter (m)</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Cause and Effect</h3>
@@ -953,21 +953,21 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <tbody>
               <tr>
                 <td className="p-3 border border-slate-200 font-bold text-blue-700">Density (n)</td>
-                <td className="p-3 border border-slate-200">n ↑</td>
-                <td className="p-3 border border-slate-200 font-bold text-red-600">l ↓  (l ∝ 1/n)</td>
+                <td className="p-3 border border-slate-200">n â†‘</td>
+                <td className="p-3 border border-slate-200 font-bold text-red-600">l â†“  (l âˆ 1/n)</td>
                 <td className="p-3 border border-slate-200">More targets per unit volume</td>
               </tr>
               <tr className="bg-slate-50">
                 <td className="p-3 border border-slate-200 font-bold text-red-700">Diameter (d)</td>
-                <td className="p-3 border border-slate-200">d ↑</td>
-                <td className="p-3 border border-slate-200 font-bold text-red-600">l ↓  (l ∝ 1/d²)</td>
-                <td className="p-3 border border-slate-200">Larger cross-section πd²</td>
+                <td className="p-3 border border-slate-200">d â†‘</td>
+                <td className="p-3 border border-slate-200 font-bold text-red-600">l â†“  (l âˆ 1/dÂ²)</td>
+                <td className="p-3 border border-slate-200">Larger cross-section Ï€dÂ²</td>
               </tr>
               <tr>
                 <td className="p-3 border border-slate-200 font-bold text-green-700">Temperature (T)</td>
-                <td className="p-3 border border-slate-200">T ↑ (const. P)</td>
-                <td className="p-3 border border-slate-200 font-bold text-green-600">l ↑</td>
-                <td className="p-3 border border-slate-200">Gas expands → n decreases</td>
+                <td className="p-3 border border-slate-200">T â†‘ (const. P)</td>
+                <td className="p-3 border border-slate-200 font-bold text-green-600">l â†‘</td>
+                <td className="p-3 border border-slate-200">Gas expands â†’ n decreases</td>
               </tr>
             </tbody>
           </table>
@@ -977,21 +977,21 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🍳 Cooking Smells &amp; Perfume</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ³ Cooking Smells &amp; Perfume</h4>
           <p className="text-sm">
             Despite molecules moving at ~500 m/s, the scent takes several minutes to cross a room. Nitrogen molecules in air collide ~5 billion times per second, making the mean free path just ~70 nm at atmospheric pressure.
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">💡 Vacuum Tubes &amp; Electronics</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ’¡ Vacuum Tubes &amp; Electronics</h4>
           <p className="text-sm">
-            In highly evacuated vacuum tubes, the number density n is so small that the mean free path becomes comparable to the size of the tube itself. Electrons or gas molecules can travel end-to-end without any collision — essential for CRT screens and electron microscopes.
+            In highly evacuated vacuum tubes, the number density n is so small that the mean free path becomes comparable to the size of the tube itself. Electrons or gas molecules can travel end-to-end without any collision â€” essential for CRT screens and electron microscopes.
           </p>
         </div>
 
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm my-4">
-          <h4 className="font-bold text-slate-900 mb-2">🏭 Industrial Gas Separation</h4>
+          <h4 className="font-bold text-slate-900 mb-2">ðŸ­ Industrial Gas Separation</h4>
           <p className="text-sm">
             In Knudsen diffusion, gases pass through porous membranes whose pore size is smaller than the mean free path. Under these conditions, each molecule moves independently, allowing separation based on molecular mass.
           </p>
@@ -1013,10 +1013,10 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Translational, Rotational &amp; Vibrational DOF</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Monatomic (He, Ar):</strong> Single atom — only translational motion in x, y, z. <strong>f = 3</strong>.</li>
-          <li><strong>Rigid Diatomic (O₂, N₂):</strong> 3 translational + 2 rotational axes (perpendicular to bond axis). <strong>f = 5</strong>.</li>
-          <li><strong>Vibrating Diatomic (CO at high T):</strong> Atoms oscillate along the bond axis like a spring — adds 2 vibrational modes (KE + PE). <strong>f = 7</strong>.</li>
-          <li><strong>Polyatomic (CH₄):</strong> 3 translational + 3 rotational + f<sub>vib</sub> vibrational modes. <strong>f = 6 + f<sub>vib</sub></strong>.</li>
+          <li><strong>Monatomic (He, Ar):</strong> Single atom â€” only translational motion in x, y, z. <strong>f = 3</strong>.</li>
+          <li><strong>Rigid Diatomic (Oâ‚‚, Nâ‚‚):</strong> 3 translational + 2 rotational axes (perpendicular to bond axis). <strong>f = 5</strong>.</li>
+          <li><strong>Vibrating Diatomic (CO at high T):</strong> Atoms oscillate along the bond axis like a spring â€” adds 2 vibrational modes (KE + PE). <strong>f = 7</strong>.</li>
+          <li><strong>Polyatomic (CHâ‚„):</strong> 3 translational + 3 rotational + f<sub>vib</sub> vibrational modes. <strong>f = 6 + f<sub>vib</sub></strong>.</li>
         </ul>
 
         <table className="w-full text-sm mt-4">
@@ -1034,14 +1034,14 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p className="text-sm text-slate-700 text-center mb-2">
             First proved by Maxwell: in thermal equilibrium at temperature T, the total energy is distributed <strong>equally</strong> across all available modes.
           </p>
-          <p className="font-mono text-lg text-brand-primary text-center">Each translational &amp; rotational DOF → ½k<sub>B</sub>T</p>
-          <p className="font-mono text-lg text-brand-primary text-center">Each vibrational mode → k<sub>B</sub>T (KE + PE)</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Each translational &amp; rotational DOF â†’ Â½k<sub>B</sub>T</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Each vibrational mode â†’ k<sub>B</sub>T (KE + PE)</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Internal Energy &amp; Specific Heat</h3>
         <p className="text-sm mb-4">Using R = k<sub>B</sub>N<sub>A</sub>, for one mole of gas:</p>
         <table className="w-full text-sm">
-          <thead><tr className="border-b"><th className="text-left py-2">Gas</th><th>U</th><th>C<sub>v</sub></th><th>C<sub>p</sub></th><th>γ</th></tr></thead>
+          <thead><tr className="border-b"><th className="text-left py-2">Gas</th><th>U</th><th>C<sub>v</sub></th><th>C<sub>p</sub></th><th>Î³</th></tr></thead>
           <tbody>
             <tr><td className="py-1"><strong>Monatomic</strong></td><td className="text-center">3/2 RT</td><td className="text-center">3/2 R</td><td className="text-center">5/2 R</td><td className="text-center font-bold">1.67</td></tr>
             <tr><td className="py-1"><strong>Rigid Diatomic</strong></td><td className="text-center">5/2 RT</td><td className="text-center">5/2 R</td><td className="text-center">7/2 R</td><td className="text-center font-bold">1.40</td></tr>
@@ -1053,23 +1053,23 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Analogies</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">💼 Corporate Budgeting Analogy</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ’¼ Corporate Budgeting Analogy</h4>
           <p className="text-sm">
-            Imagine a company (the gas) with a fixed budget (thermal energy). Equipartition says the budget must be distributed <em>equally</em> among all departments (DOF). A simple company (monatomic) has 3 departments, so each gets a large slice. A complex company (polyatomic) has many departments — the same budget is split thinner. To raise overall activity (temperature) of a complex company by 1 degree, you need much more total money (heat), because every department demands its equal share. This is why C<sub>v</sub> is higher for complex molecules.
+            Imagine a company (the gas) with a fixed budget (thermal energy). Equipartition says the budget must be distributed <em>equally</em> among all departments (DOF). A simple company (monatomic) has 3 departments, so each gets a large slice. A complex company (polyatomic) has many departments â€” the same budget is split thinner. To raise overall activity (temperature) of a complex company by 1 degree, you need much more total money (heat), because every department demands its equal share. This is why C<sub>v</sub> is higher for complex molecules.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🏭 Engine Coolants &amp; Gas Turbines</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ­ Engine Coolants &amp; Gas Turbines</h4>
           <p className="text-sm">
-            Engineers select specific gases for thermodynamic cycles. Diatomic gases like N₂ and O₂ have C<sub>p</sub> = 7/2 R (higher than monatomic He with 5/2 R) because supplied heat is partitioned into rotational modes. This affects the adiabatic ratio γ = C<sub>p</sub>/C<sub>v</sub>, which directly dictates engine efficiency. Monatomic gases (γ = 1.67) undergo steeper adiabatic curves than diatomic gases (γ = 1.40).
+            Engineers select specific gases for thermodynamic cycles. Diatomic gases like Nâ‚‚ and Oâ‚‚ have C<sub>p</sub> = 7/2 R (higher than monatomic He with 5/2 R) because supplied heat is partitioned into rotational modes. This affects the adiabatic ratio Î³ = C<sub>p</sub>/C<sub>v</sub>, which directly dictates engine efficiency. Monatomic gases (Î³ = 1.67) undergo steeper adiabatic curves than diatomic gases (Î³ = 1.40).
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🌍 Atmospheric Warming</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸŒ Atmospheric Warming</h4>
           <p className="text-sm">
-            Our atmosphere&apos;s specific heat is dictated by the diatomic nature of N₂ and O₂. When sunlight heats the Earth, thermal energy causes air molecules not only to move faster (translation) but also to tumble and spin (rotation). This effectively stores more heat without increasing temperature as drastically as a monatomic atmosphere would — a natural temperature buffer for our planet.
+            Our atmosphere&apos;s specific heat is dictated by the diatomic nature of Nâ‚‚ and Oâ‚‚. When sunlight heats the Earth, thermal energy causes air molecules not only to move faster (translation) but also to tumble and spin (rotation). This effectively stores more heat without increasing temperature as drastically as a monatomic atmosphere would â€” a natural temperature buffer for our planet.
           </p>
         </div>
 
@@ -1083,55 +1083,55 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Spring-Mass System and Simple Harmonic Motion</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          SHM arises when a restoring force is <strong>directly proportional</strong> to displacement and always directed towards the equilibrium position: <strong>F = −kx</strong>.
+          SHM arises when a restoring force is <strong>directly proportional</strong> to displacement and always directed towards the equilibrium position: <strong>F = âˆ’kx</strong>.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Force Law &amp; Angular Frequency</h3>
         <p className="text-sm">From Hooke&apos;s Law and Newton&apos;s Second Law:</p>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
-          <p className="font-mono text-lg text-brand-primary">F = −kx → a = −(k/m)x → ω = √(k/m)</p>
+          <p className="font-mono text-lg text-brand-primary">F = âˆ’kx â†’ a = âˆ’(k/m)x â†’ Ï‰ = âˆš(k/m)</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Kinematics of SHM</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Displacement:</strong> x(t) = A cos(ωt + ϕ) — maximum at extreme positions</li>
-          <li><strong>Velocity:</strong> v(t) = −ωA sin(ωt + ϕ) — maximum at mean position (x = 0), phase shift of π/2</li>
-          <li><strong>Acceleration:</strong> a(t) = −ω²A cos(ωt + ϕ) = −ω²x — maximum at extremes, phase shift of π</li>
+          <li><strong>Displacement:</strong> x(t) = A cos(Ï‰t + Ï•) â€” maximum at extreme positions</li>
+          <li><strong>Velocity:</strong> v(t) = âˆ’Ï‰A sin(Ï‰t + Ï•) â€” maximum at mean position (x = 0), phase shift of Ï€/2</li>
+          <li><strong>Acceleration:</strong> a(t) = âˆ’Ï‰Â²A cos(Ï‰t + Ï•) = âˆ’Ï‰Â²x â€” maximum at extremes, phase shift of Ï€</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Time Period</h3>
         <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
-          <p className="font-mono text-lg text-emerald-700">T = 2π√(m/k)</p>
-          <p className="text-sm text-slate-600 mt-1">Critical: T depends only on m and k — <strong>independent of amplitude!</strong></p>
+          <p className="font-mono text-lg text-emerald-700">T = 2Ï€âˆš(m/k)</p>
+          <p className="text-sm text-slate-600 mt-1">Critical: T depends only on m and k â€” <strong>independent of amplitude!</strong></p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Energy in SHM</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>KE</strong> = ½mv² = ½kA² sin²(ωt) — maximum at mean position</li>
-          <li><strong>PE</strong> = ½kx² = ½kA² cos²(ωt) — maximum at extreme positions</li>
-          <li><strong>Total E</strong> = ½kA² — <em>constant</em>, continuously transforms KE ↔ PE</li>
+          <li><strong>KE</strong> = Â½mvÂ² = Â½kAÂ² sinÂ²(Ï‰t) â€” maximum at mean position</li>
+          <li><strong>PE</strong> = Â½kxÂ² = Â½kAÂ² cosÂ²(Ï‰t) â€” maximum at extreme positions</li>
+          <li><strong>Total E</strong> = Â½kAÂ² â€” <em>constant</em>, continuously transforms KE â†” PE</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🚗 Automobile Suspension</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸš— Automobile Suspension</h4>
           <p className="text-sm">
             Car shock absorbers use heavy springs. When the car hits a bump, the mass compresses the spring which then oscillates as a spring-mass SHM system. Oil-based damping prevents the car from bouncing forever.
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🔬 Atoms in a Crystal Lattice</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ”¬ Atoms in a Crystal Lattice</h4>
           <p className="text-sm">
             In crystalline solids, atoms sit in equilibrium positions held by interatomic forces. If displaced, they experience restoring forces exactly like a microscopic spring-mass system, leading to lattice vibrations (phonons).
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🌍 Seismographs</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸŒ Seismographs</h4>
           <p className="text-sm">
-            Earthquake detectors use a heavy mass suspended by a spring. Due to inertia, the mass stays relatively stationary while the ground moves during a quake — the relative SHM of the system records the earth&apos;s tremors.
+            Earthquake detectors use a heavy mass suspended by a spring. Due to inertia, the mass stays relatively stationary while the ground moves during a quake â€” the relative SHM of the system records the earth&apos;s tremors.
           </p>
         </div>
 
@@ -1149,52 +1149,52 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Definition &amp; Physical Setup</h3>
-        <p className="text-sm">In its equilibrium position, the bob hangs vertically at rest. When displaced by an angle θ, the forces acting on it are:</p>
+        <p className="text-sm">In its equilibrium position, the bob hangs vertically at rest. When displaced by an angle Î¸, the forces acting on it are:</p>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Tension (T)</strong> — along the string, toward the pivot</li>
-          <li><strong>Weight (mg)</strong> — vertically downward</li>
+          <li><strong>Tension (T)</strong> â€” along the string, toward the pivot</li>
+          <li><strong>Weight (mg)</strong> â€” vertically downward</li>
         </ul>
-        <p className="text-sm mt-2">The tangential component of gravity (<strong>mgsinθ</strong>) acts as the restoring force.</p>
+        <p className="text-sm mt-2">The tangential component of gravity (<strong>mgsinÎ¸</strong>) acts as the restoring force.</p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Equation of Motion</h3>
-        <p className="text-sm">Using torque equation τ = Iα:</p>
+        <p className="text-sm">Using torque equation Ï„ = IÎ±:</p>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
-          <p className="font-mono text-lg text-brand-primary">τ = −L(mg sinθ) = Iα</p>
-          <p className="text-sm text-slate-600 mt-1">where I = mL² (moment of inertia of a point mass)</p>
+          <p className="font-mono text-lg text-brand-primary">Ï„ = âˆ’L(mg sinÎ¸) = IÎ±</p>
+          <p className="text-sm text-slate-600 mt-1">where I = mLÂ² (moment of inertia of a point mass)</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Small Angle Approximation</h3>
-        <p className="text-sm">For small angles (θ &lt; 20°), sinθ ≈ θ (in radians). This gives:</p>
+        <p className="text-sm">For small angles (Î¸ &lt; 20Â°), sinÎ¸ â‰ˆ Î¸ (in radians). This gives:</p>
         <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
-          <p className="font-mono text-lg text-emerald-700">α ≈ −(g/L)θ</p>
+          <p className="font-mono text-lg text-emerald-700">Î± â‰ˆ âˆ’(g/L)Î¸</p>
           <p className="text-sm text-slate-600 mt-1">This is the defining condition for Simple Harmonic Motion!</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Time Period &amp; Angular Frequency</h3>
         <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
-          <p className="font-mono text-lg text-purple-700">T = 2π√(L/g)</p>
-          <p className="font-mono text-md text-purple-600 mt-1">ω = √(g/L)</p>
+          <p className="font-mono text-lg text-purple-700">T = 2Ï€âˆš(L/g)</p>
+          <p className="font-mono text-md text-purple-600 mt-1">Ï‰ = âˆš(g/L)</p>
         </div>
-        <p className="text-sm"><strong>Key Insight:</strong> The period depends ONLY on length L and gravity g — it is independent of the mass of the bob and (for small angles) the amplitude!</p>
+        <p className="text-sm"><strong>Key Insight:</strong> The period depends ONLY on length L and gravity g â€” it is independent of the mass of the bob and (for small angles) the amplitude!</p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🎢 Playground Swing</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸŽ¢ Playground Swing</h4>
           <p className="text-sm">
             A child on a swing acts as a pendulum. Pushing the swing provides energy to overcome friction (damping), while gravity acts as the restoring force.
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🕐 Grandfather Clock</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ• Grandfather Clock</h4>
           <p className="text-sm">
             These clocks use a pendulum to maintain a precise period. The length is often adjustable to &quot;tune&quot; the clock to T = 2 seconds (a &quot;seconds pendulum&quot;).
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">⛰️ Geological Survey</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">â›°ï¸ Geological Survey</h4>
           <p className="text-sm">
             By measuring the time period of a pendulum of known length, scientists can calculate the local value of g to detect underground mineral deposits or variations in the Earth&apos;s crust.
           </p>
@@ -1217,48 +1217,48 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Superposition, Reflection &amp; Standing Waves</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          When two identical waves travel in opposite directions, their superposition creates a <strong>standing wave</strong> — a pattern that oscillates in place, with fixed nodes and vibrating antinodes.
+          When two identical waves travel in opposite directions, their superposition creates a <strong>standing wave</strong> â€” a pattern that oscillates in place, with fixed nodes and vibrating antinodes.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Principle of Superposition</h3>
-        <p className="text-sm">The net displacement at any point is the algebraic sum of individual wave displacements: <strong>y = y₁ + y₂</strong>. Each wave travels as if the others are not present.</p>
+        <p className="text-sm">The net displacement at any point is the algebraic sum of individual wave displacements: <strong>y = yâ‚ + yâ‚‚</strong>. Each wave travels as if the others are not present.</p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Reflection of Waves</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Fixed end:</strong> Phase change of π — reflected wave is inverted. y<sub>r</sub> = −a sin(kx + ωt)</li>
-          <li><strong>Free end:</strong> No phase change — reflected wave is upright. y<sub>r</sub> = a sin(kx + ωt)</li>
+          <li><strong>Fixed end:</strong> Phase change of Ï€ â€” reflected wave is inverted. y<sub>r</sub> = âˆ’a sin(kx + Ï‰t)</li>
+          <li><strong>Free end:</strong> No phase change â€” reflected wave is upright. y<sub>r</sub> = a sin(kx + Ï‰t)</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Standing Wave Equation</h3>
         <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200 text-center">
-          <p className="font-mono text-lg text-purple-700">y(x,t) = [2a sin(kx)] cos(ωt)</p>
-          <p className="text-sm text-slate-600 mt-1">Amplitude varies with position — kx and ωt are separate!</p>
+          <p className="font-mono text-lg text-purple-700">y(x,t) = [2a sin(kx)] cos(Ï‰t)</p>
+          <p className="text-sm text-slate-600 mt-1">Amplitude varies with position â€” kx and Ï‰t are separate!</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Nodes &amp; Antinodes</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Nodes:</strong> sin(kx) = 0 → x = 0, λ/2, λ, ... (particles never move). Distance = λ/2.</li>
-          <li><strong>Antinodes:</strong> |sin(kx)| = 1 → x = λ/4, 3λ/4, ... (maximum amplitude 2a). Distance = λ/2.</li>
+          <li><strong>Nodes:</strong> sin(kx) = 0 â†’ x = 0, Î»/2, Î», ... (particles never move). Distance = Î»/2.</li>
+          <li><strong>Antinodes:</strong> |sin(kx)| = 1 â†’ x = Î»/4, 3Î»/4, ... (maximum amplitude 2a). Distance = Î»/2.</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Normal Modes (Harmonics)</h3>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
-          <p className="font-mono text-lg text-brand-primary">ν<sub>n</sub> = nv/(2L)   where v = √(T/μ)</p>
+          <p className="font-mono text-lg text-brand-primary">Î½<sub>n</sub> = nv/(2L)   where v = âˆš(T/Î¼)</p>
           <p className="text-sm text-slate-600 mt-1">n = 1 (fundamental), 2, 3, ... Each gives n loops with n+1 nodes.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Real-World Applications</h3>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🎸 Musical Instruments</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸŽ¸ Musical Instruments</h4>
           <p className="text-sm">Guitar and sitar strings vibrate in standing wave patterns. The combination of fundamental and higher harmonics determines the instrument&apos;s timbre (tonal quality).</p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🌊 Resonance in Bays</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸŒŠ Resonance in Bays</h4>
           <p className="text-sm">Tides entering a partially enclosed bay reflect off the coast, creating standing water waves. When the bay&apos;s natural frequency matches the tidal frequency, massive resonant antinodes form.</p>
         </div>
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🎵 Organ Pipes</h4>
-          <p className="text-sm">Wind instruments use standing waves in air columns. A pipe closed at one end creates a displacement node there, restricting frequencies to odd harmonics: ν<sub>n</sub> = nv/(4L) for n = 1, 3, 5...</p>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸŽµ Organ Pipes</h4>
+          <p className="text-sm">Wind instruments use standing waves in air columns. A pipe closed at one end creates a displacement node there, restricting frequencies to odd harmonics: Î½<sub>n</sub> = nv/(4L) for n = 1, 3, 5...</p>
         </div>
 
         <VideoSection />
@@ -1285,8 +1285,8 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </ul>
 
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center pb-2">E<sub>n</sub> = -2.18 × 10<sup>-18</sup> (1/n²) J</p>
-          <p className="font-mono text-xl text-brand-primary text-center">ΔE = E<sub>f</sub> - E<sub>i</sub></p>
+          <p className="font-mono text-xl text-brand-primary text-center pb-2">E<sub>n</sub> = -2.18 Ã— 10<sup>-18</sup> (1/nÂ²) J</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Î”E = E<sub>f</sub> - E<sub>i</sub></p>
           <p className="text-sm text-slate-600 mt-2 text-center border-t border-slate-300 pt-2">The energy of the emitted photon equals the difference between the higher and lower orbits.</p>
         </div>
 
@@ -1295,13 +1295,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The energy gap between orbits is massive at the bottom and gets progressively smaller higher up.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Lyman Series (n_final = 1):</strong> Huge energy drops → Ultraviolet (UV) light.</li>
-          <li><strong>Balmer Series (n_final = 2):</strong> Moderate energy drops → Visible light (Red to Violet).</li>
-          <li><strong>Paschen/Brackett/Pfund (n_final ≥ 3):</strong> Small energy drops → Infrared (IR) light.</li>
+          <li><strong>Lyman Series (n_final = 1):</strong> Huge energy drops â†’ Ultraviolet (UV) light.</li>
+          <li><strong>Balmer Series (n_final = 2):</strong> Moderate energy drops â†’ Visible light (Red to Violet).</li>
+          <li><strong>Paschen/Brackett/Pfund (n_final â‰¥ 3):</strong> Small energy drops â†’ Infrared (IR) light.</li>
         </ul>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6">
-          <h4 className="font-bold text-amber-900 mb-2">🎆 Real-World Analogy: Fireworks & Neon Signs</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸŽ† Real-World Analogy: Fireworks & Neon Signs</h4>
           <p className="text-sm">
             When electricity passes through neon gas, electrons are excited. When they drop down, they emit specific wavelengths, giving Neon its red-orange glow.
             Similarly, fireworks' colors depend on the metal salts used (strontium for red, copper for blue); heat excites electrons, and atomic "falling down" transitions dictate the color we see!
@@ -1309,7 +1309,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </div>
 
         <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 shadow-sm my-6">
-          <h4 className="font-bold text-indigo-900 mb-2">🔭 Astrophysics: Stellar Spectroscopy</h4>
+          <h4 className="font-bold text-indigo-900 mb-2">ðŸ”­ Astrophysics: Stellar Spectroscopy</h4>
           <p className="text-sm">
             Astronomers know the chemical composition of stars millions of lightyears away. Cooler gases absorb specific wavelengths from starlight. By looking at the missing black lines (absorption spectra), they compare them to known energy levels on Earth to identify the star's elements.
           </p>
@@ -1330,7 +1330,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Quantum Mechanical Model</h3>
         <p>
-          Heisenberg's Uncertainty Principle states we cannot know both the exact position and momentum of an electron. Instead, we use Schrödinger's wave equation (ψ) to find the probability density (ψ²).
+          Heisenberg's Uncertainty Principle states we cannot know both the exact position and momentum of an electron. Instead, we use SchrÃ¶dinger's wave equation (Ïˆ) to find the probability density (ÏˆÂ²).
           A boundary surface diagram connects points of constant probability to visualize the "shape" of these clouds.
         </p>
 
@@ -1343,13 +1343,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <strong>p-orbitals (l = 1):</strong> Consists of two lobes separated by a plane (dumbbell shape). There are three mutually perpendicular p-orbitals: p<sub>x</sub>, p<sub>y</sub>, and p<sub>z</sub>.
           </li>
           <li>
-            <strong>d-orbitals (l = 2):</strong> Four of the five d-orbitals have a "double-dumbbell" or clover shape (d<sub>xy</sub>, d<sub>yz</sub>, d<sub>xz</sub>, d<sub>x²-y²</sub>). The fifth (d<sub>z²</sub>) looks like a dumbbell with a doughnut-shaped ring around the center.
+            <strong>d-orbitals (l = 2):</strong> Four of the five d-orbitals have a "double-dumbbell" or clover shape (d<sub>xy</sub>, d<sub>yz</sub>, d<sub>xz</sub>, d<sub>xÂ²-yÂ²</sub>). The fifth (d<sub>zÂ²</sub>) looks like a dumbbell with a doughnut-shaped ring around the center.
           </li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Nodes: Zones of Zero Probability</h3>
         <p>
-          A node is a region where the probability density (ψ²) drops to absolute zero.
+          A node is a region where the probability density (ÏˆÂ²) drops to absolute zero.
         </p>
         <div className="my-6 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm space-y-3">
           <p><strong>Radial Nodes:</strong> Spherical shells of zero probability. <br /><span className="font-mono text-brand-primary">Formula: n - l - 1</span></p>
@@ -1358,16 +1358,16 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-6">
-          <h4 className="font-bold text-sky-900 mb-2">🐝 Real-World Analogy: A Swarm of Bees</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ Real-World Analogy: A Swarm of Bees</h4>
           <p className="text-sm">
-            Imagine a beehive as the nucleus. A single bee flies around it incredibly fast. A photograph won't show the bee; a time-lapse reveals a blurry "cloud." The cloud is thickest near the hive. This is electron probability density (ψ²). A region where a repelling scent keeps bees away is a "node."
+            Imagine a beehive as the nucleus. A single bee flies around it incredibly fast. A photograph won't show the bee; a time-lapse reveals a blurry "cloud." The cloud is thickest near the hive. This is electron probability density (ÏˆÂ²). A region where a repelling scent keeps bees away is a "node."
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-6">
-          <h4 className="font-bold text-emerald-900 mb-2">🎸 Nature Example: Standing Waves</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸŽ¸ Nature Example: Standing Waves</h4>
           <p className="text-sm">
-            When you pluck a guitar string, points vibrate violently (antinodes) while others remain perfectly still (nodes). Electron wave functions (ψ) are essentially 3D standing waves, and orbital nodes are the 3D equivalent of those motionless vibrational points.
+            When you pluck a guitar string, points vibrate violently (antinodes) while others remain perfectly still (nodes). Electron wave functions (Ïˆ) are essentially 3D standing waves, and orbital nodes are the 3D equivalent of those motionless vibrational points.
           </p>
         </div>
 
@@ -1410,44 +1410,44 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Cause and Effect: Geometric Distortion</h3>
         <ul className="list-disc pl-5 space-y-4 mb-6">
           <li>
-            <strong>Ideal Geometry:</strong> Only bond pairs. Perfect symmetry (e.g., CH₄ is perfectly Tetrahedral at 109.5°).
+            <strong>Ideal Geometry:</strong> Only bond pairs. Perfect symmetry (e.g., CHâ‚„ is perfectly Tetrahedral at 109.5Â°).
           </li>
           <li>
-            <strong>One Lone Pair (e.g., NH₃):</strong> Nitrogen has 3 bond pairs, 1 lone pair. The strong LP-BP repulsion squeezes N-H bonds. Shape: <i>Trigonal Pyramidal</i> (Angle drops from 109.5° to 107°).
+            <strong>One Lone Pair (e.g., NHâ‚ƒ):</strong> Nitrogen has 3 bond pairs, 1 lone pair. The strong LP-BP repulsion squeezes N-H bonds. Shape: <i>Trigonal Pyramidal</i> (Angle drops from 109.5Â° to 107Â°).
           </li>
           <li>
-            <strong>Two Lone Pairs (e.g., H₂O):</strong> Oxygen has 2 bond pairs, 2 lone pairs. Massive LP-LP repulsion brutally squishes O-H bonds. Shape: <i>Bent</i> (Angle drops further to 104.5°).
+            <strong>Two Lone Pairs (e.g., Hâ‚‚O):</strong> Oxygen has 2 bond pairs, 2 lone pairs. Massive LP-LP repulsion brutally squishes O-H bonds. Shape: <i>Bent</i> (Angle drops further to 104.5Â°).
           </li>
           <li>
-            <strong>Equatorial Preference (e.g., SF₄):</strong> In a 5-pair Trigonal Bipyramidal setup, lone pairs occupy equatorial positions, minimizing 90° repulsions. This forms a <i>See-saw</i> shape.
+            <strong>Equatorial Preference (e.g., SFâ‚„):</strong> In a 5-pair Trigonal Bipyramidal setup, lone pairs occupy equatorial positions, minimizing 90Â° repulsions. This forms a <i>See-saw</i> shape.
           </li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🎈 Daily Life Analogy: Tied Balloons</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸŽˆ Daily Life Analogy: Tied Balloons</h4>
           <p className="text-sm">
             Imagine tying 4 elongated balloons together. They naturally fan out into a tetrahedral shape giving maximum space. Now attach one significantly fatter balloon (a lone pair). It forces the three thinner balloons to squeeze closer together!
           </p>
         </div>
 
         <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm my-4">
-          <h4 className="font-bold text-blue-900 mb-2">💧 Nature: Water's Unique Properties</h4>
+          <h4 className="font-bold text-blue-900 mb-2">ðŸ’§ Nature: Water's Unique Properties</h4>
           <p className="text-sm">
-            Because H₂O has two lone pairs, it is distinctly bent (not linear). This asymmetry creates a dipole moment. This precise polarity is why water is the universal solvent, liquid at room temperature, and why ice floats—fundamental to life!
+            Because Hâ‚‚O has two lone pairs, it is distinctly bent (not linear). This asymmetry creates a dipole moment. This precise polarity is why water is the universal solvent, liquid at room temperature, and why ice floatsâ€”fundamental to life!
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🌡️ Industrial: Microwave Ovens</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸŒ¡ï¸ Industrial: Microwave Ovens</h4>
           <p className="text-sm">
             Microwaves work exactly by interacting with water's dipole moment. VSEPR theory's lone pair dictates the bent geometry allowing the water molecule to align with the oscillating electromagnetic field, generating heat.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">💊 Pharmaceutical Engineering</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ’Š Pharmaceutical Engineering</h4>
           <p className="text-sm">
             Receptors in our body are locks. VSEPR theory is actively used to predict exact 3D molecular geometry of synthetic drugs to ensure perfectly shaped "keys" that fit into viral or bacterial receptors.
           </p>
@@ -1468,53 +1468,53 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Phases of Orbitals</h3>
         <p>
-          Orbital wave functions (ψ) have <strong>positive (+)</strong> and <strong>negative (−)</strong> regions representing the phase of the wave — <em>not</em> electrical charge. Two overlapping orbitals must have the <strong>same phase</strong> and proper orientation to produce a <strong>constructive overlap</strong> (bonding). Opposite phases give <strong>destructive interference</strong> (no bond).
+          Orbital wave functions (Ïˆ) have <strong>positive (+)</strong> and <strong>negative (âˆ’)</strong> regions representing the phase of the wave â€” <em>not</em> electrical charge. Two overlapping orbitals must have the <strong>same phase</strong> and proper orientation to produce a <strong>constructive overlap</strong> (bonding). Opposite phases give <strong>destructive interference</strong> (no bond).
         </p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Sigma (σ) Bond — Head-on Overlap</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Sigma (Ïƒ) Bond â€” Head-on Overlap</h3>
         <p>
           Formed by <strong>end-to-end</strong> overlap along the internuclear axis. The electron cloud is <strong>cylindrically symmetrical</strong> around the bond axis.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-6">
-          <li><strong>s–s overlap:</strong> Two half-filled s-orbitals merge (e.g., H₂ molecule).</li>
-          <li><strong>s–p overlap:</strong> One s-orbital overlaps with one p-orbital head-on.</li>
-          <li><strong>p–p axial overlap:</strong> Two p-orbitals overlap head-on along the z-axis (p<sub>z</sub>–p<sub>z</sub>).</li>
+          <li><strong>sâ€“s overlap:</strong> Two half-filled s-orbitals merge (e.g., Hâ‚‚ molecule).</li>
+          <li><strong>sâ€“p overlap:</strong> One s-orbital overlaps with one p-orbital head-on.</li>
+          <li><strong>pâ€“p axial overlap:</strong> Two p-orbitals overlap head-on along the z-axis (p<sub>z</sub>â€“p<sub>z</sub>).</li>
         </ul>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Pi (π) Bond — Sideways Overlap</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Pi (Ï€) Bond â€” Sideways Overlap</h3>
         <p>
           Formed when <strong>parallel p-orbitals</strong> overlap laterally, perpendicular to the internuclear axis. The electron cloud sits in two lobes <strong>above and below</strong> the molecular plane.
         </p>
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="text-sm text-blue-800 text-center"><strong>Key Rule:</strong> A π bond is <em>never</em> formed alone — it always accompanies an existing σ bond in double or triple bonds.</p>
+          <p className="text-sm text-blue-800 text-center"><strong>Key Rule:</strong> A Ï€ bond is <em>never</em> formed alone â€” it always accompanies an existing Ïƒ bond in double or triple bonds.</p>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Strength: σ vs. π</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Strength: Ïƒ vs. Ï€</h3>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-lg text-brand-primary text-center">Sigma (σ) Bond &gt; Pi (π) Bond</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">Head-on approach → greater overlap extent → stronger bond.<br />Sideways approach → less overlap → weaker, more reactive bond.</p>
+          <p className="font-mono text-lg text-brand-primary text-center">Sigma (Ïƒ) Bond &gt; Pi (Ï€) Bond</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">Head-on approach â†’ greater overlap extent â†’ stronger bond.<br />Sideways approach â†’ less overlap â†’ weaker, more reactive bond.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🤝 Daily Life Analogy: Handshake vs. High-Five</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ¤ Daily Life Analogy: Handshake vs. High-Five</h4>
           <p className="text-sm">
-            A σ bond is a firm, direct handshake — strong and head-on. A π bond is like adding a sideways high-five while maintaining the handshake. The high-five is weaker and easier to break.
+            A Ïƒ bond is a firm, direct handshake â€” strong and head-on. A Ï€ bond is like adding a sideways high-five while maintaining the handshake. The high-five is weaker and easier to break.
           </p>
         </div>
 
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🏭 Industrial: Plastics Manufacturing</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ­ Industrial: Plastics Manufacturing</h4>
           <p className="text-sm">
-            Polythene is made by breaking ethene's weak π bond under heat and pressure. The freed electrons form new σ bonds, linking thousands of molecules into long, strong polymer chains.
+            Polythene is made by breaking ethene's weak Ï€ bond under heat and pressure. The freed electrons form new Ïƒ bonds, linking thousands of molecules into long, strong polymer chains.
           </p>
         </div>
 
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">👁️ Biological: Vision</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ‘ï¸ Biological: Vision</h4>
           <p className="text-sm">
-            Retinal in our eyes has alternating σ and (σ+π) bonds. Light energy breaks the weaker π bond, allowing rotation around the remaining σ bond. This shape change triggers the nerve impulse that lets us see!
+            Retinal in our eyes has alternating Ïƒ and (Ïƒ+Ï€) bonds. Light energy breaks the weaker Ï€ bond, allowing rotation around the remaining Ïƒ bond. This shape change triggers the nerve impulse that lets us see!
           </p>
         </div>
 
@@ -1528,13 +1528,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Isothermal Reversible &amp; Irreversible Work</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          When a gas expands or compresses at constant temperature, the amount of work it performs depends crucially on <strong>how</strong> the process is carried out — reversibly (infinitely slowly) or irreversibly (sudden).
+          When a gas expands or compresses at constant temperature, the amount of work it performs depends crucially on <strong>how</strong> the process is carried out â€” reversibly (infinitely slowly) or irreversibly (sudden).
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The First Law of Thermodynamics</h3>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-lg text-brand-primary text-center">ΔU = q + W</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">For an isothermal process of an ideal gas: ΔU = 0, so <strong>q = −W</strong></p>
+          <p className="font-mono text-lg text-brand-primary text-center">Î”U = q + W</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">For an isothermal process of an ideal gas: Î”U = 0, so <strong>q = âˆ’W</strong></p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Reversible Isothermal Expansion</h3>
@@ -1542,7 +1542,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The gas expands in <strong>infinitesimally small steps</strong>, with the external pressure always just slightly less than the gas pressure. At each step, the system is virtually at equilibrium.
         </p>
         <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-          <p className="font-mono text-lg text-emerald-700 text-center">W<sub>rev</sub> = −nRT ln(V₂/V₁)</p>
+          <p className="font-mono text-lg text-emerald-700 text-center">W<sub>rev</sub> = âˆ’nRT ln(Vâ‚‚/Vâ‚)</p>
           <p className="text-sm text-emerald-600 mt-2 text-center">This gives the <strong>maximum work</strong> obtainable from expansion.</p>
         </div>
 
@@ -1551,28 +1551,28 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The external pressure drops suddenly to a constant value P<sub>ext</sub> (e.g., the final pressure). The gas rushes outward doing less total work than the reversible case.
         </p>
         <div className="my-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <p className="font-mono text-lg text-amber-700 text-center">W<sub>irr</sub> = −P<sub>ext</sub>(V₂ − V₁)</p>
+          <p className="font-mono text-lg text-amber-700 text-center">W<sub>irr</sub> = âˆ’P<sub>ext</sub>(Vâ‚‚ âˆ’ Vâ‚)</p>
           <p className="text-sm text-amber-600 mt-2 text-center">Always less than reversible work: |W<sub>irr</sub>| &lt; |W<sub>rev</sub>|</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Why Does It Matter?</h3>
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <p className="text-sm text-blue-800 text-center">
-            <strong>Key Insight (P–V Diagram):</strong> The work done equals the <strong>area under the curve</strong> on the P–V graph. The reversible curve (along the isotherm) always encloses more area than the irreversible rectangle.
+            <strong>Key Insight (Pâ€“V Diagram):</strong> The work done equals the <strong>area under the curve</strong> on the Pâ€“V graph. The reversible curve (along the isotherm) always encloses more area than the irreversible rectangle.
           </p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🚗 Automobile Engines</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸš— Automobile Engines</h4>
           <p className="text-sm">
             Internal combustion engines approximate thermodynamic cycles. Engineers strive to make expansion strokes as close to reversible as possible to extract maximum useful work from fuel combustion.
           </p>
         </div>
         <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm my-4">
-          <h4 className="font-bold text-purple-900 mb-2">🔋 Fuel Cells</h4>
+          <h4 className="font-bold text-purple-900 mb-2">ðŸ”‹ Fuel Cells</h4>
           <p className="text-sm">
-            Fuel cells convert chemical energy to electrical energy nearly reversibly, which is why they can achieve much higher efficiencies (60–80%) compared to combustion engines (25–40%).
+            Fuel cells convert chemical energy to electrical energy nearly reversibly, which is why they can achieve much higher efficiencies (60â€“80%) compared to combustion engines (25â€“40%).
           </p>
         </div>
 
@@ -1591,7 +1591,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Definitions</h3>
         <div className="my-6 p-4 bg-red-50 rounded-xl border border-red-200">
-          <p className="text-sm text-red-800"><strong>Extensive Properties</strong> depend on the <em>quantity or size</em> of matter. More substance → larger value.</p>
+          <p className="text-sm text-red-800"><strong>Extensive Properties</strong> depend on the <em>quantity or size</em> of matter. More substance â†’ larger value.</p>
           <p className="text-sm text-red-700 mt-1">Examples: Mass (m), Volume (V), Internal Energy (U), Enthalpy (H), Heat Capacity (C)</p>
         </div>
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
@@ -1604,29 +1604,29 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           Imagine a gas in a container of volume <strong>V</strong> at temperature <strong>T</strong>. Now insert a partition down the middle:
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="text-sm text-slate-700 mb-1">🔪 <strong>Volume?</strong> Each half has V/2. Volume <em>changed</em> → <span className="text-red-600 font-bold">Extensive</span></p>
-          <p className="text-sm text-slate-700">🌡️ <strong>Temperature?</strong> Still T in both halves. Temperature <em>didn't change</em> → <span className="text-blue-600 font-bold">Intensive</span></p>
+          <p className="text-sm text-slate-700 mb-1">ðŸ”ª <strong>Volume?</strong> Each half has V/2. Volume <em>changed</em> â†’ <span className="text-red-600 font-bold">Extensive</span></p>
+          <p className="text-sm text-slate-700">ðŸŒ¡ï¸ <strong>Temperature?</strong> Still T in both halves. Temperature <em>didn't change</em> â†’ <span className="text-blue-600 font-bold">Intensive</span></p>
         </div>
-        <p className="text-sm text-slate-600 italic">The key test: "If I cut this system in half, does this number change?" If yes → extensive. If no → intensive.</p>
+        <p className="text-sm text-slate-600 italic">The key test: "If I cut this system in half, does this number change?" If yes â†’ extensive. If no â†’ intensive.</p>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Molar Properties: Extensive → Intensive</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Molar Properties: Extensive â†’ Intensive</h3>
         <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-          <p className="font-mono text-lg text-purple-700 text-center">χ<sub>m</sub> = χ / n</p>
-          <p className="text-sm text-purple-600 mt-2 text-center"><strong>Extensive ÷ Extensive = Intensive!</strong> Dividing any extensive property by moles gives a molar property that is intensive.</p>
+          <p className="font-mono text-lg text-purple-700 text-center">Ï‡<sub>m</sub> = Ï‡ / n</p>
+          <p className="text-sm text-purple-600 mt-2 text-center"><strong>Extensive Ã· Extensive = Intensive!</strong> Dividing any extensive property by moles gives a molar property that is intensive.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">☕ Boiling Water Analogy</h4>
-          <p className="text-sm">A teacup and a bathtub of boiling water both read 100°C (intensive). But the bathtub has far more mass, volume, and stored heat energy (all extensive).</p>
+          <h4 className="font-bold text-sky-900 mb-2">â˜• Boiling Water Analogy</h4>
+          <p className="text-sm">A teacup and a bathtub of boiling water both read 100Â°C (intensive). But the bathtub has far more mass, volume, and stored heat energy (all extensive).</p>
         </div>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">✈️ Aerospace Engineering</h4>
-          <p className="text-sm">Engineers select aluminum for aircraft wings based on its density (intensive). A small block and a massive sheet of aluminum share the same low density — it's predictable regardless of size.</p>
+          <h4 className="font-bold text-amber-900 mb-2">âœˆï¸ Aerospace Engineering</h4>
+          <p className="text-sm">Engineers select aluminum for aircraft wings based on its density (intensive). A small block and a massive sheet of aluminum share the same low density â€” it's predictable regardless of size.</p>
         </div>
         <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm my-4">
-          <h4 className="font-bold text-red-900 mb-2">🏭 Chemical Manufacturing Risk</h4>
-          <p className="text-sm">Scaling a reaction from a test tube to a 10,000 L reactor means enthalpy (extensive) scales 1,000×. Without proportional cooling, this poses a severe explosion risk.</p>
+          <h4 className="font-bold text-red-900 mb-2">ðŸ­ Chemical Manufacturing Risk</h4>
+          <p className="text-sm">Scaling a reaction from a test tube to a 10,000 L reactor means enthalpy (extensive) scales 1,000Ã—. Without proportional cooling, this poses a severe explosion risk.</p>
         </div>
 
         <VideoSection />
@@ -1645,20 +1645,20 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Types of Buffer Solutions</h3>
         <div className="my-6 p-4 bg-orange-50 rounded-xl border border-orange-200">
           <p className="text-sm text-orange-800"><strong>Acidic Buffer:</strong> Weak acid + its salt with a strong base.</p>
-          <p className="text-sm text-orange-700 mt-1">Example: CH₃COOH + CH₃COONa → buffers around pH 4.75</p>
+          <p className="text-sm text-orange-700 mt-1">Example: CHâ‚ƒCOOH + CHâ‚ƒCOONa â†’ buffers around pH 4.75</p>
         </div>
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <p className="text-sm text-blue-800"><strong>Basic Buffer:</strong> Weak base + its salt with a strong acid.</p>
-          <p className="text-sm text-blue-700 mt-1">Example: NH₄OH + NH₄Cl → buffers around pH 9.25</p>
+          <p className="text-sm text-blue-700 mt-1">Example: NHâ‚„OH + NHâ‚„Cl â†’ buffers around pH 9.25</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. How Buffer Action Works</h3>
         <p className="text-sm">
-          In an acidic buffer (CH₃COOH / CH₃COO⁻):
+          In an acidic buffer (CHâ‚ƒCOOH / CHâ‚ƒCOOâ»):
         </p>
         <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="text-sm text-slate-700 mb-2">🔴 <strong>Add HCl:</strong> Extra H⁺ is consumed by CH₃COO⁻ → CH₃COOH. pH barely changes.</p>
-          <p className="text-sm text-slate-700">🔵 <strong>Add NaOH:</strong> Extra OH⁻ is consumed by CH₃COOH → CH₃COO⁻ + H₂O. pH barely changes.</p>
+          <p className="text-sm text-slate-700 mb-2">ðŸ”´ <strong>Add HCl:</strong> Extra Hâº is consumed by CHâ‚ƒCOOâ» â†’ CHâ‚ƒCOOH. pH barely changes.</p>
+          <p className="text-sm text-slate-700">ðŸ”µ <strong>Add NaOH:</strong> Extra OHâ» is consumed by CHâ‚ƒCOOH â†’ CHâ‚ƒCOOâ» + Hâ‚‚O. pH barely changes.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Henderson-Hasselbalch Equation</h3>
@@ -1673,16 +1673,16 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Buffer Capacity &amp; Limits</h3>
         <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
-          <p className="text-sm text-red-800">A buffer has a <strong>finite capacity</strong>. If enough acid is added to completely consume the conjugate base (A⁻), the buffer <strong>breaks</strong> and pH crashes.</p>
+          <p className="text-sm text-red-800">A buffer has a <strong>finite capacity</strong>. If enough acid is added to completely consume the conjugate base (Aâ»), the buffer <strong>breaks</strong> and pH crashes.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
         <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm my-4">
-          <h4 className="font-bold text-red-900 mb-2">🩸 Human Blood</h4>
-          <p className="text-sm">Blood is buffered at pH 7.4 by the H₂CO₃/HCO₃⁻ system. Deviations below 7.0 or above 7.8 are fatal. The bicarbonate buffer neutralizes lactic acid from exercise.</p>
+          <h4 className="font-bold text-red-900 mb-2">ðŸ©¸ Human Blood</h4>
+          <p className="text-sm">Blood is buffered at pH 7.4 by the Hâ‚‚COâ‚ƒ/HCOâ‚ƒâ» system. Deviations below 7.0 or above 7.8 are fatal. The bicarbonate buffer neutralizes lactic acid from exercise.</p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🧴 Cosmetics &amp; Skincare</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ§´ Cosmetics &amp; Skincare</h4>
           <p className="text-sm">Shampoos and baby lotions are buffered to pH ~5.5 to match the skin's acid mantle, preventing bacterial growth and irritation.</p>
         </div>
 
@@ -1704,29 +1704,29 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p className="text-sm text-amber-800"><strong>Le Chatelier's Principle:</strong> If a change is imposed on a system at equilibrium, the system adjusts to partially oppose the imposed change.</p>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. How It Works (Q꜀ vs K꜀)</h3>
-        <p className="text-sm">For the reaction Fe³⁺ + SCN⁻ ⇌ [Fe(SCN)]²⁺:</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. How It Works (Qêœ€ vs Kêœ€)</h3>
+        <p className="text-sm">For the reaction FeÂ³âº + SCNâ» â‡Œ [Fe(SCN)]Â²âº:</p>
         <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="text-sm text-slate-700 mb-2">🔶 <strong>Add reactant (Fe³⁺ or SCN⁻):</strong> Q꜀ drops below K꜀ → system shifts <span className="text-amber-600 font-bold">forward</span> → more red product forms.</p>
-          <p className="text-sm text-slate-700">🔷 <strong>Remove reactant:</strong> Q꜀ rises above K꜀ → system shifts <span className="text-blue-600 font-bold">backward</span> → red product decomposes, color fades to yellow.</p>
+          <p className="text-sm text-slate-700 mb-2">ðŸ”¶ <strong>Add reactant (FeÂ³âº or SCNâ»):</strong> Qêœ€ drops below Kêœ€ â†’ system shifts <span className="text-amber-600 font-bold">forward</span> â†’ more red product forms.</p>
+          <p className="text-sm text-slate-700">ðŸ”· <strong>Remove reactant:</strong> Qêœ€ rises above Kêœ€ â†’ system shifts <span className="text-blue-600 font-bold">backward</span> â†’ red product decomposes, color fades to yellow.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Reaction Quotient</h3>
         <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-          <p className="font-mono text-lg text-purple-700 text-center">Q꜀ = [Fe(SCN)²⁺] / ([Fe³⁺][SCN⁻])</p>
+          <p className="font-mono text-lg text-purple-700 text-center">Qêœ€ = [Fe(SCN)Â²âº] / ([FeÂ³âº][SCNâ»])</p>
           <p className="text-sm text-purple-600 mt-2 text-center">
-            Q꜀ &lt; K꜀ → forward shift &nbsp;|&nbsp; Q꜀ &gt; K꜀ → backward shift &nbsp;|&nbsp; Q꜀ = K꜀ → equilibrium
+            Qêœ€ &lt; Kêœ€ â†’ forward shift &nbsp;|&nbsp; Qêœ€ &gt; Kêœ€ â†’ backward shift &nbsp;|&nbsp; Qêœ€ = Kêœ€ â†’ equilibrium
           </p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🏭 Haber Process (NH₃)</h4>
-          <p className="text-sm">NH₃ is continuously liquefied and removed from the reactor. By removing product, Q꜀ stays below K꜀, forcing N₂ + 3H₂ to keep reacting forward.</p>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ­ Haber Process (NHâ‚ƒ)</h4>
+          <p className="text-sm">NHâ‚ƒ is continuously liquefied and removed from the reactor. By removing product, Qêœ€ stays below Kêœ€, forcing Nâ‚‚ + 3Hâ‚‚ to keep reacting forward.</p>
         </div>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🔥 Quicklime from Limestone</h4>
-          <p className="text-sm">CaCO₃ ⇌ CaO + CO₂. Blowing air through the kiln removes CO₂, driving the decomposition to completion.</p>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ”¥ Quicklime from Limestone</h4>
+          <p className="text-sm">CaCOâ‚ƒ â‡Œ CaO + COâ‚‚. Blowing air through the kiln removes COâ‚‚, driving the decomposition to completion.</p>
         </div>
 
         <VideoSection />
@@ -1738,7 +1738,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
   if (topic?.id === 'qualitative-analysis-organic') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Detection of Elements — Qualitative Analysis (Lassaigne's Test)</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Detection of Elements â€” Qualitative Analysis (Lassaigne's Test)</h1>
         <p className="lead text-xl text-slate-600 mb-8">
           Organic compounds are predominantly <strong>covalent</strong>. Standard inorganic qualitative tests rely on ionic reactions. To detect heteroatoms (N, S, Halogens, P), we must first <strong>convert them from covalent form into ionic form</strong>.
         </p>
@@ -1748,86 +1748,86 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The organic compound is heated with <strong>Copper(II) oxide (CuO)</strong>, which acts as an oxidizing agent.
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-lg text-brand-primary text-center">C + 2CuO → 2Cu + CO₂</p>
-          <p className="font-mono text-lg text-brand-primary text-center">2H + CuO → Cu + H₂O</p>
-          <p className="text-sm text-slate-600 mt-2 text-center">CO₂ turns lime water milky (CaCO₃). H₂O turns anhydrous CuSO₄ blue.</p>
+          <p className="font-mono text-lg text-brand-primary text-center">C + 2CuO â†’ 2Cu + COâ‚‚</p>
+          <p className="font-mono text-lg text-brand-primary text-center">2H + CuO â†’ Cu + Hâ‚‚O</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">COâ‚‚ turns lime water milky (CaCOâ‚ƒ). Hâ‚‚O turns anhydrous CuSOâ‚„ blue.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Lassaigne&apos;s Test (Sodium Fusion)</h3>
         <p>
-          The organic compound is <strong>fused with metallic sodium</strong> at high temperature. Sodium is highly electropositive — at red heat, it breaks the covalent bonds and reacts with heteroatoms to form stable, water-soluble <strong>ionic sodium salts</strong>.
+          The organic compound is <strong>fused with metallic sodium</strong> at high temperature. Sodium is highly electropositive â€” at red heat, it breaks the covalent bonds and reacts with heteroatoms to form stable, water-soluble <strong>ionic sodium salts</strong>.
         </p>
         <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
-          <p className="font-mono text-sm text-emerald-700">For Nitrogen: Na + C + N → NaCN (Sodium cyanide)</p>
-          <p className="font-mono text-sm text-emerald-700">For Sulphur: 2Na + S → Na₂S (Sodium sulphide)</p>
-          <p className="font-mono text-sm text-emerald-700">For Halogen: Na + X → NaX (Sodium halide)</p>
+          <p className="font-mono text-sm text-emerald-700">For Nitrogen: Na + C + N â†’ NaCN (Sodium cyanide)</p>
+          <p className="font-mono text-sm text-emerald-700">For Sulphur: 2Na + S â†’ Naâ‚‚S (Sodium sulphide)</p>
+          <p className="font-mono text-sm text-emerald-700">For Halogen: Na + X â†’ NaX (Sodium halide)</p>
         </div>
         <p className="text-sm text-slate-600 italic">The fused mass is extracted with boiling distilled water. This clear filtrate is the <strong>Sodium Fusion Extract (SFE)</strong>.</p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Test for Nitrogen (Prussian Blue)</h3>
         <p>
-          The SFE is boiled with <strong>FeSO₄</strong> and then acidified with <strong>conc. H₂SO₄</strong>.
+          The SFE is boiled with <strong>FeSOâ‚„</strong> and then acidified with <strong>conc. Hâ‚‚SOâ‚„</strong>.
         </p>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-          <p className="font-mono text-sm text-blue-700">6CN⁻ + Fe²⁺ → [Fe(CN)₆]⁴⁻</p>
-          <p className="font-mono text-sm text-blue-700">3[Fe(CN)₆]⁴⁻ + 4Fe³⁺ → Fe₄[Fe(CN)₆]₃ · xH₂O</p>
+          <p className="font-mono text-sm text-blue-700">6CNâ» + FeÂ²âº â†’ [Fe(CN)â‚†]â´â»</p>
+          <p className="font-mono text-sm text-blue-700">3[Fe(CN)â‚†]â´â» + 4FeÂ³âº â†’ Feâ‚„[Fe(CN)â‚†]â‚ƒ Â· xHâ‚‚O</p>
           <p className="text-sm text-blue-600 mt-2 font-bold text-center">Result: Brilliant Prussian Blue color</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Test for Sulphur</h3>
         <ul className="list-disc pl-5 space-y-4 mb-6">
           <li>
-            <strong>Lead Acetate Test:</strong> SFE + acetic acid + lead acetate → <strong>Black precipitate</strong> of PbS.
-            <span className="font-mono text-sm ml-2">S²⁻ + Pb²⁺ → PbS↓</span>
+            <strong>Lead Acetate Test:</strong> SFE + acetic acid + lead acetate â†’ <strong>Black precipitate</strong> of PbS.
+            <span className="font-mono text-sm ml-2">SÂ²â» + PbÂ²âº â†’ PbSâ†“</span>
           </li>
           <li>
-            <strong>Nitroprusside Test:</strong> SFE + sodium nitroprusside → <strong>Violet color</strong>.
-            <span className="font-mono text-sm ml-2">S²⁻ + [Fe(CN)₅NO]²⁻ → [Fe(CN)₅NOS]⁴⁻</span>
+            <strong>Nitroprusside Test:</strong> SFE + sodium nitroprusside â†’ <strong>Violet color</strong>.
+            <span className="font-mono text-sm ml-2">SÂ²â» + [Fe(CN)â‚…NO]Â²â» â†’ [Fe(CN)â‚…NOS]â´â»</span>
           </li>
         </ul>
         <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <p className="text-sm text-amber-800"><strong>Special Case (N and S both present):</strong> NaSCN forms instead of NaCN and Na₂S. Adding Fe³⁺ gives a <strong>blood red</strong> color: Fe³⁺ + SCN⁻ → [Fe(SCN)]²⁺. No Prussian blue appears since free CN⁻ is absent.</p>
+          <p className="text-sm text-amber-800"><strong>Special Case (N and S both present):</strong> NaSCN forms instead of NaCN and Naâ‚‚S. Adding FeÂ³âº gives a <strong>blood red</strong> color: FeÂ³âº + SCNâ» â†’ [Fe(SCN)]Â²âº. No Prussian blue appears since free CNâ» is absent.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Test for Halogens</h3>
         <p>
-          The SFE is acidified with <strong>HNO₃</strong> (to remove CN⁻ and S²⁻ interference) and treated with <strong>AgNO₃</strong>.
+          The SFE is acidified with <strong>HNOâ‚ƒ</strong> (to remove CNâ» and SÂ²â» interference) and treated with <strong>AgNOâ‚ƒ</strong>.
         </p>
         <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
-          <p className="text-sm text-red-800"><strong>⚠️ Critical:</strong> Must boil with HNO₃ first to expel HCN and H₂S. Otherwise, AgCN or Ag₂S precipitates interfere!</p>
+          <p className="text-sm text-red-800"><strong>âš ï¸ Critical:</strong> Must boil with HNOâ‚ƒ first to expel HCN and Hâ‚‚S. Otherwise, AgCN or Agâ‚‚S precipitates interfere!</p>
         </div>
         <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-1">
-          <p className="text-sm text-slate-700"><strong>White ppt</strong> (soluble in NH₄OH) = Chlorine (AgCl)</p>
+          <p className="text-sm text-slate-700"><strong>White ppt</strong> (soluble in NHâ‚„OH) = Chlorine (AgCl)</p>
           <p className="text-sm text-slate-700"><strong>Yellowish ppt</strong> (sparingly soluble) = Bromine (AgBr)</p>
-          <p className="text-sm text-slate-700"><strong>Yellow ppt</strong> (insoluble in NH₄OH) = Iodine (AgI)</p>
+          <p className="text-sm text-slate-700"><strong>Yellow ppt</strong> (insoluble in NHâ‚„OH) = Iodine (AgI)</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Test for Phosphorus</h3>
         <p className="text-sm">
-          The compound is heated with Na₂O₂, converting P → PO₄³⁻. Boiling with HNO₃ and adding ammonium molybdate yields a <strong>yellow precipitate</strong> of (NH₄)₃PO₄·12MoO₃.
+          The compound is heated with Naâ‚‚Oâ‚‚, converting P â†’ POâ‚„Â³â». Boiling with HNOâ‚ƒ and adding ammonium molybdate yields a <strong>yellow precipitate</strong> of (NHâ‚„)â‚ƒPOâ‚„Â·12MoOâ‚ƒ.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Applications</h3>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🥜 The Walnut Shell Analogy</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ¥œ The Walnut Shell Analogy</h4>
           <p className="text-sm">
-            An organic compound is a tough walnut (covalent bonds), and the elements inside (N, S, Cl) are the nutmeat. Fusing with Na is like smashing the walnut — it breaks the covalent &ldquo;shell&rdquo; and releases elements as free ions your reagents can detect.
+            An organic compound is a tough walnut (covalent bonds), and the elements inside (N, S, Cl) are the nutmeat. Fusing with Na is like smashing the walnut â€” it breaks the covalent &ldquo;shell&rdquo; and releases elements as free ions your reagents can detect.
           </p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🔍 Forensic Toxicology</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ” Forensic Toxicology</h4>
           <p className="text-sm">
             Toxicologists use elemental analysis to identify unknown synthetic drugs. Detecting chlorine points to chloroform or sedatives; nitrogen suggests alkaloids or amphetamines.
           </p>
         </div>
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">💊 Pharmaceutical Industry</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸ’Š Pharmaceutical Industry</h4>
           <p className="text-sm">
             When a new drug is synthesized, chemists perform these elemental tests to verify that the desired heteroatoms were successfully incorporated into the molecular structure.
           </p>
         </div>
         <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm my-4">
-          <h4 className="font-bold text-purple-900 mb-2">🌾 Agricultural Chemistry</h4>
+          <h4 className="font-bold text-purple-900 mb-2">ðŸŒ¾ Agricultural Chemistry</h4>
           <p className="text-sm">
             Detecting organic phosphorus is crucial for evaluating soil quality and pesticide residues. The yellow ammonium phosphomolybdate test is a standard method for organophosphates.
           </p>
@@ -1841,36 +1841,36 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
   if (topic?.id === 'quantitative-analysis-organic') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Estimation of C, H, N, S & Halogens — Quantitative Analysis (Liebig's Method)</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Estimation of C, H, N, S & Halogens â€” Quantitative Analysis (Liebig's Method)</h1>
         <p className="lead text-xl text-slate-600 mb-8">
           Once an organic compound is purified and its elements are <strong>qualitatively identified</strong>, the next step is to determine the <strong>exact mass percentage</strong> of each element. This data is the foundation for calculating empirical and molecular formulas.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Estimation of Carbon and Hydrogen (Liebig&apos;s Combustion)</h3>
         <p>
-          A known mass (<strong>m</strong>) of the compound is burnt in excess pure oxygen with heated <strong>CuO</strong> (oxidizing agent). All Carbon &rarr; CO₂ and all Hydrogen &rarr; H₂O.
+          A known mass (<strong>m</strong>) of the compound is burnt in excess pure oxygen with heated <strong>CuO</strong> (oxidizing agent). All Carbon &rarr; COâ‚‚ and all Hydrogen &rarr; Hâ‚‚O.
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-lg text-brand-primary text-center">C<sub>x</sub>H<sub>y</sub> + (x + y/4) O₂ &rarr; x CO₂ + (y/2) H₂O</p>
+          <p className="font-mono text-lg text-brand-primary text-center">C<sub>x</sub>H<sub>y</sub> + (x + y/4) Oâ‚‚ &rarr; x COâ‚‚ + (y/2) Hâ‚‚O</p>
         </div>
         <p className="text-sm"><strong>Trapping the Gases:</strong> The mixture passes through two weighed U-tubes connected <em>in series</em>:</p>
         <ul className="list-disc pl-5 space-y-2 mb-6">
-          <li><strong>Tube 1 — Anhydrous CaCl₂:</strong> Absorbs only H₂O vapour. Mass increase = m₁.</li>
-          <li><strong>Tube 2 — Conc. KOH:</strong> Absorbs CO₂ gas (forms K₂CO₃). Mass increase = m₂.</li>
+          <li><strong>Tube 1 â€” Anhydrous CaClâ‚‚:</strong> Absorbs only Hâ‚‚O vapour. Mass increase = mâ‚.</li>
+          <li><strong>Tube 2 â€” Conc. KOH:</strong> Absorbs COâ‚‚ gas (forms Kâ‚‚COâ‚ƒ). Mass increase = mâ‚‚.</li>
         </ul>
 
         <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
-          <p className="text-sm text-red-800"><strong>⚠️ Critical Order:</strong> CaCl₂ must come <em>before</em> KOH. If KOH is placed first, it absorbs both H₂O and CO₂, making the Carbon calculation artificially high!</p>
+          <p className="text-sm text-red-800"><strong>âš ï¸ Critical Order:</strong> CaClâ‚‚ must come <em>before</em> KOH. If KOH is placed first, it absorbs both Hâ‚‚O and COâ‚‚, making the Carbon calculation artificially high!</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Formulas</h3>
         <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
-          <p className="font-mono text-lg text-emerald-700 text-center">%H = (2/18) &times; (m₁/m) &times; 100</p>
-          <p className="text-sm text-emerald-600 text-center">1 mol H₂O (18g) contains 2g of Hydrogen</p>
+          <p className="font-mono text-lg text-emerald-700 text-center">%H = (2/18) &times; (mâ‚/m) &times; 100</p>
+          <p className="text-sm text-emerald-600 text-center">1 mol Hâ‚‚O (18g) contains 2g of Hydrogen</p>
         </div>
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-2">
-          <p className="font-mono text-lg text-blue-700 text-center">%C = (12/44) &times; (m₂/m) &times; 100</p>
-          <p className="text-sm text-blue-600 text-center">1 mol CO₂ (44g) contains 12g of Carbon</p>
+          <p className="font-mono text-lg text-blue-700 text-center">%C = (12/44) &times; (mâ‚‚/m) &times; 100</p>
+          <p className="text-sm text-blue-600 text-center">1 mol COâ‚‚ (44g) contains 12g of Carbon</p>
         </div>
         <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
           <p className="text-sm text-purple-800"><strong>If %C + %H &lt; 100%:</strong> The difference is attributed to <strong>Oxygen</strong> (by difference method).</p>
@@ -1879,12 +1879,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Estimation of Nitrogen</h3>
         <ul className="list-disc pl-5 space-y-4 mb-6">
           <li>
-            <strong>Dumas Method:</strong> Compound heated with CuO in CO₂ atmosphere. Nitrogen &rarr; N₂ gas. Oxides of nitrogen reduced by heated copper gauze. N₂ collected over KOH (absorbs CO₂) and measured by volume.
+            <strong>Dumas Method:</strong> Compound heated with CuO in COâ‚‚ atmosphere. Nitrogen &rarr; Nâ‚‚ gas. Oxides of nitrogen reduced by heated copper gauze. Nâ‚‚ collected over KOH (absorbs COâ‚‚) and measured by volume.
           </li>
           <li>
-            <strong>Kjeldahl&apos;s Method:</strong> Compound boiled with conc. H₂SO₄ &rarr; (NH₄)₂SO₄. Heated with excess NaOH &rarr; NH₃ gas. NH₃ absorbed in standard H₂SO₄ and back-titrated.
+            <strong>Kjeldahl&apos;s Method:</strong> Compound boiled with conc. Hâ‚‚SOâ‚„ &rarr; (NHâ‚„)â‚‚SOâ‚„. Heated with excess NaOH &rarr; NHâ‚ƒ gas. NHâ‚ƒ absorbed in standard Hâ‚‚SOâ‚„ and back-titrated.
             <div className="my-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
-              <p className="text-xs text-amber-800"><strong>Limitation:</strong> Not applicable for compounds with nitro groups, azo groups, or ring nitrogen (e.g., pyridine), as they don&apos;t convert to (NH₄)₂SO₄.</p>
+              <p className="text-xs text-amber-800"><strong>Limitation:</strong> Not applicable for compounds with nitro groups, azo groups, or ring nitrogen (e.g., pyridine), as they don&apos;t convert to (NHâ‚„)â‚‚SOâ‚„.</p>
             </div>
           </li>
         </ul>
@@ -1892,28 +1892,28 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Estimation of Halogens and Sulphur (Carius Method)</h3>
         <ul className="list-disc pl-5 space-y-4 mb-6">
           <li>
-            <strong>Halogens:</strong> Heated with fuming HNO₃ + AgNO₃ in a sealed Carius tube. Halogen &rarr; AgX precipitate (filtered, dried, weighed).
+            <strong>Halogens:</strong> Heated with fuming HNOâ‚ƒ + AgNOâ‚ƒ in a sealed Carius tube. Halogen &rarr; AgX precipitate (filtered, dried, weighed).
           </li>
           <li>
-            <strong>Sulphur:</strong> Heated with fuming HNO₃ or Na₂O₂. S &rarr; H₂SO₄ &rarr; add BaCl₂ &rarr; <strong>BaSO₄ precipitate</strong> (weighed).
+            <strong>Sulphur:</strong> Heated with fuming HNOâ‚ƒ or Naâ‚‚Oâ‚‚. S &rarr; Hâ‚‚SOâ‚„ &rarr; add BaClâ‚‚ &rarr; <strong>BaSOâ‚„ precipitate</strong> (weighed).
           </li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">🪙 The Coin Sorter Analogy</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸª™ The Coin Sorter Analogy</h4>
           <p className="text-sm">
-            Imagine a sealed piggy bank (the compound) filled with dimes (Carbon) and pennies (Hydrogen). You break it open (combust with CuO), and the contents flow down a chute. The first slot catches only pennies (CaCl₂ traps H₂O), the second catches dimes (KOH traps CO₂). Weighing each slot gives you the exact percentage.
+            Imagine a sealed piggy bank (the compound) filled with dimes (Carbon) and pennies (Hydrogen). You break it open (combust with CuO), and the contents flow down a chute. The first slot catches only pennies (CaClâ‚‚ traps Hâ‚‚O), the second catches dimes (KOH traps COâ‚‚). Weighing each slot gives you the exact percentage.
           </p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🛢️ Petrochemical Engineering</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸ›¢ï¸ Petrochemical Engineering</h4>
           <p className="text-sm">
             Petroleum engineers determine the exact C:H ratio of crude oil. A higher hydrogen-to-carbon ratio means cleaner burning fuel and higher-grade gasoline. Automated CHN analyzers are based on these combustion principles.
           </p>
         </div>
         <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
-          <h4 className="font-bold text-emerald-900 mb-2">🌾 Food &amp; Agriculture (Kjeldahl Method)</h4>
+          <h4 className="font-bold text-emerald-900 mb-2">ðŸŒ¾ Food &amp; Agriculture (Kjeldahl Method)</h4>
           <p className="text-sm">
             The Kjeldahl method is the global standard for determining protein content in food, grains, and fertilizers. Since proteins contain a specific percentage of nitrogen, finding %N directly reveals nutritional protein value.
           </p>
@@ -1927,17 +1927,17 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
   if (topic?.id === 'ethane-conformations') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conformations of Ethane — Torsional Strain &amp; Newman Projections</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conformations of Ethane â€” Torsional Strain &amp; Newman Projections</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          The C–C single bond (&sigma; bond) in ethane allows <strong>almost free rotation</strong>. The different spatial arrangements produced by this rotation are called <strong>conformations</strong> (or conformers/rotamers).
+          The Câ€“C single bond (&sigma; bond) in ethane allows <strong>almost free rotation</strong>. The different spatial arrangements produced by this rotation are called <strong>conformations</strong> (or conformers/rotamers).
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Why Rotation is &ldquo;Almost&rdquo; Free</h3>
         <p>
-          Although the &sigma; bond is cylindrically symmetric, rotation is not perfectly free. The electron clouds of C–H bonds on adjacent carbons <strong>repel each other</strong>. This repulsive interaction is called <strong>torsional strain</strong>.
+          Although the &sigma; bond is cylindrically symmetric, rotation is not perfectly free. The electron clouds of Câ€“H bonds on adjacent carbons <strong>repel each other</strong>. This repulsive interaction is called <strong>torsional strain</strong>.
         </p>
         <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <p className="text-sm text-amber-800">The energy barrier for ethane is only <strong>12.5 kJ/mol</strong> — small enough that room-temperature kinetic energy easily overcomes it. Individual conformers cannot be isolated.</p>
+          <p className="text-sm text-amber-800">The energy barrier for ethane is only <strong>12.5 kJ/mol</strong> â€” small enough that room-temperature kinetic energy easily overcomes it. Individual conformers cannot be isolated.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Extreme Conformations</h3>
@@ -1949,13 +1949,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <strong>Eclipsed (0&deg;, 120&deg;, 240&deg;):</strong> H atoms are directly behind each other. <em>Maximum</em> torsional strain (12.5 kJ/mol), <em>minimum</em> stability, <em>highest</em> potential energy.
           </li>
           <li>
-            <strong>Skew:</strong> Any intermediate angle — partially staggered, with intermediate energy.
+            <strong>Skew:</strong> Any intermediate angle â€” partially staggered, with intermediate energy.
           </li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Newman Projection</h3>
         <p>
-          View the molecule <strong>head-on</strong>, looking directly down the C–C axis. The front carbon is a <strong>dot</strong>; the rear carbon is a <strong>circle</strong>. Bonds radiate outward at 120&deg; angles.
+          View the molecule <strong>head-on</strong>, looking directly down the Câ€“C axis. The front carbon is a <strong>dot</strong>; the rear carbon is a <strong>circle</strong>. Bonds radiate outward at 120&deg; angles.
         </p>
         <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <p className="text-sm text-blue-800"><strong>Key insight:</strong> In the staggered Newman projection, rear bonds bisect the angles between front bonds. In eclipsed, they align exactly behind front bonds.</p>
@@ -1963,7 +1963,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Sawhorse Projection</h3>
         <p>
-          The molecule is viewed from a tilted angle. The C–C bond is drawn diagonally with the front carbon at the lower end and the rear carbon at the upper end.
+          The molecule is viewed from a tilted angle. The Câ€“C bond is drawn diagonally with the front carbon at the lower end and the rear carbon at the upper end.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Energy Diagram</h3>
@@ -1972,24 +1972,24 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p className="text-sm text-slate-600 mt-2 text-center">A perfect sinusoidal curve with 3 maxima (eclipsed) and 3 minima (staggered) per 360&deg; rotation.</p>
         </div>
         <p className="text-sm text-slate-600 italic">
-          Note: Throughout all rotations, bond lengths (C–C = 1.54 &Aring;, C–H = 1.09 &Aring;) and bond angles (109.5&deg;) remain <strong>fixed</strong>. Only the dihedral (torsional) angle changes.
+          Note: Throughout all rotations, bond lengths (Câ€“C = 1.54 &Aring;, Câ€“H = 1.09 &Aring;) and bond angles (109.5&deg;) remain <strong>fixed</strong>. Only the dihedral (torsional) angle changes.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Real-World Analogies</h3>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">☂️ Two Umbrellas on a Pole</h4>
+          <h4 className="font-bold text-amber-900 mb-2">â˜‚ï¸ Two Umbrellas on a Pole</h4>
           <p className="text-sm">
             Imagine two open umbrellas stacked on a single pole. If the spokes align perfectly (eclipsed), they crowd each other. Rotate one by 60&deg; so spokes fit in gaps (staggered), and they have maximum breathing room.
           </p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">⚙️ Gears Face-to-Face</h4>
+          <h4 className="font-bold text-sky-900 mb-2">âš™ï¸ Gears Face-to-Face</h4>
           <p className="text-sm">
             Two gears placed face-to-face: if teeth align (eclipsed), they clash (high strain). If teeth align with gaps (staggered), they nestle comfortably (low strain).
           </p>
         </div>
         <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm my-4">
-          <h4 className="font-bold text-purple-900 mb-2">💊 Drug-Receptor Binding</h4>
+          <h4 className="font-bold text-purple-900 mb-2">ðŸ’Š Drug-Receptor Binding</h4>
           <p className="text-sm">
             A drug molecule must adopt a specific low-energy conformation to dock into the active site of a target protein. Understanding conformational preferences is crucial for rational drug design.
           </p>
@@ -2037,15 +2037,15 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Analogies</h3>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">📌 Cardboard &amp; Nails</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ“Œ Cardboard &amp; Nails</h4>
           <p className="text-sm">One nail (single bond) = free rotation. Two nails (double bond) = locked. Whatever is attached is permanently fixed in position.</p>
         </div>
         <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
-          <h4 className="font-bold text-sky-900 mb-2">🚣 Rowboat Oars</h4>
+          <h4 className="font-bold text-sky-900 mb-2">ðŸš£ Rowboat Oars</h4>
           <p className="text-sm">Both oars on the same side = cis. One oar left, one right = trans. The boat behaves completely differently in each configuration.</p>
         </div>
         <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm my-4">
-          <h4 className="font-bold text-red-900 mb-2">🍳 Trans Fats &amp; Health</h4>
+          <h4 className="font-bold text-red-900 mb-2">ðŸ³ Trans Fats &amp; Health</h4>
           <p className="text-sm">Natural fats are <strong>cis</strong> (bent chains, liquid oils). Artificial hydrogenation creates <strong>trans</strong> fats (straight chains, solid margarine). Our bodies cannot process the unnatural trans geometry, leading to cardiovascular disease.</p>
         </div>
 
@@ -2069,35 +2069,35 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The induced EMF in a coil equals the negative rate of change of magnetic flux through it:
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="font-mono text-xl text-brand-primary text-center">ε = -dΦ<sub>B</sub> / dt</p>
+          <p className="font-mono text-xl text-brand-primary text-center">Îµ = -dÎ¦<sub>B</sub> / dt</p>
           <p className="text-sm text-slate-600 mt-2 text-center">The negative sign (Lenz's Law) means induced current <strong>opposes</strong> the change.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 my-6">
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-            <h4 className="font-bold text-gray-800 mb-2">⏸️ Stationary (v=0)</h4>
-            <p className="text-sm">No flux change → No EMF → No current</p>
+            <h4 className="font-bold text-gray-800 mb-2">â¸ï¸ Stationary (v=0)</h4>
+            <p className="text-sm">No flux change â†’ No EMF â†’ No current</p>
           </div>
           <div className="bg-green-50 p-4 rounded-xl border border-green-200">
-            <h4 className="font-bold text-green-800 mb-2">→ Approaching (v&gt;0)</h4>
-            <p className="text-sm">Flux increasing → Current opposes (pushes back)</p>
+            <h4 className="font-bold text-green-800 mb-2">â†’ Approaching (v&gt;0)</h4>
+            <p className="text-sm">Flux increasing â†’ Current opposes (pushes back)</p>
           </div>
           <div className="bg-red-50 p-4 rounded-xl border border-red-200">
-            <h4 className="font-bold text-red-800 mb-2">← Receding (v&lt;0)</h4>
-            <p className="text-sm">Flux decreasing → Current reverses direction</p>
+            <h4 className="font-bold text-red-800 mb-2">â† Receding (v&lt;0)</h4>
+            <p className="text-sm">Flux decreasing â†’ Current reverses direction</p>
           </div>
         </div>
 
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-6" id="tour-real-world">
-          <h4 className="font-bold text-amber-900 mb-2">🏠 The Reluctant Roommate Analogy</h4>
+          <h4 className="font-bold text-amber-900 mb-2">ðŸ  The Reluctant Roommate Analogy</h4>
           <p className="text-sm">
             Nature hates change! Imagine a roommate who hates temperature changes:
             <br /><br />
-            <strong>• Open window (magnet enters):</strong> They turn on the heater (current pushes back)
+            <strong>â€¢ Open window (magnet enters):</strong> They turn on the heater (current pushes back)
             <br />
-            <strong>• Close window (magnet leaves):</strong> They turn on the AC (current reverses)
+            <strong>â€¢ Close window (magnet leaves):</strong> They turn on the AC (current reverses)
             <br />
-            <strong>• Window still (magnet stationary):</strong> They do nothing!
+            <strong>â€¢ Window still (magnet stationary):</strong> They do nothing!
             <br /><br />
             <em>The faster you change, the stronger their reaction!</em>
           </p>
@@ -2112,50 +2112,50 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <h4 className="font-bold text-purple-800 mb-2">Magnetic Flux</h4>
-              <p className="font-mono text-lg">Φ = BA cos(ωt)</p>
+              <p className="font-mono text-lg">Î¦ = BA cos(Ï‰t)</p>
               <p className="text-xs text-purple-600 mt-1">Cosine wave - MAX when coil is vertical</p>
             </div>
             <div>
               <h4 className="font-bold text-purple-800 mb-2">Induced EMF</h4>
-              <p className="font-mono text-lg">ε = ε₀ sin(ωt)</p>
+              <p className="font-mono text-lg">Îµ = Îµâ‚€ sin(Ï‰t)</p>
               <p className="text-xs text-purple-600 mt-1">Sine wave - ZERO when coil is vertical</p>
             </div>
           </div>
           <div className="mt-4 p-3 bg-white rounded-lg">
-            <h5 className="font-bold text-slate-700 text-sm">⚡ Phase Relationship</h5>
-            <p className="text-xs text-slate-600">Flux and EMF are 90° out of phase. When rate of flux change is maximum, EMF is maximum!</p>
+            <h5 className="font-bold text-slate-700 text-sm">âš¡ Phase Relationship</h5>
+            <p className="text-xs text-slate-600">Flux and EMF are 90Â° out of phase. When rate of flux change is maximum, EMF is maximum!</p>
           </div>
         </div>
 
         <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm my-6">
-          <h4 className="font-bold text-blue-900 mb-2">🚴 The Pedaling Cyclist Analogy</h4>
+          <h4 className="font-bold text-blue-900 mb-2">ðŸš´ The Pedaling Cyclist Analogy</h4>
           <p className="text-sm">
             Imagine pedals pumping an air bellows:
             <br /><br />
-            <strong>• Circular motion:</strong> Your feet go up and down as you pedal
+            <strong>â€¢ Circular motion:</strong> Your feet go up and down as you pedal
             <br />
-            <strong>• Air pressure:</strong> Not steady - pushes out and pulls in rhythmically (AC!)
+            <strong>â€¢ Air pressure:</strong> Not steady - pushes out and pulls in rhythmically (AC!)
             <br />
-            <strong>• Faster pedaling (ω):</strong> More frequent and stronger puffs
+            <strong>â€¢ Faster pedaling (Ï‰):</strong> More frequent and stronger puffs
             <br /><br />
-            <em>Higher ω = Higher frequency AND higher voltage!</em>
+            <em>Higher Ï‰ = Higher frequency AND higher voltage!</em>
           </p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Applications
           </h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-              <h4 className="font-bold text-slate-800 mb-2">📱 Wireless Charging</h4>
+              <h4 className="font-bold text-slate-800 mb-2">ðŸ“± Wireless Charging</h4>
               <p className="text-sm text-slate-600">
                 Your phone's charger creates a rapidly changing magnetic field. A coil inside your phone catches this field, inducing current to charge the battery!
               </p>
             </div>
             <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-              <h4 className="font-bold text-slate-800 mb-2">🔌 Power Grids</h4>
+              <h4 className="font-bold text-slate-800 mb-2">ðŸ”Œ Power Grids</h4>
               <p className="text-sm text-slate-600">
                 All power plants use rotating generators (turbines) to convert mechanical energy to electrical. The grid runs on 50Hz AC (50 rotations/sec)!
               </p>
@@ -2224,13 +2224,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <p className="text-sm">
             Throw a stone in a pond. The splash (accelerating charge) creates ripples (waves) that move outward.
             <br />
-            Now imagine the ripples are made of two invisible fabrics (Electricity and Magnetism) weaving into each other at 90 degrees. They don't need water (medium) to travel—they can move through empty space!
+            Now imagine the ripples are made of two invisible fabrics (Electricity and Magnetism) weaving into each other at 90 degrees. They don't need water (medium) to travelâ€”they can move through empty space!
           </p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -2334,7 +2334,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -2365,13 +2365,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Alpha Scattering Experiment (Geiger-Marsden, 1909)</h3>
         <p>
-          Hans Geiger and Ernest Marsden, under Rutherford's direction, fired high-energy alpha particles (He²⁺, from radioactive Bismuth-214) at an extremely thin gold foil (~400 atoms thick).
+          Hans Geiger and Ernest Marsden, under Rutherford's direction, fired high-energy alpha particles (HeÂ²âº, from radioactive Bismuth-214) at an extremely thin gold foil (~400 atoms thick).
         </p>
 
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
           <h4 className="font-bold text-slate-800 mb-3">Experimental Setup</h4>
           <ul className="list-disc pl-5 space-y-2 text-sm">
-            <li><strong>Alpha Source:</strong> Radioactive material emitting α-particles at ~5.5 MeV</li>
+            <li><strong>Alpha Source:</strong> Radioactive material emitting Î±-particles at ~5.5 MeV</li>
             <li><strong>Target:</strong> Thin gold foil (Au, Z=79) or Aluminum (Al, Z=13)</li>
             <li><strong>Detector:</strong> ZnS screen that produces scintillations when hit</li>
             <li><strong>Collimator:</strong> Lead shield with narrow slit for parallel beam</li>
@@ -2383,19 +2383,19 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <div className="bg-green-50 p-4 rounded-xl border border-green-200 shadow-sm">
             <h4 className="font-bold text-green-900">Observation 1: ~99% passed straight through</h4>
             <p className="text-sm text-green-800 mt-1">
-              <strong>Conclusion:</strong> The atom is mostly empty space. Electrons are too light to deflect the heavy α-particles.
+              <strong>Conclusion:</strong> The atom is mostly empty space. Electrons are too light to deflect the heavy Î±-particles.
             </p>
           </div>
           <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm">
-            <h4 className="font-bold text-yellow-900">Observation 2: Some deflected at small angles (1-10°)</h4>
+            <h4 className="font-bold text-yellow-900">Observation 2: Some deflected at small angles (1-10Â°)</h4>
             <p className="text-sm text-yellow-800 mt-1">
-              <strong>Conclusion:</strong> There's a concentrated positive charge somewhere that repels the positive α-particles. Closer passes = larger deflection.
+              <strong>Conclusion:</strong> There's a concentrated positive charge somewhere that repels the positive Î±-particles. Closer passes = larger deflection.
             </p>
           </div>
           <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm">
-            <h4 className="font-bold text-red-900">Observation 3: ~1 in 20,000 bounced back (θ &gt; 90°)</h4>
+            <h4 className="font-bold text-red-900">Observation 3: ~1 in 20,000 bounced back (Î¸ &gt; 90Â°)</h4>
             <p className="text-sm text-red-800 mt-1">
-              <strong>Conclusion:</strong> A tiny, dense, positively charged nucleus exists at the center. Head-on collisions cause 180° backscattering!
+              <strong>Conclusion:</strong> A tiny, dense, positively charged nucleus exists at the center. Head-on collisions cause 180Â° backscattering!
             </p>
           </div>
         </div>
@@ -2404,13 +2404,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <div className="my-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <h4 className="font-bold text-blue-900 mb-2">Rutherford Scattering Formula</h4>
           <p className="font-mono text-lg text-blue-800 text-center my-3">
-            N(θ) ∝ 1 / sin⁴(θ/2)
+            N(Î¸) âˆ 1 / sinâ´(Î¸/2)
           </p>
           <ul className="list-disc ml-6 text-sm text-blue-800">
-            <li><strong>Force:</strong> Coulomb repulsion F = kq₁q₂/r² between α⁺² and nucleus⁺ᶻ</li>
+            <li><strong>Force:</strong> Coulomb repulsion F = kqâ‚qâ‚‚/rÂ² between Î±âºÂ² and nucleusâºá¶»</li>
             <li><strong>Impact Parameter (b):</strong> Distance of closest approach determines scattering angle</li>
-            <li><strong>Small b:</strong> Particle passes close to nucleus → Large deflection</li>
-            <li><strong>Large b:</strong> Particle is far from nucleus → Passes through undeflected</li>
+            <li><strong>Small b:</strong> Particle passes close to nucleus â†’ Large deflection</li>
+            <li><strong>Large b:</strong> Particle is far from nucleus â†’ Passes through undeflected</li>
           </ul>
         </div>
 
@@ -2419,42 +2419,42 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           Despite passing through electron clouds, alpha particles are NOT deflected by electrons because:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Mass Ratio:</strong> α-particle mass ≈ 7,300 × electron mass</li>
-          <li><strong>Analogy:</strong> Like a bowling ball hitting ping-pong balls—the electrons scatter, but the alpha continues straight</li>
-          <li>Electrons get ionized (knocked out), but the α-particle's trajectory is essentially unchanged</li>
+          <li><strong>Mass Ratio:</strong> Î±-particle mass â‰ˆ 7,300 Ã— electron mass</li>
+          <li><strong>Analogy:</strong> Like a bowling ball hitting ping-pong ballsâ€”the electrons scatter, but the alpha continues straight</li>
+          <li>Electrons get ionized (knocked out), but the Î±-particle's trajectory is essentially unchanged</li>
         </ul>
 
         <div className="bg-rose-50 p-6 rounded-xl border border-rose-200 shadow-sm my-6" id="tour-real-world">
-          <h4 className="font-bold text-rose-900 mb-2">🏟️ Analogy: The Football Stadium</h4>
+          <h4 className="font-bold text-rose-900 mb-2">ðŸŸï¸ Analogy: The Football Stadium</h4>
           <p className="text-sm text-rose-800">
             If an Atom were the size of a football stadium:
             <br /><br />
-            • The <strong>Nucleus</strong> would be a marble at the center kickoff spot<br />
-            • The <strong>Electrons</strong> would be tiny flies buzzing in the upper stands<br />
-            • <strong>Everything else?</strong> Completely empty space!
+            â€¢ The <strong>Nucleus</strong> would be a marble at the center kickoff spot<br />
+            â€¢ The <strong>Electrons</strong> would be tiny flies buzzing in the upper stands<br />
+            â€¢ <strong>Everything else?</strong> Completely empty space!
             <br /><br />
-            This explains why most α-particles pass through—they're shooting through the stands where there's nothing but flies!
+            This explains why most Î±-particles pass throughâ€”they're shooting through the stands where there's nothing but flies!
           </p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. The Nuclear Model of the Atom</h3>
         <p>Rutherford concluded:</p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Nucleus:</strong> Tiny (10⁻¹⁵ m), dense, positively charged center containing protons (and later, neutrons)</li>
-          <li><strong>Electrons:</strong> Orbit the nucleus at relatively large distances (10⁻¹⁰ m)</li>
-          <li><strong>Size Ratio:</strong> Nucleus : Atom ≈ 1 : 100,000 (like a marble in a stadium!)</li>
+          <li><strong>Nucleus:</strong> Tiny (10â»Â¹âµ m), dense, positively charged center containing protons (and later, neutrons)</li>
+          <li><strong>Electrons:</strong> Orbit the nucleus at relatively large distances (10â»Â¹â° m)</li>
+          <li><strong>Size Ratio:</strong> Nucleus : Atom â‰ˆ 1 : 100,000 (like a marble in a stadium!)</li>
           <li><strong>Mass:</strong> 99.9% of atom's mass is in the nucleus</li>
         </ul>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Applications
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <h4 className="font-bold text-slate-800 mb-2">Rutherford Backscattering Spectrometry (RBS)</h4>
             <p className="text-slate-600">
-              Scientists today use the same principle! By firing ion beams at materials and measuring scattering angles, they can determine the elemental composition and thickness of thin films—essential for semiconductor manufacturing and materials science research.
+              Scientists today use the same principle! By firing ion beams at materials and measuring scattering angles, they can determine the elemental composition and thickness of thin filmsâ€”essential for semiconductor manufacturing and materials science research.
             </p>
           </div>
         </div>
@@ -2476,29 +2476,29 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           When P-type and N-type materials are joined, a <strong>concentration gradient</strong> exists at the junction:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Electrons</strong> from N-side diffuse towards P-side (high → low concentration)</li>
-          <li><strong>Holes</strong> from P-side diffuse towards N-side (high → low concentration)</li>
-          <li>When electrons meet holes, they <strong>recombine</strong> and annihilate</li>
+          <li><strong>Electrons</strong> from N-side diffuse towards P-side (n -&gt; p) because of concentration gradient.</li>
+          <li><strong>Holes</strong> from P-side diffuse towards N-side (p -&gt; n) because of concentration gradient.</li>
+          <li>When electrons meet holes near the junction, they <strong>recombine</strong>.</li>
         </ul>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase B: Depletion Region Formation</h3>
         <div className="grid md:grid-cols-2 gap-4 my-6">
           <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
             <h4 className="font-bold text-blue-800 mb-2">P-Side Border</h4>
-            <p className="text-sm">Holes leave → Immobile <strong>negative acceptor ions (−)</strong> are exposed</p>
+            <p className="text-sm">Holes leave, so immobile <strong>negative acceptor ions (-)</strong> are exposed.</p>
           </div>
           <div className="bg-pink-50 p-4 rounded-xl border border-pink-200">
             <h4 className="font-bold text-pink-800 mb-2">N-Side Border</h4>
-            <p className="text-sm">Electrons leave → Immobile <strong>positive donor ions (+)</strong> are exposed</p>
+            <p className="text-sm">Electrons leave, so immobile <strong>positive donor ions (+)</strong> are exposed.</p>
           </div>
         </div>
         <p>
-          This creates the <strong>Depletion Region</strong> — a "no-man's land" containing only fixed ions with no mobile carriers.
+          This creates the <strong>depletion region</strong>, a space-charge region depleted of free mobile carriers and containing fixed ions.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Phase C: Electric Field & Drift Current</h3>
         <p>
-          The exposed ions create an <strong>internal electric field (E)</strong> pointing from N (+) to P (−).
+          The exposed ions create an <strong>internal electric field (E)</strong> pointing from the positive N-side space-charge region to the negative P-side space-charge region.
         </p>
         <div className="bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm my-4">
           <p className="text-sm">
@@ -2512,19 +2512,19 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The electric field opposes further diffusion. As the depletion region widens:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Diffusion Current</strong> (→) decreases (fewer carriers can cross)</li>
-          <li><strong>Drift Current</strong> (←) opposes it due to E-field</li>
+          <li><strong>Diffusion current</strong> decreases as the barrier grows.</li>
+          <li><strong>Drift current</strong> due to the electric field opposes diffusion current.</li>
           <li>At equilibrium: <strong>Net current = 0</strong></li>
         </ul>
 
         <div className="bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-sm my-6">
-          <h4 className="font-bold text-purple-900 mb-2">Barrier Potential (V₀)</h4>
+          <h4 className="font-bold text-purple-900 mb-2">Barrier Potential (V0)</h4>
           <p className="text-sm">
             The potential difference across the depletion region is called the <strong>Barrier Potential</strong>:
           </p>
           <ul className="text-sm mt-2 list-disc pl-5">
-            <li>Silicon: V₀ ≈ 0.7V</li>
-            <li>Germanium: V₀ ≈ 0.3V</li>
+            <li>Silicon: V0 approx. 0.7 V</li>
+            <li>Germanium: V0 approx. 0.3 V; cut-in voltage is about 0.2 V.</li>
           </ul>
           <p className="text-sm mt-2 italic">
             "Electrons must climb this energy hill to diffuse; the hill is now too high to cross without extra energy."
@@ -2532,32 +2532,32 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </div>
 
         <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 shadow-sm my-6">
-          <h4 className="font-bold text-yellow-900 mb-2">🤖 Analogy: Robots & Balloons</h4>
+          <h4 className="font-bold text-yellow-900 mb-2">Analogy: Robots & Balloons</h4>
           <p className="text-sm">
             <strong>N-Room:</strong> Full of Robots (Electrons) on movable carpets.<br />
             <strong>P-Room:</strong> Full of Balloons (Holes) tied to heavy chairs.<br /><br />
             When the wall opens, Robots rush to P-room, Balloons float to N-room (<strong>Diffusion</strong>).
-            But each Robot leaves behind a heavy <strong>+</strong> ion, each Balloon leaves behind a heavy <strong>−</strong> ion.
-            Soon, the doorway is blocked by ions (<strong>Depletion Region</strong>) — the furniture "hill" prevents crossing (<strong>Barrier Potential</strong>).
+            But each Robot leaves behind a heavy <strong>+</strong> ion, and each Balloon leaves behind a heavy <strong>-</strong> ion.
+            Soon, the doorway is blocked by ions (<strong>depletion region</strong>); the barrier potential prevents further net crossing.
           </p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">*</span>
             Real World Applications
           </h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-              <h4 className="font-bold text-slate-800 mb-2">💡 LEDs</h4>
+              <h4 className="font-bold text-slate-800 mb-2">LEDs</h4>
               <p className="text-sm text-slate-600">
                 When electrons recombine with holes, they release energy. In GaAs, this is visible light!
               </p>
             </div>
             <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-              <h4 className="font-bold text-slate-800 mb-2">☀️ Solar Cells</h4>
+              <h4 className="font-bold text-slate-800 mb-2">Solar Cells</h4>
               <p className="text-sm text-slate-600">
-                Light creates electron-hole pairs; the E-field in depletion region separates them → electricity!
+                Light creates electron-hole pairs; the E-field in the depletion region separates them to produce electricity.
               </p>
             </div>
           </div>
@@ -2612,15 +2612,15 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <ul className="list-disc pl-5 space-y-4 mb-8">
           <li>
             <strong>Simple Cubic (SCC):</strong> Atoms at 8 corners only.<br />
-            <em>Calculation:</em> 8 × (1/8) = <strong>1 Atom</strong>.
+            <em>Calculation:</em> 8 Ã— (1/8) = <strong>1 Atom</strong>.
           </li>
           <li>
             <strong>Body-Centered Cubic (BCC):</strong> 8 Corners + 1 Body Center.<br />
-            <em>Calculation:</em> (8 × 1/8) + 1 = <strong>2 Atoms</strong>.
+            <em>Calculation:</em> (8 Ã— 1/8) + 1 = <strong>2 Atoms</strong>.
           </li>
           <li>
             <strong>Face-Centered Cubic (FCC):</strong> 8 Corners + 6 Face Centers.<br />
-            <em>Calculation:</em> (8 × 1/8) + (6 × 1/2) = <strong>4 Atoms</strong>.
+            <em>Calculation:</em> (8 Ã— 1/8) + (6 Ã— 1/2) = <strong>4 Atoms</strong>.
           </li>
         </ul>
         <VideoSection />
@@ -2654,13 +2654,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </tr>
             <tr className="border-b">
               <td className="px-6 py-4 font-bold">BCC</td>
-              <td className="px-6 py-4">r = √3a / 4</td>
+              <td className="px-6 py-4">r = âˆš3a / 4</td>
               <td className="px-6 py-4">68%</td>
               <td className="px-6 py-4 text-yellow-600">32%</td>
             </tr>
             <tr>
               <td className="px-6 py-4 font-bold text-green-700">FCC / CCP</td>
-              <td className="px-6 py-4">r = a / 2√2</td>
+              <td className="px-6 py-4">r = a / 2âˆš2</td>
               <td className="px-6 py-4 font-bold text-green-700">74%</td>
               <td className="px-6 py-4 text-green-700">26%</td>
             </tr>
@@ -2712,16 +2712,16 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">I. The Basis of Collision Theory</h3>
         <p>
-          The Collision Theory, developed by Max Trautz and William Lewis (1916–18), assumes reactant molecules are hard spheres.
+          The Collision Theory, developed by Max Trautz and William Lewis (1916â€“18), assumes reactant molecules are hard spheres.
           Reaction occurs only when these molecules <strong>collide</strong> with each other. However, not all collisions are successful.
         </p>
 
         <div className="my-8 p-6 bg-yellow-50 -secondary rounded-xl">
           <h4 className="font-bold text-brand-primary mb-2 font-display">Mathematical Formulation</h4>
-          <p className="font-mono text-lg text-slate-800">Rate = P × Z<sub>AB</sub> × e<sup>-Ea/RT</sup></p>
+          <p className="font-mono text-lg text-slate-800">Rate = P Ã— Z<sub>AB</sub> Ã— e<sup>-Ea/RT</sup></p>
           <ul className="list-disc ml-6 mt-2 text-sm text-slate-700">
             <li><strong>Z<sub>AB</sub></strong>: Collision frequency</li>
-            <li><strong>e<sup>-Ea/RT</sup></strong>: Fraction of molecules with Energy ≥ Ea</li>
+            <li><strong>e<sup>-Ea/RT</sup></strong>: Fraction of molecules with Energy â‰¥ Ea</li>
             <li><strong>P</strong>: Steric factor (Orientation)</li>
           </ul>
         </div>
@@ -2737,13 +2737,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h4 className="font-bold text-brand-primary mt-4">2. Orientation Barrier (Steric Factor, P)</h4>
         <p>
           Molecules must collide with proper orientation to break old bonds and form new ones.
-          For example, in the formation of Methanol from Bromoethane, the OH⁻ ion must attack the carbon from the back side.
+          For example, in the formation of Methanol from Bromoethane, the OHâ» ion must attack the carbon from the back side.
           Improper orientation leads to no reaction (bounce back).
         </p>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -2751,7 +2751,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <p className="text-slate-600">
               In cars, catalytic converters use metals like Platinum to lower the <strong>Activation Energy</strong> of harmful exhaust gases
               (CO, NOx). By providing a surface with correct orientation sites, the catalyst allows these gases to react at lower temperatures,
-              converting them into harmless CO₂ and N₂ efficiently.
+              converting them into harmless COâ‚‚ and Nâ‚‚ efficiently.
             </p>
           </div>
         </div>
@@ -2776,10 +2776,10 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           Converts chemical energy from a <strong>spontaneous</strong> redox reaction into electrical energy.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Example:</strong> Daniell Cell (Zn + Cu²⁺ → Zn²⁺ + Cu)</li>
-          <li><strong>Anode (Negative):</strong> Zinc oxidizes (Zn → Zn²⁺ + 2e⁻). The electrode shrinks.</li>
-          <li><strong>Cathode (Positive):</strong> Copper reduces (Cu²⁺ + 2e⁻ → Cu). The electrode grows.</li>
-          <li><strong>Electron Flow:</strong> Anode → Cathode.</li>
+          <li><strong>Example:</strong> Daniell Cell (Zn + CuÂ²âº â†’ ZnÂ²âº + Cu)</li>
+          <li><strong>Anode (Negative):</strong> Zinc oxidizes (Zn â†’ ZnÂ²âº + 2eâ»). The electrode shrinks.</li>
+          <li><strong>Cathode (Positive):</strong> Copper reduces (CuÂ²âº + 2eâ» â†’ Cu). The electrode grows.</li>
+          <li><strong>Electron Flow:</strong> Anode â†’ Cathode.</li>
         </ul>
 
         <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">II. Electrolytic Cells</h3>
@@ -2827,7 +2827,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -2862,16 +2862,16 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h4 className="font-bold text-brand-primary mt-4">1. Cis vs Trans (Square Planar)</h4>
         <p>
-          In complexes like [Pt(NH₃)₂Cl₂]:
+          In complexes like [Pt(NHâ‚ƒ)â‚‚Clâ‚‚]:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Cis Isomer:</strong> Identical ligands are adjacent (90°). e.g., "Cis-platin" (Anti-cancer drug).</li>
-          <li><strong>Trans Isomer:</strong> Identical ligands are opposite (180°).</li>
+          <li><strong>Cis Isomer:</strong> Identical ligands are adjacent (90Â°). e.g., "Cis-platin" (Anti-cancer drug).</li>
+          <li><strong>Trans Isomer:</strong> Identical ligands are opposite (180Â°).</li>
         </ul>
 
         <h4 className="font-bold text-brand-primary mt-4">2. Fac vs Mer (Octahedral)</h4>
         <p>
-          In complexes like [Co(NH₃)₃(NO₂)₃]:
+          In complexes like [Co(NHâ‚ƒ)â‚ƒ(NOâ‚‚)â‚ƒ]:
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
           <li><strong>Facial (fac):</strong> Three identical ligands occupy the corners of one triangular face of the octahedron.</li>
@@ -2888,12 +2888,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           </p>
         </div>
         <p>
-          Common in octahedral complexes involving didentate ligands (e.g., [Co(en)₃]³⁺).
+          Common in octahedral complexes involving didentate ligands (e.g., [Co(en)â‚ƒ]Â³âº).
         </p>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -2917,7 +2917,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Magnetic Properties and Color Formation</h1>
 
         <p className="lead text-xl text-slate-600 mb-8">
-          The unique properties of transition metals—their magnetic behavior and vibrant colors—are fundamentally linked to the electronic arrangement within the partially filled d orbitals.
+          The unique properties of transition metalsâ€”their magnetic behavior and vibrant colorsâ€”are fundamentally linked to the electronic arrangement within the partially filled d orbitals.
         </p>
 
         <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">I. Magnetic Properties</h3>
@@ -2925,13 +2925,13 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           Transition metals frequently exhibit <strong>paramagnetism</strong> due to the presence of unpaired electrons in their d orbitals.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Paramagnetic:</strong> Attracted by magnetic fields (Has unpaired e⁻). e.g., Mn²⁺.</li>
-          <li><strong>Diamagnetic:</strong> Repelled by magnetic fields (All e⁻ paired). e.g., Zn²⁺ (d¹⁰).</li>
+          <li><strong>Paramagnetic:</strong> Attracted by magnetic fields (Has unpaired eâ»). e.g., MnÂ²âº.</li>
+          <li><strong>Diamagnetic:</strong> Repelled by magnetic fields (All eâ» paired). e.g., ZnÂ²âº (dÂ¹â°).</li>
         </ul>
 
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
           <h4 className="font-bold text-slate-800 mb-2">Magnetic Moment Formula (Spin Only)</h4>
-          <p className="font-mono text-xl text-brand-primary">μ = √[n(n+2)] BM</p>
+          <p className="font-mono text-xl text-brand-primary">Î¼ = âˆš[n(n+2)] BM</p>
           <p className="text-sm text-slate-600 mt-2">Where <em>n</em> is the number of unpaired electrons and BM is Bohr Magneton.</p>
         </div>
 
@@ -2942,23 +2942,23 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <h4 className="font-bold text-brand-primary mt-4">d-d Transitions</h4>
         <p>
-          When ligands approach the metal ion, the 5 degenerate d-orbitals split into two sets: lower energy <strong>t₂g</strong> and higher energy <strong>e₉</strong>.
+          When ligands approach the metal ion, the 5 degenerate d-orbitals split into two sets: lower energy <strong>tâ‚‚g</strong> and higher energy <strong>eâ‚‰</strong>.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li>An electron absorbs light energy to jump from t₂g to e₉.</li>
+          <li>An electron absorbs light energy to jump from tâ‚‚g to eâ‚‰.</li>
           <li>The color observed is the <strong>complementary color</strong> of the light absorbed.</li>
-          <li>Example: [Ti(H₂O)₆]³⁺ absorbs blue-green light to excite its d¹ electron, making it appear <strong>Violet</strong>.</li>
+          <li>Example: [Ti(Hâ‚‚O)â‚†]Â³âº absorbs blue-green light to excite its dÂ¹ electron, making it appear <strong>Violet</strong>.</li>
         </ul>
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <h4 className="font-bold text-slate-800 mb-2">Gemstones & Pigments</h4>
             <p className="text-slate-600">
-              The distinct red color of <strong>Ruby</strong> comes from Cr³⁺ impurities in Al₂O₃. The crystal field of the oxide ions causes the d-electrons of Chromium to absorb green light and transmit red. Similarly, Emeralds get their green color from the same ion (Cr³⁺) in a different crystal environment (Beryl), which changes the splitting energy (Δ₀).
+              The distinct red color of <strong>Ruby</strong> comes from CrÂ³âº impurities in Alâ‚‚Oâ‚ƒ. The crystal field of the oxide ions causes the d-electrons of Chromium to absorb green light and transmit red. Similarly, Emeralds get their green color from the same ion (CrÂ³âº) in a different crystal environment (Beryl), which changes the splitting energy (Î”â‚€).
             </p>
           </div>
         </div>
@@ -3001,7 +3001,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Real World Application
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -3030,7 +3030,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           Polyethylene is produced by adding ethylene monomers together.
         </p>
         <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Catalyst:</strong> Ziegler-Natta catalysts (e.g., TiCl₄ + Al(C₂H₅)₃) provide an active site that lowers the activation energy.</li>
+          <li><strong>Catalyst:</strong> Ziegler-Natta catalysts (e.g., TiClâ‚„ + Al(Câ‚‚Hâ‚…)â‚ƒ) provide an active site that lowers the activation energy.</li>
           <li><strong>Mechanism:</strong> The monomer inserts itself into the metal-carbon bond, allowing the chain to grow efficiently and with high linearity (High Density Polyethylene - HDPE).</li>
         </ul>
 
@@ -3049,7 +3049,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="mt-12 pt-8 border-t border-slate-200">
           <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">★</span>
+            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
             Nobel Prize Winning Discovery
           </h3>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -3553,12 +3553,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           A harmonic wave traveling in the +x direction is described by the displacement relation:
         </p>
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
-          <p className="font-mono text-xl text-brand-primary">y(x, t) = A sin(kx - ωt + φ)</p>
+          <p className="font-mono text-xl text-brand-primary">y(x, t) = A sin(kx - Ï‰t + Ï†)</p>
           <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-mono">
             <span>A: Amplitude</span>
-            <span>k: Wave number (2π/λ)</span>
-            <span>ω: Angular frequency (2πv)</span>
-            <span>φ: Phase constant</span>
+            <span>k: Wave number (2Ï€/Î»)</span>
+            <span>Ï‰: Angular frequency (2Ï€v)</span>
+            <span>Ï†: Phase constant</span>
           </div>
         </div>
 
@@ -3567,11 +3567,11 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           The speed (v) of a wave depends on the interaction between two medium properties: <strong>Elasticity</strong> (restoring force) and <strong>Inertia</strong> (mass).
         </p>
         <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
-          <h4 className="font-bold text-amber-900 mb-2">弦 (String) Wave Speed</h4>
+          <h4 className="font-bold text-amber-900 mb-2">å¼¦ (String) Wave Speed</h4>
           <p className="text-sm">
-            For a transverse wave on a string under tension (T) and linear mass density (μ):
+            For a transverse wave on a string under tension (T) and linear mass density (Î¼):
             <br />
-            <strong className="text-lg">v = √(T/μ)</strong>
+            <strong className="text-lg">v = âˆš(T/Î¼)</strong>
           </p>
         </div>
 
@@ -3669,17 +3669,17 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 my-6">
           <div className="flex flex-col-reverse items-center justify-center space-y-reverse space-y-2 font-mono text-sm">
             <div className="bg-rose-100 border border-rose-300 w-64 text-center py-2 font-bold text-rose-900 rounded-lg">Kingdom (Broadest)</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-orange-100 border border-orange-300 w-56 text-center py-2 font-bold text-orange-900 rounded-lg">Phylum / Division</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-amber-100 border border-amber-300 w-48 text-center py-2 font-bold text-amber-900 rounded-lg">Class</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-yellow-100 border border-yellow-300 w-40 text-center py-2 font-bold text-yellow-900 rounded-lg">Order</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-lime-100 border border-lime-300 w-32 text-center py-2 font-bold text-lime-900 rounded-lg">Family</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-green-100 border border-green-300 w-24 text-center py-2 font-bold text-green-900 rounded-lg">Genus</div>
-            <div className="text-slate-400">↑</div>
+            <div className="text-slate-400">â†‘</div>
             <div className="bg-emerald-100 border border-emerald-300 w-16 text-center py-2 font-bold text-emerald-900 rounded-lg">Species</div>
           </div>
           <p className="text-xs text-center text-slate-500 mt-6">As we go higher from species to kingdom, the number of common characteristics goes on decreasing.</p>
@@ -3714,7 +3714,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <ul className="list-disc pl-5 space-y-2 text-sm text-slate-700">
           <li><strong>Cell Structure:</strong> Whether the cells are Prokaryotic (primitive, no nuclear membrane) or Eukaryotic (advanced, with a nuclear membrane).</li>
           <li><strong>Body Organisation:</strong> Whether the organism is a single cell (Unicellular) or has many cells (Multicellular/Tissue/Organ systems).</li>
-          <li><strong>Mode of Nutrition:</strong> How the organism gets its food—making it themselves (Autotrophic) or eating others (Heterotrophic).</li>
+          <li><strong>Mode of Nutrition:</strong> How the organism gets its foodâ€”making it themselves (Autotrophic) or eating others (Heterotrophic).</li>
           <li><strong>Reproduction:</strong> The method by which they produce offspring.</li>
           <li><strong>Phylogenetic Relationships:</strong> Their evolutionary history and how they are related to ancestors.</li>
         </ul>
@@ -3917,15 +3917,15 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Real-World Applications</h3>
         <div className="grid gap-4 my-6">
           <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-            <h4 className="font-bold text-emerald-900 mb-1">🌊 Nature (The Oxygen Factory)</h4>
+            <h4 className="font-bold text-emerald-900 mb-1">ðŸŒŠ Nature (The Oxygen Factory)</h4>
             <p className="text-sm">At least half of the total carbon dioxide fixation on earth is carried out by algae. Like a giant underwater lung, they increase dissolved oxygen levels, supporting all aquatic life.</p>
           </div>
           <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
-            <h4 className="font-bold text-amber-900 mb-1">🍮 Daily Life (The Kitchen Thickener)</h4>
+            <h4 className="font-bold text-amber-900 mb-1">ðŸ® Daily Life (The Kitchen Thickener)</h4>
             <p className="text-sm">Agar (from Gelidium and Gracilaria) is used in making Indian desserts, ice creams, and jellies. Carrageen (from red algae) and Algin (from brown algae) are hydrocolloids used as thickening agents in various industries.</p>
           </div>
           <div className="bg-sky-50 p-4 rounded-xl border border-sky-200">
-            <h4 className="font-bold text-sky-900 mb-1">🚀 Space & Engineering (Space Food)</h4>
+            <h4 className="font-bold text-sky-900 mb-1">ðŸš€ Space & Engineering (Space Food)</h4>
             <p className="text-sm">Chlorella, a unicellular green alga, is so rich in proteins that it is used as a food supplement for space travellers where traditional farming is impossible.</p>
           </div>
         </div>
@@ -3979,10 +3979,10 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <h4 className="font-bold text-blue-900 mb-2">The "Two-Event" Process</h4>
           <div className="space-y-3 text-sm text-blue-800">
             <div className="p-3 bg-white/50 rounded-lg border border-blue-100">
-              <strong>1. Syngamy:</strong> One male gamete + Egg cell → <strong>Zygote (2n)</strong>
+              <strong>1. Syngamy:</strong> One male gamete + Egg cell â†’ <strong>Zygote (2n)</strong>
             </div>
             <div className="p-3 bg-white/50 rounded-lg border border-blue-100">
-              <strong>2. Triple Fusion:</strong> Second male gamete + Diploid Secondary Nucleus → <strong>Primary Endosperm Nucleus (3n)</strong>
+              <strong>2. Triple Fusion:</strong> Second male gamete + Diploid Secondary Nucleus â†’ <strong>Primary Endosperm Nucleus (3n)</strong>
             </div>
             <p className="mt-2 font-semibold italic text-center">Because two fusions occur, it is called Double Fertilisation.</p>
           </div>
@@ -4026,11 +4026,11 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Analogy</h3>
         <div className="grid md:grid-cols-2 gap-4 my-6">
           <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200">
-            <h4 className="font-bold text-indigo-900 mb-1">🎁 The Gift Box</h4>
+            <h4 className="font-bold text-indigo-900 mb-1">ðŸŽ The Gift Box</h4>
             <p className="text-sm">A Gymnosperm seed is like a toy on a shelf. An Angiosperm seed is like a toy inside a gift box (the fruit). You must open the box to find the seed!</p>
           </div>
           <div className="bg-sky-50 p-4 rounded-xl border border-sky-200">
-            <h4 className="font-bold text-sky-900 mb-1">🌲 Pine vs 🥭 Mango</h4>
+            <h4 className="font-bold text-sky-900 mb-1">ðŸŒ² Pine vs ðŸ¥­ Mango</h4>
             <p className="text-sm">In Manali, Pine seeds are exposed on woody cones. In the plains, Mango seeds are hidden deep inside the fleshy fruit.</p>
           </div>
         </div>
@@ -4211,7 +4211,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
         <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Animal Tissues</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          A tissue is a group of cells that share a similar structure and perform a common function. In animals, four fundamental tissue types — epithelial, connective, muscular, and neural — build every organ in the body. This topic focuses on the two most testable: epithelial and connective.
+          A tissue is a group of cells that share a similar structure and perform a common function. In animals, four fundamental tissue types â€” epithelial, connective, muscular, and neural â€” build every organ in the body. This topic focuses on the two most testable: epithelial and connective.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Epithelial Tissue</h3>
@@ -4221,9 +4221,9 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="grid gap-4 my-6">
           <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
-            <h4 className="font-bold text-sky-900 mb-2">Simple Epithelium — One Cell Thick</h4>
+            <h4 className="font-bold text-sky-900 mb-2">Simple Epithelium â€” One Cell Thick</h4>
             <p className="text-sm text-sky-900">
-              Composed of a <strong>single layer</strong> of cells resting on the basement membrane. Because it is only one cell thick, it is highly suited for processes that require substances to pass through easily — such as <strong>diffusion, filtration, and secretion</strong>.
+              Composed of a <strong>single layer</strong> of cells resting on the basement membrane. Because it is only one cell thick, it is highly suited for processes that require substances to pass through easily â€” such as <strong>diffusion, filtration, and secretion</strong>.
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-1 text-sm text-sky-800">
               <li><strong>Squamous:</strong> Flat, tile-like cells. Found in walls of blood vessels and air sacs (alveoli) of the lungs.</li>
@@ -4233,7 +4233,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </ul>
           </div>
           <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200">
-            <h4 className="font-bold text-indigo-900 mb-2">Compound (Stratified) Epithelium — Multiple Layers</h4>
+            <h4 className="font-bold text-indigo-900 mb-2">Compound (Stratified) Epithelium â€” Multiple Layers</h4>
             <p className="text-sm text-indigo-900">
               Consists of <strong>two or more layers</strong> of cells. The primary function is <strong>protection</strong> against mechanical abrasion, chemical stress, and desiccation. Secretion and absorption are limited due to the thickness.
             </p>
@@ -4246,10 +4246,10 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         </div>
 
         <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
-          <p className="text-sm font-bold text-slate-800 text-center mb-2">Simple vs Compound — The Core Rule</p>
+          <p className="text-sm font-bold text-slate-800 text-center mb-2">Simple vs Compound â€” The Core Rule</p>
           <div className="grid grid-cols-2 gap-4 text-sm text-slate-700 text-center">
-            <div><strong>Simple</strong><br />1 layer → easy diffusion → filter</div>
-            <div><strong>Compound</strong><br />2+ layers → physical barrier → armour</div>
+            <div><strong>Simple</strong><br />1 layer â†’ easy diffusion â†’ filter</div>
+            <div><strong>Compound</strong><br />2+ layers â†’ physical barrier â†’ armour</div>
           </div>
         </div>
 
@@ -4263,9 +4263,9 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
 
         <div className="grid gap-4 my-6">
           <div className="bg-teal-50 p-5 rounded-xl border border-teal-200">
-            <h4 className="font-bold text-teal-900 mb-2">Cartilage — Solid but Pliable Matrix</h4>
+            <h4 className="font-bold text-teal-900 mb-2">Cartilage â€” Solid but Pliable Matrix</h4>
             <p className="text-sm text-teal-900">
-              The intercellular matrix is <strong>solid and pliable</strong>, resisting compression without being brittle. This flexibility comes from <strong>chondroitin sulphate</strong> — a gel-like compound that traps water and acts as a natural shock absorber.
+              The intercellular matrix is <strong>solid and pliable</strong>, resisting compression without being brittle. This flexibility comes from <strong>chondroitin sulphate</strong> â€” a gel-like compound that traps water and acts as a natural shock absorber.
             </p>
             <ul className="list-disc pl-5 mt-3 space-y-1 text-sm text-teal-800">
               <li>Cells: <strong>Chondrocytes</strong>, housed in fluid-filled spaces called <strong>lacunae</strong>.</li>
@@ -4274,7 +4274,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </ul>
           </div>
           <div className="bg-slate-100 p-5 rounded-xl border border-slate-300">
-            <h4 className="font-bold text-slate-800 mb-2">Bone — Very Hard, Non-Pliable Matrix</h4>
+            <h4 className="font-bold text-slate-800 mb-2">Bone â€” Very Hard, Non-Pliable Matrix</h4>
             <p className="text-sm text-slate-700">
               The matrix is <strong>very hard and non-pliable</strong> due to <strong>calcium phosphate salts</strong> deposited around a framework of <strong>collagen fibres</strong>. This gives bone exceptional strength.
             </p>
@@ -4311,19 +4311,19 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
             <h4 className="font-bold text-amber-900 mb-2">Glass Pane vs Brick Wall (Epithelium)</h4>
             <p className="text-sm text-amber-900">
-              Simple epithelium is like a <strong>thin glass pane</strong> — allows gases and nutrients through easily but offers no protection. Compound epithelium is like a <strong>brick wall</strong> — multiple layers thick, blocks mechanical and chemical attack.
+              Simple epithelium is like a <strong>thin glass pane</strong> â€” allows gases and nutrients through easily but offers no protection. Compound epithelium is like a <strong>brick wall</strong> â€” multiple layers thick, blocks mechanical and chemical attack.
             </p>
           </div>
           <div className="bg-rose-50 p-5 rounded-xl border border-rose-200">
             <h4 className="font-bold text-rose-900 mb-2">Rubber Pad vs Steel Girder (Connective)</h4>
             <p className="text-sm text-rose-900">
-              Cartilage behaves like <strong>industrial rubber pads under a bridge</strong> — absorbs shock, allows slight movement. Bone behaves like a <strong>steel I-beam</strong> — completely rigid, bears the full structural load.
+              Cartilage behaves like <strong>industrial rubber pads under a bridge</strong> â€” absorbs shock, allows slight movement. Bone behaves like a <strong>steel I-beam</strong> â€” completely rigid, bears the full structural load.
             </p>
           </div>
           <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
             <h4 className="font-bold text-emerald-900 mb-2">Bubble Wrap vs Wooden Crate (Packaging)</h4>
             <p className="text-sm text-emerald-900">
-              Cartilage is like <strong>bubble wrap</strong> — compresses and bounces back. Bone is like a <strong>wooden crate</strong> — does not deform, prevents crushing.
+              Cartilage is like <strong>bubble wrap</strong> â€” compresses and bounces back. Bone is like a <strong>wooden crate</strong> â€” does not deform, prevents crushing.
             </p>
           </div>
         </div>
@@ -4331,12 +4331,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
         <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
           <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
-            <li>Select <strong>Simple Epithelium</strong> and move the Friction Slider to 50% — watch the layer tear and expose the interior.</li>
-            <li>Switch to <strong>Compound Epithelium</strong> with the same friction — only the top layer wears; lower layers stay intact.</li>
-            <li>Apply the <strong>Chemical Dropper</strong> to Simple Epithelium — acid reaches the interior instantly. Apply to Compound — top layers neutralise it.</li>
-            <li>Select <strong>Cartilage</strong> and increase Weight Dial to 100 kg — the block compresses and springs back.</li>
-            <li>Switch to <strong>Bone</strong> at 100 kg — zero compression. Push to 90+ kg to see the bone crack.</li>
-            <li>Use the <strong>Zoom button</strong> to enter the microscopic view — compare calcium crystal lattice (Bone) vs chondroitin chain network (Cartilage).</li>
+            <li>Select <strong>Simple Epithelium</strong> and move the Friction Slider to 50% â€” watch the layer tear and expose the interior.</li>
+            <li>Switch to <strong>Compound Epithelium</strong> with the same friction â€” only the top layer wears; lower layers stay intact.</li>
+            <li>Apply the <strong>Chemical Dropper</strong> to Simple Epithelium â€” acid reaches the interior instantly. Apply to Compound â€” top layers neutralise it.</li>
+            <li>Select <strong>Cartilage</strong> and increase Weight Dial to 100 kg â€” the block compresses and springs back.</li>
+            <li>Switch to <strong>Bone</strong> at 100 kg â€” zero compression. Push to 90+ kg to see the bone crack.</li>
+            <li>Use the <strong>Zoom button</strong> to enter the microscopic view â€” compare calcium crystal lattice (Bone) vs chondroitin chain network (Cartilage).</li>
           </ul>
         </div>
 
@@ -5311,9 +5311,9 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
   if (topic?.id === 'chordata') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Phylum – Chordata</h1>
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Phylum â€“ Chordata</h1>
         <p className="lead text-xl text-slate-600 mb-8">
-          Chordata is the phylum that includes fish, frogs, reptiles, birds, and mammals — including humans. Every chordate shares four key structural features at some point in its life. Understanding these features is the foundation of vertebrate biology.
+          Chordata is the phylum that includes fish, frogs, reptiles, birds, and mammals â€” including humans. Every chordate shares four key structural features at some point in its life. Understanding these features is the foundation of vertebrate biology.
         </p>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Four Defining Features</h3>
@@ -5354,7 +5354,7 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           </p>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Chordata vs Non-Chordata — Key Differences</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Chordata vs Non-Chordata â€” Key Differences</h3>
         <div className="overflow-x-auto my-6">
           <table className="w-full text-sm border-collapse">
             <thead>
@@ -5414,12 +5414,12 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200">
             <h4 className="font-bold text-indigo-900 mb-2">Vertebrata</h4>
             <p className="text-sm text-indigo-900">
-              The notochord is <strong>replaced by a vertebral column</strong> made of cartilage or bone in the adult. This subphylum includes all the familiar animals — fish, frogs, snakes, birds, and mammals.
+              The notochord is <strong>replaced by a vertebral column</strong> made of cartilage or bone in the adult. This subphylum includes all the familiar animals â€” fish, frogs, snakes, birds, and mammals.
             </p>
           </div>
         </div>
 
-        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Vertebrata — Classes and Heart Chambers</h3>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Vertebrata â€” Classes and Heart Chambers</h3>
         <p>
           Vertebrates are classified into seven classes. One of the most important evolutionary trends within vertebrates is the increasing complexity of the heart:
         </p>
@@ -5443,31 +5443,31 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
               <tr><td className="border border-slate-300 p-3 font-bold text-rose-700">Mammalia</td><td className="border border-slate-300 p-3"><em>Homo sapiens</em></td><td className="border border-slate-300 p-3 text-center">4-chambered</td><td className="border border-slate-300 p-3">All habitats</td></tr>
             </tbody>
           </table>
-          <p className="text-xs text-slate-500 mt-2">* Crocodiles are exceptional among reptiles — they have a 4-chambered heart.</p>
+          <p className="text-xs text-slate-500 mt-2">* Crocodiles are exceptional among reptiles â€” they have a 4-chambered heart.</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Analogies</h3>
         <div className="grid gap-4 my-6">
           <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
-            <h4 className="font-bold text-amber-900 mb-2">Notochord — Temporary Scaffolding</h4>
+            <h4 className="font-bold text-amber-900 mb-2">Notochord â€” Temporary Scaffolding</h4>
             <p className="text-sm text-amber-900">
               Think of a building under construction. The bamboo scaffolding (notochord) provides support while the permanent structure is built. Once the RCC pillars and beams (vertebral column) are ready, the scaffolding is removed. In vertebrates, the notochord serves as a developmental scaffold before being replaced.
             </p>
           </div>
           <div className="bg-sky-50 p-5 rounded-xl border border-sky-200">
-            <h4 className="font-bold text-sky-900 mb-2">Nerve Cord — Fibre-Optic Cable</h4>
+            <h4 className="font-bold text-sky-900 mb-2">Nerve Cord â€” Fibre-Optic Cable</h4>
             <p className="text-sm text-sky-900">
               The dorsal hollow nerve cord is like the main fibre-optic cable of a city, running through a protected underground duct. The hollow inside carries the signals; the surrounding vertebrae (in vertebrates) act as the protective conduit.
             </p>
           </div>
           <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
-            <h4 className="font-bold text-emerald-900 mb-2">Pharyngeal Gill Slits — Tea Strainer</h4>
+            <h4 className="font-bold text-emerald-900 mb-2">Pharyngeal Gill Slits â€” Tea Strainer</h4>
             <p className="text-sm text-emerald-900">
               In aquatic chordates, gill slits work like the mesh of a chai strainer. Water (the tea) passes through while food particles are trapped and absorbed.
             </p>
           </div>
           <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
-            <h4 className="font-bold text-violet-900 mb-2">Post-Anal Tail — The Last Coach</h4>
+            <h4 className="font-bold text-violet-900 mb-2">Post-Anal Tail â€” The Last Coach</h4>
             <p className="text-sm text-violet-900">
               A metro train has coaches extending beyond the last set of wheels. Similarly, the post-anal tail extends beyond the digestive system's endpoint (anus), serving balance and locomotion in many animals.
             </p>
@@ -5477,9 +5477,9 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
         <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
           <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
-            <li>Select <strong>Urochordata</strong> and toggle to "Adult" — observe the notochord and tail disappearing. This is retrogressive metamorphosis.</li>
-            <li>Select <strong>Cephalochordata</strong> — notice the notochord persists in both embryo and adult.</li>
-            <li>Select <strong>Vertebrata</strong> and switch to "Adult" — watch the yellow notochord rod break into grey vertebral segments.</li>
+            <li>Select <strong>Urochordata</strong> and toggle to "Adult" â€” observe the notochord and tail disappearing. This is retrogressive metamorphosis.</li>
+            <li>Select <strong>Cephalochordata</strong> â€” notice the notochord persists in both embryo and adult.</li>
+            <li>Select <strong>Vertebrata</strong> and switch to "Adult" â€” watch the yellow notochord rod break into grey vertebral segments.</li>
             <li>Use the <strong>Feature Highlighter</strong> buttons to individually glow each of the four chordate features on the diagram.</li>
             <li>Change the <strong>Heart Class</strong> selector from Pisces to Amphibia to Mammalia and observe the heart growing from 2 to 3 to 4 chambers.</li>
           </ul>

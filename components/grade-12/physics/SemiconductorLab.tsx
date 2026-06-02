@@ -52,12 +52,26 @@ interface SimState {
 
 const MATERIALS: Record<MaterialKey, MaterialInfo> = {
     Si: { key: 'Si', name: 'Silicon', barrier: 0.7, cutIn: 0.7, breakdown: 42 },
-    Ge: { key: 'Ge', name: 'Germanium', barrier: 0.2, cutIn: 0.2, breakdown: 28 }
+    Ge: { key: 'Ge', name: 'Germanium', barrier: 0.3, cutIn: 0.2, breakdown: 28 }
 };
 
 const MAX_FORMATION_WIDTH = 92;
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const lerp = (start: number, end: number, t: number) => start + (end - start) * t;
+
+const forwardCurrentMA = (voltage: number, material: MaterialInfo) => {
+    if (voltage <= 0) return 0;
+    if (voltage < material.cutIn) return 0.02 * Math.exp((voltage - material.cutIn) * 3);
+    return clamp(0.08 * Math.exp((voltage - material.cutIn) * 4.3), 0, 75);
+};
+
+const reverseCurrentMicroA = (reverseVoltage: number, material: MaterialInfo) => {
+    if (reverseVoltage <= 0) return 0;
+    if (reverseVoltage < material.breakdown) {
+        return 2.2 * (1 - Math.exp(-reverseVoltage / 0.9));
+    }
+    return clamp(8 + Math.pow(reverseVoltage - material.breakdown, 2) * 1.2, 0, 85);
+};
 
 const drawRoundRect = (
     ctx: CanvasRenderingContext2D,
@@ -117,16 +131,18 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
     const diodeCurrent = useMemo(() => {
         if (mode === 'forward') {
-            if (voltage < material.cutIn) return 0.02 * Math.exp((voltage - material.cutIn) * 3);
-            return clamp(0.08 * Math.exp((voltage - material.cutIn) * 4.3), 0, 75);
+            return forwardCurrentMA(voltage, material);
         }
         if (mode === 'reverse') {
             const reverseV = Math.abs(voltage);
-            if (reverseV >= material.breakdown) return clamp(8 + (reverseV - material.breakdown) * 2.6, 0, 85);
-            return 1.8 + reverseV * 0.035;
+            return reverseCurrentMicroA(reverseV, material);
         }
         return 0;
-    }, [material.breakdown, material.cutIn, mode, voltage]);
+    }, [material, mode, voltage]);
+
+    const displayedBarrier = mode === 'formation'
+        ? material.barrier * clamp(simRef.current.depletionWidth / MAX_FORMATION_WIDTH, 0, 1)
+        : effectiveBarrier;
 
     const resetSimulation = useCallback((nextMode: Mode = mode) => {
         simRef.current = {
@@ -427,9 +443,9 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     };
 
     const drawBackground = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = 'rgba(148, 163, 184, 0.14)';
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
         for (let x = 0; x < width; x += 34) {
             for (let y = 0; y < height; y += 34) {
                 ctx.beginPath();
@@ -451,17 +467,17 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                             ? 'Phase 3: E-field and drift'
                             : 'Phase 4: Equilibrium'
             : mode === 'forward'
-                ? 'Forward Bias: barrier reduced'
-                : 'Reverse Bias: barrier increased';
+                ? voltage > 0 ? 'Forward Bias: barrier reduced' : 'Forward Bias selected: increase voltage'
+                : voltage < 0 ? 'Reverse Bias: barrier increased' : 'Reverse Bias selected: decrease voltage';
 
         const badgeX = 34;
         const badgeW = Math.max(220, Math.min(520, width - badgeX * 2));
         drawRoundRect(ctx, badgeX, 18, badgeW, 36, 18);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.86)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
         ctx.fill();
         ctx.strokeStyle = 'rgba(45, 212, 191, 0.45)';
         ctx.stroke();
-        ctx.fillStyle = '#f8fafc';
+        ctx.fillStyle = '#0f172a';
         ctx.font = 'bold 14px Inter, ui-sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -482,9 +498,9 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         const centerY = regionY + regionH * 0.5;
 
         drawRoundRect(ctx, main.x, regionY, main.w, regionH, 22);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+        ctx.fillStyle = 'rgba(248, 250, 252, 0.88)';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(226, 232, 240, 0.2)';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.18)';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
@@ -503,7 +519,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         ctx.restore();
 
         ctx.setLineDash([8, 8]);
-        ctx.strokeStyle = 'rgba(226, 232, 240, 0.6)';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.45)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(junctionX, regionY + 18);
@@ -591,13 +607,13 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         for (let x = main.x + 38; x < junctionX - 16; x += spacingX) {
             for (let y = top; y < bottom; y += spacingY) {
                 const exposed = x > depLeft && x < junctionX;
-                drawIon(ctx, x, y, '-', exposed ? '#38bdf8' : 'rgba(226, 232, 240, 0.28)', exposed);
+                drawIon(ctx, x, y, '-', exposed ? '#0284c7' : 'rgba(15, 23, 42, 0.24)', exposed);
             }
         }
         for (let x = junctionX + 38; x < main.x + main.w - 22; x += spacingX) {
             for (let y = top; y < bottom; y += spacingY) {
                 const exposed = x < depRight && x > junctionX;
-                drawIon(ctx, x, y, '+', exposed ? '#fb923c' : 'rgba(226, 232, 240, 0.28)', exposed);
+                drawIon(ctx, x, y, '+', exposed ? '#ea580c' : 'rgba(15, 23, 42, 0.24)', exposed);
             }
         }
     };
@@ -643,10 +659,10 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
         if (simRef.current.depletionWidth > 18) {
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#e2e8f0';
+            ctx.fillStyle = '#334155';
             ctx.font = 'bold 15px Inter, ui-sans-serif';
             ctx.fillText('Depletion Region (schematic, W ~ 0.1 micrometre)', junctionX, main.y + regionH - 26);
-            ctx.strokeStyle = 'rgba(226, 232, 240, 0.78)';
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.55)';
             ctx.lineWidth = 1.5;
             const y = main.y + regionH - 48;
             ctx.beginPath();
@@ -680,9 +696,9 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         const x = junctionX - 166;
         const y = main.y + 84;
         drawRoundRect(ctx, x, y, 332, 82, 12);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.86)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(226, 232, 240, 0.16)';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.14)';
         ctx.stroke();
 
         const diffusion = mode === 'forward' ? 1 : mode === 'reverse' ? 0.28 : phase === 'equilibrium' ? 0.72 : 0.95;
@@ -700,7 +716,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         ctx.fillText('Drift current', x + 158, y + 62);
 
         if (phase === 'equilibrium' && mode === 'formation') {
-            ctx.fillStyle = '#c4b5fd';
+            ctx.fillStyle = '#6d28d9';
             ctx.textAlign = 'center';
             ctx.fillText('Equal currents -> net current = 0', junctionX, y + 76);
         }
@@ -931,7 +947,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
     const drawBarrierGraph = (ctx: CanvasRenderingContext2D, g: { x: number; y: number; w: number; h: number }) => {
         drawGraphAxes(ctx, g);
-        const barrier = effectiveBarrier;
+        const barrier = displayedBarrier;
         const maxV = mode === 'reverse' ? material.barrier + material.breakdown : Math.max(material.barrier, 1);
         const curveH = clamp(barrier / maxV, 0, 1) * (g.h - 18);
         ctx.strokeStyle = '#a78bfa';
@@ -981,7 +997,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         ctx.beginPath();
         for (let i = 0; i <= 100; i++) {
             const v = (2 * i) / 100;
-            const current = v < material.cutIn ? 0.02 * Math.exp((v - material.cutIn) * 3) : clamp(0.08 * Math.exp((v - material.cutIn) * 4.3), 0, 75);
+            const current = forwardCurrentMA(v, material);
             const x = mapForwardX(v);
             const y = mapForwardY(current);
             if (i === 0) ctx.moveTo(x, y);
@@ -995,7 +1011,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         for (let i = 0; i <= 100; i++) {
             const v = -((material.breakdown + 8) * i) / 100;
             const rv = Math.abs(v);
-            const current = rv >= material.breakdown ? 8 + (rv - material.breakdown) * 2.6 : 1.8 + rv * 0.035;
+            const current = reverseCurrentMicroA(rv, material);
             const x = mapReverseX(v);
             const y = mapReverseY(current);
             if (i === 0) ctx.moveTo(x, y);
@@ -1032,7 +1048,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         const graphW = 318;
         const graphH = 176;
         const maxV = mode === 'reverse' ? material.barrier + 50 : Math.max(material.barrier, 1);
-        const curveH = clamp(effectiveBarrier / maxV, 0, 1) * (graphH - 22);
+        const curveH = clamp(displayedBarrier / maxV, 0, 1) * (graphH - 22);
         const curve = Array.from({ length: 90 }, (_, index) => {
             const x = (graphW * index) / 89;
             const s = 1 / (1 + Math.exp(-(index - 44) / 6));
@@ -1043,19 +1059,19 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         return (
             <svg viewBox={`0 0 ${graphW + 60} ${graphH + 62}`} className="h-[250px] w-full">
                 <g transform="translate(38 12)">
-                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.5)" strokeWidth="1.4" />
+                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(15,23,42,0.48)" strokeWidth="1.4" />
                     {[1, 2, 3].map(line => (
-                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.16)" />
+                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(15,23,42,0.10)" />
                     ))}
                     <rect x={graphW * 0.42} y="0" width={graphW * 0.18} height={graphH} fill="rgba(148,163,184,0.13)" />
                     <path d={curve} fill="none" stroke="#a78bfa" strokeWidth="3.2" />
-                    <text x="8" y="18" className="fill-violet-200 text-[13px] font-bold">
-                        Barrier = {effectiveBarrier.toFixed(2)} V ({material.key})
+                    <text x="8" y="18" className="fill-violet-700 text-[13px] font-bold">
+                        Barrier = {displayedBarrier.toFixed(2)} V ({material.key})
                     </text>
-                    <text x={graphW / 2} y={graphH + 34} textAnchor="middle" className="fill-slate-400 text-[12px]">
+                    <text x={graphW / 2} y={graphH + 34} textAnchor="middle" className="fill-slate-700 text-[12px] font-semibold">
                         Position across junction
                     </text>
-                    <text x="-32" y="-3" className="fill-slate-400 text-[12px]">V</text>
+                    <text x="-32" y="-3" className="fill-slate-700 text-[12px] font-semibold">V</text>
                     <text x={graphW * 0.5} y={graphH + 15} textAnchor="middle" className="fill-slate-500 text-[11px]">
                         P | depletion | N
                     </text>
@@ -1075,16 +1091,14 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
 
         const forwardPath = Array.from({ length: 95 }, (_, index) => {
             const v = (2 * index) / 94;
-            const current = v < material.cutIn
-                ? 0.02 * Math.exp((v - material.cutIn) * 3)
-                : clamp(0.08 * Math.exp((v - material.cutIn) * 4.3), 0, 75);
+            const current = forwardCurrentMA(v, material);
             return `${index === 0 ? 'M' : 'L'} ${mapForwardX(v).toFixed(1)} ${mapForwardY(current).toFixed(1)}`;
         }).join(' ');
 
         const reversePath = Array.from({ length: 95 }, (_, index) => {
             const v = -((material.breakdown + 8) * index) / 94;
             const rv = Math.abs(v);
-            const current = rv >= material.breakdown ? 8 + (rv - material.breakdown) * 2.6 : 1.8 + rv * 0.035;
+            const current = reverseCurrentMicroA(rv, material);
             return `${index === 0 ? 'M' : 'L'} ${mapReverseX(v).toFixed(1)} ${mapReverseY(current).toFixed(1)}`;
         }).join(' ');
 
@@ -1094,28 +1108,28 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
         return (
             <svg viewBox={`0 0 ${graphW + 60} ${graphH + 62}`} className="h-[264px] w-full">
                 <g transform="translate(38 12)">
-                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.5)" strokeWidth="1.4" />
+                    <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(15,23,42,0.48)" strokeWidth="1.4" />
                     {[1, 2, 3].map(line => (
-                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.16)" />
+                        <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(15,23,42,0.10)" />
                     ))}
-                    <line x1={midX} x2={midX} y1="0" y2={graphH} stroke="rgba(226,232,240,0.42)" />
+                    <line x1={midX} x2={midX} y1="0" y2={graphH} stroke="rgba(15,23,42,0.30)" />
                     <path d={reversePath} fill="none" stroke="#fb7185" strokeWidth="3" />
                     <path d={forwardPath} fill="none" stroke="#22c55e" strokeWidth="3" />
                     <line x1={mapForwardX(material.cutIn)} x2={mapForwardX(material.cutIn)} y1="0" y2={graphH} stroke="#facc15" strokeDasharray="5 6" />
                     <line x1={mapReverseX(-material.breakdown)} x2={mapReverseX(-material.breakdown)} y1="0" y2={graphH} stroke="#facc15" strokeDasharray="5 6" />
-                    <circle cx={pointX} cy={pointY} r="5.2" fill="#f8fafc" />
-                    <text x={mapForwardX(material.cutIn)} y={graphH + 17} textAnchor="middle" className="fill-yellow-200 text-[11px] font-bold">
+                    <circle cx={pointX} cy={pointY} r="5.2" fill="#0f172a" />
+                    <text x={mapForwardX(material.cutIn)} y={graphH + 17} textAnchor="middle" className="fill-yellow-700 text-[11px] font-bold">
                         cut-in
                     </text>
-                    <text x={mapReverseX(-material.breakdown)} y={graphH + 17} textAnchor="middle" className="fill-yellow-200 text-[11px] font-bold">
+                    <text x={mapReverseX(-material.breakdown)} y={graphH + 17} textAnchor="middle" className="fill-yellow-700 text-[11px] font-bold">
                         Vbr
                     </text>
-                    <text x="4" y="14" className="fill-rose-200 text-[11px]">Reverse: microamp scale</text>
-                    <text x={graphW - 4} y="14" textAnchor="end" className="fill-emerald-200 text-[11px]">Forward: mA scale</text>
-                    <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-400 text-[12px]">
+                    <text x="4" y="14" className="fill-rose-700 text-[11px] font-semibold">Reverse: microamp scale</text>
+                    <text x={graphW - 4} y="14" textAnchor="end" className="fill-emerald-700 text-[11px] font-semibold">Forward: mA scale</text>
+                    <text x={graphW / 2} y={graphH + 39} textAnchor="middle" className="fill-slate-700 text-[12px] font-semibold">
                         Applied voltage
                     </text>
-                    <text x="-32" y="-3" className="fill-slate-400 text-[12px]">I</text>
+                    <text x="-32" y="-3" className="fill-slate-700 text-[12px] font-semibold">I</text>
                 </g>
             </svg>
         );
@@ -1124,7 +1138,7 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     const readoutItems = [
         { label: 'Material', value: `${material.name} (${material.key})`, color: 'text-teal-700', bg: 'bg-teal-50' },
         { label: 'Built-in V0', value: `${material.barrier.toFixed(1)} V`, color: 'text-violet-700', bg: 'bg-violet-50' },
-        { label: 'Effective Barrier', value: `${effectiveBarrier.toFixed(2)} V`, color: 'text-indigo-700', bg: 'bg-indigo-50' },
+        { label: 'Effective Barrier', value: `${displayedBarrier.toFixed(2)} V`, color: 'text-indigo-700', bg: 'bg-indigo-50' },
         { label: 'Depletion Width', value: `${simRef.current.depletionWidth.toFixed(0)} px schematic`, color: 'text-slate-700', bg: 'bg-slate-50' },
         { label: 'Applied Voltage', value: `${voltage.toFixed(mode === 'forward' ? 2 : 1)} V`, color: mode === 'reverse' ? 'text-rose-700' : 'text-emerald-700', bg: mode === 'reverse' ? 'bg-rose-50' : 'bg-emerald-50' },
         { label: 'Current', value: `${displayCurrent.toFixed(mode === 'forward' ? 2 : 2)} ${mode === 'forward' ? 'mA' : mode === 'reverse' ? 'microA' : 'A'}`, color: 'text-yellow-700', bg: 'bg-yellow-50' }
@@ -1133,18 +1147,18 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     const graphPanel = (
         <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 z-20 hidden w-[380px] 2xl:block">
             <div className="flex flex-col gap-3">
-                <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
                     <div className="mb-2">
-                        <div className="text-lg font-extrabold text-white">Barrier Potential vs Position</div>
-                        <div className="mt-1 text-sm font-semibold text-slate-300">Updates with built-in and applied voltage</div>
+                        <div className="text-lg font-extrabold text-slate-950">Barrier Potential vs Position</div>
+                        <div className="mt-1 text-sm font-semibold text-slate-600">Updates with built-in and applied voltage</div>
                     </div>
                     {renderBarrierSvg()}
                 </div>
 
-                <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
                     <div className="mb-2">
-                        <div className="text-lg font-extrabold text-white">V-I Characteristics</div>
-                        <div className="mt-1 text-sm font-semibold text-slate-300">Cut-in, reverse saturation, and breakdown</div>
+                        <div className="text-lg font-extrabold text-slate-950">V-I Characteristics</div>
+                        <div className="mt-1 text-sm font-semibold text-slate-600">Cut-in, reverse saturation, and breakdown</div>
                     </div>
                     {renderIvSvg()}
                 </div>
@@ -1182,8 +1196,8 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
     );
 
     const simulationCombo = (
-        <div className="relative h-full w-full overflow-visible rounded-2xl bg-slate-900 shadow-inner">
-            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-slate-900">
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
                 <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
             </div>
             {graphPanel}
@@ -1265,8 +1279,12 @@ const SemiconductorLab: React.FC<SemiconductorLabProps> = ({ topic, onExit }) =>
                         />
                         <p className={`text-[11px] ${reverseWarning ? 'font-bold text-rose-700' : 'text-slate-500'}`}>
                             {mode === 'forward'
-                                ? `Barrier reduced to (V0 - V). Current rises exponentially near ${material.cutIn.toFixed(1)} V.`
-                                : reverseWarning
+                                ? voltage > 0
+                                    ? `Barrier reduced to (V0 - V). Current rises exponentially near ${material.cutIn.toFixed(1)} V.`
+                                    : `Increase forward bias to reduce the barrier; current rises exponentially near ${material.cutIn.toFixed(1)} V.`
+                                : voltage === 0
+                                    ? 'Decrease the slider below 0 V to apply reverse bias across the depletion region.'
+                                    : reverseWarning
                                     ? `Breakdown zone: Vbr for ${material.key} is about ${material.breakdown} V. Reverse current spikes.`
                                     : 'Barrier increased to (V0 + V). Only tiny minority-carrier reverse saturation current flows.'}
                         </p>
