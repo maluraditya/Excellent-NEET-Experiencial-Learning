@@ -58,7 +58,7 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
     // Controls
     const [fluidKey, setFluidKey] = useState<string>('water');
     const [sphereKey, setSphereKey] = useState<string>('steel');
-    const [radiusMm, setRadiusMm] = useState(2);      // mm
+    const [radiusMm, setRadiusMm] = useState(0.05);      // mm
 
     // Simulation state
     const [isRunning, setIsRunning] = useState(false);
@@ -79,6 +79,8 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
 
     // Terminal velocity: vt = 2a²(ρ-σ)g / (9η)
     const vt = (rho > sigma) ? (2 * a * a * (rho - sigma) * G) / (9 * eta) : 0;
+    const reynoldsNumber = eta > 0 ? (sigma * vt * a) / eta : 0;
+    const isStokesInvalid = reynoldsNumber > 1;
 
     // Forces at current velocity
     const mass = (4 / 3) * Math.PI * a * a * a * rho;
@@ -169,10 +171,10 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
     }, []);
 
     // Drawing state ref
-    const drawStateRef = useRef({ fluidKey, sphereKey, radiusMm, simTime: 0, currentVelocity: 0, ballY: 0, vt, weight, buoyancy, dragForce, tau, isRunning: false });
+    const drawStateRef = useRef({ fluidKey, sphereKey, radiusMm, simTime: 0, currentVelocity: 0, ballY: 0, vt, weight, buoyancy, dragForce, tau, reynoldsNumber, isStokesInvalid, isRunning: false });
     useEffect(() => {
-        drawStateRef.current = { fluidKey, sphereKey, radiusMm, simTime, currentVelocity, ballY, vt, weight, buoyancy, dragForce, tau, isRunning };
-    }, [fluidKey, sphereKey, radiusMm, simTime, currentVelocity, ballY, vt, weight, buoyancy, dragForce, tau, isRunning]);
+        drawStateRef.current = { fluidKey, sphereKey, radiusMm, simTime, currentVelocity, ballY, vt, weight, buoyancy, dragForce, tau, reynoldsNumber, isStokesInvalid, isRunning };
+    }, [fluidKey, sphereKey, radiusMm, simTime, currentVelocity, ballY, vt, weight, buoyancy, dragForce, tau, reynoldsNumber, isStokesInvalid, isRunning]);
 
     /* ════════════════════════════════════════════════════════
        DRAW
@@ -205,7 +207,7 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
         ctx.fillStyle = '#6b7280';
         const subSize = Math.max(11, W * 0.011);
         ctx.font = `600 ${subSize}px "Inter", sans-serif`;
-        ctx.fillText(`${nowFluid.name}  ·  η = ${nowFluid.etaLabel} Pa·s  ·  ${nowSphere.name} (ρ = ${nowSphere.rho} kg/m³)  ·  r = ${s.radiusMm} mm`, titleX, titleY + titleSize + 8);
+        ctx.fillText(`${nowFluid.name}  ·  η = ${nowFluid.etaLabel} Pa·s  ·  ${nowSphere.name} (ρ = ${nowSphere.rho} kg/m³)  ·  r = ${s.radiusMm.toFixed(2)} mm`, titleX, titleY + titleSize + 8);
 
         // ═══ CYLINDER (left ~28%) ═══
         const cylCX = Math.max(120, W * 0.15);
@@ -425,7 +427,7 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
                 ctx.fillStyle = '#ef4444';
                 ctx.font = `bold ${Math.max(12, gOuter.w * 0.018)}px "Inter", sans-serif`;
                 ctx.textAlign = 'right';
-                const vtText = s.vt < 0.01 ? `${(s.vt * 1000).toFixed(2)} mm/s` : s.vt < 1 ? `${(s.vt * 100).toFixed(2)} cm/s` : `${s.vt.toFixed(3)} m/s`;
+                const vtText = `${s.vt.toFixed(4)} m/s`;
                 ctx.fillText(`vₜ = ${vtText}`, ax + aw - 10, vtY - 8);
             }
         }
@@ -475,13 +477,13 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
 
         // ─── Info badge — bottom-right of graph (includes formula, vt, and tau) ───
         {
-            const energyText = s.vt < 0.01 ? `${(s.vt * 1000).toFixed(2)} mm/s` : s.vt < 1 ? `${(s.vt * 100).toFixed(2)} cm/s` : `${s.vt.toFixed(3)} m/s`;
+            const energyText = `${s.vt.toFixed(4)} m/s`;
             const badgeFont = Math.max(12, gOuter.w * 0.018);
             const padX = 12, padY = 8;
 
             const line1 = `vₜ = 2a²(ρ−σ)g / 9η`;
             const line2 = `Terminal Velocity = ${energyText}`;
-            const line3 = `τ = ${s.tau < 0.01 ? s.tau.toExponential(2) : s.tau.toFixed(3)} s`;
+            const line3 = `Re = ${s.reynoldsNumber.toFixed(2)}  ·  τ = ${s.tau < 0.01 ? s.tau.toExponential(2) : s.tau.toFixed(3)} s`;
 
             ctx.font = `bold ${badgeFont}px "Inter", sans-serif`;
             const w1 = ctx.measureText(line1).width;
@@ -542,9 +544,8 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
         </div>
     );
 
-    const vtDisplay = vt < 0.01 ? `${(vt * 1000).toFixed(2)} mm/s` : vt < 1 ? `${(vt * 100).toFixed(2)} cm/s` : `${vt.toFixed(3)} m/s`;
-    const velDisplay = currentVelocity < 0.01 ? `${(currentVelocity * 1000).toFixed(2)}` : currentVelocity < 1 ? `${(currentVelocity * 100).toFixed(2)}` : `${currentVelocity.toFixed(3)}`;
-    const velUnit = currentVelocity < 0.01 ? 'mm/s' : currentVelocity < 1 ? 'cm/s' : 'm/s';
+    const vtDisplay = `${vt.toFixed(4)} m/s`;
+    const velDisplay = currentVelocity.toFixed(4);
 
     const controlsCombo = (
         <div className="flex gap-3 md:gap-4 w-full text-slate-700 p-1 md:p-2">
@@ -583,17 +584,22 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
                 <div className="p-3 md:p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-xs md:text-sm font-bold text-slate-700">Radius (a)</span>
-                        <span className="font-mono text-xs md:text-sm px-3 py-1 rounded-lg border text-blue-700 bg-blue-50 border-blue-100 font-bold">{radiusMm} mm</span>
+                        <span className="font-mono text-xs md:text-sm px-3 py-1 rounded-lg border text-blue-700 bg-blue-50 border-blue-100 font-bold">{radiusMm.toFixed(2)} mm</span>
                     </div>
-                    <input type="range" min="1" max="10" step="1" value={radiusMm}
+                    <input type="range" min="0.05" max="10" step="0.05" value={radiusMm}
                         onChange={e => { setRadiusMm(Number(e.target.value)); resetSim(); }}
                         className="w-full h-2.5 md:h-3 rounded-full appearance-none cursor-pointer bg-slate-100"
                         style={{ accentColor: fluid.color }} />
                     <div className="flex justify-between items-center mt-1.5">
-                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold">1 mm</span>
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-bold">0.05 mm</span>
                         <span className="text-[9px] md:text-[10px] text-slate-400 font-bold">10 mm</span>
                     </div>
                 </div>
+                {isStokesInvalid && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs md:text-sm font-bold text-amber-700">
+                        ⚠️ Re &gt; 1: Stokes Law approximation invalid at this size/speed
+                    </div>
+                )}
 
                 {/* Drop / Reset */}
                 <div className="grid grid-cols-2 gap-2">
@@ -615,7 +621,7 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
                 <div className="flex-1 p-2.5 md:p-3 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center justify-center">
                     <span className="text-[9px] md:text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">Velocity</span>
                     <span className="text-sm md:text-base font-bold text-blue-600 font-mono leading-tight">{velDisplay}</span>
-                    <span className="text-[9px] md:text-[10px] text-blue-400 font-bold">{velUnit}</span>
+                    <span className="text-[9px] md:text-[10px] text-blue-400 font-bold">m/s</span>
                 </div>
                 <div className="flex-1 p-2.5 md:p-3 bg-red-50 rounded-xl border border-red-100 flex flex-col items-center justify-center">
                     <span className="text-[9px] md:text-[10px] font-bold text-red-400 uppercase tracking-widest mb-0.5">vₜ</span>

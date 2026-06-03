@@ -90,7 +90,8 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         // --- Draw Particles ---
         s.particles.forEach((p, i) => {
             const x0 = pivotX + i * spacing;
-            const phase = k * (x0 - pivotX) - omega * s.time;
+            const xMeters = (x0 - pivotX) * SCALE;
+            const phase = k * xMeters - omega * s.time;
             const disp = s.amplitude * Math.sin(phase);
 
             let px, py;
@@ -103,7 +104,7 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                 // Draw connecting string
                 if (i > 0) {
                     const prevX = pivotX + (i-1) * spacing;
-                    const prevPhase = k * (prevX - pivotX) - omega * s.time;
+                    const prevPhase = k * ((prevX - pivotX) * SCALE) - omega * s.time;
                     const prevDisp = s.amplitude * Math.sin(prevPhase);
                     ctx.strokeStyle = '#cbd5e1';
                     ctx.lineWidth = 2;
@@ -139,8 +140,8 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
         });
 
         // --- HUD / Labels ---
-        const v_display = v * SCALE;
-        const lambda_display = (v / s.frequency) * SCALE;
+        const v_display = v;
+        const lambda_display = v_display / s.frequency;
         
         ctx.fillStyle = '#1e293b';
         ctx.font = 'bold 16px sans-serif';

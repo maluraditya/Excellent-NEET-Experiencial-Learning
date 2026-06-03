@@ -38,6 +38,8 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
     const graphRef = useRef<{ t: number; theta: number; theoryTheta: number }[]>([]);
     const frameRef = useRef(0);
     const timerRef = useRef({ start: 0, elapsed: 0, active: true, oscCount: 0, lastOmega: 0, halfwayFlag: false });
+    // Trajectory arc trace (last 2 oscillations)
+    const trajectoryRef = useRef<{ x: number; y: number }[]>([]);
 
     // Sync React state to Ref
     useEffect(() => {
@@ -192,31 +194,71 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
         const bobX = pivotX + visualL * Math.sin(s.theta);
         const bobY = pivotY + visualL * Math.cos(s.theta);
 
-        ctx.strokeStyle = '#475569'; ctx.lineWidth = 2 * scale;
+        // Trajectory arc trace (fading trail)
+        if (s.running) {
+            trajectoryRef.current.push({ x: bobX, y: bobY });
+            // Keep last ~600 positions (~2 oscillations at 60fps for T≈2s)
+            if (trajectoryRef.current.length > 600) trajectoryRef.current.shift();
+        }
+        const traj = trajectoryRef.current;
+        if (traj.length > 2) {
+            for (let ti = 1; ti < traj.length; ti++) {
+                const alpha = (ti / traj.length) * 0.5;
+                ctx.strokeStyle = `rgba(37, 99, 235, ${alpha})`;
+                ctx.lineWidth = (1 + (ti / traj.length) * 2) * scale;
+                ctx.beginPath();
+                ctx.moveTo(traj[ti - 1].x, traj[ti - 1].y);
+                ctx.lineTo(traj[ti].x, traj[ti].y);
+                ctx.stroke();
+            }
+        }
+
+        // String (tension color: warm when high tension, cool at rest)
+        const tensionVal = s.m * s.g * Math.cos(s.theta) + s.m * s.L * s.omega * s.omega;
+        const maxTension = s.m * s.g * (3 - 2 * Math.cos(s.initTheta));
+        const tensionNorm = Math.min(1, Math.max(0, tensionVal / (maxTension || 1)));
+        const stringHue = Math.round(200 - tensionNorm * 160); // cyan→red
+        ctx.strokeStyle = `hsl(${stringHue}, 60%, 45%)`; ctx.lineWidth = 2 * scale;
         ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY); ctx.stroke();
 
-        // Bob Gradient (3D look)
+        // Bob — 3D metallic gradient
         const grad = ctx.createRadialGradient(bobX - bobR * 0.3, bobY - bobR * 0.3, 2, bobX, bobY, bobR);
-        grad.addColorStop(0, '#60a5fa'); grad.addColorStop(1, '#2563eb');
+        grad.addColorStop(0, '#93c5fd'); grad.addColorStop(0.4, '#2563eb'); grad.addColorStop(1, '#1e3a8a');
         ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(bobX, bobY, bobR, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 2; ctx.stroke();
 
-        // 4. Force Vectors
+        // 4. Force Vectors — three forces (NCERT: mg, T, tangential restoring force)
         if (showVectors) {
             const fScale = 40 * scale;
-            // Gravity (mg) - Red
+            // (a) Gravity mg — Red, downward, constant
             ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3 * scale;
             drawArrow(ctx, bobX, bobY, bobX, bobY + fScale, 8 * scale);
             ctx.fillStyle = '#ef4444'; ctx.font = `bold ${fs(12)}px sans-serif`;
             ctx.fillText('mg', bobX + 5, bobY + fScale + 15);
 
-            // Tension (T) - Green
-            const tensionMag = (s.m * s.g * Math.cos(s.theta) + s.m * s.L * s.omega * s.omega);
+            // (b) Tension T — Green, along string toward pivot
             const tEndX = bobX - (bobX - pivotX) * 0.4;
             const tEndY = bobY - (bobY - pivotY) * 0.4;
             ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 3 * scale;
             drawArrow(ctx, bobX, bobY, tEndX, tEndY, 8 * scale);
             ctx.fillStyle = '#16a34a'; ctx.fillText('T', tEndX - 15, tEndY - 5);
+
+            // (c) Tangential restoring force F_t = -mg sinθ — Purple, perpendicular to string
+            const fTangential = -s.m * s.g * Math.sin(s.theta); // restoring, opposes displacement
+            const fTangNorm = Math.abs(fTangential) / (s.m * s.g); // 0 to 1
+            if (fTangNorm > 0.01) {
+                const tangScale = fScale * fTangNorm;
+                // Perpendicular direction to string (90° to string direction)
+                const strDirX = Math.sin(s.theta), strDirY = Math.cos(s.theta);
+                const perpX = strDirY, perpY = -strDirX; // perpendicular = rotate 90°
+                const dir = fTangential > 0 ? -1 : 1; // restoring: opposes displacement
+                const tgEndX = bobX + perpX * tangScale * dir;
+                const tgEndY = bobY + perpY * tangScale * dir;
+                ctx.strokeStyle = '#8b5cf6'; ctx.fillStyle = '#8b5cf6'; ctx.lineWidth = 2.5 * scale;
+                drawArrow(ctx, bobX, bobY, tgEndX, tgEndY, 7 * scale);
+                ctx.font = `bold ${fs(11)}px sans-serif`;
+                ctx.fillText('F_t = −mg sinθ', tgEndX + 8, tgEndY - 4);
+            }
         }
 
         // 5. Floating Info (Digital Stopwatch & Oscillation Counter)
@@ -329,7 +371,7 @@ const SimplePendulumLab: React.FC<SimplePendulumLabProps> = ({ topic, onExit }) 
     }, [showVectors]);
 
     useEffect(() => {
-        animRef.current = requestAnimationFrame(draw);
+        draw();
         return () => cancelAnimationFrame(animRef.current);
     }, [draw]);
 

@@ -57,37 +57,52 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
         return () => resizeObserver.disconnect();
     }, []);
 
-    const initParticles = useCallback(() => {
+    // Store canvas-relative chamber bounds for correct particle initialization
+    const chamberBoundsRef = useRef<{
+        A: { x: number; y: number; w: number; h: number };
+        B: { x: number; y: number; w: number; h: number };
+        C: { x: number; y: number; w: number; h: number };
+    } | null>(null);
+
+    const initParticles = useCallback((
+        boundsA?: { x: number; y: number; w: number; h: number },
+        boundsB?: { x: number; y: number; w: number; h: number },
+        boundsC?: { x: number; y: number; w: number; h: number }
+    ) => {
         const particles: Particle[] = [];
         const perChamber = 15;
-        
-        for (let i = 0; i < perChamber; i++) {
-            particles.push({
-                x: 50 + Math.random() * 150,
-                y: 50 + Math.random() * 150,
-                vx: (Math.random() - 0.5) * 4,
-                vy: (Math.random() - 0.5) * 4,
-                chamber: 'A'
-            });
-        }
-        for (let i = 0; i < perChamber; i++) {
-            particles.push({
-                x: 350 + Math.random() * 150,
-                y: 50 + Math.random() * 150,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2,
-                chamber: 'B'
-            });
-        }
-        for (let i = 0; i < perChamber; i++) {
-            particles.push({
-                x: 200 + Math.random() * 150,
-                y: 300 + Math.random() * 100,
-                vx: (Math.random() - 0.5) * 3,
-                vy: (Math.random() - 0.5) * 3,
-                chamber: 'C'
-            });
-        }
+
+        // Use provided bounds or fallback to defaults
+        const bA = boundsA || { x: 50, y: 50, w: 150, h: 150 };
+        const bB = boundsB || { x: 350, y: 50, w: 150, h: 150 };
+        const bC = boundsC || { x: 200, y: 250, w: 150, h: 100 };
+
+        const makeParticlesForChamber = (
+            bounds: { x: number; y: number; w: number; h: number },
+            temp: number,
+            chamber: 'A' | 'B' | 'C'
+        ) => {
+            const cols = 3, rows = Math.ceil(perChamber / cols);
+            let count = 0;
+            for (let row = 0; row < rows && count < perChamber; row++) {
+                for (let col = 0; col < cols && count < perChamber; col++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.max(0.5, (temp / 20) * (0.7 + Math.random() * 0.6));
+                    particles.push({
+                        x: bounds.x + 12 + (col + 0.5) * ((bounds.w - 24) / cols) + (Math.random() - 0.5) * 8,
+                        y: bounds.y + 12 + (row + 0.5) * ((bounds.h - 24) / rows) + (Math.random() - 0.5) * 8,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        chamber
+                    });
+                    count++;
+                }
+            }
+        };
+
+        makeParticlesForChamber(bA, 80, 'A');
+        makeParticlesForChamber(bB, 20, 'B');
+        makeParticlesForChamber(bC, 50, 'C');
         particlesRef.current = particles;
     }, []);
 
@@ -125,6 +140,12 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
         const chamberA = { x: pad, y: pad, w: chamberW, h: chamberH };
         const chamberB = { x: pad * 2 + chamberW, y: pad, w: chamberW, h: chamberH };
         const chamberC = { x: pad + chamberW * 0.25, y: pad * 2 + chamberH, w: chamberW * 1.5, h: chamberC_H };
+
+        // On first draw with real dimensions, reinitialize particles using canvas-relative bounds
+        if (!chamberBoundsRef.current) {
+            chamberBoundsRef.current = { A: chamberA, B: chamberB, C: chamberC };
+            initParticles(chamberA, chamberB, chamberC);
+        }
 
         // Draw chambers
         drawChamber(ctx, chamberA, 'A', currentTempA, fs, scale, particlesRef.current.filter(p => p.chamber === 'A'), time);
@@ -284,7 +305,7 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
 
     function updateParticleSpeeds(particles: Particle[], tempA: number, tempB: number, tempC: number) {
         particles.forEach(p => {
-            const targetSpeed = p.chamber === 'A' ? tempA / 20 : p.chamber === 'B' ? tempB / 20 : tempC / 20;
+            const targetSpeed = Math.max(0.5, p.chamber === 'A' ? tempA / 20 : p.chamber === 'B' ? tempB / 20 : tempC / 20);
             const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
             if (currentSpeed > 0.01) {
                 const ratio = 1 + (targetSpeed - currentSpeed) * 0.01;
@@ -323,7 +344,7 @@ const ZerothLawLab: React.FC<ZerothLawLabProps> = ({ topic, onExit }) => {
     }
 
     useEffect(() => {
-        animRef.current = requestAnimationFrame(draw);
+        draw();
         return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
     }, [draw]);
 

@@ -20,6 +20,8 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
         freq: 5.0, tension: 50, mu: 0.01, amplitude: 35,
         fixedEnd: true, running: true, time: 0,
     });
+    // Resonance buildup factor (0→1 as resonance builds)
+    const resonanceFactorRef = useRef(0);
 
     const N_PARTICLES = 200;
 
@@ -68,6 +70,18 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
         const resonantFreq = n_harmonic > 0 ? n_harmonic * v_wave / (2 * L_meters) : 0;
         const isResonant = n_harmonic > 0 && Math.abs(s.freq - resonantFreq) < 0.3;
 
+        // Resonance buildup: factor grows toward 1 at resonance, decays away
+        if (s.running) {
+            if (isResonant) {
+                resonanceFactorRef.current = Math.min(1, resonanceFactorRef.current + 0.004);
+            } else {
+                resonanceFactorRef.current = Math.max(0, resonanceFactorRef.current - 0.025);
+            }
+        }
+        const resFactor = resonanceFactorRef.current;
+        // Effective amplitude builds up with resonance (1x → 1.8x)
+        const effectiveAmp = s.amplitude * (1 + resFactor * 0.8);
+
         // Clear
         ctx.clearRect(0, 0, W, H);
         ctx.fillStyle = '#f8fafc';
@@ -85,19 +99,27 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
         const STRING_AREA_H = H * 0.30;
         const STRING_X0 = pad * 5;
         const STRING_Y = titleH + STRING_AREA_H * 0.5;
-        const scaledAmp = Math.min(s.amplitude * 1.2, STRING_AREA_H * 0.35);
+        // Use effectiveAmp for resonance buildup visualization
+        const scaledAmp = Math.min(effectiveAmp * 1.2, STRING_AREA_H * 0.38);
+
+        // Screen shake at peak resonance
+        if (resFactor > 0.9 && s.running) {
+            ctx.save();
+            ctx.translate((Math.random() - 0.5) * 2 * resFactor, (Math.random() - 0.5) * 1.5 * resFactor);
+        }
 
         // ─── Title ───
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${fs(17)}px "Inter", sans-serif`; ctx.textAlign = 'left';
         ctx.fillText('Superposition, Reflection & Standing Waves', pad, titleH * 0.7);
 
-        // Status badge
+        // Status badge — enhanced with buildup indicator
         if (isResonant) {
-            const badgeW = fs(14) * 16;
+            const badgeW = fs(14) * 18;
             const badgeX = W - pad - badgeW;
-            ctx.fillStyle = 'rgba(22, 163, 74, 0.12)';
+            const badgeAlpha = 0.08 + resFactor * 0.15;
+            ctx.fillStyle = `rgba(22, 163, 74, ${badgeAlpha})`;
             roundRect(ctx, badgeX, pad * 0.3, badgeW, fs(14) + 12, 8); ctx.fill();
-            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2;
+            ctx.strokeStyle = `rgba(22,163,74,${0.4 + resFactor * 0.6})`; ctx.lineWidth = 2;
             roundRect(ctx, badgeX, pad * 0.3, badgeW, fs(14) + 12, 8); ctx.stroke();
             ctx.fillStyle = '#16a34a'; ctx.font = `bold ${fs(14)}px "Inter", sans-serif`; ctx.textAlign = 'center';
             ctx.fillText(`🎶 RESONANCE — HARMONIC #${n_harmonic}`, badgeX + badgeW / 2, pad * 0.3 + fs(14) + 2);
@@ -363,6 +385,15 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
             ctx.fillStyle = '#94a3b8'; ctx.font = `${fs(9)}px "Inter", sans-serif`; ctx.textAlign = 'right';
             ctx.fillText('+A', gInnerX - 4, gInnerY + 10);
             ctx.fillText('−A', gInnerX - 4, gInnerY + gInnerH - 2);
+
+            // Wave equation label at bottom of each mini-graph
+            const eqLabels = [
+                'y = A sin(kx − ωt)',
+                s.fixedEnd ? 'y = −A sin(kx + ωt)' : 'y = A sin(kx + ωt)',
+                isResonant ? 'y = 2A sin(kx)cos(ωt)' : 'y = y_i + y_r',
+            ];
+            ctx.fillStyle = `${g.color}99`; ctx.font = `italic ${fs(9)}px "Inter", sans-serif`; ctx.textAlign = 'center';
+            ctx.fillText(eqLabels[idx], gx + singleGraphW / 2, gy + graphRowH - pad * 0.5);
         });
 
         // ═══════════════════════════════════════════
@@ -413,6 +444,11 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
             ctx.fillText('WAVELENGTH', pad + colW * 2.5, infoMidY + fs(12) + 2);
             ctx.fillText('WAVE NUMBER', pad + colW * 3.5, infoMidY + fs(12) + 2);
             ctx.fillText(isResonant ? 'STANDING WAVE' : 'FORMULA', pad + colW * 4.5, infoMidY + fs(12) + 2);
+        }
+
+        // Restore canvas if screen shake was applied
+        if (resFactor > 0.9 && s.running) {
+            ctx.restore();
         }
 
         animRef.current = requestAnimationFrame(draw);

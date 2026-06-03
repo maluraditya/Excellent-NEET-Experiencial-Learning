@@ -75,8 +75,19 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
 
         // Clear
         ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = '#f8fafc'; // Soft White
+        // KE/PE background tint for physics intuition
+        const keFrac = Math.pow(Math.sin(omega * s.time), 2); // 0=max PE, 1=max KE
+        const peFrac = 1 - keFrac;
+        if (keFrac > 0.5) {
+            ctx.fillStyle = `rgba(34,197,94,${(keFrac - 0.5) * 0.07})`; // green tint: KE dominant
+        } else {
+            ctx.fillStyle = `rgba(59,130,246,${(peFrac - 0.5) * 0.07})`; // blue tint: PE dominant
+        }
         ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#f8fafc'; // Soft White base
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'source-over';
 
         // DYNAMIC VIEWPORT SCALING (Laptop vs Smartboard)
         const scale = W < 1000 ? 1.0 : (W > 1500 ? 1.3 : 1.0 + (W - 1000) * 0.0006);
@@ -119,36 +130,58 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
         const springEndX = blockCX - blockW / 2;
         const springY = tableY + tableH * 0.35;
         const springLen = Math.max(10, springEndX - springStartX);
-        const coils = 12;
+        // Coil count scales with stiffness (stiffer = more coils)
+        const coils = Math.round(8 + (s.k - 10) / 490 * 5);
         const coilW = springLen / coils;
-        const coilH = (12 + (s.k - 10) / 490 * 12) * scale;
+        const coilH = (10 + (s.k - 10) / 490 * 10) * scale;
 
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = (3 + (s.k - 10) / 490 * 3.5) * scale;
+        // Spring color shifts with extension/compression
+        const springStretch = x / scaledA; // -1 to +1
+        const springHue = springStretch > 0 ? 25 : 210; // orange=stretched, blue=compressed
+        const springLightness = 40 + Math.abs(springStretch) * 15;
+        ctx.strokeStyle = `hsl(${springHue}, 65%, ${springLightness}%)`;
+        ctx.lineWidth = (2.5 + (s.k - 10) / 490 * 3) * scale;
+
+        // Bezier coil spring (smooth helix, not zigzag)
         ctx.beginPath();
         ctx.moveTo(springStartX, springY);
         for (let i = 0; i < coils; i++) {
-            const cx1 = springStartX + (i + 0.25) * coilW;
-            const cx2 = springStartX + (i + 0.75) * coilW;
-            ctx.lineTo(cx1, springY - coilH);
-            ctx.lineTo(cx2, springY + coilH);
+            const x1 = springStartX + (i + 0.25) * coilW;
+            const x2 = springStartX + (i + 0.75) * coilW;
+            const x3 = springStartX + (i + 1.0) * coilW;
+            ctx.bezierCurveTo(x1, springY - coilH, x1, springY - coilH, x1 + coilW * 0.25, springY);
+            ctx.bezierCurveTo(x2, springY + coilH, x2, springY + coilH, x3, springY);
         }
         ctx.lineTo(springEndX, springY);
         ctx.stroke();
 
-        // Block
+        // Block — 3D box with perspective shading
         const blockX = blockCX - blockW / 2;
         const blockY = tableY + 3;
         const massNorm = (s.mass - 0.1) / 4.9;
-        const bR = Math.round(37 + massNorm * 150);
-        const bG = Math.round(99 + massNorm * 40);
-        const bB = Math.round(235 - massNorm * 100);
-        ctx.fillStyle = `rgb(${bR},${bG},${bB})`;
+        const bH_base = Math.round(37 + massNorm * 150);
+        const bG_base = Math.round(99 + massNorm * 40);
+        const bB_base = Math.round(235 - massNorm * 100);
+        const baseColor = `rgb(${bH_base},${bG_base},${bB_base})`;
+        // Front face
+        ctx.fillStyle = baseColor;
         roundRect(ctx, blockX, blockY, blockW, blockH, 6); ctx.fill();
+        // Top face highlight (lighter)
+        ctx.fillStyle = `rgba(255,255,255,0.25)`;
+        ctx.fillRect(blockX + 2, blockY + 2, blockW - 4, blockH * 0.3);
+        // Bottom shadow (darker)
+        ctx.fillStyle = `rgba(0,0,0,0.18)`;
+        ctx.fillRect(blockX + 2, blockY + blockH * 0.7, blockW - 4, blockH * 0.28);
         ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
         roundRect(ctx, blockX, blockY, blockW, blockH, 6); ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.font = `bold ${fs(14)}px monospace`; ctx.textAlign = 'center';
         ctx.fillText(`${s.mass.toFixed(1)}kg`, blockCX, blockY + blockH / 2 + 5);
+
+        // Block shadow on table
+        ctx.fillStyle = 'rgba(0,0,0,0.07)';
+        ctx.beginPath();
+        ctx.ellipse(blockCX, tableY + tableH - 2, blockW * 0.45, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
 
         // Velocity vector (green)
         const vArrowScale = W * 0.08;
@@ -225,17 +258,36 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
             ctx.fillStyle = g.color; ctx.font = `bold ${fs(11)}px monospace`; ctx.textAlign = 'left';
             ctx.fillText(g.label, graphX + 10, gy + fs(12) + 4);
 
-            // Data
+            // Data — with subtle area fill
             const gd = graphRef.current;
             if (gd.length > 1) {
-                ctx.strokeStyle = g.color; ctx.lineWidth = 3;
+                const midY = gy + singleGH / 2;
+                // Fill area under curve
+                ctx.fillStyle = g.color.replace(')', ',0.08)').replace('rgb', 'rgba').replace('#', 'rgba(').replace(')', ',0.08)');
+                ctx.fillStyle = `${g.color}14`;
+                ctx.beginPath();
+                ctx.moveTo(graphX, midY);
+                gd.forEach((d, i) => {
+                    const px = graphX + (i / (gd.length - 1)) * graphAreaW;
+                    const py = midY - d[g.key] * (singleGH / 2 - 6);
+                    ctx.lineTo(px, py);
+                });
+                ctx.lineTo(graphX + graphAreaW, midY); ctx.closePath(); ctx.fill();
+                // Main line
+                ctx.strokeStyle = g.color; ctx.lineWidth = 2.5;
                 ctx.beginPath();
                 gd.forEach((d, i) => {
                     const px = graphX + (i / (gd.length - 1)) * graphAreaW;
-                    const py = gy + singleGH / 2 - d[g.key] * (singleGH / 2 - 6);
+                    const py = midY - d[g.key] * (singleGH / 2 - 6);
                     i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
                 });
                 ctx.stroke();
+                // Phase markers for v and a graphs
+                if (idx > 0) {
+                    const phaseLabel = idx === 1 ? 'π/2 lag' : 'π lag';
+                    ctx.fillStyle = '#94a3b8'; ctx.font = `${fs(9)}px sans-serif`; ctx.textAlign = 'center';
+                    ctx.fillText(phaseLabel, graphX + graphAreaW - 30, gy + singleGH - 4);
+                }
             }
         });
 

@@ -176,7 +176,7 @@ const HeatTransferBlackbodyLab: React.FC<HeatTransferBlackbodyLabProps> = ({ top
     }, []);
 
     useEffect(() => {
-        animRef.current = requestAnimationFrame(draw);
+        draw();
         return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
     }, [draw]);
 

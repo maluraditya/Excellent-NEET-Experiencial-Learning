@@ -95,6 +95,10 @@ function capillaryHeightMeters(surfaceTension: number, thetaDeg: number, radiusM
     return (2 * surfaceTension * cosTheta) / (radiusM * density * G);
 }
 
+function capillaryHeightCm(liquid: LiquidData, thetaDeg: number, radiusMm: number) {
+    return capillaryHeightMeters(liquid.surfaceTension, thetaDeg, radiusMm, liquid.density) * 100;
+}
+
 function pressureInsideKPa(surfaceTension: number, thetaDeg: number, radiusMm: number) {
     const radiusM = radiusMm / 1000;
     const deltaP = (2 * surfaceTension * Math.cos((thetaDeg * Math.PI) / 180)) / radiusM;
@@ -311,7 +315,7 @@ const SurfaceTensionLab: React.FC<SurfaceTensionLabProps> = ({ topic, onExit }) 
         setManualContactAngle(null);
     };
 
-    const liveHeightCm = capillaryHeightMeters(currentLiquid.surfaceTension, contactAngleDeg, tubeRadiusMm, currentLiquid.density) * 100;
+    const liveHeightCm = capillaryHeightCm(currentLiquid, contactAngleDeg, tubeRadiusMm);
     const livePressureInside = pressureInsideKPa(currentLiquid.surfaceTension, contactAngleDeg, tubeRadiusMm);
 
     const simulationCombo = (
@@ -519,7 +523,7 @@ function drawMacroView(
     const tubeBottomY = beakerY + beakerH * 0.86;
     const tubeHeight = tubeBottomY - tubeTopY;
 
-    const heightsCm = tubeRadii.map((radius) => capillaryHeightMeters(liquid.surfaceTension, thetaDeg, radius, liquid.density) * 100);
+    const heightsCm = tubeRadii.map((radius) => capillaryHeightCm(liquid, thetaDeg, radius));
     const maxAbsCm = Math.max(1.2, ...heightsCm.map((value) => Math.abs(value)));
     const cmToPx = (h * 0.22) / maxAbsCm;
 
@@ -543,7 +547,7 @@ function drawMacroView(
             ctx.fillRect(centerX - innerW / 2, liquidLevelY, innerW, Math.abs(capillaryPx));
         }
 
-        drawMeniscus(ctx, centerX, meniscusY, innerW, liquid.contactAngle, liquid.color, capillaryPx >= 0);
+        drawMeniscus(ctx, centerX, meniscusY, innerW, thetaDeg, liquid.color, capillaryPx >= 0);
 
         ctx.fillStyle = isActive ? '#f59e0b' : '#475569';
         ctx.font = `bold ${fs(10)}px sans-serif`;

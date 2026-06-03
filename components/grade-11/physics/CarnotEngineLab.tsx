@@ -14,6 +14,15 @@ const n_const = 1;
 function isothermP_calc(V: number, T: number) { return (n_const * R_const * T) / V; }
 function adiabaticP_calc(V: number, P0: number, V0: number) { return P0 * Math.pow(V0 / V, gamma_const); }
 
+// 3D sphere helper
+function draw3DSphere(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, baseColor: string, darkColor: string) {
+    const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.05, x, y, r);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.25, baseColor); g.addColorStop(1, darkColor);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+}
+
+interface GasMolecule { x: number; y: number; vx: number; vy: number; }
+
 const STEP_INFO = [
     { title: 'System Ready', short: 'CONFIGURE TEMPERATURES AND START THE CARNOT CYCLE.', detail: '' },
     {
@@ -48,6 +57,9 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
     const [t2, setT2] = useState(300);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animRef = useRef<number>(0);
+    const moleculesRef = useRef<GasMolecule[]>([]);
+    const lastTimeRef = useRef<number>(performance.now());
+    const pulseRef = useRef<number>(0);
 
     const [phase, setPhase] = useState(0); 
     const phaseRef = useRef(0);
@@ -156,8 +168,51 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
         
         const tempRel = (currentT - t2) / (t1 - t2);
         const gR_val = Math.round(59 + tempRel * 180), gB_val = Math.round(235 - tempRel * 170);
-        ctx.fillStyle = `rgba(${gR_val}, 100, ${gB_val}, 0.3)`;
+        // HSL temperature gradient background (blue=cold, red=hot)
+        const tempHue = Math.round(240 - tempRel * 240);
+        ctx.fillStyle = `hsla(${tempHue}, 70%, 60%, 0.25)`;
         ctx.fillRect(cylX_val + cylPad_val + 3, pistonY_val, cylW_val - cylPad_val * 2 - 6, (pad * 5 + cylH_val) - pistonY_val - 3);
+
+        // --- GAS MOLECULES (3D spheres, speed ∝ √T) ---
+        const now_ms = performance.now();
+        const mol_dt = Math.min((now_ms - lastTimeRef.current) / 1000, 0.033);
+        lastTimeRef.current = now_ms;
+        pulseRef.current += mol_dt * 2;
+
+        const gasLeft = cylX_val + cylPad_val + 4;
+        const gasRight = cylX_val + cylW_val - cylPad_val - 4;
+        const gasTop_mol = pistonY_val + 4;
+        const gasBot_mol = pad * 5 + cylH_val - 4;
+        const gasW_mol = gasRight - gasLeft;
+        const gasH_mol = Math.max(10, gasBot_mol - gasTop_mol);
+
+        // Init/resize molecules
+        const molCount = 14;
+        if (moleculesRef.current.length !== molCount) {
+            moleculesRef.current = Array.from({ length: molCount }, () => {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = 1.5 + Math.random() * 2;
+                return { x: gasLeft + Math.random() * gasW_mol, y: gasTop_mol + Math.random() * gasH_mol, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd };
+            });
+        }
+
+        const molSpeed = 0.5 + tempRel * 3.5; // speed proportional to √T
+        moleculesRef.current.forEach(m => {
+            m.x += m.vx * molSpeed * mol_dt * 60;
+            m.y += m.vy * molSpeed * mol_dt * 60;
+            // Clamp inside current gas space
+            if (m.x < gasLeft + 4) { m.x = gasLeft + 4; m.vx = Math.abs(m.vx); }
+            if (m.x > gasRight - 4) { m.x = gasRight - 4; m.vx = -Math.abs(m.vx); }
+            if (m.y < gasTop_mol + 4) { m.y = gasTop_mol + 4; m.vy = Math.abs(m.vy); }
+            if (m.y > gasBot_mol - 4) { m.y = gasBot_mol - 4; m.vy = -Math.abs(m.vy); }
+        });
+
+        const molBaseColor = `hsl(${tempHue}, 70%, 55%)`;
+        const molDarkColor = `hsl(${tempHue}, 80%, 30%)`;
+        const molR = Math.max(3, Math.min(5, gasW_mol * 0.06));
+        moleculesRef.current.forEach(m => {
+            draw3DSphere(ctx, m.x, m.y, molR, molBaseColor, molDarkColor);
+        });
 
         ctx.fillStyle = '#475569'; ctx.strokeStyle = '#0f172a';
         roundRect(ctx, cylX_val + cylPad_val - 5, pistonY_val - 12, cylW_val - cylPad_val * 2 + 10, 16, 5); ctx.fill(); ctx.stroke();
@@ -363,8 +418,18 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
             else if (cp === 2) dp_val = adiabaticP_calc(currentV, P2, V2);
             else if (cp === 3) dp_val = isothermP_calc(currentV, t2);
             else if (cp === 4) dp_val = adiabaticP_calc(currentV, P4, V4);
-            ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(sv_val(currentV), sp_val(dp_val), 7, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+            const dotX = sv_val(currentV), dotY = sp_val(dp_val);
+            const dotColor = cp === 1 ? '#dc2626' : cp === 2 ? '#d97706' : cp === 3 ? '#2563eb' : '#7c3aed';
+            // Pulsing glow ring
+            const pulseR = 10 + 5 * Math.abs(Math.sin(pulseRef.current));
+            const pulseAlpha = 0.15 + 0.15 * Math.abs(Math.sin(pulseRef.current));
+            ctx.fillStyle = dotColor.replace(')', `, ${pulseAlpha})`).replace('rgb', 'rgba');
+            ctx.beginPath(); ctx.arc(dotX, dotY, pulseR, 0, Math.PI * 2); ctx.fill();
+            // Solid dot
+            ctx.shadowColor = dotColor; ctx.shadowBlur = 12;
+            ctx.fillStyle = dotColor; ctx.beginPath(); ctx.arc(dotX, dotY, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(dotX, dotY, 7, 0, Math.PI * 2); ctx.stroke();
         }
 
         // --- STATS PANEL ---

@@ -132,6 +132,8 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         // Particles
         if (isPlaying) {
             const particles = particlesRef.current;
+            // Max velocity for color mapping (at max constriction)
+            const maxVelForColor = (pipeFullR_val * pipeFullR_val * v1_val) / ((constrictionArea / A1_val * pipeFullR_val) ** 2);
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
                 const vel = getVelocityAtX_val(p.x);
@@ -139,10 +141,14 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
                 if (p.x > W) { p.x = -20; p.y = (Math.random() - 0.5) * A1_val; }
                 const currentR = getRadiusAtX_val(p.x);
                 const actualY = midlineY + (p.y / (A1_val / 2)) * currentR;
+                // Velocity-colored streaks: blue(slow) → red(fast) per NCERT Bernoulli
+                const velNorm = Math.min(1, vel / Math.max(maxVelForColor, v1_val * 2));
+                const hue = Math.round(240 - velNorm * 240);
+                const streakLen = Math.max(10, vel * 5) * scale;
                 ctx.beginPath();
-                ctx.moveTo(p.x, actualY); ctx.lineTo(p.x + Math.max(14, vel * 6) * scale, actualY);
-                ctx.strokeStyle = `rgba(37, 99, 235, ${Math.min(1, 0.4 + (vel / 25) * 0.6)})`;
-                ctx.lineWidth = (2.5 + (vel / 25) * 2.5) * scale;
+                ctx.moveTo(p.x, actualY); ctx.lineTo(p.x + streakLen, actualY);
+                ctx.strokeStyle = `hsla(${hue}, 85%, 55%, ${0.5 + velNorm * 0.5})`;
+                ctx.lineWidth = (2 + velNorm * 3) * scale;
                 ctx.stroke();
             }
         }
@@ -188,6 +194,25 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         };
         drawMano_val(0.2, 'P₁', P1_display_val);
         drawMano_val(0.42, 'P₂', P2_display_val);
+
+        // ΔP arrow between manometers (shows pressure DROP at constriction)
+        if (Math.abs(deltaP_val) > 500) {
+            const x1 = 0.2 * W + 15 * scale, x2 = 0.42 * W - 15 * scale;
+            const arrowY = titleBandBottom_val + pad * 0.5;
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2 * scale;
+            ctx.beginPath(); ctx.moveTo(x1, arrowY); ctx.lineTo(x2, arrowY); ctx.stroke();
+            // Arrowhead pointing right (toward lower pressure)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(x2, arrowY);
+            ctx.lineTo(x2 - 8 * scale, arrowY - 5 * scale);
+            ctx.lineTo(x2 - 8 * scale, arrowY + 5 * scale);
+            ctx.closePath(); ctx.fill();
+            // ΔP label
+            ctx.font = `bold ${fs(11)}px sans-serif`; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText(`ΔP = ${(Math.abs(deltaP_val) / 1000).toFixed(1)} kPa`, (x1 + x2) / 2, arrowY - 8 * scale);
+        }
 
         // Stats Panels (Bottom)
         const colW_val = (W - pad * 3) / 2;

@@ -34,7 +34,7 @@ const MATERIALS: Record<string, MaterialData> = {
     },
     brass: {
         name: 'Brass', color: '#10b981',
-        Y: 1.0e11, yGPa: 100,
+        Y: 9.0e10, yGPa: 90,
         ultimateStrength: 3.5e8, ultimateMPa: 350,
     },
     aluminum: {
@@ -158,7 +158,7 @@ const YoungsModulusLab: React.FC<YoungsModulusLabProps> = ({ topic, onExit, mode
         ctx.fillStyle = '#6b7280';
         const subSize = Math.max(11, W * 0.011);
         ctx.font = `600 ${subSize}px "Inter", sans-serif`;
-        ctx.fillText(`${nowMat.name}  ·  Y = ${nowMat.yGPa} GPa  ·  r = ${s.radiusMm} mm  ·  A = ${(s.area * 1e6).toFixed(2)} mm²`, titleX, titleY + titleSize + 8);
+        ctx.fillText(`${nowMat.name}  ·  Y = ${nowMat.yGPa} GPa  ·  L = ${s.length.toFixed(2)} m  ·  r = ${s.radiusMm} mm  ·  A = ${(s.area * 1e6).toFixed(2)} mm²`, titleX, titleY + titleSize + 8);
 
         // ═══ APPARATUS (left 25%) ═══
         const appCX = Math.max(120, W * 0.15); // Ensure it's not squished to the edge

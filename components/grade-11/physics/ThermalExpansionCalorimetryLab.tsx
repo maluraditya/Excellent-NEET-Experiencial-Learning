@@ -171,7 +171,7 @@ const ThermalExpansionCalorimetryLab: React.FC<ThermalExpansionCalorimetryLabPro
     }, []);
 
     useEffect(() => {
-        animRef.current = requestAnimationFrame(draw);
+        draw();
         return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
     }, [draw]);
 
