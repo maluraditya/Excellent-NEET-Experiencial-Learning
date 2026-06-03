@@ -17,7 +17,7 @@ const GAS_TYPES: GasType[] = [
     { name: 'Helium', symbol: 'He', color: '#d97706', fTrans: 3, fRot: 0, fVib: 0, atoms: 1, molar: 4 },
     { name: 'Oxygen', symbol: 'O₂', color: '#2563eb', fTrans: 3, fRot: 2, fVib: 0, atoms: 2, molar: 32 },
     { name: 'Carbon Monoxide', symbol: 'CO', color: '#7c3aed', fTrans: 3, fRot: 2, fVib: 2, atoms: 2, molar: 28 },
-    { name: 'Methane', symbol: 'CH₄', color: '#16a34a', fTrans: 3, fRot: 3, fVib: 9, atoms: 5, molar: 16 },
+    { name: 'Methane', symbol: 'CH₄', color: '#16a34a', fTrans: 3, fRot: 3, fVib: 18, atoms: 5, molar: 16 },
 ];
 
 const R_CONST = 8.314;
@@ -284,7 +284,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         const bars = [
             { label: 'TRANS.', sub: `${gas.fTrans} DOF`, val: eTrans, color: '#16a34a' },
             { label: 'ROTAT.', sub: `${fRot} DOF`, val: eRot, color: '#d97706' },
-            { label: 'VIBRAT.', sub: `${fVib} DOF`, val: eVib, color: '#dc2626' },
+            { label: 'VIBRAT.', sub: fVib > 0 ? `${fVib / 2} mode(s)` : '0 mode(s)', val: eVib, color: '#dc2626' },
         ];
         const totalBarW = bars.length * bw + (bars.length - 1) * gap;
         const barStartX = barPanelX + (barPanelW - totalBarW) / 2;
@@ -415,7 +415,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         ctx.font = `italic bold ${fs(12)}px sans-serif`;
         ctx.fillText('Each DOF gets ½kᵦT per molecule = ½RT per mole', infoX + infoW / 2, fY);
         fY += lineH * 0.8;
-        ctx.fillText('Vibration adds 2 DOF (KE+PE)', infoX + infoW / 2, fY);
+        ctx.fillText('Each vib. mode adds 2 DOF → kBT energy', infoX + infoW / 2, fY);
 
         animRef.current = requestAnimationFrame(draw);
     }, []);

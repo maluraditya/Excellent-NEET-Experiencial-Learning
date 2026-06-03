@@ -354,7 +354,7 @@ const CarnotEngineLab: React.FC<CarnotEngineLabProps> = ({ topic, onExit }) => {
             const ctrV = Math.pow((Math.pow(V1, vPow) + Math.pow(V2, vPow) + Math.pow(V3, vPow) + Math.pow(V4, vPow)) / 4, 1/vPow);
             const ctrP = (P1 + P2 + P3 + P4) / 4;
             ctx.fillStyle = '#15803d'; ctx.font = `bold ${fs(13)}px "Inter", sans-serif`; ctx.textAlign = 'center';
-            ctx.fillText('−W_out', sv_val(ctrV), sp_val(ctrP));
+            ctx.fillText('W = Q₁ − Q₂', sv_val(ctrV), sp_val(ctrP));
         }
 
         if (cp >= 1 && cp <= 4) {

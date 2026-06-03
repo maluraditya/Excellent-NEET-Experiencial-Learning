@@ -110,7 +110,7 @@ const ThermodynamicProcessesLab: React.FC<ThermodynamicProcessesLabProps> = ({ t
             if (proc === 'isothermal') {
                 const dV = dir * 0.015 * speed;
                 newV = Math.max(1.5, Math.min(8, gas.V + dV));
-                ddW = pressure_calc(gas.V, gas.T) * (newV - gas.V) * 1000;
+                ddW = pressure_calc(gas.V, gas.T) * (newV - gas.V);
                 ddQ = ddW; ddU = 0;
             } else if (proc === 'adiabatic') {
                 const dV = dir * 0.015 * speed;
@@ -129,7 +129,7 @@ const ThermodynamicProcessesLab: React.FC<ThermodynamicProcessesLabProps> = ({ t
                 newT = Pcurr * newV / (n_moles * R_val);
                 newT = Math.max(150, Math.min(1200, newT));
                 if (newT < 150 || newT > 1200) newV = gas.V;
-                ddW = Pcurr * (newV - gas.V) * 1000;
+                ddW = Pcurr * (newV - gas.V);
                 ddU = n_moles * Cv_val * (newT - gas.T); ddQ = ddU + ddW;
             }
 
@@ -244,7 +244,7 @@ const ThermodynamicProcessesLab: React.FC<ThermodynamicProcessesLabProps> = ({ t
         const col1P = cylPanelX + cylPanelW * 0.3;
         const col2V = cylPanelX + cylPanelW * 0.7;
         ctx.fillStyle = '#d97706'; ctx.font = `bold ${fs(18)}px monospace`;
-        ctx.fillText(`${(P_val / 1000).toFixed(1)} kPa`, col1P, stateY);
+        ctx.fillText(`${P_val.toFixed(1)} kPa`, col1P, stateY);
         ctx.fillStyle = '#94a3b8'; ctx.font = `bold ${fs(10)}px sans-serif`;
         ctx.fillText('PRESSURE', col1P, stateY + fs(12));
         ctx.fillStyle = '#2563eb'; ctx.font = `bold ${fs(18)}px monospace`;

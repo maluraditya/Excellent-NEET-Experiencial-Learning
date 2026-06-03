@@ -345,11 +345,12 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
                 <div className="space-y-2 md:space-y-3 p-3 md:p-5 bg-white rounded-xl border border-slate-200 shadow-sm">
                     <label className="text-sm md:text-base font-bold text-slate-700 flex justify-between items-center mb-1">
                         <span>📏 Amplitude</span>
-                        <span className="text-red-700 font-mono text-base md:text-lg bg-red-50 border border-red-100 px-3 py-0.5 md:py-1 rounded shadow-sm">{Math.round(amplitude)} px</span>
+                        <span className="text-red-700 font-mono text-base md:text-lg bg-red-50 border border-red-100 px-3 py-0.5 md:py-1 rounded shadow-sm">{Math.round(amplitude)} (A)</span>
                     </label>
                     <input type="range" min="10" max="120" step="5" value={amplitude}
                         onChange={(e) => { setAmplitude(Number(e.target.value)); stateRef.current.time = 0; graphRef.current = []; }}
                         className="w-full accent-red-600 h-2 md:h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
+                    <p className="text-xs md:text-sm text-slate-500">Visual amplitude (relative to canvas)</p>
                 </div>
             </div>
             <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center justify-center mt-1 md:mt-2">

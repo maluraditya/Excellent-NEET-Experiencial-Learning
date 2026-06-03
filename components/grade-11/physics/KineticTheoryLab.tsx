@@ -7,7 +7,7 @@ interface KineticTheoryLabProps {
     onExit: () => void;
 }
 
-function tempToSpeed(T: number) { return 1.0 + (T - 100) / 900 * 4.0; }
+function tempToSpeed(T: number) { return 2.3 * Math.sqrt(Math.max(T, 1) / 400); }
 
 interface Molecule { x: number; y: number; vx: number; vy: number; }
 interface Flash { x: number; y: number; t: number; wall: string; }
@@ -194,7 +194,7 @@ const KineticTheoryLab: React.FC<KineticTheoryLabProps> = ({ topic, onExit }) =>
         let sumV2 = 0;
         mols.forEach(m => { sumV2 += m.vx * m.vx + m.vy * m.vy; });
         const avgV2 = mols.length > 0 ? sumV2 / mols.length : 0;
-        const rawP = (s.N * avgV2) / (chamberW * chamberH * s.volFrac || 1) * 500;
+        const rawP = (s.N * avgV2) / (chamberW * chamberH || 1) * 500;
         pressureRef.current = pressureRef.current * 0.9 + rawP * 0.1;
         const P_val = pressureRef.current;
 

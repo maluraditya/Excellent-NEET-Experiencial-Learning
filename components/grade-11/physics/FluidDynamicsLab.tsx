@@ -76,7 +76,8 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         const panelMinH_val = Math.max(96 * scale, H * 0.22);
         const titleY_val = pad * 1.6;
         const titleFontSize_val = fs(18);
-        const titleBandBottom_val = titleY_val + titleFontSize_val + pad * 1.4;
+        const formulaFontSize_val = fs(11);
+        const titleBandBottom_val = titleY_val + titleFontSize_val + formulaFontSize_val * 2 + pad * 1.7;
         const manoTargetH_val = Math.min(H * 0.18, Math.max(56 * scale, H * 0.14));
         const midlineLowerBound_val = titleBandBottom_val + manoTargetH_val + pipeFullR_val + pad * 0.8;
         const midlineUpperBound_val = Math.max(
@@ -89,6 +90,7 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
             Math.max(H * 0.62, midlineY + pipeFullR_val + pad * 1.4)
         );
         const panelH_val = H - panelY_val - pad;
+        const narrowRadius_val = Math.sqrt(constrictionArea / A1_val) * pipeFullR_val;
 
         const getRadiusAtX_val = (x: number) => {
             const normX = x / W;
@@ -97,24 +99,24 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
 
             if (normX < startNarrow - transLen) return pipeFullR_val;
             if (normX > endNarrow + transLen) return pipeFullR_val;
-            if (normX >= startNarrow && normX <= endNarrow) return (constrictionArea / A1_val) * pipeFullR_val;
+            if (normX >= startNarrow && normX <= endNarrow) return narrowRadius_val;
 
             if (normX >= startNarrow - transLen && normX < startNarrow) {
                 const t = (normX - (startNarrow - transLen)) / transLen;
                 const st = t * t * (3 - 2 * t);
-                return pipeFullR_val * (1 - st) + (constrictionArea / A1_val) * pipeFullR_val * st;
+                return pipeFullR_val * (1 - st) + narrowRadius_val * st;
             }
             if (normX > endNarrow && normX <= endNarrow + transLen) {
                 const t = (normX - endNarrow) / transLen;
                 const st = t * t * (3 - 2 * t);
-                return (constrictionArea / A1_val) * pipeFullR_val * (1 - st) + pipeFullR_val * st;
+                return narrowRadius_val * (1 - st) + pipeFullR_val * st;
             }
             return pipeFullR_val;
         };
 
         const getVelocityAtX_val = (x: number) => {
             const rx = getRadiusAtX_val(x);
-            return (pipeFullR_val * v1_val) / rx;
+            return (pipeFullR_val * pipeFullR_val * v1_val) / (rx * rx);
         };
 
         // Pipe Wall
@@ -214,6 +216,10 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
         // Header Title
         ctx.fillStyle = '#0f172a'; ctx.font = `bold ${titleFontSize_val}px sans-serif`; ctx.textAlign = 'center';
         ctx.fillText('Fluid Mechanics: Bernoulli\'s Principle', W / 2, titleY_val, W * 0.58);
+        ctx.fillStyle = '#475569';
+        ctx.font = `600 ${formulaFontSize_val}px sans-serif`;
+        ctx.fillText('Bernoulli: P + ½ρv² + ρgh = const', W / 2, titleY_val + titleFontSize_val + pad * 0.55, W * 0.72);
+        ctx.fillText('Continuity: A₁v₁ = A₂v₂', W / 2, titleY_val + titleFontSize_val + formulaFontSize_val + pad * 0.75, W * 0.72);
 
         animRef.current = requestAnimationFrame(draw);
     }, [isPlaying, constrictionArea, flowRate, A1_val, v1_val, v2_val, KE1_val, KE2_val, P1_display_val, P2_display_val]);
