@@ -63,12 +63,19 @@ const HC_EV_NM = 1240;
 const A0_PM = 53;
 const E_CHARGE = 1.602176634e-19;
 const K_COULOMB = 8.9875517923e9;
-const K_SIM = 720000;
-const D_NEAR = 25;
+const K_SIM = 140000;          // tuned Coulomb constant for the rendered (live-integrated) trajectories
+const D_NEAR = 10;             // px floor on distance to avoid the 1/r^2 singularity at the nucleus
+const FIELD_RADIUS = 70;       // px: interaction region. Beyond this the electron cloud screens the
+                              // nucleus, so an alpha particle feels no force and flies straight (empty space).
 const SCATTER_STAGE = { x: 56, y: 96, w: 1168, h: 616 };
 const DETECTOR_R = 282;
 const NCERT_OVER1_PERCENT = 0.14;
 const NCERT_OVER90_RATIO = 8000;
+// --- Statistics model (analytic Rutherford, area-weighted beam with screening) ---
+// Calibrated so gold @ 7.7 MeV reproduces NCERT: 0.14% scatter > 1 deg and ~1 in 8000 > 90 deg.
+const MC_B90_GOLD = 0.01118;   // impact parameter giving theta = 90 deg (units of beam half-width B = 1)
+const MC_B_SCREEN = 0.0374;    // screening radius: beyond this b, theta ~ 0 (undeflected)
+const MC_RATE = 9000;          // virtual alpha particles "detected" per second of running time
 
 const TARGETS = {
     gold: { label: 'Gold (Au)', z: 79, massLabel: 'Au nucleus ~50x alpha mass', foil: '2.1 x 10^-7 m' },
@@ -215,6 +222,38 @@ function closestApproachFm(z: number, energyMev: number) {
     return d / 1e-15;
 }
 
+// Coulomb scattering strength: impact parameter (in units of beam half-width B = 1) that
+// produces a 90 deg deflection. Scales with Z and inversely with kinetic energy, so heavier
+// nuclei and slower alphas scatter more strongly (NCERT: b90 proportional to Z/E).
+function scatterStrength(z: number, energyMev: number) {
+    return MC_B90_GOLD * (z / 79) * (7.7 / energyMev);
+}
+
+// Deterministically accumulate "detected" alpha particles into the running statistics using the
+// analytic Rutherford model. The beam is area-weighted (P(b < b0) = (b0/B)^2, as for a real disk
+// beam) and screened beyond MC_B_SCREEN. This converges exactly to the NCERT fractions and builds
+// the 1/sin^4(theta/2) angular distribution seen in NCERT Fig. 12.3.
+function accumulateScattering(stats: ScatteringStats, z: number, energyMev: number, n: number) {
+    if (n <= 0) return;
+    const b90 = scatterStrength(z, energyMev);
+    const frac = (bThreshold: number) => {
+        const t = clamp(bThreshold, 0, 1);
+        return t * t;
+    };
+    const b1 = b90 / Math.tan(0.5 * DEG);    // impact parameter for theta = 1 deg
+    const bBack = b90 / Math.tan(75 * DEG);  // impact parameter for theta = 150 deg (back-scatter)
+    stats.total += n;
+    stats.over1 += n * frac(Math.min(b1, MC_B_SCREEN));
+    stats.over90 += n * frac(b90);
+    stats.back += n * frac(Math.min(bBack, MC_B_SCREEN));
+    // Detector counts per 10 deg bin follow the Rutherford cross-section dsigma/dOmega ~ 1/sin^4(theta/2).
+    for (let i = 0; i < HIST_BINS; i++) {
+        const mid = i * 10 + 5;
+        const s = Math.sin((mid * DEG) / 2);
+        stats.histogram[i] += n * (1 / Math.pow(s, 4));
+    }
+}
+
 function percent(count: number, total: number) {
     return total > 0 ? `${((count / total) * 100).toFixed(2)}%` : '0.00%';
 }
@@ -257,7 +296,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
     const [targetKind, setTargetKind] = useState<TargetKind>('gold');
     const [customZ, setCustomZ] = useState(30);
     const [energyMev, setEnergyMev] = useState(7.7);
-    const [beamWidth, setBeamWidth] = useState(150);
+    const [beamWidth, setBeamWidth] = useState(360);
     const [fireRate, setFireRate] = useState<FireRate>('medium');
     const [showImpact, setShowImpact] = useState(true);
     const [showForce, setShowForce] = useState(true);
@@ -345,6 +384,11 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
         canvas.height = H;
     }, []);
 
+    // Keep the latest control values in a ref so the animation loop can read them without ever being
+    // torn down. This is what guarantees the beams keep emitting when any control is changed.
+    const liveRef = useRef<any>(null);
+    liveRef.current = { isPlaying, mode, fireRate, z, targetKind, customZ, energyMev, beamWidth, showImpact, showForce, orbitN, targetN, showOrbitLabels, showStandingWave, series, spectrumView, showTransitions, spawnAlpha };
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -355,9 +399,10 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
             const dt = Math.min(now - lastTimeRef.current, 100);
             lastTimeRef.current = now;
             const dtSec = dt / 1000;
+            const L = liveRef.current;
             drawBackground(ctx);
 
-            if (isPlaying) {
+            if (L.isPlaying) {
                 electronPhaseRef.current += dtSec * 1.7;
                 if (transitionRef.current) {
                     transitionRef.current.progress += dtSec * 1.4;
@@ -365,20 +410,23 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                 }
             }
 
-            if (mode === 'scattering') {
-                if (isPlaying) {
-                    const rate = fireRate === 'single' ? 0 : fireRate === 'medium' ? 11 : 28;
+            if (L.mode === 'scattering') {
+                if (L.isPlaying) {
+                    const rate = L.fireRate === 'single' ? 0 : L.fireRate === 'medium' ? 11 : 28;
                     spawnAccRef.current += dtSec * rate;
                     while (spawnAccRef.current >= 1) {
-                        spawnAlpha(false);
+                        L.spawnAlpha(false);
                         spawnAccRef.current -= 1;
                     }
+                    // Accumulate the detected-particle statistics for the running experiment.
+                    const mcScale = L.fireRate === 'single' ? 0 : L.fireRate === 'fast' ? 1.6 : 1;
+                    accumulateScattering(statsRef.current, L.z, L.energyMev, dtSec * MC_RATE * mcScale);
                 }
-                drawScattering(ctx, dtSec, isPlaying, z, targetKind, customZ, energyMev, beamWidth, showImpact, showForce, statsRef.current, particlesRef.current, flashesRef.current);
-            } else if (mode === 'bohr') {
-                drawBohr(ctx, orbitN, targetN, electronPhaseRef.current, transitionRef.current, showOrbitLabels, showStandingWave);
+                drawScattering(ctx, dtSec, L.isPlaying, L.z, L.targetKind, L.customZ, L.energyMev, L.beamWidth, L.showImpact, L.showForce, statsRef.current, particlesRef.current, flashesRef.current, electronPhaseRef.current);
+            } else if (L.mode === 'bohr') {
+                drawBohr(ctx, L.orbitN, L.targetN, electronPhaseRef.current, transitionRef.current, L.showOrbitLabels, L.showStandingWave);
             } else {
-                drawSpectrumMode(ctx, series, spectrumView, showTransitions);
+                drawSpectrumMode(ctx, L.series, L.spectrumView, L.showTransitions);
             }
 
             if (Math.floor(now / 250) !== Math.floor((now - dt) / 250)) setStatsTick(t => t + 1);
@@ -389,7 +437,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
         return () => {
             if (animationRef.current) cancelAnimationFrame(animationRef.current);
         };
-    }, [mode, isPlaying, z, targetKind, customZ, energyMev, beamWidth, fireRate, showImpact, showForce, orbitN, targetN, showOrbitLabels, showStandingWave, series, spectrumView, showTransitions, spawnAlpha]);
+    }, []);
 
     const currentStats = statsRef.current;
     const graphPanel = (
@@ -437,8 +485,8 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                     <div className="mt-2 space-y-2 text-sm font-semibold leading-snug">
                         {mode === 'scattering' && (
                             <>
-                                <p>F = (1/4πε0)(2e)(Ze)/r^2. The repulsive force is applied continuously, with no cutoff radius.</p>
-                                <p>Most alpha particles pass through; 0.14% scatter beyond 1 degree and about 1 in 8000 beyond 90 degrees.</p>
+                                <p>F = (1/4πε0)(2e)(Ze)/r^2. Newton's 2nd law + Coulomb repulsion bend each alpha particle along a hyperbola; a small impact parameter b gives a large scattering angle theta.</p>
+                                <p>The atom is mostly empty space, so most alpha particles pass straight through. Only ~0.14% scatter beyond 1 degree and about 1 in 8000 beyond 90 degrees (near head-on).</p>
                             </>
                         )}
                         {mode === 'bohr' && (
@@ -466,7 +514,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                                 <ValueRow label="Target" value={getTargetName(targetKind, customZ)} color="text-orange-700" bg="bg-orange-50" />
                                 <ValueRow label="Alpha energy" value={`${energyMev.toFixed(1)} MeV`} color="text-red-700" bg="bg-red-50" />
                                 <ValueRow label="Closest approach" value={`${dFm.toFixed(1)} fm`} color="text-purple-700" bg="bg-purple-50" />
-                                <ValueRow label="Recorded hits" value={`${currentStats.total}`} color="text-slate-700" bg="bg-slate-50" />
+                                <ValueRow label="Recorded hits" value={`${Math.round(currentStats.total).toLocaleString()}`} color="text-slate-700" bg="bg-slate-50" />
                                 <ValueRow label="Scattered > 1 deg" value={`${percent(currentStats.over1, currentStats.total)} (NCERT ${NCERT_OVER1_PERCENT}%)`} color="text-blue-700" bg="bg-blue-50" />
                                 <ValueRow label="Scattered > 90 deg" value={`${oneIn(currentStats.over90, currentStats.total)} (NCERT ~1 in ${NCERT_OVER90_RATIO})`} color="text-rose-700" bg="bg-rose-50" />
                                 <ValueRow label="Last theta" value={`${currentStats.lastTheta.toFixed(1)} deg`} color="text-emerald-700" bg="bg-emerald-50" />
@@ -521,16 +569,15 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                 <ModeButton active={mode === 'spectrum'} icon={<Activity size={18} />} label="Spectrum" onClick={() => setMode('spectrum')} />
             </div>
 
+            <button
+                onClick={() => setIsPlaying(v => !v)}
+                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-black text-white shadow-lg transition ${isPlaying ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+            >
+                {isPlaying ? <><Pause size={20} /> Pause</> : <><Play size={20} /> {mode === 'scattering' ? 'Start beams' : 'Start'}</>}
+            </button>
+
             {mode === 'scattering' && (
                 <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-orange-100 bg-orange-50 p-4">
-                        <div className="text-lg font-black text-orange-950">F = (1/4πε0)(2e)(Ze)/r^2</div>
-                        <p className="mt-2 text-sm font-semibold leading-snug text-orange-900">NCERT uses a thin gold foil of thickness 2.1 x 10^-7 m. For the 7.7 MeV natural-alpha example, Au gives closest approach d = 2Ze^2/(4πε0K) ≈ 30 fm; current d = {dFm.toFixed(1)} fm.</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => { setFireRate('single'); spawnAlpha(true); }} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-extrabold text-slate-700 shadow-sm hover:bg-slate-50">Fire single alpha</button>
-                        <button onClick={resetScattering} className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-extrabold text-slate-700 shadow-sm hover:bg-slate-50"><RotateCcw size={16} />Reset counts</button>
-                    </div>
                     <ControlBlock label="Target material">
                         <div className="grid grid-cols-3 gap-2">
                             {(['gold', 'aluminum', 'custom'] as TargetKind[]).map(item => (
@@ -541,7 +588,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                     </ControlBlock>
                     <ControlBlock label="Alpha particle beam">
                         <Slider label="Energy K" value={energyMev} min={2} max={10} step={0.5} onChange={setEnergyMev} suffix=" MeV" />
-                        <Slider label="Beam width" value={beamWidth} min={60} max={260} step={10} onChange={setBeamWidth} suffix=" px" />
+                        <Slider label="Beam width" value={beamWidth} min={200} max={460} step={20} onChange={setBeamWidth} suffix=" px" />
                     </ControlBlock>
                     <ControlBlock label="Fire rate">
                         <div className="grid grid-cols-3 gap-2">
@@ -561,10 +608,6 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
 
             {mode === 'bohr' && (
                 <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                        <div className="text-lg font-black text-indigo-950">E_n = -13.6/n^2 eV</div>
-                        <p className="mt-2 text-sm font-semibold leading-snug text-indigo-900">Stable stationary states do not radiate. Transitions emit or absorb photons with hν = E_i - E_f. Click an energy level on the canvas to jump.</p>
-                    </div>
                     <ControlBlock label="Current orbit and transition">
                         <Slider label="Current orbit n" value={orbitN} min={1} max={6} step={1} onChange={setOrbitN} suffix="" />
                         <Slider label="Transition level n" value={targetN} min={1} max={6} step={1} onChange={setTargetN} suffix="" />
@@ -589,24 +632,11 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                             <ToggleButton active={showStandingWave} onClick={() => setShowStandingWave(v => !v)} label="nλ = 2πr" />
                         </div>
                     </ControlBlock>
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                        <div className="text-sm font-black uppercase text-slate-500">Current values</div>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-sm font-bold text-slate-700">
-                            <div>E = {currentEnergy.toFixed(3)} eV</div>
-                            <div>r = {(A0_PM * orbitN * orbitN).toFixed(0)} pm</div>
-                            <div>Ionization from n={orbitN}: {Math.abs(currentEnergy).toFixed(2)} eV</div>
-                            <div>λ = {Number.isFinite(selectedWave) ? `${selectedWave.toFixed(0)} nm` : '-'}</div>
-                        </div>
-                    </div>
                 </div>
             )}
 
             {mode === 'spectrum' && (
                 <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                        <div className="text-lg font-black text-indigo-950">1/λ = R(1/n_f² - 1/n_i²)</div>
-                        <p className="mt-2 text-sm font-semibold leading-snug text-indigo-900">Hydrogen has characteristic line spectra. Lyman is UV, Balmer is visible, and Paschen/Brackett/Pfund are IR.</p>
-                    </div>
                     <ControlBlock label="Series and spectrum view">
                         <div className="grid grid-cols-5 gap-2">
                             {(Object.keys(SERIES) as SeriesKey[]).map(key => (
@@ -622,9 +652,6 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
                     <ControlBlock label="Overlays">
                         <ToggleButton active={showTransitions} onClick={() => setShowTransitions(v => !v)} label="Transition arrows" />
                     </ControlBlock>
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700">
-                        Balmer visible lines: H-alpha 656 nm, H-beta 486 nm, H-gamma 434 nm, H-delta 410 nm.
-                    </div>
                 </div>
             )}
         </div>
@@ -633,7 +660,7 @@ const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
     return <TopicLayoutContainer topic={topic} onExit={onExit} SimulationComponent={simulationJSX} ControlsComponent={controlsJSX} />;
 };
 
-function drawScattering(ctx: CanvasRenderingContext2D, dt: number, isPlaying: boolean, z: number, kind: TargetKind, customZ: number, energyMev: number, beamWidth: number, showImpact: boolean, showForce: boolean, stats: ScatteringStats, particles: AlphaParticle[], flashes: Flash[]) {
+function drawScattering(ctx: CanvasRenderingContext2D, dt: number, isPlaying: boolean, z: number, kind: TargetKind, customZ: number, energyMev: number, beamWidth: number, showImpact: boolean, showForce: boolean, stats: ScatteringStats, particles: AlphaParticle[], flashes: Flash[], phase: number) {
     const nucleus = getScatteringNucleus();
     const { x, y, w, h } = SCATTER_STAGE;
     drawScatteringStage(ctx);
@@ -656,30 +683,45 @@ function drawScattering(ctx: CanvasRenderingContext2D, dt: number, isPlaying: bo
 
     drawSource(ctx, beamWidth, nucleus);
     drawGoldFoil(ctx, nucleus, kind, customZ);
+    drawElectronCloud(ctx, nucleus, z, phase, particles);
     drawDetectorArc(ctx, nucleus);
 
     if (isPlaying) {
+        // Sub-step the integration so the curved trajectories stay stable and frame-rate independent.
+        const sub = Math.max(1, Math.ceil(dt / 0.0028));
+        const sdt = dt / sub;
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
-            const dx = p.x - nucleus.x;
-            const dy = p.y - nucleus.y;
-            const dist = Math.max(5, Math.hypot(dx, dy));
-            const force = K_SIM * z * (5.5 / energyMev) / (dist * dist);
-            p.vx += (dx / dist) * force * dt;
-            p.vy += (dy / dist) * force * dt;
-            p.x += p.vx * dt;
-            p.y += p.vy * dt;
+            for (let s = 0; s < sub; s++) {
+                const dx = p.x - nucleus.x;
+                const dy = p.y - nucleus.y;
+                const dist = Math.hypot(dx, dy);
+                // Coulomb repulsion only inside the (screened) interaction region. Outside it the
+                // particle travels in a straight line, which is why most alphas cross undeflected.
+                if (dist < FIELD_RADIUS) {
+                    const d = Math.max(D_NEAR, dist);
+                    const force = K_SIM * z * (5.5 / energyMev) / (d * d);
+                    p.vx += (dx / d) * force * sdt;
+                    p.vy += (dy / d) * force * sdt;
+                }
+                p.x += p.vx * sdt;
+                p.y += p.vy * sdt;
+            }
             p.trail.push({ x: p.x, y: p.y });
             if (p.trail.length > 80) p.trail.shift();
 
-            if (showForce && particles.length < 80 && i % 7 === 0 && p.x > x + 190 && p.x < nucleus.x + 180) {
-                const end = { x: p.x + (dx / dist) * 34, y: p.y + (dy / dist) * 34 };
+            const dxNow = p.x - nucleus.x;
+            const dyNow = p.y - nucleus.y;
+            const distNow = Math.max(D_NEAR, Math.hypot(dxNow, dyNow));
+            if (showForce && particles.length < 80 && i % 7 === 0 && distNow < FIELD_RADIUS) {
+                const end = { x: p.x + (dxNow / distNow) * 34, y: p.y + (dyNow / distNow) * 34 };
                 drawArrow(ctx, { x: p.x, y: p.y }, end, 'rgba(239,68,68,0.55)', 1.6);
             }
 
             if (p.x > x + w - 18 || p.x < x + 18 || p.y < y + 18 || p.y > y + h - 18) {
                 const theta = Math.acos(clamp(p.vx / Math.max(1, Math.hypot(p.vx, p.vy)), -1, 1)) * RAD;
-                recordScattering(stats, theta, p.b);
+                stats.lastTheta = theta;
+                stats.lastB = p.b;
                 const arcPoint = detectorPoint(nucleus, p);
                 if (arcPoint) flashes.push({ x: arcPoint.x, y: arcPoint.y, life: 0, maxLife: 0.3, color: p.color });
                 particles.splice(i, 1);
@@ -818,17 +860,79 @@ function drawGoldFoil(ctx: CanvasRenderingContext2D, nucleus: Vec, kind: TargetK
     ctx.fill();
     ctx.shadowBlur = 0;
     drawLabel(ctx, '+', nucleus.x, nucleus.y, '#0f172a', 'center', '900 13px Inter, sans-serif');
-    for (let i = 0; i < 10; i++) {
-        const a = i * Math.PI * 0.62;
-        const r = 34 + (i % 3) * 13;
-        ctx.fillStyle = 'rgba(96,165,250,0.58)';
-        ctx.beginPath();
-        ctx.arc(nucleus.x + Math.cos(a) * r, nucleus.y + Math.sin(a) * r, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-    }
     drawLabel(ctx, `${getTargetName(kind, customZ)} nucleus`, nucleus.x, nucleus.y + 46, '#fde68a', 'center', '900 12px Inter, sans-serif');
     drawLabel(ctx, kind === 'gold' ? 'Au foil: 2.1 x 10^-7 m' : 'Thin target foil', nucleus.x, foilTop - 22, '#fde68a', 'center', '900 13px Inter, sans-serif');
     drawLabel(ctx, 'electron cloud is too light to deflect alpha particles strongly', nucleus.x + 178, nucleus.y + 72, '#93c5fd', 'center', '800 11px Inter, sans-serif');
+    ctx.restore();
+}
+
+// Fill electron shells (capacity 2n^2) in order until the Z electrons run out. Illustrative, not
+// strict Aufbau order, but it gives the right number of shells and electrons per element.
+function electronShells(z: number): number[] {
+    const shells: number[] = [];
+    let remaining = Math.max(1, Math.round(z));
+    let n = 1;
+    while (remaining > 0 && n <= 7) {
+        const take = Math.min(2 * n * n, remaining);
+        shells.push(take);
+        remaining -= take;
+        n++;
+    }
+    return shells;
+}
+
+// Draw the electron cloud orbiting the selected atom's nucleus. The alpha particles plough straight
+// through it: electrons are ~7000x lighter, so they cannot deflect the alpha (they only jiggle and
+// spark when an alpha sweeps past). This is the "electron cloud is too light" point made visual.
+function drawElectronCloud(ctx: CanvasRenderingContext2D, nucleus: Vec, z: number, phase: number, particles: AlphaParticle[]) {
+    const shells = electronShells(z);
+    ctx.save();
+    shells.forEach((count, si) => {
+        const r = 96 + si * 28;
+        // faint orbit ring
+        ctx.strokeStyle = 'rgba(125,211,252,0.14)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 8]);
+        ctx.beginPath();
+        ctx.arc(nucleus.x, nucleus.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const dir = si % 2 === 0 ? 1 : -1;
+        const speed = 0.55 - si * 0.05;
+        for (let k = 0; k < count; k++) {
+            const ang = (k / count) * Math.PI * 2 + phase * speed * dir;
+            let ex = nucleus.x + Math.cos(ang) * r;
+            let ey = nucleus.y + Math.sin(ang) * r;
+            // alpha sweeps past: nudge the electron aside and spark, but never touch the alpha's path.
+            let nearest: AlphaParticle | null = null;
+            let nd = 1e9;
+            for (const p of particles) {
+                const d = Math.hypot(p.x - ex, p.y - ey);
+                if (d < nd) { nd = d; nearest = p; }
+            }
+            if (nearest && nd < 24) {
+                const push = ((24 - nd) / 24) * 9;
+                const nx = (ex - nearest.x) / Math.max(1, nd);
+                const ny = (ey - nearest.y) / Math.max(1, nd);
+                ex += nx * push;
+                ey += ny * push;
+                ctx.strokeStyle = 'rgba(125,211,252,0.45)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(nearest.x, nearest.y);
+                ctx.lineTo(ex, ey);
+                ctx.stroke();
+            }
+            ctx.fillStyle = '#38bdf8';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 2.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    });
+    drawLabel(ctx, `Z = ${Math.round(z)}: ${shells.reduce((a, b) => a + b, 0)} electrons, ${shells.length} shells`, nucleus.x, nucleus.y + 90, '#7dd3fc', 'center', '800 11px Inter, sans-serif');
     ctx.restore();
 }
 
@@ -895,17 +999,6 @@ function drawAlpha(ctx: CanvasRenderingContext2D, p: AlphaParticle) {
 function detectorPoint(nucleus: Vec, p: AlphaParticle) {
     const ang = Math.atan2(p.vy, p.vx);
     return { x: nucleus.x + Math.cos(ang) * DETECTOR_R, y: nucleus.y + Math.sin(ang) * DETECTOR_R };
-}
-
-function recordScattering(stats: ScatteringStats, theta: number, b: number) {
-    stats.total += 1;
-    if (theta > 1) stats.over1 += 1;
-    if (theta > 90) stats.over90 += 1;
-    if (theta > 150) stats.back += 1;
-    const bin = clamp(Math.floor(theta / 10), 0, HIST_BINS - 1);
-    stats.histogram[bin] += 1;
-    stats.lastTheta = theta;
-    stats.lastB = b;
 }
 
 function updateFlashes(ctx: CanvasRenderingContext2D, flashes: Flash[], dt: number) {
