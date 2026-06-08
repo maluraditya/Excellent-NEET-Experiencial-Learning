@@ -148,7 +148,7 @@ export const TOPICS: Topic[] = [
     coverImage: ''
   },
 
-  // UNIT 4: INORGANIC & POLYMERS
+  // UNIT 4: INORGANIC
   {
     id: 'dblock',
     subject: 'Chemistry',
@@ -163,21 +163,6 @@ export const TOPICS: Topic[] = [
     youtubeVideoIds: ['LzZWHSdYaxw'],
     coverImage: ''
   },
-  {
-    id: 'polymers',
-    subject: 'Chemistry',
-    chapter: 'Polymers',
-    branch: 'Organic Chemistry',
-    grade: '12th',
-    unit: 'Unit 15',
-    title: 'Polymerization & Conductivity',
-    description: 'Understand Ziegler-Natta catalysis for chain growth and explore how conjugated organic polymers can conduct electricity like metals.',
-    thumbnailIcon: 'layers',
-    thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_polymerization_conductivity.png',
-    youtubeVideoIds: ['AEGd8Ky9B3U'],
-    coverImage: ''
-  },
-
   // UNIT 5: COORDINATION
   {
     id: 'stereochemistry',
