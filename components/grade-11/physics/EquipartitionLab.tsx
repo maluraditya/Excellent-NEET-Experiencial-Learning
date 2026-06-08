@@ -350,29 +350,35 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         label(ctx, 'Molecule: Degrees of Freedom', W / 2, 68, 29, 900);
         label(ctx, 'Each quadratic term contributes ½kBT per molecule or ½RT per mole', W / 2, 101, 15, 800, '#475569');
 
-        roundRect(ctx, 95, 130, 560, 510, 26);
+        const chamberW = 560;
+        const chamberH = 510;
+        const chamberX = (W - chamberW) / 2;
+        const chamberY = 130;
+        const chamberCx = chamberX + chamberW / 2;
+
+        roundRect(ctx, chamberX, chamberY, chamberW, chamberH, 26);
         ctx.fillStyle = '#ffffff';
         ctx.fill();
         ctx.strokeStyle = '#cbd5e1';
         ctx.lineWidth = 3;
         ctx.stroke();
-        for (let x = 125; x < 635; x += 40) {
+        for (let x = chamberX + 30; x < chamberX + chamberW - 20; x += 40) {
             ctx.strokeStyle = 'rgba(15,23,42,0.04)';
             ctx.beginPath();
-            ctx.moveTo(x, 150);
-            ctx.lineTo(x, 620);
+            ctx.moveTo(x, chamberY + 20);
+            ctx.lineTo(x, chamberY + chamberH - 20);
             ctx.stroke();
         }
 
         const tempNorm = clamp((temp - 100) / 900, 0, 1);
         const motionTime = timeRef.current * 0.85;
         const main = {
-            x: 375 + Math.sin(motionTime) * (18 + tempNorm * 28) + Math.sin(motionTime * 0.43) * 10,
+            x: chamberCx + Math.sin(motionTime) * (18 + tempNorm * 28) + Math.sin(motionTime * 0.43) * 10,
             y: 385 + Math.cos(motionTime * 0.8) * (14 + tempNorm * 24)
         };
         drawMoleculeAt(ctx, gas, main.x, main.y, timeRef.current, temp, 0.78);
-        label(ctx, `${gas.name} (${gas.formula})`, 375, 665, 22, 900, gas.color);
-        if (gas.type === 'diatomic') label(ctx, 'NCERT Fig 12.6: only two perpendicular rotation axes count', 375, 700, 14, 800, '#64748b');
+        label(ctx, `${gas.name} (${gas.formula})`, chamberCx, 665, 22, 900, gas.color);
+        if (gas.type === 'diatomic') label(ctx, 'NCERT Fig 12.6: only two perpendicular rotation axes count', chamberCx, 700, 14, 800, '#64748b');
     }, [drawMoleculeAt]);
 
     const drawBarsMode = useCallback((ctx: CanvasRenderingContext2D) => {
