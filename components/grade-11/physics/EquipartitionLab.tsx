@@ -37,14 +37,6 @@ interface GasData {
     measured?: { cv: number; cp: number; diff: number; gamma: number };
 }
 
-interface Particle {
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    seed: number;
-}
-
 const W = 1280;
 const H = 760;
 const R = 8.314;
@@ -236,7 +228,6 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
     const requestRef = useRef<number>();
     const lastRef = useRef<number>();
     const timeRef = useRef(0);
-    const particlesRef = useRef<Particle[]>([]);
     const displayRef = useRef({ u: 0, cv: 0, cp: 0, gamma: 1 });
 
     const [mode, setMode] = useState<Mode>('molecule');
@@ -279,16 +270,6 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
     useEffect(() => { speedRef.current = speed; }, [speed]);
     useEffect(() => { solidRef.current = solid; }, [solid]);
     useEffect(() => { deltaTRef.current = deltaT; }, [deltaT]);
-
-    useEffect(() => {
-        particlesRef.current = Array.from({ length: 32 }, (_, i) => ({
-            x: 150 + Math.random() * 500,
-            y: 170 + Math.random() * 430,
-            vx: (Math.random() - 0.5) * 90,
-            vy: (Math.random() - 0.5) * 90,
-            seed: i * 0.41
-        }));
-    }, []);
 
     const handleReset = useCallback(() => {
         setMode('molecule');
@@ -362,7 +343,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
         }
     }, []);
 
-    const drawMoleculeMode = useCallback((ctx: CanvasRenderingContext2D, dt: number) => {
+    const drawMoleculeMode = useCallback((ctx: CanvasRenderingContext2D) => {
         const gas = GASES.find((item) => item.id === gasRef.current) ?? GASES[4];
         const temp = tempRef.current;
         background(ctx);
@@ -383,19 +364,13 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             ctx.stroke();
         }
 
-        const tempScale = Math.sqrt(temp / 300);
-        particlesRef.current.forEach((p) => {
-            if (!pausedRef.current) {
-                p.x += p.vx * tempScale * dt;
-                p.y += p.vy * tempScale * dt;
-                if (p.x < 125 || p.x > 625) p.vx *= -1;
-                if (p.y < 165 || p.y > 595) p.vy *= -1;
-                p.x = clamp(p.x, 125, 625);
-                p.y = clamp(p.y, 165, 595);
-            }
-        });
-        const main = particlesRef.current[0] ?? { x: 380, y: 360 };
-        drawMoleculeAt(ctx, gas, main.x, main.y, timeRef.current, temp, 1);
+        const tempNorm = clamp((temp - 100) / 900, 0, 1);
+        const motionTime = timeRef.current * 0.85;
+        const main = {
+            x: 375 + Math.sin(motionTime) * (18 + tempNorm * 28) + Math.sin(motionTime * 0.43) * 10,
+            y: 385 + Math.cos(motionTime * 0.8) * (14 + tempNorm * 24)
+        };
+        drawMoleculeAt(ctx, gas, main.x, main.y, timeRef.current, temp, 0.78);
         label(ctx, `${gas.name} (${gas.formula})`, 375, 665, 22, 900, gas.color);
         if (gas.type === 'diatomic') label(ctx, 'NCERT Fig 12.6: only two perpendicular rotation axes count', 375, 700, 14, 800, '#64748b');
     }, [drawMoleculeAt]);
@@ -612,7 +587,7 @@ const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) =>
             else if (modeRef.current === 'solids') drawSolidsMode(ctx);
             else if (modeRef.current === 'example') drawExampleMode(ctx);
             else if (modeRef.current === 'summary') drawSummaryMode(ctx);
-            else drawMoleculeMode(ctx, dt);
+            else drawMoleculeMode(ctx);
             requestRef.current = requestAnimationFrame(draw);
         };
         requestRef.current = requestAnimationFrame(draw);
