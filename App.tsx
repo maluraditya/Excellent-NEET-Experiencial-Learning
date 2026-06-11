@@ -80,6 +80,7 @@ import StereochemistryLab from './components/grade-12/chemistry/StereochemistryL
 import DBlockLab from './components/grade-12/chemistry/DBlockLab';
 import HaloalkaneLab from './components/grade-12/chemistry/HaloalkaneLab';
 
+
 // Grade 12 - Biology
 import DoubleFertilisationSeedDevelopmentLab from './components/grade-12/biology/DoubleFertilisationSeedDevelopmentLab';
 import GametogenesisHormonalRegulationLab from './components/grade-12/biology/GametogenesisHormonalRegulationLab';
@@ -1114,6 +1115,8 @@ const App: React.FC = () => {
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'haloalkanes' && (
           <HaloalkaneLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}
+
+
         {/* ================== ANGIOSPERMS DOUBLE FERTILISATION ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'angiosperms-double-fertilisation-seed-development' && (
           <DoubleFertilisationSeedDevelopmentLab
