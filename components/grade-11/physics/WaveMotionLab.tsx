@@ -237,7 +237,7 @@ const WaveMotionLab: React.FC<WaveMotionLabProps> = ({ topic, onExit }) => {
                             <input type="range" min="50000" max="500000" step="10000" value={bulkModulus} onChange={(e) => setBulkModulus(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
 
                             <label className="flex justify-between text-sm font-bold pt-2">
-                                <span>Air Density (ρ)</span>
+                                <span>Medium Density (ρ)</span>
                                 <span className="text-blue-600">{density.toFixed(2)} kg/m³</span>
                             </label>
                             <input type="range" min="0.5" max="5.0" step="0.1" value={density} onChange={(e) => setDensity(Number(e.target.value))} className="w-full accent-emerald-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" />

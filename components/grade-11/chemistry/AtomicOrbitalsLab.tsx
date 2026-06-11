@@ -1,380 +1,680 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Slice, Eye, HelpCircle } from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { Play, Pause, RotateCcw, Atom, Eye, Layers } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
+import { Topic } from '../../../types';
 
-interface AtomicOrbitalsProps {
-    topic: any;
-    onExit: () => void;
-}
+// ─── NCERT facts (Chapter 2, §2.6) ───────────────────────────────────────────
+interface Props { topic: Topic; onExit: () => void; }
 
-const AtomicOrbitalsLab: React.FC<AtomicOrbitalsProps> = ({ topic, onExit }) => {
+const MAX_N = 5;
+const W = 1280, H = 760;
+const CX = 640, CY = 380;
+
+const HydrogenOrbitalsLab: React.FC<Props> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const rafRef    = useRef<number>(0);
 
-    // Quantum numbers state
-    const [n, setN] = useState<number>(1);
-    const [l, setL] = useState<number>(0);
-    const [m, setM] = useState<number>(0);
+    const [n, setN] = useState(2);
+    const [l, setL] = useState(1);
+    const [m, setM] = useState(0);
 
-    // View state
-    const [sliceOpen, setSliceOpen] = useState<boolean>(true);
-    const [highlightNodes, setHighlightNodes] = useState<boolean>(false);
+    const [showNodes,        setShowNodes]        = useState(true);
+    const [crossSection,     setCrossSection]     = useState(true);
+    const [showProbability,  setShowProbability]  = useState(false);
+    const [paused,           setPaused]           = useState(false);
 
-    // Track size for accurate canvas resolution
-    const [dimensions, setDimensions] = useState({ w: 800, h: 500 });
+    useEffect(() => { if (l > n - 1) setL(n - 1); }, [n, l]);
+    useEffect(() => { if (Math.abs(m) > l) setM(0); }, [l, m]);
 
-    // Auto-correct l and m when n or l changes
-    useEffect(() => {
-        if (l >= n) {
-            setL(n - 1);
-        }
-    }, [n, l]);
-
-    useEffect(() => {
-        if (Math.abs(m) > l) {
-            setM(0);
-        }
-    }, [l, m]);
-
-    // Handle reliable resizing
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const observer = new ResizeObserver((entries) => {
-            for (let entry of entries) {
-                const { width, height } = entry.contentRect;
-                if (width > 0 && height > 0) {
-                    setDimensions({ w: width, h: height });
-                }
-            }
-        });
-        observer.observe(containerRef.current);
-        return () => observer.disconnect();
-    }, []);
-
-    // Derived Node Counts
-    const radialNodes = n - l - 1;
+    const radialNodes  = n - l - 1;
     const angularNodes = l;
-    const totalNodes = n - 1;
+    const totalNodes   = n - 1;
 
-    const getOrbitalLetter = (l_val: number) => {
-        if (l_val === 0) return 's';
-        if (l_val === 1) return 'p';
-        if (l_val === 2) return 'd';
-        if (l_val === 3) return 'f';
-        return 'g';
-    };
-
-    const getSubscript = (l_val: number, m_val: number) => {
-        if (l_val === 0) return '';
-        if (l_val === 1) {
-            if (m_val === 0) return 'z';
-            if (m_val === 1) return 'x';
-            if (m_val === -1) return 'y';
+    const orbitalLetter = (lv: number) => ['s', 'p', 'd', 'f', 'g'][lv] ?? 'g';
+    const orbitalLabel  = (() => {
+        if (l === 0) return `${n}s`;
+        if (l === 1) {
+            const ax = m === 0 ? 'z' : m === 1 ? 'x' : 'y';
+            return `${n}p${ax}`;
         }
-        if (l_val === 2) {
-            if (m_val === 0) return 'z²';
-            if (m_val === 1) return 'xz';
-            if (m_val === -1) return 'yz';
-            if (m_val === 2) return 'x²-y²';
-            if (m_val === -2) return 'xy';
+        if (l === 2) {
+            const tag = m === 0 ? 'z²' : m === 1 ? 'xz' : m === -1 ? 'yz' : m === 2 ? 'x²-y²' : 'xy';
+            return `${n}d${tag}`;
         }
-        return '';
-    };
+        return `${n}${orbitalLetter(l)}`;
+    })();
 
-    // High-performance Canvas Rendering for 2D cross-sections
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+    const drawFrame = useCallback((tSec: number) => {
+        const cv = canvasRef.current; if (!cv) return;
+        const ctx = cv.getContext('2d'); if (!ctx) return;
 
-        const { w, h } = dimensions;
-        if (w === 0 || h === 0) return;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
 
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        canvas.style.width = `${w}px`;
-        canvas.style.height = `${h}px`;
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-        ctx.scale(dpr, dpr);
-
-        const cx = w / 2;
-        const cy = h / 2;
-
-        // Background
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, w, h);
-
-        // Grid (Sci-fi look)
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.strokeStyle = 'rgba(100,116,139,0.08)';
         ctx.lineWidth = 1;
-        for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
-        for (let i = 0; i < h; i += 40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
+        for (let x = 0; x <= W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+        for (let y = 0; y <= H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
-        // Colors
-        const colors = [
-            { core: '#60a5fa', glow: 'rgba(59, 130, 246, 0.1)', edge: '#3b82f6' }, // s
-            { core: '#c084fc', glow: 'rgba(168, 85, 247, 0.1)', edge: '#a855f7' }, // p
-            { core: '#34d399', glow: 'rgba(16, 185, 129, 0.1)', edge: '#10b981' }, // d
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([8, 6]);
+        ctx.beginPath(); ctx.moveTo(CX, 80); ctx.lineTo(CX, H - 80); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(180, CY); ctx.lineTo(W - 180, CY); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.font      = 'bold 13px sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('+x', W - 195, CY - 8);
+        ctx.fillText('+z', CX + 6, 78);
+        ctx.fillText('−x', 168, CY - 8);
+        ctx.fillText('−z', CX + 6, H - 70);
+
+        ctx.font      = 'bold 15px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText(`Boundary Surface — ${orbitalLabel}`, 30, 36);
+        ctx.font      = '11px sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('Encloses 90 % probability of finding the electron (NCERT §2.6.2)', 30, 54);
+
+        const baseR = 120;
+        const size  = baseR + n * 28;
+        const sx    = size, sy = size;
+
+        const themes = [
+            { lobe: '#60a5fa', edge: '#1d4ed8', soft: '#dbeafe', name: 's' },
+            { lobe: '#a78bfa', edge: '#6d28d9', soft: '#ede9fe', name: 'p' },
+            { lobe: '#34d399', edge: '#047857', soft: '#d1fae5', name: 'd' },
+            { lobe: '#fbbf24', edge: '#b45309', soft: '#fef3c7', name: 'f' },
         ];
-        const theme = colors[Math.min(l, 2)];
+        const T = themes[Math.min(l, 3)];
 
-        const baseRadius = Math.min(w, h) * 0.20;
-        const size = baseRadius * (1 + n * 0.25); // Scale more gently with n
-        const lobeWidth = size * 0.7;
-        const lobeThickness = size * 0.4;
-
-        const drawLobe = (x: number, y: number, rx: number, ry: number, angle: number) => {
+        const drawLobe = (px: number, py: number, rx: number, ry: number, rot: number, sign: '+' | '-' = '+') => {
             ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(angle);
+            ctx.translate(CX, CY);
+            ctx.rotate(rot);
 
-            // Shift gradient slightly for lighting
-            const gradX = sliceOpen ? x : x - Math.sign(x) * rx * 0.15;
-            const gradY = sliceOpen ? y : y - Math.sign(y) * ry * 0.15;
-
-            let grad = ctx.createRadialGradient(gradX, gradY, 0, x, y, Math.max(rx, ry));
-
-            if (sliceOpen) {
-                // Sliced view - internal energy
-                grad.addColorStop(0, theme.core);
-                grad.addColorStop(0.3, theme.edge);
-                grad.addColorStop(1, 'transparent');
-            } else {
-                // External puffy view
-                grad.addColorStop(0, '#ffffff');
-                grad.addColorStop(0.1, theme.core);
-                grad.addColorStop(0.8, theme.edge);
-                grad.addColorStop(1, 'transparent');
-            }
-
-            ctx.fillStyle = grad;
+            const halo = ctx.createRadialGradient(px, py, 0, px, py, Math.max(rx, ry));
+            halo.addColorStop(0, T.lobe + 'CC');
+            halo.addColorStop(0.55, T.lobe + '88');
+            halo.addColorStop(1, '#ffffff00');
+            ctx.fillStyle = halo;
             ctx.beginPath();
-            ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+            ctx.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2);
             ctx.fill();
+
+            ctx.strokeStyle = T.edge;
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            if (crossSection) {
+                ctx.clip();
+                const grad = ctx.createRadialGradient(px, py, 0, px, py, Math.max(rx, ry));
+                grad.addColorStop(0, T.edge + 'EE');
+                grad.addColorStop(0.4, T.lobe + 'AA');
+                grad.addColorStop(1, T.soft + '00');
+                ctx.fillStyle = grad;
+                ctx.fillRect(-W, -H, W * 2, H * 2);
+
+                ctx.font      = 'bold 30px sans-serif';
+                ctx.fillStyle = sign === '+' ? '#0369a1' : '#b91c1c';
+                ctx.textAlign = 'center';
+                ctx.fillText(sign === '+' ? '+' : '−', px, py + 11);
+                ctx.textAlign = 'left';
+            }
             ctx.restore();
         };
 
-        // Draw Orbitals
-        ctx.globalCompositeOperation = 'screen';
-
         if (l === 0) {
-            drawLobe(0, 0, size, size, 0);
-        } else if (l === 1) {
-            const angle = m === 0 ? Math.PI / 2 : (m === 1 ? 0 : Math.PI / 4);
-            drawLobe(size * 0.55, 0, lobeWidth, lobeThickness, angle);
-            drawLobe(-size * 0.55, 0, lobeWidth, lobeThickness, angle);
-        } else if (l === 2) {
+            drawLobe(0, 0, sx * 0.85, sy * 0.85, 0, '+');
+        }
+        else if (l === 1) {
+            const axisAngle = m === 0 ? -Math.PI / 2 : m === 1 ? 0 : Math.PI / 2;
+            const lobeR     = sx * 0.50;
+            const lobeS     = sy * 0.32;
+            drawLobe(0,  -sy * 0.55, lobeS, lobeR, axisAngle, '+');
+            drawLobe(0,   sy * 0.55, lobeS, lobeR, axisAngle, '-');
+        }
+        else if (l === 2) {
             if (m === 0) {
-                // dz2 specific lobe
-                drawLobe(0, size * 0.55, lobeThickness, lobeWidth, 0);
-                drawLobe(0, -size * 0.55, lobeThickness, lobeWidth, 0);
-
-                // Torus (Doughnut)
+                const lobeR = sx * 0.45, lobeS = sy * 0.28;
+                drawLobe(0, -sy * 0.55, lobeS, lobeR, 0, '+');
+                drawLobe(0,  sy * 0.55, lobeS, lobeR, 0, '+');
                 ctx.save();
-                ctx.translate(cx, cy);
-                ctx.scale(1, 0.35);
+                ctx.translate(CX, CY);
+                ctx.scale(1, 0.32);
                 ctx.beginPath();
-                ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
-                ctx.lineWidth = size * 0.3;
-
-                if (sliceOpen) {
-                    ctx.strokeStyle = theme.edge;
-                } else {
-                    ctx.strokeStyle = theme.edge;
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = theme.core;
-                }
+                ctx.arc(0, 0, sx * 0.62, 0, Math.PI * 2);
+                ctx.strokeStyle = T.edge;
+                ctx.lineWidth   = sx * 0.22;
                 ctx.stroke();
+                if (crossSection) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sx * 0.62, 0, Math.PI * 2);
+                    ctx.lineWidth   = sx * 0.18;
+                    ctx.strokeStyle = T.lobe + 'AA';
+                    ctx.stroke();
+                }
                 ctx.restore();
             } else {
-                // Clover shapes
-                const angleOffset = (m === 2 || m === -2) ? Math.PI / 4 : 0;
+                const lobeR = sx * 0.42, lobeS = sy * 0.22;
+                const isOnAxis = (m === 2);
+                const offset   = isOnAxis ? 0 : Math.PI / 4;
                 for (let i = 0; i < 4; i++) {
-                    drawLobe(size * 0.45, 0, lobeWidth * 0.8, lobeThickness * 0.8, angleOffset + i * Math.PI / 2);
+                    const ang = offset + i * Math.PI / 2;
+                    const px  = Math.cos(ang) * sx * 0.55;
+                    const py  = Math.sin(ang) * sy * 0.55;
+                    drawLobe(px, py, lobeR, lobeS, ang, i % 2 === 0 ? '+' : '-');
                 }
             }
         }
+        else {
+            const count = 2 * l + 1;
+            for (let i = 0; i < count; i++) {
+                const ang = (i / count) * Math.PI * 2;
+                drawLobe(Math.cos(ang) * sx * 0.55, Math.sin(ang) * sy * 0.55,
+                         sx * 0.25, sy * 0.18, ang, i % 2 === 0 ? '+' : '-');
+            }
+        }
 
-        ctx.globalCompositeOperation = 'source-over';
+        if (showProbability) {
+            ctx.save();
+            ctx.globalAlpha = 0.22;
+            for (let i = 0; i < 2200; i++) {
+                const r = Math.random() * size * 0.9;
+                const θ = Math.random() * Math.PI * 2;
+                const px = CX + r * Math.cos(θ);
+                const py = CY + r * Math.sin(θ);
+                ctx.fillStyle = T.edge;
+                ctx.fillRect(px, py, 1.4, 1.4);
+            }
+            ctx.restore();
+        }
 
-        // Draw exact Nodes
-        if (highlightNodes) {
-            // Draw Nucleus center point
+        if (showNodes) {
             ctx.beginPath();
-            ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
+            ctx.arc(CX, CY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e293b';
             ctx.fill();
 
-            // Radial Nodes -> Dashed Red Circles
-            if (radialNodes > 0 && sliceOpen) {
-                ctx.strokeStyle = '#ef4444';
+            if (radialNodes > 0) {
+                ctx.strokeStyle = '#dc2626';
                 ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
+                ctx.setLineDash([6, 5]);
                 for (let i = 1; i <= radialNodes; i++) {
-                    const nodeRadius = size * (i / (radialNodes + 1));
+                    const rNode = size * (i / (radialNodes + 1));
                     ctx.beginPath();
-                    ctx.arc(cx, cy, nodeRadius, 0, Math.PI * 2);
+                    ctx.arc(CX, CY, rNode, 0, Math.PI * 2);
                     ctx.stroke();
+
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#dc2626';
+                    ctx.font      = 'bold 10px monospace';
+                    ctx.fillText(`radial #${i}`, CX + rNode + 4, CY - 4);
+                    ctx.setLineDash([6, 5]);
                 }
                 ctx.setLineDash([]);
             }
 
-            // Angular Nodes -> Blue Lines
             if (angularNodes > 0) {
-                ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 2;
-                ctx.globalAlpha = 0.8;
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2.2;
 
-                const drawPlaneLine = (angle: number) => {
+                const drawPlane = (ang: number, label: string) => {
                     ctx.beginPath();
-                    // Just draw across the canvas bounds
-                    const rad = Math.max(w, h);
-                    ctx.moveTo(cx - Math.cos(angle) * rad, cy - Math.sin(angle) * rad);
-                    ctx.lineTo(cx + Math.cos(angle) * rad, cy + Math.sin(angle) * rad);
+                    const r = Math.max(W, H);
+                    ctx.moveTo(CX - Math.cos(ang) * r, CY - Math.sin(ang) * r);
+                    ctx.lineTo(CX + Math.cos(ang) * r, CY + Math.sin(ang) * r);
                     ctx.stroke();
+                    ctx.fillStyle = '#2563eb';
+                    ctx.font      = 'bold 10px monospace';
+                    const lx = CX + Math.cos(ang) * 250;
+                    const ly = CY + Math.sin(ang) * 250;
+                    ctx.fillText(label, lx + 6, ly - 4);
                 };
 
-                if (l === 1) { // 1 plane
-                    const angle = m === 0 ? 0 : (m === 1 ? Math.PI / 2 : -Math.PI / 4);
-                    drawPlaneLine(angle);
-                } else if (l === 2) { // 2 planes or conical surface
-                    if (m === 0) {
-                        drawPlaneLine(Math.PI / 6);
-                        drawPlaneLine(-Math.PI / 6);
-                    } else {
-                        const angleOffset = (m === 2 || m === -2) ? 0 : Math.PI / 4;
-                        drawPlaneLine(angleOffset);
-                        drawPlaneLine(angleOffset + Math.PI / 2);
-                    }
+                if (l === 1) {
+                    const planeAng = m === 0 ? 0 : Math.PI / 2;
+                    drawPlane(planeAng, 'angular node');
+                } else if (l === 2 && m === 0) {
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(CX, CY);
+                    ctx.lineTo(CX + size * 0.95, CY + size * 0.55);
+                    ctx.lineTo(CX - size * 0.95, CY + size * 0.55);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(CX, CY);
+                    ctx.lineTo(CX + size * 0.95, CY - size * 0.55);
+                    ctx.lineTo(CX - size * 0.95, CY - size * 0.55);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#2563eb';
+                    ctx.font      = 'bold 10px monospace';
+                    ctx.fillText('conical nodal surface', CX + 14, CY - size * 0.55 - 6);
+                } else if (l === 2) {
+                    const offset = (m === 2) ? Math.PI / 4 : 0;
+                    drawPlane(offset, 'plane 1');
+                    drawPlane(offset + Math.PI / 2, 'plane 2');
                 }
-                ctx.globalAlpha = 1.0;
             }
         }
 
-        // Mini Axes Legend fixed in bottom right corner
-        const drawAxis = (xDir: number, yDir: number, color: string, label: string) => {
-            const axX = w - 60;
-            const axY = h - 60;
+        if (!paused) {
+            const pulse = 6 + 1.5 * Math.sin(tSec * 2.4);
             ctx.beginPath();
-            ctx.moveTo(axX, axY);
-            ctx.lineTo(axX + xDir * 35, axY + yDir * 35);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = color;
-            ctx.font = 'bold 12px sans-serif';
-            ctx.fillText(label, axX + xDir * 45 - 4, axY + yDir * 45 + 4);
+            ctx.arc(CX, CY, pulse, 0, Math.PI * 2);
+            ctx.fillStyle   = '#0f172a';
+            ctx.shadowColor = '#64748b';
+            ctx.shadowBlur  = 10;
+            ctx.fill();
+            ctx.shadowBlur  = 0;
+        }
+    }, [n, l, m, showNodes, crossSection, showProbability, paused, orbitalLabel, radialNodes, angularNodes]);
+
+    useEffect(() => { drawFrame(0); }, [drawFrame]);
+
+    useEffect(() => {
+        let start: number | null = null;
+        let cancelled = false;
+        const loop = (t: number) => {
+            if (cancelled) return;
+            if (start === null) start = t;
+            drawFrame((t - start) / 1000);
+            rafRef.current = requestAnimationFrame(loop);
         };
-        drawAxis(1, 0, '#f43f5e', 'x');
-        drawAxis(0, -1, '#22c55e', 'y');
+        rafRef.current = requestAnimationFrame(loop);
+        return () => { cancelled = true; cancelAnimationFrame(rafRef.current); };
+    }, [drawFrame]);
 
-    }, [n, l, m, sliceOpen, highlightNodes, dimensions]);
+    const handleReset = useCallback(() => {
+        setN(2); setL(1); setM(0);
+        setShowNodes(true); setCrossSection(true); setShowProbability(false);
+        setPaused(false);
+    }, []);
 
-    const floatingNav = (
-        <div className="flex items-center gap-2">
-            <Eye size={16} className="text-amber-500" />
-            <span className="text-xs font-medium text-slate-300">
-                Electrons are probability clouds (ψ²), not particles on tracks.
-            </span>
+    const svgW = 320, svgH = 165;
+    const padL = 36, padR = 14, padT = 16, padB = 26;
+    const pw = svgW - padL - padR;
+    const ph = svgH - padT - padB;
+
+    const psi_r = (r: number): number => {
+        const ρ = r * 2 / n;
+        if (l === 0) {
+            if (n === 1) return Math.exp(-ρ / 2);
+            if (n === 2) return (2 - ρ) * Math.exp(-ρ / 2) * 0.5;
+            if (n === 3) return (6 - 6 * ρ + ρ * ρ) * Math.exp(-ρ / 2) * 0.18;
+            if (n === 4) return (24 - 36 * ρ + 12 * ρ * ρ - ρ ** 3) * Math.exp(-ρ / 2) * 0.05;
+            return (120 - 240 * ρ + 120 * ρ ** 2 - 20 * ρ ** 3 + ρ ** 4) * Math.exp(-ρ / 2) * 0.012;
+        }
+        if (l === 1) {
+            if (n === 2) return ρ * Math.exp(-ρ / 2) * 0.45;
+            if (n === 3) return ρ * (4 - ρ) * Math.exp(-ρ / 2) * 0.15;
+            if (n === 4) return ρ * (20 - 10 * ρ + ρ * ρ) * Math.exp(-ρ / 2) * 0.04;
+            if (n === 5) return ρ * (120 - 90 * ρ + 18 * ρ ** 2 - ρ ** 3) * Math.exp(-ρ / 2) * 0.009;
+        }
+        if (l === 2) {
+            if (n === 3) return ρ * ρ * Math.exp(-ρ / 2) * 0.18;
+            if (n === 4) return ρ * ρ * (6 - ρ) * Math.exp(-ρ / 2) * 0.04;
+            if (n === 5) return ρ * ρ * (42 - 14 * ρ + ρ * ρ) * Math.exp(-ρ / 2) * 0.008;
+        }
+        return ρ ** l * Math.exp(-ρ / 2);
+    };
+
+    const rMax = 6 * n;
+    const samples = 160;
+    const psiVals: { x: number; y: number }[] = [];
+    const psi2Vals: { x: number; y: number }[] = [];
+    let psiMax = 0, psi2Max = 0;
+    for (let i = 0; i <= samples; i++) {
+        const r = (i / samples) * rMax;
+        const ψ = psi_r(r);
+        psiVals.push({ x: r, y: ψ });
+        psi2Vals.push({ x: r, y: ψ * ψ });
+        if (Math.abs(ψ) > psiMax) psiMax = Math.abs(ψ);
+        if (ψ * ψ > psi2Max) psi2Max = ψ * ψ;
+    }
+
+    const polyPath = (pts: { x: number; y: number }[], yMin: number, yMax: number) =>
+        pts.map(({ x, y }, i) => {
+            const px = padL + (x / rMax) * pw;
+            const py = padT + ph - ((y - yMin) / (yMax - yMin)) * ph;
+            return `${i === 0 ? 'M' : 'L'}${px.toFixed(1)},${py.toFixed(1)}`;
+        }).join(' ');
+
+    const radialNodeXs: number[] = [];
+    for (let i = 1; i < psiVals.length; i++) {
+        if (psiVals[i - 1].y * psiVals[i].y < 0) {
+            const r = (psiVals[i - 1].x + psiVals[i].x) / 2;
+            radialNodeXs.push(r);
+        }
+    }
+
+    const psiCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Radial Wavefunction ψ(r)</div>
+            <div className="text-xs font-semibold text-slate-500 mb-1">NCERT Fig. 2.12(a) — sign change at each radial node</div>
+            <svg width={svgW} height={svgH} className="block">
+                <line x1={padL} y1={padT + ph / 2} x2={padL + pw} y2={padT + ph / 2} stroke="#94a3b8" strokeWidth={1} strokeDasharray="3 3" />
+                <line x1={padL} y1={padT} x2={padL} y2={padT + ph} stroke="#475569" strokeWidth={1.5} />
+                <line x1={padL} y1={padT + ph} x2={padL + pw} y2={padT + ph} stroke="#475569" strokeWidth={1.5} />
+                <text x={padL - 6} y={padT + 4} fill="#64748b" fontSize={9} textAnchor="end">+</text>
+                <text x={padL - 6} y={padT + ph - 2} fill="#64748b" fontSize={9} textAnchor="end">−</text>
+                <text x={padL + pw / 2} y={padT + ph + 18} fill="#475569" fontSize={10} textAnchor="middle">r (a₀)</text>
+
+                <path d={polyPath(psiVals, -psiMax * 1.1, psiMax * 1.1)} fill="none" stroke="#6d28d9" strokeWidth={2.2} />
+
+                {radialNodeXs.map((r, i) => {
+                    const px = padL + (r / rMax) * pw;
+                    return (
+                        <g key={i}>
+                            <line x1={px} y1={padT} x2={px} y2={padT + ph} stroke="#dc2626" strokeWidth={1.3} strokeDasharray="4 3" />
+                            <circle cx={px} cy={padT + ph / 2} r={3.5} fill="#dc2626" />
+                        </g>
+                    );
+                })}
+
+                <text x={padL + pw - 6} y={padT + 12} fill="#6d28d9" fontSize={10} fontWeight="bold" textAnchor="end">{orbitalLabel}</text>
+            </svg>
         </div>
+    );
+
+    const psi2Card = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Probability Density ψ²(r)</div>
+            <div className="text-xs font-semibold text-slate-500 mb-1">NCERT Fig. 2.12(b) — touches 0 at every radial node</div>
+            <svg width={svgW} height={svgH} className="block">
+                <line x1={padL} y1={padT} x2={padL} y2={padT + ph} stroke="#475569" strokeWidth={1.5} />
+                <line x1={padL} y1={padT + ph} x2={padL + pw} y2={padT + ph} stroke="#475569" strokeWidth={1.5} />
+                <text x={padL + pw / 2} y={padT + ph + 18} fill="#475569" fontSize={10} textAnchor="middle">r (a₀)</text>
+                <text x={padL - 4} y={padT + 9} fill="#64748b" fontSize={9} textAnchor="end">|ψ|²</text>
+
+                <path d={polyPath(psi2Vals, 0, psi2Max * 1.05)} fill="#bbf7d055" stroke="#047857" strokeWidth={2.2} />
+
+                {radialNodeXs.map((r, i) => {
+                    const px = padL + (r / rMax) * pw;
+                    return (
+                        <g key={i}>
+                            <line x1={px} y1={padT} x2={px} y2={padT + ph} stroke="#dc2626" strokeWidth={1.3} strokeDasharray="4 3" />
+                            <text x={px} y={padT + ph + 18} fill="#dc2626" fontSize={9} textAnchor="middle">node</text>
+                        </g>
+                    );
+                })}
+            </svg>
+        </div>
+    );
+
+    const energyLevelCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">H-atom Energy Order</div>
+            <div className="text-xs font-semibold text-slate-500 mb-1.5">NCERT Eq. 2.23 — Fig. 2.16 (degenerate orbitals)</div>
+            <div className="text-[11px] font-mono leading-snug text-slate-800">
+                1s &lt; 2s = 2p &lt; 3s = 3p = 3d &lt;<br />
+                4s = 4p = 4d = 4f &lt; …
+            </div>
+            <div className="mt-2 text-[10px] text-slate-500 leading-snug">
+                In hydrogen, energy depends <strong>only on n</strong> — so 2s and 2p are degenerate.
+                In multi-electron atoms l also matters.
+            </div>
+        </div>
+    );
+
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] 2xl:block overflow-y-auto pr-1">
+            <div className="flex flex-col gap-2.5">
+                {psiCard}
+                {psi2Card}
+                {energyLevelCard}
+            </div>
+        </aside>
+    );
+
+    const subshellName = ['Sharp', 'Principal', 'Diffuse', 'Fundamental'][Math.min(l, 3)];
+
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[310px] 2xl:block overflow-y-auto pl-1">
+            <div className="flex flex-col gap-3">
+                <div className="rounded-2xl border border-violet-200 bg-violet-50/95 p-4 shadow-xl backdrop-blur">
+                    <div className="text-base font-extrabold text-violet-900">Boundary Surface Diagrams</div>
+                    <div className="text-xs font-semibold text-violet-600 mb-2">NCERT §2.6.2 — Structure of Atom</div>
+                    <ul className="text-xs leading-relaxed text-violet-900 space-y-1.5">
+                        <li>• Surface encloses <strong>~90 %</strong> of |ψ|². A 100 % boundary is impossible — |ψ|² is never exactly zero at finite r.</li>
+                        <li>• <strong>s</strong> (l=0) spherical · <strong>p</strong> (l=1) 2 lobes · <strong>d</strong> (l=2) clover / dz² torus.</li>
+                        <li>• Three p-orbitals (pₓ, pᵧ, p_z) are mutually perpendicular and equal in energy.</li>
+                        <li>• Five d-orbitals (d_xy, d_xz, d_yz, d_x²-y², d_z²) — first four are similar; d_z² is unique.</li>
+                        <li>• Size grows with n: <span className="font-mono">4s &gt; 3s &gt; 2s &gt; 1s</span>.</li>
+                    </ul>
+                    <div className="mt-3 rounded-xl border border-violet-300 bg-white/80 p-2.5 space-y-1">
+                        <div className="text-[10px] font-bold text-violet-700 uppercase tracking-wider">Node Formulae</div>
+                        <div className="font-mono text-[10px] text-slate-800">Radial nodes  = n − l − 1</div>
+                        <div className="font-mono text-[10px] text-slate-800">Angular nodes = l</div>
+                        <div className="font-mono text-[10px] text-slate-800">Total nodes   = n − 1</div>
+                    </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-base font-extrabold text-slate-900">Real-time values</div>
+                        <span className="animate-pulse rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">LIVE</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <div className="rounded-lg border border-slate-100 bg-violet-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Orbital</div>
+                            <div className="mt-0.5 font-mono text-xl font-extrabold text-violet-700">{orbitalLabel}</div>
+                            <div className="text-[9px] text-violet-500 font-semibold">{subshellName} subshell</div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                            <div className="rounded-lg border border-slate-100 bg-amber-50 px-2 py-1.5 text-center">
+                                <div className="text-[9px] font-bold uppercase text-slate-500">n</div>
+                                <div className="font-mono text-base font-extrabold text-amber-700">{n}</div>
+                            </div>
+                            <div className="rounded-lg border border-slate-100 bg-cyan-50 px-2 py-1.5 text-center">
+                                <div className="text-[9px] font-bold uppercase text-slate-500">l</div>
+                                <div className="font-mono text-base font-extrabold text-cyan-700">{l}</div>
+                            </div>
+                            <div className="rounded-lg border border-slate-100 bg-emerald-50 px-2 py-1.5 text-center">
+                                <div className="text-[9px] font-bold uppercase text-slate-500">mₗ</div>
+                                <div className="font-mono text-base font-extrabold text-emerald-700">{m > 0 ? `+${m}` : m}</div>
+                            </div>
+                        </div>
+                        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-red-500">Radial Nodes (n−l−1)</div>
+                            <div className="mt-0.5 font-mono text-lg font-extrabold text-red-700">{radialNodes}</div>
+                            <div className="text-[9px] text-red-500">spherical surfaces</div>
+                        </div>
+                        <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-blue-500">Angular Nodes (l)</div>
+                            <div className="mt-0.5 font-mono text-lg font-extrabold text-blue-700">{angularNodes}</div>
+                            <div className="text-[9px] text-blue-500">{l === 2 && m === 0 ? 'conical surface' : l > 0 ? 'planar surfaces' : 'none'}</div>
+                        </div>
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Total Nodes (n−1)</div>
+                            <div className="mt-0.5 font-mono text-lg font-extrabold text-slate-800">{totalNodes}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     );
 
     const simulationCombo = (
-        <div ref={containerRef} className="w-full h-full relative bg-black flex items-center justify-center min-h-0 overflow-hidden shadow-2xl rounded-2xl border border-slate-800">
-            <canvas
-                ref={canvasRef}
-                className="absolute top-0 left-0 block cursor-crosshair"
-            />
-
-            {/* Realtime Badges */}
-            <div className="absolute top-6 left-6 flex flex-col gap-2 pointer-events-none z-10 w-fit">
-                <div className="bg-slate-800/80 backdrop-blur border border-slate-700 px-4 py-2 rounded-lg inline-flex items-center shadow-xl">
-                    <span className="font-display font-bold text-3xl text-white tracking-widest">
-                        {n}{getOrbitalLetter(l)}<sub className="text-sm text-brand-secondary ml-1 font-sans">{getSubscript(l, m)}</sub>
-                    </span>
-                </div>
-
-                <div className="bg-slate-800/80 backdrop-blur border border-slate-700 px-4 py-3 rounded-lg shadow-xl text-sm space-y-2 mt-2 w-64">
-                    <div className="flex justify-between items-center group">
-                        <span className="text-slate-400 group-hover:text-white transition-colors">Radial Nodes (n-l-1):</span>
-                        <span className="text-red-400 font-bold bg-red-400/10 px-2 py-0.5 rounded">{radialNodes}</span>
-                    </div>
-                    <div className="flex justify-between items-center group">
-                        <span className="text-slate-400 group-hover:text-white transition-colors">Angular Nodes (l):</span>
-                        <span className="text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded">{angularNodes}</span>
-                    </div>
-                    <div className="flex justify-between items-center border-t border-slate-700 pt-2 mt-2">
-                        <span className="text-slate-300 font-semibold">Total Nodes (n-1):</span>
-                        <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded">{totalNodes}</span>
-                    </div>
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas ref={canvasRef} width={W} height={H} className="absolute inset-0 h-full w-full" />
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 pointer-events-auto">
+                    <button onClick={() => setPaused(p => !p)}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title={paused ? 'Play' : 'Pause'}>
+                        {paused ? <Play size={15} /> : <Pause size={15} />}
+                    </button>
+                    <button onClick={handleReset}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title="Reset">
+                        <RotateCcw size={15} />
+                    </button>
                 </div>
             </div>
+            {graphPanel}
+            {valuesPanel}
+        </div>
+    );
 
-            {/* View Tools */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-slate-800/80 backdrop-blur p-2 rounded-xl border border-slate-700 shadow-2xl z-20 w-fit pointer-events-auto">
-                <button
-                    onClick={() => setSliceOpen(!sliceOpen)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all border whitespace-nowrap text-sm ${sliceOpen
-                        ? 'bg-amber-500 text-slate-900 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
-                        : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
-                        }`}
-                >
-                    <Slice size={16} />
-                    Cross-Section View
-                </button>
+    const subshellTheme = (lv: number) => {
+        if (lv === 0) return { bg: 'bg-blue-50',    fg: 'text-blue-700',    bd: 'border-blue-300',    on: 'bg-blue-600',    onBd: 'border-blue-700' };
+        if (lv === 1) return { bg: 'bg-violet-50',  fg: 'text-violet-700',  bd: 'border-violet-300',  on: 'bg-violet-600',  onBd: 'border-violet-700' };
+        if (lv === 2) return { bg: 'bg-emerald-50', fg: 'text-emerald-700', bd: 'border-emerald-300', on: 'bg-emerald-600', onBd: 'border-emerald-700' };
+        return            { bg: 'bg-amber-50',   fg: 'text-amber-700',   bd: 'border-amber-300',   on: 'bg-amber-600',   onBd: 'border-amber-700' };
+    };
 
-                <button
-                    onClick={() => setHighlightNodes(!highlightNodes)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all border whitespace-nowrap text-sm ${highlightNodes
-                        ? 'bg-emerald-500 text-slate-900 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                        : 'bg-slate-800 text-slate-300 border-slate-600 hover:bg-slate-700 hover:text-white'
-                        }`}
-                >
-                    <Eye size={16} />
-                    Highlight Nodes
-                </button>
+    const orientationLabels = (lv: number): { m: number; label: string; sub: string }[] => {
+        if (lv === 0) return [{ m: 0,  label: 's', sub: 'sphere' }];
+        if (lv === 1) return [
+            { m:  0, label: 'pz', sub: 'along z' },
+            { m:  1, label: 'px', sub: 'along x' },
+            { m: -1, label: 'py', sub: 'along y' },
+        ];
+        if (lv === 2) return [
+            { m:  0, label: 'dz²',     sub: 'z-axis + torus' },
+            { m:  1, label: 'dxz',     sub: 'xz plane' },
+            { m: -1, label: 'dyz',     sub: 'yz plane' },
+            { m:  2, label: 'dx²-y²',  sub: 'on axes' },
+            { m: -2, label: 'dxy',     sub: 'between axes' },
+        ];
+        return Array.from({ length: 2 * lv + 1 }, (_, i) => {
+            const mv = i - lv;
+            return { m: mv, label: `mₗ=${mv > 0 ? '+' + mv : mv}`, sub: '' };
+        });
+    };
+
+    const setOrbital = (nv: number, lv: number, mv: number = 0) => {
+        setN(nv); setL(lv); setM(mv);
+    };
+
+    const controlsCombo = (
+        <div className="w-full flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+                <Atom size={16} className="text-violet-600" />
+                <span className="text-sm font-extrabold text-slate-800">Atomic Orbitals Bench</span>
+                <span className="ml-auto font-mono text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-2 py-0.5">
+                    {orbitalLabel}
+                </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3">
+
+                <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                        Pick subshell &nbsp;
+                        <span className="text-slate-400 font-normal normal-case">(row = n · col = l)</span>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2">
+                        {Array.from({ length: MAX_N }, (_, i) => i + 1).map(nv => (
+                            <div key={nv} className="flex items-center gap-1 mb-1 last:mb-0">
+                                <span className="w-5 text-center text-[10px] font-bold text-slate-400 font-mono">{nv}</span>
+                                {Array.from({ length: 4 }, (_, lv) => lv).map(lv => {
+                                    const valid  = lv < nv;
+                                    const active = n === nv && l === lv;
+                                    const th     = subshellTheme(lv);
+                                    if (!valid) {
+                                        return <div key={lv} className="w-12 h-7 rounded-md" />;
+                                    }
+                                    return (
+                                        <button key={lv} onClick={() => setOrbital(nv, lv, 0)}
+                                            className={`w-12 h-7 rounded-md text-[11px] font-mono font-extrabold border transition-all ${
+                                                active ? `${th.on} ${th.onBd} text-white shadow-md scale-105` : `${th.bg} ${th.bd} ${th.fg} hover:scale-105 hover:shadow`
+                                            }`}
+                                            title={`${nv}${orbitalLetter(lv)}`}>
+                                            {nv}{orbitalLetter(lv)}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                        <div className="mt-1 text-[9px] text-slate-400 italic text-center">
+                            Allowed: l = 0…n−1 · Empty cells violate the rule
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                        Orientation &nbsp;
+                        <span className="text-slate-400 font-normal normal-case">
+                            ({(2 * l + 1)} orbital{l > 0 ? 's' : ''} in {n}{orbitalLetter(l)})
+                        </span>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2 flex flex-wrap gap-1.5">
+                        {orientationLabels(l).map(({ m: mv, label, sub }) => {
+                            const active = m === mv;
+                            const th     = subshellTheme(l);
+                            return (
+                                <button key={mv} onClick={() => setM(mv)}
+                                    className={`flex-1 min-w-[80px] px-2 py-1.5 rounded-lg border transition-all flex flex-col items-center ${
+                                        active ? `${th.on} ${th.onBd} text-white shadow-md` : `bg-white ${th.bd} ${th.fg} hover:scale-105 hover:shadow`
+                                    }`}
+                                    title={`mₗ = ${mv > 0 ? '+' + mv : mv}`}>
+                                    <span className="font-mono text-xs font-extrabold">{label}</span>
+                                    <span className={`text-[9px] mt-0.5 ${active ? 'text-white/80' : 'opacity-60'}`}>
+                                        mₗ={mv > 0 ? '+' + mv : mv}
+                                    </span>
+                                    {sub && (
+                                        <span className={`text-[8px] mt-0.5 italic ${active ? 'text-white/70' : 'text-slate-400'}`}>
+                                            {sub}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {l === 0 && (
+                        <div className="text-[9px] text-slate-400 italic mt-1 text-center">
+                            s-orbital is spherically symmetric — only one orientation exists.
+                        </div>
+                    )}
+                </div>
+
+                <div className="md:w-[150px]">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">View Modes</div>
+                    <div className="flex flex-col gap-1.5">
+                        <button onClick={() => setCrossSection(c => !c)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                                crossSection ? 'bg-violet-600 text-white border-violet-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            }`}>
+                            <Layers size={12} /> Cross-section
+                        </button>
+                        <button onClick={() => setShowNodes(s => !s)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                                showNodes ? 'bg-rose-600 text-white border-rose-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            }`}>
+                            <Eye size={12} /> Show nodes
+                        </button>
+                        <button onClick={() => setShowProbability(p => !p)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                                showProbability ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            }`}>
+                            <Atom size={12} /> Prob. cloud
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
 
-    const controlsCombo = (
-        <div className="flex flex-col md:flex-row gap-4 w-full">
-            {/* Principal Quantum Number (n) */}
-            <div className="flex-1 bg-slate-950/50 p-3 rounded-xl border border-slate-700/50">
-                <div className="flex justify-between items-center mb-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Principal (n)</label>
-                    <div className="bg-brand-primary/20 text-brand-primary border border-brand-primary/30 px-2 rounded-sm font-mono text-sm font-bold shadow-inner">
-                        {n}
-                    </div>
-                </div>
-                <input type="range" min="1" max="5" step="1" value={n} onChange={(e) => setN(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-primary" />
-            </div>
-
-            {/* Azimuthal Quantum Number (l) */}
-            <div className="flex-1 bg-slate-950/50 p-3 rounded-xl border border-slate-700/50">
-                <div className="flex justify-between items-center mb-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Azimuthal (l)</label>
-                    <div className="bg-brand-secondary/20 text-brand-secondary border border-brand-secondary/30 px-2 rounded-sm font-mono text-sm font-bold shadow-inner flex items-center gap-1">
-                        {l} <span className="text-[8px] bg-brand-secondary text-white px-1 rounded font-sans uppercase">({getOrbitalLetter(l)})</span>
-                    </div>
-                </div>
-                <input type="range" min="0" max={n - 1} step="1" value={l} onChange={(e) => setL(parseInt(e.target.value))} className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-secondary" />
-            </div>
-
-            {/* Magnetic Quantum Number (m) */}
-            <div className="flex-1 bg-slate-950/50 p-3 rounded-xl border border-slate-700/50">
-                <div className="flex justify-between items-center mb-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Magnetic (m<sub>l</sub>)</label>
-                    <div className={`border px-2 rounded-sm font-mono text-sm font-bold shadow-inner ${l === 0 ? 'bg-slate-800 text-slate-500 border-slate-700' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'}`}>
-                        {m > 0 ? `+${m}` : m}
-                    </div>
-                </div>
-                <input type="range" min={-l} max={l} step="1" value={m} onChange={(e) => setM(parseInt(e.target.value))} className={`w-full h-1.5 rounded-lg appearance-none ${l === 0 ? 'bg-slate-800 cursor-not-allowed hidden' : 'accent-emerald-500 bg-slate-800 cursor-pointer'}`} disabled={l === 0} />
-                {l === 0 && <span className="text-[9px] text-slate-500 italic block mt-1">Spherically symmetric</span>}
-            </div>
+    const statusBadge = (
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow-md text-xs font-bold">
+            <Atom size={12} className="text-violet-600" />
+            <span className="text-slate-500">Orbital:</span>
+            <span className="text-violet-700 text-base font-extrabold font-mono">{orbitalLabel}</span>
+            <span className="text-slate-300">|</span>
+            <span className="text-red-700 font-mono">{radialNodes}R</span>
+            <span className="text-blue-700 font-mono">{angularNodes}A</span>
+            <span className="text-slate-300">|</span>
+            <span className="text-slate-700 font-mono">{totalNodes} total</span>
         </div>
     );
 
@@ -382,11 +682,11 @@ const AtomicOrbitalsLab: React.FC<AtomicOrbitalsProps> = ({ topic, onExit }) => 
         <TopicLayoutContainer
             topic={topic}
             onExit={onExit}
-            FloatingNavComponent={floatingNav}
             SimulationComponent={simulationCombo}
             ControlsComponent={controlsCombo}
+            StatusBadgeComponent={statusBadge}
         />
     );
 };
 
-export default AtomicOrbitalsLab;
+export default HydrogenOrbitalsLab;

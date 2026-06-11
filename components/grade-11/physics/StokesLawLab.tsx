@@ -79,7 +79,8 @@ const StokesLawLab: React.FC<StokesLawLabProps> = ({ topic, onExit }) => {
 
     // Terminal velocity: vt = 2a²(ρ-σ)g / (9η)
     const vt = (rho > sigma) ? (2 * a * a * (rho - sigma) * G) / (9 * eta) : 0;
-    const reynoldsNumber = eta > 0 ? (sigma * vt * a) / eta : 0;
+    // Reynolds number uses diameter (2a), not radius
+    const reynoldsNumber = eta > 0 ? (sigma * vt * 2 * a) / eta : 0;
     const isStokesInvalid = reynoldsNumber > 1;
 
     // Forces at current velocity

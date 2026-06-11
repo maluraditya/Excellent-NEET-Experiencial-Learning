@@ -238,9 +238,9 @@ const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) =
 
         drawTitle(ctx, "Faraday's Law: moving magnet changes magnetic flux", 'ΦB = B · A = BA cos θ    |    ε = −dΦB/dt    |    ε = −N dΦB/dt');
 
-        const visibleFluxStrength = Math.max(changingFluxStrength, flux * 0.42);
-        if (fieldLinesVisible && flux > 0.035) {
-            drawFaradayFieldLines(ctx, magnetX, flux, visibleFluxStrength, magnetVelocityRef.current);
+        const proximity = clamp(1 - Math.abs(distance) / 320, 0, 1);
+        if (fieldLinesVisible && proximity > 0.05) {
+            drawFaradayFieldLines(ctx, magnetX, flux, proximity, magnetVelocityRef.current);
         }
 
         drawCoil(ctx, coilLeft, coilRight, coilY, flux);
@@ -633,12 +633,13 @@ function drawFaradayFieldLines(
     velocity: number
 ) {
     const startX = magnetX + 160;
-    const opacity = clamp(0.08 + strength * 0.7, 0, 0.78);
+    const opacity = clamp(0.15 + strength * 0.85, 0, 1);
+    const lineCount = Math.round(2 + strength * 6);
     const isStationary = Math.abs(velocity) < 12;
     const isWithdrawing = velocity < 0;
     const color = isStationary ? '59,130,246' : isWithdrawing ? '245,158,11' : '239,68,68';
-    for (let i = 0; i < 8; i++) {
-        const offset = (i - 3.5) * 24;
+    for (let i = 0; i < lineCount; i++) {
+        const offset = (i - (lineCount - 1) / 2) * 24;
         const startY = 340 + offset * 0.55;
         const endX = 690 + flux * 80;
         const endY = 340 + offset * 1.15;

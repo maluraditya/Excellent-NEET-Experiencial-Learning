@@ -2029,10 +2029,32 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
         <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
           <p className="font-mono text-lg text-emerald-700 text-center"><strong>Cis:</strong> Bond dipoles ADD UP &rarr; &mu; &gt; 0 (Polar)</p>
           <p className="text-sm text-emerald-600 text-center">Higher boiling point due to stronger dipole-dipole interactions</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm font-bold">
+            <div className="rounded-lg bg-emerald-100 border border-emerald-300 py-2 text-emerald-900">
+              <div className="text-[10px] uppercase tracking-widest text-emerald-600 font-bold mb-1">Dipole moment</div>
+              <span className="font-mono text-base">&mu; = 0.33 D</span>
+            </div>
+            <div className="rounded-lg bg-emerald-100 border border-emerald-300 py-2 text-emerald-900">
+              <div className="text-[10px] uppercase tracking-widest text-emerald-600 font-bold mb-1">Boiling point</div>
+              <span className="font-mono text-base">277 K</span>
+            </div>
+          </div>
+          <p className="text-xs text-emerald-500 text-center mt-1">NCERT Class 11 Chemistry, Sec. 9.3.3</p>
         </div>
         <div className="my-6 p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
-          <p className="font-mono text-lg text-amber-700 text-center"><strong>Trans:</strong> Bond dipoles CANCEL &rarr; &mu; = 0 (Non-polar)</p>
-          <p className="text-sm text-amber-600 text-center">Higher melting point due to symmetrical crystal packing</p>
+          <p className="font-mono text-lg text-amber-700 text-center"><strong>Trans:</strong> Bond dipoles CANCEL &rarr; &mu; &asymp; 0 (Non-polar)</p>
+          <p className="text-sm text-amber-600 text-center">Higher <strong>melting point</strong> due to symmetrical crystal packing; lower boiling point</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm font-bold">
+            <div className="rounded-lg bg-amber-100 border border-amber-300 py-2 text-amber-900">
+              <div className="text-[10px] uppercase tracking-widest text-amber-600 font-bold mb-1">Dipole moment</div>
+              <span className="font-mono text-base">&mu; &asymp; 0</span>
+            </div>
+            <div className="rounded-lg bg-amber-100 border border-amber-300 py-2 text-amber-900">
+              <div className="text-[10px] uppercase tracking-widest text-amber-600 font-bold mb-1">Boiling point</div>
+              <span className="font-mono text-base">274 K</span>
+            </div>
+          </div>
+          <p className="text-xs text-amber-500 text-center mt-1">NCERT Class 11 Chemistry, Sec. 9.3.3</p>
         </div>
 
         <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Analogies</h3>
@@ -3008,54 +3030,6 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <h4 className="font-bold text-slate-800 mb-2">Pharmaceutical Synthesis</h4>
             <p className="text-slate-600">
               For optically active drugs (chiral molecules), synthesizing a product via the <strong>SN2</strong> pathway is often preferred because it ensures a specific single stereoisomer (Inversion). SN1 would produce a racemic mixture (50% active drug, 50% potentially inactive or harmful isomer), requiring costly separation.
-            </p>
-          </div>
-        </div>
-        <VideoSection />
-      </div>
-    );
-  }
-
-  if (topic?.id === 'polymers') {
-    return (
-      <div className="prose prose-slate prose-lg max-w-none font-sans">
-        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Polymerization and Conductive Polymers</h1>
-
-        <p className="lead text-xl text-slate-600 mb-8">
-          Polymers are large molecules made of repeating structural units (monomers). While traditional polymers like plastic are insulators, modern chemistry has created organic polymers that conduct electricity.
-        </p>
-
-        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">I. Addition Polymerization (Ziegler-Natta Catalysis)</h3>
-        <p>
-          Polyethylene is produced by adding ethylene monomers together.
-        </p>
-        <ul className="list-disc pl-5 space-y-2 mb-4">
-          <li><strong>Catalyst:</strong> Ziegler-Natta catalysts (e.g., TiClâ‚„ + Al(Câ‚‚Hâ‚…)â‚ƒ) provide an active site that lowers the activation energy.</li>
-          <li><strong>Mechanism:</strong> The monomer inserts itself into the metal-carbon bond, allowing the chain to grow efficiently and with high linearity (High Density Polyethylene - HDPE).</li>
-        </ul>
-
-        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">II. Conducting Polymers</h3>
-        <p>
-          Typically, organic polymers are electrical insulators. However, polymers with <strong>conjugated double bonds</strong> (alternating single and double bonds) can conduct electricity.
-        </p>
-        <div className="my-4 p-4 bg-blue-50 -primary rounded-xl">
-          <p className="text-blue-900 font-medium">
-            <strong>Key Example: Polyacetylene.</strong> When "doped" (oxidized or reduced), its conductivity increases billion-fold, approaching that of copper!
-          </p>
-        </div>
-        <p>
-          The delocalized pi-electrons in the conjugated system can move freely along the polymer backbone, similar to the "sea of electrons" in metals.
-        </p>
-
-        <div className="mt-12 pt-8 border-t border-slate-200">
-          <h3 className="text-2xl font-display font-bold text-brand-primary mb-4 flex items-center">
-            <span className="w-8 h-8 bg-brand-secondary rounded flex items-center justify-center mr-3 text-brand-dark text-sm">â˜…</span>
-            Nobel Prize Winning Discovery
-          </h3>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h4 className="font-bold text-slate-800 mb-2">Flexible Electronics</h4>
-            <p className="text-slate-600">
-              The discovery of conducting polymers (Nobel Prize 2000) revolutionized materials science. They are now used in <strong>OLED screens</strong> (like on your phone), flexible solar cells, and light-weight batteries that can bend without breaking.
             </p>
           </div>
         </div>

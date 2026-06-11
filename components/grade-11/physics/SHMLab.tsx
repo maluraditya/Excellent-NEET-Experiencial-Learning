@@ -284,7 +284,7 @@ const SHMLab: React.FC<SHMLabProps> = ({ topic, onExit }) => {
                 ctx.stroke();
                 // Phase markers for v and a graphs
                 if (idx > 0) {
-                    const phaseLabel = idx === 1 ? 'π/2 lag' : 'π lag';
+                    const phaseLabel = idx === 1 ? 'leads x by π/2' : 'opposite to x (π)';
                     ctx.fillStyle = '#94a3b8'; ctx.font = `${fs(9)}px sans-serif`; ctx.textAlign = 'center';
                     ctx.fillText(phaseLabel, graphX + graphAreaW - 30, gy + singleGH - 4);
                 }

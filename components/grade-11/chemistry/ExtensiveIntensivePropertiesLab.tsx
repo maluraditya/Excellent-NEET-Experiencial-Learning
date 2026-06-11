@@ -1,848 +1,662 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { RefreshCcw, Divide, Sparkles, Flame, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Play, Pause, RotateCcw, Atom } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 import { Topic } from '../../../types';
 
-interface Props {
-    topic: Topic;
-    onExit: () => void;
-}
+interface Props { topic: Topic; onExit: () => void; }
 
-interface Particle {
-    id: number;
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    radius: number;
-    color: string;
-    compartment: 'left' | 'right';
-}
+const W_CV = 1280, H_CV = 760;
+const R_JOULES   = 8.314;
 
-const propertyStyles = {
-    volume: { color: '#ef4444', labelColor: 'text-red-400', bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)' },
-    mass: { color: '#f97316', labelColor: 'text-orange-400', bg: 'rgba(249, 115, 22, 0.1)', border: 'rgba(249, 115, 22, 0.3)' },
-    moles: { color: '#eab308', labelColor: 'text-yellow-400', bg: 'rgba(234, 179, 8, 0.1)', border: 'rgba(234, 179, 8, 0.3)' },
-    energy: { color: '#a855f7', labelColor: 'text-purple-400', bg: 'rgba(168, 85, 247, 0.1)', border: 'rgba(168, 85, 247, 0.3)' },
-    temperature: { color: '#3b82f6', labelColor: 'text-blue-400', bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)' },
-    pressure: { color: '#10b981', labelColor: 'text-emerald-400', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)' },
-    density: { color: '#14b8a6', labelColor: 'text-teal-400', bg: 'rgba(20, 184, 166, 0.1)', border: 'rgba(20, 184, 166, 0.3)' },
-    molarVolume: { color: '#c084fc', labelColor: 'text-fuchsia-400', bg: 'rgba(192, 132, 252, 0.1)', border: 'rgba(192, 132, 252, 0.3)' }
-};
+interface GasInfo { id: string; name: string; M: number; f: number; color: string; }
+const GASES: GasInfo[] = [
+    { id: 'N2',  name: 'N₂',  M: 28, f: 5, color: '#0891b2' },
+    { id: 'He',  name: 'He',  M: 4,  f: 3, color: '#a16207' },
+    { id: 'O2',  name: 'O₂',  M: 32, f: 5, color: '#16a34a' },
+    { id: 'CO2', name: 'CO₂', M: 44, f: 6, color: '#7c3aed' },
+];
 
 const ExtensiveIntensivePropertiesLab: React.FC<Props> = ({ topic, onExit }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const rafRef    = useRef<number>(0);
+    const pulseRef  = useRef(0);
+
     const [partitioned, setPartitioned] = useState(false);
-    const [moles, setMoles] = useState(4);        // n in mol (range 1–8)
-    const [temperature, setTemperature] = useState(300); // T in Kelvin (range 200–600)
-    const [selectedSubsystem, setSelectedSubsystem] = useState<'FULL' | 'LEFT' | 'RIGHT'>('FULL');
-    const [showMolarDerivation, setShowMolarDerivation] = useState(false);
-    const [systemMessage, setSystemMessage] = useState('Observe the initial state. All properties are at their baseline values.');
+    const [moles,       setMoles]       = useState(4);
+    const [T,           setT]           = useState(300);
+    const [gasId,       setGasId]       = useState('N2');
+    const [view,        setView]        = useState<'full' | 'left' | 'right'>('full');
+    const [paused,      setPaused]      = useState(false);
 
-    const R = 8.314;   // J/(mol·K)
-    const M = 28;      // molar mass g/mol (N₂)
-    const baseVolume = 100; // L
+    const baseV_L = 100;
 
-    // Canvas references
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const particlesRef = useRef<Particle[]>([]);
-    const partitionProgressRef = useRef<number>(0);
-    const pumpAnimationRef = useRef<number>(0);
-    const particlesToInjectRef = useRef<number>(0);
-
-    // Coordinate definitions for drawing
-    const xMin = 100;
-    const xMax = 420;
-    const yMin = 40;
-    const yMax = 260;
-    const xMid = 260;
-
-    // Reset subsystem selection when partition is removed
     useEffect(() => {
-        if (!partitioned) {
-            setSelectedSubsystem('FULL');
-        } else if (selectedSubsystem === 'FULL') {
-            setSelectedSubsystem('LEFT');
-        }
-    }, [partitioned, selectedSubsystem]);
+        if (!partitioned && view !== 'full') setView('full');
+        if (partitioned && view === 'full') setView('left');
+    }, [partitioned, view]);
 
-    // Effective system values based on subsystem selected
-    const systemVolume = selectedSubsystem === 'FULL' ? baseVolume : baseVolume / 2;
-    const systemMoles = selectedSubsystem === 'FULL' ? moles : moles / 2;
-    const systemMass = systemMoles * M;
+    const gas = useMemo(() => GASES.find(g => g.id === gasId)!, [gasId]);
 
-    // Derived properties
-    const pressure = (systemMoles * R * temperature) / systemVolume; // in kPa
-    const density = systemMass / systemVolume; // g/L
-    const internalEnergy = systemMoles * 1.5 * R * temperature; // J
-    const molarVolume = systemVolume / systemMoles; // L/mol
+    const factor = partitioned && view !== 'full' ? 0.5 : 1.0;
+    const V_L   = baseV_L * factor;
+    const n_mol = moles    * factor;
+    const m_g   = n_mol * gas.M;
+    const U_J   = (gas.f / 2) * n_mol * R_JOULES * T;
+    const C_JK  = (gas.f / 2) * n_mol * R_JOULES;
+    const V_m3  = V_L * 1e-3;
+    const p_Pa  = (n_mol * R_JOULES * T) / V_m3;
+    const p_kPa = p_Pa / 1000;
+    const d_gL  = m_g / V_L;
+    const Vm    = V_L / n_mol;
+    const Cm    = C_JK / n_mol;
 
-    const handlePartition = () => {
-        const next = !partitioned;
-        setPartitioned(next);
-        setShowMolarDerivation(false);
-        if (next) {
-            setSelectedSubsystem('LEFT');
-            setSystemMessage('Partition inserted! Note that Extensive properties (Volume, Mass, Moles, Internal Energy) are halved. Intensive properties remain unchanged — they are size-independent.');
-        } else {
-            setSelectedSubsystem('FULL');
-            setSystemMessage('Partition removed. The system is whole again. Observe how extensive properties restored to full values.');
-        }
-    };
+    const fullV   = baseV_L;
+    const fullN   = moles;
+    const fullM   = moles * gas.M;
+    const fullU   = (gas.f / 2) * moles * R_JOULES * T;
+    const fullC   = (gas.f / 2) * moles * R_JOULES;
+    const halfV   = baseV_L / 2;
+    const halfN   = moles    / 2;
+    const halfM   = (moles / 2) * gas.M;
+    const halfU   = (gas.f / 2) * (moles / 2) * R_JOULES * T;
+    const halfC   = (gas.f / 2) * (moles / 2) * R_JOULES;
+    const fullP_kPa = (moles * R_JOULES * T) / (baseV_L * 1e-3) / 1000;
+    const fullD     = (moles * gas.M) / baseV_L;
+    const fullVm    = baseV_L / moles;
 
-    const handleMolesChange = (newMoles: number) => {
-        if (partitioned) {
-            setPartitioned(false);
-        }
-        setShowMolarDerivation(false);
+    const handleReset = useCallback(() => {
+        setPartitioned(false); setMoles(4); setT(300); setGasId('N2'); setView('full');
+        setPaused(false);
+    }, []);
 
-        if (newMoles > moles) {
-            // Trigger pump handle animation
-            pumpAnimationRef.current = 1.0;
-            // Queue particles to inject
-            const diff = (newMoles - moles) * 8;
-            particlesToInjectRef.current += diff;
-            setSystemMessage('Gas pumped in! Total Mass, Moles, and Internal Energy increase. Density and Pressure also increase, but Temperature remains constant.');
-        } else {
-            // Remove particles instantly
-            const diff = (moles - newMoles) * 8;
-            particlesRef.current.splice(0, diff);
-            setSystemMessage('Gas removed. Extensive properties decrease. Observe how pressure and density decrease proportionally.');
-        }
-        setMoles(newMoles);
-    };
+    const drawFrame = useCallback(() => {
+        const cv = canvasRef.current; if (!cv) return;
+        const ctx = cv.getContext('2d'); if (!ctx) return;
 
-    const handleTemperatureChange = (newTemp: number) => {
-        setTemperature(newTemp);
-        if (newTemp > 300) {
-            setSystemMessage('Burner heating the gas! Molecules speed up (higher kinetic energy). Temperature and Pressure increase. Density and Volume remain unchanged.');
-        } else if (newTemp < 300) {
-            setSystemMessage('Cooling the gas! Molecules slow down (lower kinetic energy). Temperature and Pressure decrease.');
-        } else {
-            setSystemMessage('Temperature set back to standard room temperature (300 K).');
-        }
-    };
+        ctx.clearRect(0, 0, W_CV, H_CV);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W_CV, H_CV);
 
-    const handleReset = () => {
-        setPartitioned(false);
-        setMoles(4);
-        setTemperature(300);
-        setSelectedSubsystem('FULL');
-        setShowMolarDerivation(false);
-        particlesRef.current = [];
-        particlesToInjectRef.current = 0;
-        pumpAnimationRef.current = 0;
-        setSystemMessage('System reset to baseline state.');
-    };
+        ctx.strokeStyle = 'rgba(100,116,139,0.06)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= W_CV; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H_CV); ctx.stroke(); }
+        for (let y = 0; y <= H_CV; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W_CV, y); ctx.stroke(); }
 
-    const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!partitioned || !canvasRef.current) return;
-        const rect = canvasRef.current.getBoundingClientRect();
-        // Scale mouse coords to canvas internal coordinate system (500x300)
-        const scaleX = 500 / rect.width;
-        const scaleY = 300 / rect.height;
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top) * scaleY;
+        ctx.font      = '12px sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(`§5.2.2(b) Fig 5.6 — partition halves extensive properties · intensive properties stay the same`, 30, 76);
 
-        // Check if inside container
-        if (x >= xMin && x <= xMax && y >= yMin && y <= yMax) {
-            if (x < xMid) {
-                setSelectedSubsystem('LEFT');
-                setSystemMessage('Inspecting LEFT compartment: Volume, mass, moles, and internal energy are halved. Temperature, pressure, and density are identical to the full system.');
-            } else {
-                setSelectedSubsystem('RIGHT');
-                setSystemMessage('Inspecting RIGHT compartment: Note that all intensive parameters match the left compartment exactly.');
-            }
-        }
-    };
+        ctx.font      = 'bold 14px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText('(a) Full system', 230, 120);
+        ctx.fillText('(b) Partitioned system', 740, 120);
 
-    // Canvas rendering loop
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        const dpr = window.devicePixelRatio || 1;
-
-        let animationFrameId: number;
-
-        // Initialize particles if empty
-        if (particlesRef.current.length === 0) {
-            const count = moles * 8;
-            const initialParticles: Particle[] = [];
-            for (let i = 0; i < count; i++) {
-                const isLeft = Math.random() < 0.5;
-                const pxMin = xMin + 12;
-                const pxMax = xMax - 12;
-                const pxMid = xMid;
-                const x = isLeft
-                    ? pxMin + Math.random() * (pxMid - pxMin - 12)
-                    : pxMid + 12 + Math.random() * (pxMax - pxMid - 12);
-                const y = yMin + 12 + Math.random() * (yMax - yMin - 24);
-
-                const speed = Math.sqrt(temperature) * 0.12;
-                const angle = Math.random() * 2 * Math.PI;
-                initialParticles.push({
-                    id: i,
-                    x,
-                    y,
-                    vx: speed * Math.cos(angle),
-                    vy: speed * Math.sin(angle),
-                    radius: 5,
-                    color: '#34d399',
-                    compartment: x < xMid ? 'left' : 'right'
-                });
-            }
-            particlesRef.current = initialParticles;
-        }
-
-        const render = () => {
-            const rect = canvas.getBoundingClientRect();
-            const targetWidth = Math.max(500, Math.round(rect.width));
-            const targetHeight = Math.max(300, Math.round(rect.height));
-            const pixelWidth = Math.round(targetWidth * dpr);
-            const pixelHeight = Math.round(targetHeight * dpr);
-
-            if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-                canvas.width = pixelWidth;
-                canvas.height = pixelHeight;
-            }
-
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, targetWidth, targetHeight);
-            const simulationScale = Math.min(targetWidth / 500, targetHeight / 300) * 0.86;
-            ctx.save();
-            ctx.translate(targetWidth / 2, targetHeight / 2);
-            ctx.scale(simulationScale, simulationScale);
-            ctx.translate(-250, -150);
-
-            // Update partition progress towards state (0 = removed, 1 = inserted)
-            const targetProgress = partitioned ? 1 : 0;
-            const progressSpeed = 0.05;
-            if (partitionProgressRef.current < targetProgress) {
-                partitionProgressRef.current = Math.min(targetProgress, partitionProgressRef.current + progressSpeed);
-            } else if (partitionProgressRef.current > targetProgress) {
-                partitionProgressRef.current = Math.max(targetProgress, partitionProgressRef.current - progressSpeed);
-            }
-
-            const currentPartitionY = yMin + (yMax - yMin) * partitionProgressRef.current;
-
-            // Handle pump animation cooldown
-            if (pumpAnimationRef.current > 0) {
-                pumpAnimationRef.current -= 0.04;
-                if (pumpAnimationRef.current < 0) pumpAnimationRef.current = 0;
-            }
-
-            // Spawn queued particles
-            if (particlesToInjectRef.current > 0 && Math.random() < 0.3) {
-                const speed = Math.sqrt(temperature) * 0.12;
-                const angle = (Math.random() - 0.5) * 0.6; // pointing right, with spreading
-                particlesRef.current.push({
-                    id: Date.now() + Math.random(),
-                    x: xMin + 6,
-                    y: 150,
-                    vx: speed * Math.cos(angle),
-                    vy: speed * Math.sin(angle),
-                    radius: 5,
-                    color: '#34d399',
-                    compartment: 'left'
-                });
-                particlesToInjectRef.current--;
-            }
-
-            // Update positions & handle collisions
-            const speedMultiplier = Math.sqrt(temperature) * 0.12;
-            particlesRef.current.forEach(p => {
-                const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-                if (Math.abs(currentSpeed - speedMultiplier) > 0.01 && currentSpeed > 0) {
-                    p.vx = (p.vx / currentSpeed) * speedMultiplier;
-                    p.vy = (p.vy / currentSpeed) * speedMultiplier;
-                }
-
-                p.x += p.vx;
-                p.y += p.vy;
-
-                // Y collision
-                if (p.y < yMin + p.radius) {
-                    p.y = yMin + p.radius;
-                    p.vy = -p.vy;
-                } else if (p.y > yMax - p.radius) {
-                    p.y = yMax - p.radius;
-                    p.vy = -p.vy;
-                }
-
-                // X collision
-                if (partitionProgressRef.current === 1) {
-                    // Fully partitioned - strict confinement
-                    if (!p.compartment) {
-                        p.compartment = p.x < xMid ? 'left' : 'right';
-                    }
-
-                    if (p.compartment === 'left') {
-                        if (p.x < xMin + p.radius) {
-                            p.x = xMin + p.radius;
-                            p.vx = -p.vx;
-                        } else if (p.x > xMid - p.radius) {
-                            p.x = xMid - p.radius;
-                            p.vx = -p.vx;
-                        }
-                    } else {
-                        if (p.x < xMid + p.radius) {
-                            p.x = xMid + p.radius;
-                            p.vx = -p.vx;
-                        } else if (p.x > xMax - p.radius) {
-                            p.x = xMax - p.radius;
-                            p.vx = -p.vx;
-                        }
-                    }
-                } else {
-                    // No partition or partition sliding
-                    if (p.x < xMin + p.radius) {
-                        p.x = xMin + p.radius;
-                        p.vx = -p.vx;
-                    } else if (p.x > xMax - p.radius) {
-                        p.x = xMax - p.radius;
-                        p.vx = -p.vx;
-                    }
-
-                    // Sliding blade collision (if particle is in the path of the sliding partition)
-                    if (partitionProgressRef.current > 0) {
-                        if (p.y < currentPartitionY) {
-                            const distToBlade = p.x - xMid;
-                            if (Math.abs(distToBlade) < p.radius + 2) {
-                                p.vx = -p.vx;
-                                p.x = distToBlade < 0 ? xMid - p.radius - 2 : xMid + p.radius + 2;
-                            }
-                        }
-                    }
-                }
-            });
-
-            // --- DRAWING PIPELINE ---
-
-            // Container background gradient
-            const containerGrad = ctx.createLinearGradient(xMin, yMin, xMin, yMax);
-            containerGrad.addColorStop(0, '#ffffff');
-            containerGrad.addColorStop(1, '#f8fafc');
-            ctx.fillStyle = containerGrad;
-            ctx.fillRect(xMin, yMin, xMax - xMin, yMax - yMin);
-
-            // Container grid
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
-            ctx.lineWidth = 1;
-            for (let x = xMin + 20; x < xMax; x += 20) {
-                ctx.beginPath(); ctx.moveTo(x, yMin); ctx.lineTo(x, yMax); ctx.stroke();
-            }
-            for (let y = yMin + 20; y < yMax; y += 20) {
-                ctx.beginPath(); ctx.moveTo(xMin, y); ctx.lineTo(xMax, y); ctx.stroke();
-            }
-
-            // Draw ice or fire burner
-            drawBurner(ctx, xMin, xMax, yMax, temperature);
-
-            // Draw thermometer
-            drawThermometer(ctx, 450, yMin, yMax, temperature);
-
-            // Draw gas pump
-            drawPump(ctx, 35, 80, 220, pumpAnimationRef.current, particlesToInjectRef.current);
-
-            // Fading excluded parts when partition is active
-            if (partitionProgressRef.current === 1) {
-                ctx.font = '900 12px sans-serif';
-                ctx.textAlign = 'center';
-                if (selectedSubsystem === 'LEFT') {
-                    ctx.fillStyle = 'rgba(226, 232, 240, 0.78)';
-                    ctx.fillRect(xMid + 2, yMin + 2, xMax - xMid - 4, yMax - yMin - 4);
-                    ctx.fillStyle = 'rgba(71, 85, 105, 0.72)';
-                    ctx.fillText('EXCLUDED COMPARTMENT', xMid + (xMax - xMid)/2, yMin + (yMax - yMin)/2);
-                } else if (selectedSubsystem === 'RIGHT') {
-                    ctx.fillStyle = 'rgba(226, 232, 240, 0.78)';
-                    ctx.fillRect(xMin + 2, yMin + 2, xMid - xMin - 4, yMax - yMin - 4);
-                    ctx.fillStyle = 'rgba(71, 85, 105, 0.72)';
-                    ctx.fillText('EXCLUDED COMPARTMENT', xMin + (xMid - xMin)/2, yMin + (yMax - yMin)/2);
-                }
-            }
-
-            // Draw particles
-            particlesRef.current.forEach(p => {
-                let opacity = 0.85;
-                if (partitionProgressRef.current === 1) {
-                    if (selectedSubsystem === 'LEFT' && p.compartment === 'right') opacity = 0.12;
-                    else if (selectedSubsystem === 'RIGHT' && p.compartment === 'left') opacity = 0.12;
-                }
-
-                ctx.beginPath();
-                const radGrad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, p.radius * 1.6);
-                radGrad.addColorStop(0, '#ecfeff');
-                radGrad.addColorStop(0.35, `rgba(20, 184, 166, ${opacity})`);
-                radGrad.addColorStop(1, 'rgba(20, 184, 166, 0)');
-                ctx.fillStyle = radGrad;
-                ctx.arc(p.x, p.y, p.radius * 1.6, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Core dot
-                ctx.beginPath();
-                ctx.fillStyle = `rgba(13, 148, 136, ${opacity * 1.1})`;
-                ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // Draw partition blade
-            if (partitionProgressRef.current > 0) {
-                ctx.beginPath();
-                const bladeGrad = ctx.createLinearGradient(xMid - 4, yMin, xMid + 4, yMin);
-                bladeGrad.addColorStop(0, '#94a3b8');
-                bladeGrad.addColorStop(0.5, '#f8fafc');
-                bladeGrad.addColorStop(1, '#64748b');
-                ctx.fillStyle = bladeGrad;
-                ctx.fillRect(xMid - 3.5, yMin, 7, currentPartitionY - yMin);
-
-                // Blade handle details
-                ctx.beginPath();
-                ctx.fillStyle = '#64748b';
-                ctx.arc(xMid, yMin - 1, 6, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#94a3b8';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                if (partitionProgressRef.current === 1) {
-                    ctx.strokeStyle = 'rgba(71, 85, 105, 0.28)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(xMid, yMin);
-                    ctx.lineTo(xMid, yMax);
-                    ctx.stroke();
-                }
-            }
-
-            // Draw container walls
-            ctx.strokeStyle = 'rgba(51, 65, 85, 0.72)';
+        const drawContainer = (
+            x: number, y: number, w: number, h: number, label: string,
+            Vlbl: string, Tlbl: string, particleCount: number, color: string,
+            dim: boolean = false,
+        ) => {
+            ctx.fillStyle = dim ? '#f1f5f9' : '#fafafa';
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = '#334155';
             ctx.lineWidth = 3;
-            ctx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
+            ctx.strokeRect(x, y, w, h);
 
-            // Double border / highlight line
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(xMin - 3.5, yMin - 3.5, xMax - xMin + 7, yMax - yMin + 7);
-
-            // Click zone highlights for classroom projection
-            if (partitionProgressRef.current === 1) {
-                ctx.font = 'bold 9px monospace';
-                ctx.fillStyle = selectedSubsystem === 'LEFT' ? '#0f766e' : '#64748b';
-                ctx.fillText('ACTIVE SYSTEM', xMin + (xMid - xMin) / 2, yMin + 20);
-                
-                ctx.fillStyle = selectedSubsystem === 'RIGHT' ? '#0f766e' : '#64748b';
-                ctx.fillText(selectedSubsystem === 'RIGHT' ? 'ACTIVE SYSTEM' : 'CLICK TO VIEW', xMid + (xMax - xMid) / 2, yMin + 20);
+            const pulse = pulseRef.current;
+            const seed = particleCount * 41 + Math.floor(x);
+            for (let i = 0; i < particleCount; i++) {
+                const wig1 = Math.sin(pulse * 3 + i * 0.7) * 4;
+                const wig2 = Math.cos(pulse * 2.4 + i * 0.5) * 4;
+                const px = x + 14 + ((i * 73 + seed * 11 + wig1 * 10) % (w - 28));
+                const py = y + 14 + ((i * 113 + seed * 19 + wig2 * 7) % (h - 28));
+                ctx.beginPath();
+                ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = dim ? '#94a3b8' : color;
+                ctx.globalAlpha = dim ? 0.4 : 0.9;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = dim ? 0 : 5;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
             }
 
-            ctx.restore();
-            animationFrameId = requestAnimationFrame(render);
+            ctx.font      = 'bold 12px monospace';
+            ctx.fillStyle = dim ? '#94a3b8' : '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + w / 2, y - 8);
+
+            ctx.font      = 'bold 13px monospace';
+            ctx.fillStyle = dim ? '#94a3b8' : '#0891b2';
+            ctx.fillText(`V = ${Vlbl}`, x + w / 2 - 36, y + h + 22);
+            ctx.fillStyle = dim ? '#94a3b8' : '#dc2626';
+            ctx.fillText(`T = ${Tlbl}`, x + w / 2 + 36, y + h + 22);
+            ctx.textAlign = 'left';
         };
 
-        animationFrameId = requestAnimationFrame(render);
+        const aX = 100, aY = 150, aW = 380, aH = 320;
+        const moleculeCountA = Math.max(10, Math.round(moles * 8));
+        drawContainer(aX, aY, aW, aH, 'gas at (V, T)', `${baseV_L} L`, `${T} K`, moleculeCountA, gas.color, partitioned);
 
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, [partitioned, moles, temperature, selectedSubsystem]);
-
-    // Drawing helpers
-    const drawBurner = (ctx: CanvasRenderingContext2D, xMin: number, xMax: number, yMax: number, T: number) => {
-        const burnerY = yMax + 9;
-        
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(xMin + 15, burnerY);
-        ctx.lineTo(xMax - 15, burnerY);
-        ctx.stroke();
-
-        if (T > 300) {
-            const intensity = (T - 300) / 300;
-            const flames = 14;
-            const step = (xMax - xMin - 30) / (flames - 1);
-            
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.25)'; // orange outer glow
-            for (let i = 0; i < flames; i++) {
-                const fx = xMin + 15 + i * step;
-                const h = 4 + intensity * 24 * (0.8 + Math.random() * 0.4);
-                ctx.beginPath();
-                ctx.moveTo(fx - 7, burnerY);
-                ctx.quadraticCurveTo(fx, burnerY - h * 1.15, fx + 7, burnerY);
-                ctx.fill();
-            }
-
-            ctx.fillStyle = 'rgba(245, 158, 11, 0.65)'; // yellow inner core
-            for (let i = 0; i < flames; i++) {
-                const fx = xMin + 15 + i * step;
-                const h = 2 + intensity * 15 * (0.8 + Math.random() * 0.4);
-                ctx.beginPath();
-                ctx.moveTo(fx - 4, burnerY);
-                ctx.quadraticCurveTo(fx, burnerY - h * 1.1, fx + 4, burnerY);
-                ctx.fill();
-            }
-        } else if (T < 300) {
-            const intensity = (300 - T) / 100;
-            ctx.fillStyle = `rgba(186, 230, 253, ${0.15 + intensity * 0.35})`;
-            ctx.fillRect(xMin + 2, yMax - 6 * intensity, xMax - xMin - 4, 6 * intensity);
-
-            ctx.fillStyle = 'rgba(224, 242, 254, 0.55)';
-            const shards = 7;
-            const step = (xMax - xMin) / shards;
-            for (let i = 0; i < shards; i++) {
-                const sx = xMin + i * step + 4;
-                ctx.beginPath();
-                ctx.moveTo(sx, yMax);
-                ctx.lineTo(sx + 6, yMax - 5 * intensity);
-                ctx.lineTo(sx + 12, yMax);
-                ctx.closePath();
-                ctx.fill();
-            }
-        }
-    };
-
-    const drawThermometer = (ctx: CanvasRenderingContext2D, x: number, yMin: number, yMax: number, T: number) => {
-        // Outer tube
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 1.5;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.roundRect(x - 4, yMin, 8, yMax - yMin, 4);
-        ctx.fill();
-        ctx.stroke();
-
-        // Bulb
-        ctx.beginPath();
-        ctx.arc(x, yMax + 4, 7, 0, Math.PI * 2);
-        ctx.fillStyle = '#ef4444';
-        ctx.fill();
-        ctx.stroke();
-
-        // Mercury level
-        const scaleRange = yMax - yMin - 15;
-        const fraction = (T - 200) / 400;
-        const height = fraction * scaleRange;
-        const mercuryY = yMax - height;
-
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.roundRect(x - 1.5, mercuryY, 3, yMax - mercuryY, 1.5);
-        ctx.fill();
-
-        // Ticks
-        ctx.fillStyle = '#475569';
-        ctx.font = '8px monospace';
-        ctx.textAlign = 'left';
-        ctx.strokeStyle = 'rgba(71, 85, 105, 0.24)';
-
-        const ticks = [200, 300, 400, 500, 600];
-        ticks.forEach(t => {
-            const tf = (t - 200) / 400;
-            const ty = yMax - tf * scaleRange;
+        if (partitioned) {
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.moveTo(x + 5, ty);
-            ctx.lineTo(x + 9, ty);
+            ctx.moveTo(aX + aW + 10, aY + aH / 2);
+            ctx.lineTo(aX + aW + 80, aY + aH / 2);
             ctx.stroke();
-            ctx.fillText(`${t}K`, x + 12, ty + 3);
+            ctx.beginPath();
+            ctx.moveTo(aX + aW + 80, aY + aH / 2);
+            ctx.lineTo(aX + aW + 72, aY + aH / 2 - 6);
+            ctx.lineTo(aX + aW + 72, aY + aH / 2 + 6);
+            ctx.closePath();
+            ctx.fillStyle = '#7c3aed';
+            ctx.fill();
+
+            ctx.font      = 'bold 10px sans-serif';
+            ctx.fillStyle = '#7c3aed';
+            ctx.textAlign = 'center';
+            ctx.fillText('insert partition', aX + aW + 45, aY + aH / 2 - 10);
+            ctx.textAlign = 'left';
+        }
+
+        const bX = 620, bY = 150, bW = 540, bH = 320;
+        const halfW = bW / 2 - 2;
+        const halfMoleculeCount = Math.max(5, Math.round(moles * 4));
+
+        if (partitioned) {
+            drawContainer(bX, bY, halfW, bH, '½ V', `${(baseV_L / 2).toFixed(0)} L`, `${T} K`, halfMoleculeCount, gas.color, view === 'right');
+            drawContainer(bX + halfW + 4, bY, halfW, bH, '½ V', `${(baseV_L / 2).toFixed(0)} L`, `${T} K`, halfMoleculeCount, gas.color, view === 'left');
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(bX + halfW, bY, 4, bH);
+            ctx.beginPath();
+            ctx.arc(bX + halfW + 2, bY - 4, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#7c3aed';
+            ctx.fill();
+        } else {
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 6]);
+            ctx.strokeRect(bX, bY, bW, bH);
+            ctx.setLineDash([]);
+            ctx.font      = 'italic 12px sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'center';
+            ctx.fillText('Insert partition to see (V/2, V/2)', bX + bW / 2, bY + bH / 2);
+            ctx.textAlign = 'left';
+        }
+
+        if (partitioned) {
+            ctx.font      = 'bold 13px sans-serif';
+            ctx.fillStyle = '#15803d';
+            ctx.textAlign = 'center';
+            ctx.fillText('T (intensive) unchanged →', 550, aY - 18);
+            ctx.fillStyle = '#dc2626';
+            ctx.fillText('V (extensive) halved →', 550, aY + 18);
+            ctx.textAlign = 'left';
+        }
+
+        if (partitioned) {
+            if (view === 'left' || view === 'right') {
+                const hx = view === 'left' ? bX : bX + halfW + 4;
+                ctx.strokeStyle = '#7c3aed';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(hx - 2, bY - 2, halfW + 4, bH + 4);
+                ctx.fillStyle = '#7c3aed';
+                ctx.font      = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('ACTIVE SUB-SYSTEM', hx + halfW / 2, bY + bH + 50);
+                ctx.textAlign = 'left';
+            }
+        } else {
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(aX - 2, aY - 2, aW + 4, aH + 4);
+            ctx.fillStyle = '#7c3aed';
+            ctx.font      = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ACTIVE SYSTEM', aX + aW / 2, aY + aH + 50);
+            ctx.textAlign = 'left';
+        }
+
+        // BOTTOM BAND — Property comparison strip
+        const stripX = 70, stripY = 540, stripW = W_CV - 140, stripH = 200;
+
+        ctx.fillStyle = '#fafafa';
+        ctx.fillRect(stripX, stripY, stripW, stripH);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(stripX, stripY, stripW, stripH);
+
+        ctx.font      = 'bold 12px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText('Property comparison — Full system  vs  ½-system', stripX + 14, stripY + 18);
+        ctx.font      = '10px sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('extensive → halves · intensive → unchanged', stripX + 14, stripY + 34);
+
+        ctx.fillStyle = '#fee2e2';
+        ctx.fillRect(stripX + stripW - 240, stripY + 8, 110, 18);
+        ctx.fillStyle = '#dc2626';
+        ctx.font      = 'bold 10px sans-serif';
+        ctx.fillText('■ extensive', stripX + stripW - 232, stripY + 20);
+        ctx.fillStyle = '#d1fae5';
+        ctx.fillRect(stripX + stripW - 120, stripY + 8, 110, 18);
+        ctx.fillStyle = '#16a34a';
+        ctx.fillText('■ intensive', stripX + stripW - 112, stripY + 20);
+
+        const cards: { lab: string; unit: string; full: number; half: number; type: 'ext' | 'int'; format: (v: number) => string }[] = [
+            { lab: 'V',   unit: 'L',     full: fullV,     half: halfV,     type: 'ext', format: v => v.toFixed(0) },
+            { lab: 'n',   unit: 'mol',   full: fullN,     half: halfN,     type: 'ext', format: v => v.toFixed(1) },
+            { lab: 'm',   unit: 'g',     full: fullM,     half: halfM,     type: 'ext', format: v => v.toFixed(0) },
+            { lab: 'U',   unit: 'kJ',    full: fullU / 1000, half: halfU / 1000, type: 'ext', format: v => v.toFixed(2) },
+            { lab: 'T',   unit: 'K',     full: T,         half: T,         type: 'int', format: v => v.toFixed(0) },
+            { lab: 'p',   unit: 'kPa',   full: fullP_kPa, half: fullP_kPa, type: 'int', format: v => v.toFixed(1) },
+            { lab: 'd',   unit: 'g/L',   full: fullD,     half: fullD,     type: 'int', format: v => v.toFixed(3) },
+            { lab: 'V_m', unit: 'L/mol', full: fullVm,    half: fullVm,    type: 'int', format: v => v.toFixed(1) },
+        ];
+
+        const cardW   = (stripW - 28 - 7 * 10) / cards.length;
+        const cardY   = stripY + 44;
+        const cardH   = stripH - 60;
+
+        cards.forEach((c, i) => {
+            const cx = stripX + 14 + i * (cardW + 10);
+            const cy = cardY;
+
+            const isExt = c.type === 'ext';
+            const extColor = '#dc2626', intColor = '#16a34a';
+            const accent = isExt ? extColor : intColor;
+            const bgColor = isExt ? '#fef2f2' : '#f0fdf4';
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(cx, cy, cardW, cardH);
+            ctx.strokeStyle = accent + '40';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(cx, cy, cardW, cardH);
+
+            ctx.font      = 'bold 14px monospace';
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.fillText(c.lab, cx + cardW / 2, cy + 18);
+            ctx.font      = '9px sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(c.unit, cx + cardW / 2, cy + 30);
+            ctx.textAlign = 'left';
+
+            const maxBarH = cardH - 70;
+            const fullBarH = maxBarH;
+            const halfBarH = c.full === 0 ? 0 : (c.half / c.full) * maxBarH;
+
+            const barW = (cardW - 22) / 2;
+            const bar1X = cx + 8;
+            const bar2X = cx + 8 + barW + 6;
+            const barBaseY = cy + cardH - 22;
+
+            ctx.fillStyle = accent;
+            ctx.fillRect(bar1X, barBaseY - fullBarH, barW, fullBarH);
+            ctx.fillStyle = accent;
+            ctx.fillRect(bar2X, barBaseY - halfBarH, barW, halfBarH);
+
+            if (!isExt) {
+                ctx.strokeStyle = accent + '50';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(bar1X, barBaseY - fullBarH);
+                ctx.lineTo(bar2X + barW, barBaseY - fullBarH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            } else {
+                ctx.strokeStyle = accent + '80';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(bar2X, barBaseY - fullBarH);
+                ctx.lineTo(bar2X + barW, barBaseY - fullBarH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            ctx.font      = 'bold 10px monospace';
+            ctx.fillStyle = accent;
+            ctx.textAlign = 'center';
+            ctx.fillText(c.format(c.full), bar1X + barW / 2, barBaseY - fullBarH - 4);
+            ctx.fillText(c.format(c.half), bar2X + barW / 2, barBaseY - halfBarH - 4);
+
+            ctx.font      = '8px sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('FULL', bar1X + barW / 2, barBaseY + 11);
+            ctx.fillText('½',    bar2X + barW / 2, barBaseY + 11);
+            ctx.textAlign = 'left';
+
+            ctx.fillStyle = accent;
+            ctx.font      = 'bold 8px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(isExt ? 'EXT' : 'INT', cx + cardW - 6, cy + cardH - 6);
+            ctx.textAlign = 'left';
+
+            if (isExt) {
+                ctx.strokeStyle = accent + 'CC';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(bar1X + barW + 1, barBaseY - fullBarH);
+                ctx.lineTo(bar2X - 1,        barBaseY - halfBarH);
+                ctx.stroke();
+            }
         });
-    };
+    }, [partitioned, view, T, moles, gas, fullV, halfV, fullN, halfN, fullM, halfM, fullU, halfU, fullP_kPa, fullD, fullVm]);
 
-    const drawPump = (ctx: CanvasRenderingContext2D, x: number, yMin: number, yMax: number, stroke: number, queue: number) => {
-        // Cylinder
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(x - 7, yMin, 14, yMax - yMin);
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(x - 7, yMin, 14, yMax - yMin);
+    useEffect(() => { drawFrame(); }, [drawFrame]);
+    useEffect(() => {
+        let last = performance.now();
+        const loop = (now: number) => {
+            const dt = Math.min((now - last) / 1000, 0.1);
+            last = now;
+            if (!paused) pulseRef.current += dt;
+            drawFrame();
+            rafRef.current = requestAnimationFrame(loop);
+        };
+        rafRef.current = requestAnimationFrame(loop);
+        return () => cancelAnimationFrame(rafRef.current);
+    }, [drawFrame, paused]);
 
-        // Foot plate
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x - 12, yMax, 24, 5);
-        ctx.strokeRect(x - 12, yMax, 24, 5);
-
-        // Piston handle
-        const rodTop = yMin - 24 + stroke * 24;
-        const rodBottom = yMin + stroke * (yMax - yMin - 10);
-
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(x, rodTop);
-        ctx.lineTo(x, rodBottom);
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x - 14, rodTop - 4, 28, 5);
-        ctx.strokeRect(x - 14, rodTop - 4, 28, 5);
-
-        // Connector tube
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(x, yMax - 8);
-                    ctx.quadraticCurveTo(x + 20, yMax + 15, xMin, 150);
-        ctx.stroke();
-
-        if (queue > 0) {
-            ctx.strokeStyle = 'rgba(20, 184, 166, 0.55)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(x, yMax - 8);
-            ctx.quadraticCurveTo(x + 20, yMax + 15, xMin, 150);
-            ctx.stroke();
-        }
-    };
-
-    // Subsystem Tabs component
-    const SubsystemTabs = () => {
-        if (!partitioned) return null;
-        return (
-            <div className="flex bg-slate-900 p-1 rounded-xl border border-white/5 w-full max-w-lg mb-2">
-                <button
-                    onClick={() => {
-                        setSelectedSubsystem('LEFT');
-                        setSystemMessage('Inspecting LEFT compartment: Volume = 50 L, Moles = 2 mol, Mass = 56 g. Intensive properties (T, P, d) are unchanged.');
-                    }}
-                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        selectedSubsystem === 'LEFT'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                >
-                    Left Compartment (50 L)
-                </button>
-                <button
-                    onClick={() => {
-                        setSelectedSubsystem('RIGHT');
-                        setSystemMessage('Inspecting RIGHT compartment: Note that all intensive values match the Left compartment perfectly.');
-                    }}
-                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        selectedSubsystem === 'RIGHT'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                >
-                    Right Compartment (50 L)
-                </button>
-            </div>
-        );
-    };
-
-    // Meter component
-    const Meter = ({ label, value, unit, propertyKey, changed, direction }: {
-        label: string; value: string; unit: string; propertyKey: keyof typeof propertyStyles; changed?: boolean; direction?: 'up' | 'down' | 'same';
-    }) => {
-        const style = propertyStyles[propertyKey];
-        return (
-            <div
-                className="relative rounded-2xl p-3 border-2 transition-all duration-500 flex flex-col justify-between min-h-0 h-full w-full overflow-hidden bg-white shadow-sm"
-                style={{
-                    backgroundColor: '#ffffff',
-                    borderColor: changed ? style.color : style.border,
-                    transform: 'scale(1)'
-                }}
-            >
-                <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-start justify-between gap-2 leading-tight">
-                    <span className="min-w-0 break-words pr-1">{label}</span>
-                    {direction && direction !== 'same' && (
-                        <span className={`shrink-0 text-[9px] font-black leading-tight ${direction === 'down' ? 'text-red-400' : 'text-green-400'}`}>
-                            {direction === 'down' ? '↓ 50%' : '↑'}
-                        </span>
-                    )}
-                    {direction === 'same' && (
-                        <span className="text-[10px] font-bold text-blue-400">═ same</span>
-                    )}
-                </div>
-                <div className="flex items-baseline gap-1 mt-1 min-w-0 whitespace-nowrap">
-                    <span className="text-lg sm:text-xl font-black font-mono leading-none" style={{ color: style.color }}>{value}</span>
-                    <span className="text-xs text-slate-500 font-semibold">{unit}</span>
-                </div>
-            </div>
-        );
-    };
-
-    const extDir = partitioned && selectedSubsystem !== 'FULL' ? 'down' : undefined;
-    const intDir = undefined;
-
-    const controlsCombo = (
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Partition toggle */}
-            <div className="bg-white p-4 flex flex-col justify-between rounded-2xl border border-slate-200 shadow-sm">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Partition Control</label>
-                <button
-                    onClick={handlePartition}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 border transition-all cursor-pointer ${
-                        partitioned 
-                            ? 'bg-red-600 border-red-700 text-white shadow-[0_8px_20px_rgba(220,38,38,0.22)] hover:bg-red-700' 
-                            : 'bg-red-600 border-red-700 text-white shadow-[0_8px_20px_rgba(220,38,38,0.22)] hover:bg-red-700'
-                    }`}
-                >
-                    <Divide size={16} />
-                    {partitioned ? 'Remove Partition' : 'Insert Partition'}
-                </button>
-            </div>
-
-            {/* Gas pump slider */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm sm:col-span-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex justify-between mb-3">
-                    <span>Gas Quantity (n)</span>
-                    <span className="text-emerald-400 font-mono font-bold">{moles} mol</span>
-                </label>
-                <input
-                    type="range"
-                    min="1"
-                    max="8"
-                    step="1"
-                    value={moles}
-                    onChange={e => handleMolesChange(Number(e.target.value))}
-                    className="w-full accent-emerald-500 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[9px] text-slate-500 mt-2 uppercase font-black tracking-widest">
-                    <span>1 mol (vacuum)</span>
-                    <span>8 mol (high mass)</span>
-                </div>
-            </div>
-
-            {/* Temperature Slider */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm sm:col-span-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex justify-between mb-3">
-                    <span>Burner Temp (T)</span>
-                    <span className="text-blue-400 font-mono font-bold">{temperature} K</span>
-                </label>
-                <input
-                    type="range"
-                    min="200"
-                    max="600"
-                    step="25"
-                    value={temperature}
-                    onChange={e => handleTemperatureChange(Number(e.target.value))}
-                    className="w-full accent-blue-500 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[9px] text-slate-500 mt-2 uppercase font-black tracking-widest">
-                    <span>200 K (Ice)</span>
-                    <span>300 K (Room)</span>
-                    <span>600 K (Fire)</span>
-                </div>
-            </div>
-
-            {/* Derive molar property */}
-            <div className="bg-white p-4 flex flex-col justify-between rounded-2xl border border-slate-200 shadow-sm">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Math Relation</label>
-                <button
-                    onClick={() => {
-                        setShowMolarDerivation(!showMolarDerivation);
-                        if (!showMolarDerivation) {
-                            setSystemMessage('Extensive ÷ Extensive = Intensive! Molar Volume (Vm = V/n) and Density (d = m/V) are size-independent intensive parameters.');
-                        }
-                    }}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        showMolarDerivation 
-                            ? 'bg-purple-600 border-purple-700 text-white shadow-[0_8px_20px_rgba(147,51,234,0.2)] hover:bg-purple-700' 
-                            : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-50'
-                    }`}
-                >
-                    <Sparkles size={14} />
-                    Vm = V ÷ n
-                </button>
-            </div>
-
-            {/* Reset */}
-            <div className="bg-white p-4 flex flex-col justify-between rounded-2xl border border-slate-200 shadow-sm">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Controls Reset</label>
-                <button
-                    onClick={handleReset}
-                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl flex items-center justify-center gap-2 text-xs uppercase tracking-widest font-black text-slate-700 transition-colors cursor-pointer"
-                >
-                    <RefreshCcw size={14} />
-                    Reset
-                </button>
+    const compareCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Full vs Half — NCERT Fig 5.6</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">Partition test: who halves, who stays?</div>
+            <table className="w-full text-[11px]">
+                <thead>
+                    <tr className="text-slate-500 border-b border-slate-200">
+                        <th className="text-left py-1">Property</th>
+                        <th className="text-right py-1">Full</th>
+                        <th className="text-right py-1">½</th>
+                        <th className="text-center py-1">Type</th>
+                    </tr>
+                </thead>
+                <tbody className="font-mono">
+                    {([
+                        { lab: 'V (L)',       full: fullV.toFixed(0),   half: halfV.toFixed(0),   type: 'ext' },
+                        { lab: 'n (mol)',     full: fullN.toFixed(1),   half: halfN.toFixed(1),   type: 'ext' },
+                        { lab: 'm (g)',       full: fullM.toFixed(0),   half: halfM.toFixed(0),   type: 'ext' },
+                        { lab: 'U (kJ)',      full: (fullU / 1000).toFixed(2), half: (halfU / 1000).toFixed(2), type: 'ext' },
+                        { lab: 'C (J/K)',     full: fullC.toFixed(1),   half: halfC.toFixed(1),   type: 'ext' },
+                        { lab: 'T (K)',       full: T.toFixed(0),       half: T.toFixed(0),       type: 'int' },
+                        { lab: 'p (kPa)',     full: fullP_kPa.toFixed(1), half: fullP_kPa.toFixed(1), type: 'int' },
+                        { lab: 'd (g/L)',     full: fullD.toFixed(3),   half: fullD.toFixed(3),   type: 'int' },
+                        { lab: 'V_m (L/mol)', full: fullVm.toFixed(1),  half: fullVm.toFixed(1),  type: 'int' },
+                    ]).map(r => (
+                        <tr key={r.lab} className="border-t border-slate-100">
+                            <td className="py-1 text-slate-700">{r.lab}</td>
+                            <td className="text-right text-slate-800">{r.full}</td>
+                            <td className={`text-right ${r.type === 'ext' ? 'text-rose-700 font-bold' : 'text-emerald-700 font-bold'}`}>{r.half}</td>
+                            <td className="text-center">
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] ${r.type === 'ext' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                    {r.type === 'ext' ? 'ext' : 'int'}
+                                </span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="mt-2 text-[10px] text-slate-500 italic leading-snug">
+                Extensive (rose) halve · Intensive (emerald) unchanged.
             </div>
         </div>
     );
 
-    const simulationCombo = (
-        <div className="w-full h-full flex flex-col items-center justify-start p-1 sm:p-2 gap-3 relative bg-transparent overflow-hidden min-h-0">
-            {/* Grid background */}
-            <div className="absolute inset-0 transition-opacity duration-1000 pointer-events-none" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-                maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 90%)'
-            }} />
+    const equationsCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Molar Property (intensive)</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">χ_m = χ / n  ⇒  extensive ÷ moles</div>
+            <div className="space-y-1.5">
+                <div className="rounded-lg border border-slate-100 bg-violet-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-violet-700 uppercase">Molar volume</div>
+                    <div className="font-mono text-[10px] text-slate-800">V_m = V / n = {fullV}/{fullN} = {fullVm.toFixed(2)} L/mol</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-teal-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-teal-700 uppercase">Density</div>
+                    <div className="font-mono text-[10px] text-slate-800">d = m / V = {fullM}/{fullV} = {fullD.toFixed(3)} g/L</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-amber-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-amber-700 uppercase">Molar heat capacity</div>
+                    <div className="font-mono text-[10px] text-slate-800">C_m = C / n = {fullC.toFixed(1)}/{fullN} = {Cm.toFixed(2)} J·mol⁻¹·K⁻¹</div>
+                </div>
+            </div>
+        </div>
+    );
 
-            {/* Subsystem tabs (Only visible when partitioned) */}
-            <SubsystemTabs />
+    const lawsCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Underlying Equations</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">For ideal gas at {T} K, {moles} mol</div>
+            <div className="space-y-1 text-[11px] font-mono text-slate-700">
+                <div>p = nRT / V&nbsp;&nbsp;<span className="text-slate-400">(ideal gas)</span></div>
+                <div>U = (f/2) nRT&nbsp;&nbsp;<span className="text-slate-400">f = {gas.f} for {gas.name}</span></div>
+                <div>C_v = (f/2) nR</div>
+                <div>R = 8.314 J·mol⁻¹·K⁻¹</div>
+            </div>
+        </div>
+    );
 
-            {/* Main Interactive Screen layout */}
-            <div className="w-full flex flex-col lg:flex-row items-stretch justify-center gap-3 z-10 min-h-0 flex-1">
-                
-                {/* ---- LEFT PANEL: EXTENSIVE PROPERTIES ---- */}
-                <div className="lg:flex-[0.75] flex flex-col gap-2 min-h-0">
-                    <div className="text-xs font-black text-red-500 uppercase tracking-widest text-center py-2 rounded-xl bg-white border border-red-200 shadow-sm flex items-center justify-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                        Extensive Properties
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] 2xl:block overflow-y-auto pr-1">
+            <div className="flex flex-col gap-2.5">
+                {compareCard}
+                {equationsCard}
+                {lawsCard}
+            </div>
+        </aside>
+    );
+
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[310px] 2xl:block overflow-y-auto pl-1">
+            <div className="flex flex-col gap-3">
+
+                <div className="rounded-2xl border border-violet-200 bg-violet-50/95 p-4 shadow-xl">
+                    <div className="text-base font-extrabold text-violet-900">Extensive vs Intensive</div>
+                    <div className="text-xs font-semibold text-violet-600 mb-2">NCERT §5.2.2(b)</div>
+                    <div className="grid grid-cols-2 gap-1.5 mb-2 text-[11px]">
+                        <div className="rounded-lg bg-rose-50 border border-rose-200 p-2">
+                            <div className="font-bold text-rose-700 uppercase text-[9px]">Extensive ↓</div>
+                            <div className="font-mono text-rose-900 leading-snug">m, V, n, U, H, C</div>
+                            <div className="text-rose-500 text-[9px] mt-0.5">depends on size</div>
+                        </div>
+                        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2">
+                            <div className="font-bold text-emerald-700 uppercase text-[9px]">Intensive ═</div>
+                            <div className="font-mono text-emerald-900 leading-snug">T, p, d, V_m, C_m</div>
+                            <div className="text-emerald-500 text-[9px] mt-0.5">size-independent</div>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-1 lg:grid-rows-4 gap-2 flex-1 min-h-0">
-                        <Meter label="Volume (V)" value={`${systemVolume.toFixed(1)}`} unit="L" propertyKey="volume" changed={partitioned} direction={extDir} />
-                        <Meter label="Mass (m)" value={`${systemMass.toFixed(1)}`} unit="g" propertyKey="mass" changed={partitioned} direction={extDir} />
-                        <Meter label="Moles (n)" value={`${systemMoles.toFixed(1)}`} unit="mol" propertyKey="moles" changed={partitioned} direction={extDir} />
-                        <Meter label="Internal Energy (U)" value={`${(internalEnergy / 1000).toFixed(2)}`} unit="kJ" propertyKey="energy" changed={partitioned} direction={extDir} />
+                    <div className="text-[11px] text-violet-900 leading-relaxed">
+                        Quick test: <strong>insert a partition</strong>. Properties that halve are extensive; those that stay the same are intensive.
+                    </div>
+                    <div className="mt-2 rounded-xl bg-white/80 border border-violet-300 p-2 text-[10px] text-violet-800">
+                        <strong>Rule of thumb:</strong> ratio of two extensive properties (e.g. V/n, m/V) is intensive.
                     </div>
                 </div>
 
-                {/* ---- CENTER: CANVAS CONTAINER ---- */}
-                <div className="lg:flex-[4.2] flex flex-col items-center justify-start gap-3 min-h-0">
-                    {/* Glass box wrapper */}
-                    <div className="relative w-full aspect-[5/3] rounded-3xl overflow-hidden shadow-2xl bg-white border border-slate-200">
-                        <canvas
-                            ref={canvasRef}
-                            onClick={handleCanvasClick}
-                            className={`w-full h-full block ${partitioned ? 'cursor-pointer' : ''}`}
-                        />
-                        
-                        {/* Interactive floating label inside box */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-base font-extrabold text-slate-900">Real-time Values</div>
+                        <span className="animate-pulse rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">LIVE</span>
+                    </div>
+                    <div className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 mb-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wide text-violet-500">Active</div>
+                        <div className="mt-0.5 font-mono text-base font-extrabold text-violet-700">
+                            {view === 'full' ? 'Full system' : view === 'left' ? 'Left half' : 'Right half'}
+                            {partitioned && view !== 'full' ? ' (× ½)' : ''}
+                        </div>
+                        <div className="text-[9px] text-violet-500 mt-0.5">Gas: {gas.name} · n = {moles} mol · T = {T} K</div>
+                    </div>
+
+                    <div className="text-[10px] font-bold uppercase text-rose-600 mb-1">Extensive</div>
+                    <div className="grid grid-cols-2 gap-1.5 mb-2">
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-rose-400">V</div>
+                            <div className="font-mono text-sm font-extrabold text-rose-700">{V_L.toFixed(0)} L</div>
+                        </div>
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-rose-400">n</div>
+                            <div className="font-mono text-sm font-extrabold text-rose-700">{n_mol.toFixed(1)} mol</div>
+                        </div>
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-rose-400">m</div>
+                            <div className="font-mono text-sm font-extrabold text-rose-700">{m_g.toFixed(0)} g</div>
+                        </div>
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-rose-400">U</div>
+                            <div className="font-mono text-sm font-extrabold text-rose-700">{(U_J / 1000).toFixed(2)} kJ</div>
+                        </div>
+                    </div>
+
+                    <div className="text-[10px] font-bold uppercase text-emerald-600 mb-1">Intensive</div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-emerald-400">T</div>
+                            <div className="font-mono text-sm font-extrabold text-emerald-700">{T} K</div>
+                        </div>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-emerald-400">p</div>
+                            <div className="font-mono text-sm font-extrabold text-emerald-700">{p_kPa.toFixed(1)} kPa</div>
+                        </div>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-emerald-400">d</div>
+                            <div className="font-mono text-sm font-extrabold text-emerald-700">{d_gL.toFixed(3)} g/L</div>
+                        </div>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-center">
+                            <div className="text-[9px] font-bold uppercase text-emerald-400">V_m</div>
+                            <div className="font-mono text-sm font-extrabold text-emerald-700">{Vm.toFixed(1)} L/mol</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+
+    const inCanvasStatus = (
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-md text-xs font-bold">
+            <Atom size={12} className="text-violet-600" />
+            <span className="font-mono text-slate-700">{gas.name}</span>
+            <span className="text-slate-300">|</span>
+            <span className="text-base font-extrabold text-violet-700">
+                {partitioned ? (view === 'full' ? 'Full · Partitioned' : `${view === 'left' ? 'Left' : 'Right'} ½`) : 'Full system'}
+            </span>
+            <span className="text-slate-300">|</span>
+            <span className="font-mono text-rose-700">V={V_L.toFixed(0)}L</span>
+            <span className="font-mono text-emerald-700">T={T}K</span>
+        </div>
+    );
+
+    const simulationCombo = (
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas ref={canvasRef} width={W_CV} height={H_CV} className="absolute inset-0 h-full w-full" />
+                <div className="absolute top-3 left-3 z-10 pointer-events-auto">{inCanvasStatus}</div>
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 pointer-events-auto">
+                    <button onClick={() => setPaused(p => !p)}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title={paused ? 'Play' : 'Pause'}>
+                        {paused ? <Play size={15} /> : <Pause size={15} />}
+                    </button>
+                    <button onClick={handleReset}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title="Reset">
+                        <RotateCcw size={15} />
+                    </button>
+                </div>
+            </div>
+            {graphPanel}
+            {valuesPanel}
+        </div>
+    );
+
+    const gasBtn = (g: GasInfo) => {
+        const active = g.id === gasId;
+        return (
+            <button key={g.id} onClick={() => setGasId(g.id)}
+                className={`flex-1 min-w-[64px] px-2 py-1.5 rounded-lg border transition-all flex flex-col items-center ${
+                    active ? 'text-white shadow-md scale-105' : 'bg-white hover:scale-105 hover:shadow'
+                }`}
+                style={{
+                    backgroundColor: active ? g.color : 'white',
+                    borderColor:     active ? g.color : g.color + '60',
+                    color:           active ? 'white' : g.color,
+                }}>
+                <span className="font-mono text-sm font-extrabold">{g.name}</span>
+                <span className={`text-[9px] mt-0.5 ${active ? 'text-white/85' : 'opacity-70'}`}>
+                    M={g.M} · f={g.f}
+                </span>
+            </button>
+        );
+    };
+
+    const controlsCombo = (
+        <div className="w-full flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+                <Atom size={16} className="text-violet-600" />
+                <span className="text-sm font-extrabold text-slate-800">Extensive ⇄ Intensive Bench</span>
+                <span className="ml-auto font-mono text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-2 py-0.5">
+                    {gas.name} · {V_L.toFixed(0)} L · {T} K · {n_mol.toFixed(1)} mol
+                </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1.4fr_1fr_1fr] gap-3">
+
+                <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Gas</div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2 flex flex-wrap gap-1.5">
+                        {GASES.map(gasBtn)}
+                    </div>
+                </div>
+
+                <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Partition (NCERT Fig 5.6)</div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2 flex flex-col gap-1.5">
+                        <button onClick={() => setPartitioned(p => !p)}
+                            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                                partitioned ? 'bg-rose-500 text-white border-rose-600' : 'bg-white text-violet-700 border-violet-300 hover:bg-violet-50'
+                            }`}>
+                            {partitioned ? '◢◣ Remove partition' : '✂ Insert partition'}
+                        </button>
                         {partitioned && (
-                            <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-slate-900/90 text-[10px] text-yellow-300 font-extrabold uppercase px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-1.5 shadow-lg pointer-events-none">
-                                <HelpCircle size={12} />
-                                Click a compartment to view properties
+                            <div className="flex gap-1">
+                                {(['full', 'left', 'right'] as const).map(v => (
+                                    <button key={v} onClick={() => setView(v)}
+                                        className={`flex-1 px-2 py-1 rounded-md text-[10px] font-bold border transition-colors ${
+                                            view === v ? 'bg-violet-600 text-white border-violet-700' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                        }`}>
+                                        {v === 'full' ? 'Both' : v === 'left' ? '½ Left' : '½ Right'}
+                                    </button>
+                                ))}
                             </div>
                         )}
                     </div>
-
-                    {/* Molar derivation panel */}
-                    {showMolarDerivation && (
-                        <div className="w-full p-4 bg-purple-950/20 rounded-2xl border border-purple-500/20 shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="text-[10px] text-purple-300 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                <Sparkles size={14} />
-                                Molar Property Ratio (Extensive ÷ Extensive = Intensive)
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-3 bg-slate-950/50 rounded-xl border border-white/5 font-mono text-xs text-left">
-                                    <div className="text-slate-400 font-bold mb-1 text-[9px] uppercase">Molar Volume:</div>
-                                    <span className="text-purple-300 font-bold">Vm = V / n</span> = {systemVolume.toFixed(1)} L / {systemMoles.toFixed(1)} mol = <span className="text-purple-400 font-black">{molarVolume.toFixed(2)} L/mol</span>
-                                </div>
-                                <div className="p-3 bg-slate-950/50 rounded-xl border border-white/5 font-mono text-xs text-left">
-                                    <div className="text-slate-400 font-bold mb-1 text-[9px] uppercase">Density (Ratio of Mass & Vol):</div>
-                                    <span className="text-teal-300 font-bold">d = m / V</span> = {systemMass.toFixed(1)} g / {systemVolume.toFixed(1)} L = <span className="text-teal-400 font-black">{density.toFixed(3)} g/L</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {/* ---- RIGHT PANEL: INTENSIVE PROPERTIES ---- */}
-                <div className="lg:flex-[0.75] flex flex-col gap-2 min-h-0">
-                    <div className="text-xs font-black text-blue-500 uppercase tracking-widest text-center py-2 rounded-xl bg-white border border-blue-200 shadow-sm flex items-center justify-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                        Intensive Properties
+                <div>
+                    <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Moles (n)</label>
+                        <span className="font-mono text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 rounded">{moles} mol</span>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-1 lg:grid-rows-4 gap-2 flex-1 min-h-0">
-                        <Meter label="Temperature (T)" value={`${temperature}`} unit="K" propertyKey="temperature" changed={partitioned} direction={intDir} />
-                        <Meter label="Pressure (p)" value={`${(pressure).toFixed(2)}`} unit="kPa" propertyKey="pressure" changed={partitioned} direction={intDir} />
-                        <Meter label="Density (d)" value={`${density.toFixed(3)}`} unit="g/L" propertyKey="density" changed={partitioned} direction={intDir} />
-                        <Meter label="Molar Volume (Vₘ)" value={`${molarVolume.toFixed(2)}`} unit="L/mol" propertyKey="molarVolume" changed={partitioned} direction={intDir} />
+                    <input type="range" min={1} max={10} step={1} value={moles}
+                        onChange={e => setMoles(Number(e.target.value))}
+                        className="w-full accent-amber-600 h-1.5 cursor-pointer" />
+                    <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                        <span>1</span><span>10 mol</span>
                     </div>
                 </div>
 
+                <div>
+                    <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Temperature</label>
+                        <span className="font-mono text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 rounded">{T} K</span>
+                    </div>
+                    <input type="range" min={200} max={600} step={10} value={T}
+                        onChange={e => setT(Number(e.target.value))}
+                        className="w-full accent-rose-600 h-1.5 cursor-pointer" />
+                    <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                        <span>200</span><span>{T - 273} °C</span><span>600 K</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -853,8 +667,6 @@ const ExtensiveIntensivePropertiesLab: React.FC<Props> = ({ topic, onExit }) => 
             onExit={onExit}
             SimulationComponent={simulationCombo}
             ControlsComponent={controlsCombo}
-            simulationStageWidth={900}
-            simulationStageHeight={430}
         />
     );
 };

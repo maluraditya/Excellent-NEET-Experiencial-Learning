@@ -72,7 +72,6 @@ const CARD_SUMMARIES: Record<string, string> = {
   'electrochemistry': 'Compare galvanic and electrolytic cells through ion flow and electron direction.',
   'kinetics': 'Connect reaction rate with collision energy, orientation, temperature, and activation barrier.',
   'dblock': 'Link d-electron configuration with colour, magnetism, and crystal field splitting.',
-  'polymers': 'Explore chain-growth catalysis and conductivity in conjugated organic polymers.',
   'stereochemistry': 'Compare coordination isomers and test chirality with mirror images.',
   'haloalkanes': 'Compare SN1 and SN2 paths through inversion, intermediates, and attack geometry.',
   'angiosperms-double-fertilisation-seed-development': 'Follow pollen tube growth, double fertilisation, endosperm, and seed development.',

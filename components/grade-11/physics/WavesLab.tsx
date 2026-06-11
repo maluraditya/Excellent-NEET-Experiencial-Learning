@@ -66,8 +66,18 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
         const k = 2 * Math.PI / lambda;
         const STRING_L = W * 0.84;
         const L_meters = STRING_L * 0.01;
-        const n_harmonic = Math.round(2 * L_meters * s.freq / v_wave);
-        const resonantFreq = n_harmonic > 0 ? n_harmonic * v_wave / (2 * L_meters) : 0;
+        // Fixed-fixed: f_n = n v / (2L), n = 1,2,3,...
+        // Fixed-free  : f_n = (2n-1) v / (4L), n = 1,2,3,...  (only odd harmonics)
+        let n_harmonic: number, resonantFreq: number;
+        if (s.fixedEnd) {
+            n_harmonic = Math.round(2 * L_meters * s.freq / v_wave);
+            resonantFreq = n_harmonic > 0 ? n_harmonic * v_wave / (2 * L_meters) : 0;
+        } else {
+            // Solve f = (2n-1)v/(4L)  =>  n = (4Lf/v + 1)/2
+            const nIdx = Math.max(1, Math.round((4 * L_meters * s.freq / v_wave + 1) / 2));
+            n_harmonic = 2 * nIdx - 1; // odd harmonic number
+            resonantFreq = n_harmonic * v_wave / (4 * L_meters);
+        }
         const isResonant = n_harmonic > 0 && Math.abs(s.freq - resonantFreq) < 0.3;
 
         // Resonance buildup: factor grows toward 1 at resonance, decays away
@@ -269,9 +279,13 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
 
         // Nodes and antinodes (resonance)
         if (isResonant && n_harmonic > 0) {
-            const lambdaRes = 2 * L_meters / n_harmonic;
+            // Fixed-fixed: λ = 2L/n, nodes at k·λ/2 (k=0..n), antinodes at (k+½)·λ/2 (k=0..n-1)
+            // Fixed-free:  λ = 4L/(2n-1), nodes at k·λ/2 (k=0..n-1), antinodes at (k+½)·λ/2 (k=0..n-1) — last antinode at x=L
+            const lambdaRes = s.fixedEnd ? (2 * L_meters / n_harmonic) : (4 * L_meters / (2 * n_harmonic - 1));
+            const nodeCount = s.fixedEnd ? n_harmonic + 1 : n_harmonic;
+            const antiCount = n_harmonic;
             // Nodes
-            for (let nn = 0; nn <= n_harmonic; nn++) {
+            for (let nn = 0; nn < nodeCount; nn++) {
                 const nodeX = STRING_X0 + (nn * lambdaRes / 2 / L_meters) * STRING_L;
                 ctx.fillStyle = 'rgba(220, 38, 38, 0.15)';
                 ctx.beginPath(); ctx.arc(nodeX, STRING_Y, 18 * scale, 0, Math.PI * 2); ctx.fill();
@@ -283,7 +297,7 @@ const WavesLab: React.FC<WavesLabProps> = ({ topic, onExit }) => {
                 ctx.fillText('N', nodeX, STRING_Y + 4 * scale);
             }
             // Antinodes
-            for (let an = 0; an < n_harmonic; an++) {
+            for (let an = 0; an < antiCount; an++) {
                 const antiX = STRING_X0 + ((an + 0.5) * lambdaRes / 2 / L_meters) * STRING_L;
                 ctx.strokeStyle = 'rgba(37, 99, 235, 0.45)'; ctx.lineWidth = 2 * scale; ctx.setLineDash([5, 4]);
                 ctx.beginPath(); ctx.moveTo(antiX, STRING_Y - scaledAmp * 2.2); ctx.lineTo(antiX, STRING_Y + scaledAmp * 2.2); ctx.stroke();

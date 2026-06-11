@@ -1,422 +1,740 @@
-import React, { useState, useMemo } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Play, Pause, RotateCcw, Atom } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 import { Topic } from '../../../types';
 
-type ProcessType = 'reversible' | 'irreversible';
+interface Props { topic: Topic; onExit: () => void; }
 
-interface Props {
-    topic: Topic;
-    onExit: () => void;
-}
+const W_CV = 1280, H_CV = 760;
+
+type Mode = 'reversible' | 'irreversible_single' | 'irreversible_multi' | 'free';
+
+const R_JOULES        = 8.314;
+const R_LATM_MOL_K    = 0.08206;
+const ATM_TO_PA       = 101325;
+const L_TO_M3         = 1e-3;
+const J_PER_LATM      = ATM_TO_PA * L_TO_M3;
+
+interface ModeInfo { id: Mode; label: string; color: string; soft: string; }
+const MODES: ModeInfo[] = [
+    { id: 'reversible',          label: 'Reversible',           color: '#16a34a', soft: '#d1fae5' },
+    { id: 'irreversible_single', label: 'Irreversible (1 step)', color: '#d97706', soft: '#fef3c7' },
+    { id: 'irreversible_multi',  label: 'Irreversible (n steps)', color: '#0891b2', soft: '#cffafe' },
+    { id: 'free',                label: 'Free expansion',       color: '#7c3aed', soft: '#ede9fe' },
+];
 
 const IsothermalWorkLab: React.FC<Props> = ({ topic, onExit }) => {
-    const [processType, setProcessType] = useState<ProcessType>('reversible');
-    const [volume, setVolume] = useState(2); // current volume in L (range 1 to 5)
-    const [nMoles] = useState(1);
-    const [temperature] = useState(300); // K
-    const R = 8.314; // J/(mol·K)
-    const initialVolume = 1; // V1 in L
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const rafRef    = useRef<number>(0);
+    const pulseRef  = useRef(0);
 
-    // Isothermal: PV = nRT → P = nRT/V
-    const pressureOnIsotherm = useMemo(() => {
-        return (nMoles * R * temperature) / (volume);
-    }, [volume, nMoles, temperature]);
+    const [mode,     setMode]     = useState<Mode>('reversible');
+    const [Vi,       setVi]       = useState(1);
+    const [Vf,       setVf]       = useState(5);
+    const [n,        setN]        = useState(1);
+    const [T,        setT]        = useState(298);
+    const [steps,    setSteps]    = useState(4);
+    const [paused,   setPaused]   = useState(false);
 
-    const initialPressure = (nMoles * R * temperature) / initialVolume;
+    const Piso = useCallback((V: number) => (n * R_LATM_MOL_K * T) / V, [n, T]);
+    const Pi   = useMemo(() => Piso(Vi), [Piso, Vi]);
+    const Pf   = useMemo(() => Piso(Vf), [Piso, Vf]);
 
-    const externalPressure = useMemo(() => {
-        // For irreversible: P_ext = nRT / V_final (constant external pressure at final state)
-        return (nMoles * R * temperature) / 5; // P at max volume
-    }, [nMoles, temperature]);
-
-    // Current displayed pressure depends on process type
-    const displayPressure = processType === 'reversible' ? pressureOnIsotherm : externalPressure;
-
-    // Work calculations
-    const workReversible = useMemo(() => {
-        // W_rev = -nRT ln(V2/V1)
-        if (volume <= initialVolume) return 0;
-        return -nMoles * R * temperature * Math.log(volume / initialVolume);
-    }, [volume, nMoles, temperature]);
-
-    const workIrreversible = useMemo(() => {
-        // W_irr = -P_ext * (V2 - V1)
-        if (volume <= initialVolume) return 0;
-        return -externalPressure * (volume - initialVolume);
-    }, [volume, externalPressure]);
-
-    const currentWork = processType === 'reversible' ? workReversible : workIrreversible;
-
-    // Piston position: map volume (1-5) to visual fraction (0-1)
-    const pistonFrac = (volume - 1) / 4;
-
-    // PV data for the graph
-    const pvCurve = useMemo(() => {
-        const points: { v: number; p: number }[] = [];
-        for (let v = 1; v <= 5; v += 0.1) {
-            points.push({ v, p: (nMoles * R * temperature) / v });
+    const work = useMemo(() => {
+        const dV = Vf - Vi;
+        if (mode === 'free' || Math.abs(dV) < 1e-6) {
+            return { J: 0, latm: 0 };
         }
-        return points;
-    }, [nMoles, temperature]);
-
-    // SVG graph scaling - use viewBox so it scales with container
-    const gW = 320, gH = 220;
-    const gPad = { l: 45, r: 15, t: 20, b: 30 };
-    const plotW = gW - gPad.l - gPad.r;
-    const plotH = gH - gPad.t - gPad.b;
-    const maxP = (nMoles * R * temperature) / 1; // P at V=1
-    const minP = (nMoles * R * temperature) / 5;  // P at V=5
-    const toX = (v: number) => gPad.l + ((v - 1) / 4) * plotW;
-    const toY = (p: number) => gPad.t + (1 - (p - minP * 0.5) / (maxP * 1.1 - minP * 0.5)) * plotH;
-
-    // Irreversible process path: vertical drop at V1 then horizontal at P_ext
-    const irrProcessPath = useMemo(() => {
-        if (volume <= initialVolume) return '';
-        const x1 = toX(initialVolume);
-        const xEnd = toX(volume);
-        const yStart = toY(initialPressure);
-        const yPext = toY(externalPressure);
-        return `M ${x1} ${yStart} L ${x1} ${yPext} L ${xEnd} ${yPext}`;
-    }, [volume, initialPressure, externalPressure]);
-
-    const curvePath = pvCurve.map((pt, i) =>
-        `${i === 0 ? 'M' : 'L'} ${toX(pt.v).toFixed(1)} ${toY(pt.p).toFixed(1)}`
-    ).join(' ');
-
-    // Shaded area under curve up to current volume (reversible work area)
-    const shadedPathRev = useMemo(() => {
-        if (volume <= initialVolume) return '';
-        const pts = pvCurve.filter(pt => pt.v >= initialVolume && pt.v <= volume);
-        if (pts.length === 0) return '';
-        let d = `M ${toX(initialVolume)} ${toY(0)} `;
-        d += `L ${toX(initialVolume)} ${toY(pts[0].p)} `;
-        pts.forEach(pt => { d += `L ${toX(pt.v)} ${toY(pt.p)} `; });
-        d += `L ${toX(volume)} ${toY(0)} Z`;
-        return d;
-    }, [volume, pvCurve]);
-
-    // Shaded rectangle for irreversible work
-    const shadedRectIrr = useMemo(() => {
-        if (volume <= initialVolume) return null;
-        const x1 = toX(initialVolume);
-        const x2 = toX(volume);
-        const yTop = toY(externalPressure);
-        const yBot = toY(0);
-        return { x: x1, y: yTop, width: x2 - x1, height: yBot - yTop };
-    }, [volume, externalPressure]);
-
-    const handleReset = () => {
-        setVolume(2);
-        setProcessType('reversible');
-    };
-
-    // Gas molecule positions (pseudo-random based on volume)
-    const molecules = useMemo(() => {
-        const count = Math.max(5, Math.round(18 - volume * 2));
-        const mols: { x: number; y: number; delay: number }[] = [];
-        for (let i = 0; i < count; i++) {
-            mols.push({
-                x: 8 + ((i * 37 + i * i * 7) % 80),
-                y: 10 + ((i * 53 + i * 13) % 75),
-                delay: (i * 0.3) % 2,
-            });
+        if (mode === 'reversible') {
+            const w_latm = -n * R_LATM_MOL_K * T * Math.log(Vf / Vi);
+            return { J: w_latm * J_PER_LATM, latm: w_latm };
         }
-        return mols;
-    }, [volume]);
+        if (mode === 'irreversible_single') {
+            const w_latm = -Pf * dV;
+            return { J: w_latm * J_PER_LATM, latm: w_latm };
+        }
+        let w_latm = 0;
+        for (let i = 0; i < steps; i++) {
+            const v0 = Vi + (dV * i)       / steps;
+            const v1 = Vi + (dV * (i + 1)) / steps;
+            const Pext = Piso(v1);
+            w_latm += -Pext * (v1 - v0);
+        }
+        return { J: w_latm * J_PER_LATM, latm: w_latm };
+    }, [mode, Vi, Vf, n, T, steps, Pf, Piso]);
 
-    const statusBadge = (
-        <div className="flex flex-col items-center px-5 py-2 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl"
-            style={{ backgroundColor: processType === 'reversible' ? 'rgba(52,211,153,0.1)' : 'rgba(251,191,36,0.1)' }}>
-            <div className="text-[12px] uppercase font-bold tracking-widest text-slate-400 mb-0.5" style={{ color: processType === 'reversible' ? '#34d399' : '#fbbf24' }}>
-                Isothermal {processType === 'reversible' ? 'Reversible' : 'Irreversible'} Expansion
+    const heat = useMemo(() => ({ J: -work.J, latm: -work.latm }), [work]);
+    const dU   = 0;
+
+    const Pi_kPa = Pi * ATM_TO_PA / 1000;
+    const Pf_kPa = Pf * ATM_TO_PA / 1000;
+
+    const cylinderVmax = 6, cylinderVmin = 0.5;
+    const vToPiston = (V: number) => Math.max(0.04, Math.min(0.96, (V - cylinderVmin) / (cylinderVmax - cylinderVmin)));
+
+    const [currentStep, setCurrentStep] = useState(0);
+    useEffect(() => {
+        if (paused) return;
+        if (mode !== 'irreversible_multi') { setCurrentStep(steps); return; }
+        setCurrentStep(0);
+        const id = setInterval(() => {
+            setCurrentStep(s => (s < steps ? s + 1 : 0));
+        }, 900);
+        return () => clearInterval(id);
+    }, [mode, steps, paused, Vi, Vf]);
+
+    const handleReset = useCallback(() => {
+        setMode('reversible'); setVi(1); setVf(5); setN(1); setT(298); setSteps(4); setPaused(false);
+    }, []);
+
+    const drawFrame = useCallback(() => {
+        const cv = canvasRef.current; if (!cv) return;
+        const ctx = cv.getContext('2d'); if (!ctx) return;
+
+        ctx.clearRect(0, 0, W_CV, H_CV);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W_CV, H_CV);
+
+        ctx.strokeStyle = 'rgba(100,116,139,0.06)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= W_CV; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H_CV); ctx.stroke(); }
+        for (let y = 0; y <= H_CV; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W_CV, y); ctx.stroke(); }
+
+        ctx.font      = '12px sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(`§5.2.1 PV-work · isothermal: PV = nRT · ΔU = 0 ⇒ q = −w`, 30, 76);
+
+        const modeInfo = MODES.find(m => m.id === mode)!;
+        const cx = 380, cy = 380;
+        const cylW = 220, cylH = 480;
+        const cylTop = cy - cylH / 2;
+        const cylBot = cy + cylH / 2;
+
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx - cylW / 2, cylTop);
+        ctx.lineTo(cx - cylW / 2, cylBot);
+        ctx.lineTo(cx + cylW / 2, cylBot);
+        ctx.lineTo(cx + cylW / 2, cylTop);
+        ctx.stroke();
+
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(cx - cylW / 2 - 10, cylBot - 4, cylW + 20, 12);
+
+        const displayV =
+            mode === 'irreversible_multi'
+                ? Vi + (Vf - Vi) * (currentStep / steps)
+                : Vf;
+        const pistonFrac = vToPiston(displayV);
+        const gasTop = cylBot - pistonFrac * cylH;
+
+        const gasGrad = ctx.createLinearGradient(cx - cylW / 2, gasTop, cx - cylW / 2, cylBot);
+        gasGrad.addColorStop(0, modeInfo.color + '30');
+        gasGrad.addColorStop(1, modeInfo.color + '10');
+        ctx.fillStyle = gasGrad;
+        ctx.fillRect(cx - cylW / 2 + 2, gasTop, cylW - 4, cylBot - gasTop - 2);
+
+        const molCount = Math.max(8, Math.min(40, Math.round(displayV * 6)));
+        const seed = mode === 'irreversible_multi' ? currentStep : 0;
+        for (let i = 0; i < molCount; i++) {
+            const wig = Math.sin(pulseRef.current * 3 + i) * 4;
+            const mx = cx - cylW / 2 + 12 + ((i * 41 + seed * 7 + wig) % (cylW - 24));
+            const my = gasTop + 12 + ((i * 73 + seed * 11) % Math.max(20, cylBot - gasTop - 24));
+            ctx.beginPath();
+            ctx.arc(mx, my, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle   = modeInfo.color;
+            ctx.shadowColor = modeInfo.color;
+            ctx.shadowBlur  = 6;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        const pistonGrad = ctx.createLinearGradient(cx, gasTop - 12, cx, gasTop);
+        pistonGrad.addColorStop(0, '#94a3b8');
+        pistonGrad.addColorStop(1, '#475569');
+        ctx.fillStyle = pistonGrad;
+        ctx.fillRect(cx - cylW / 2 + 2, gasTop - 12, cylW - 4, 14);
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(cx - cylW / 2 + 2, gasTop - 12, cylW - 4, 14);
+
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(cx - 8, cylTop - 30, 16, gasTop - cylTop + 14);
+
+        if (mode === 'irreversible_single') {
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath();
+            ctx.roundRect(cx - 50, cylTop - 56, 100, 26, 4);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font      = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`P_ext = ${Pf.toFixed(2)} atm`, cx, cylTop - 38);
+            ctx.textAlign = 'left';
+        } else if (mode === 'irreversible_multi') {
+            const remaining = Math.max(0, steps - currentStep);
+            for (let i = 0; i < remaining; i++) {
+                ctx.fillStyle = '#0891b2';
+                ctx.beginPath();
+                ctx.roundRect(cx - 35, cylTop - 30 - i * 10 - 14, 70, 8, 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#0891b2';
+            ctx.font      = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`step ${currentStep}/${steps}`, cx, cylTop - 30 - remaining * 10 - 22);
+            ctx.textAlign = 'left';
+        } else if (mode === 'reversible') {
+            for (let i = 0; i < 30; i++) {
+                ctx.fillStyle = '#16a34a';
+                ctx.beginPath();
+                ctx.arc(cx - 30 + i * 2.1, cylTop - 30 - (i * 0.6) - 4, 1.6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#15803d';
+            ctx.font      = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('infinitesimal grains · dp', cx, cylTop - 60);
+            ctx.textAlign = 'left';
+        } else if (mode === 'free') {
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            ctx.beginPath();
+            ctx.moveTo(cx - 40, cylTop + 20);
+            ctx.lineTo(cx + 40, cylTop + 20);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#7c3aed';
+            ctx.font      = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Vacuum (P_ext = 0)', cx, cylTop - 32);
+            ctx.textAlign = 'left';
+        }
+
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.font      = '9px monospace';
+        ctx.fillStyle = '#64748b';
+        for (let V = 1; V <= cylinderVmax; V++) {
+            const y = cylBot - vToPiston(V) * cylH;
+            ctx.beginPath();
+            ctx.moveTo(cx + cylW / 2 + 4, y);
+            ctx.lineTo(cx + cylW / 2 + 14, y);
+            ctx.stroke();
+            ctx.fillText(`${V} L`, cx + cylW / 2 + 18, y + 3);
+        }
+
+        ctx.font      = 'bold 13px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.fillText('Piston–Cylinder (ideal gas)', cx, cylBot + 38);
+        ctx.font      = '11px monospace';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(`n = ${n} mol · T = ${T} K`, cx, cylBot + 58);
+        ctx.textAlign = 'left';
+
+        const px0 = 740,  px1 = 1230;
+        const py0 = 110,  py1 = 560;
+        const Vlo = Math.min(0.5, Vi - 0.5);
+        const Vhi = Math.max(6.5, Vf + 0.5);
+        const Pmax = Piso(Vlo) * 1.05;
+        const Pmin = 0;
+        const xPV = (V: number) => px0 + ((V - Vlo) / (Vhi - Vlo)) * (px1 - px0);
+        const yPV = (P: number) => py1 - ((P - Pmin) / (Pmax - Pmin)) * (py1 - py0);
+
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px0, py0, px1 - px0, py1 - py0);
+
+        ctx.font      = 'bold 12px sans-serif';
+        ctx.fillStyle = '#475569';
+        ctx.fillText('P (atm)', px0 - 56, py0 + 10);
+        ctx.fillText('V (L)',   px1 - 38, py1 + 22);
+        ctx.font      = 'bold 13px sans-serif';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.fillText('P–V diagram (real-time)', (px0 + px1) / 2, py0 - 18);
+        ctx.textAlign = 'left';
+
+        ctx.font      = '10px monospace';
+        ctx.fillStyle = '#64748b';
+        for (let V = 1; V <= 6; V++) {
+            const x = xPV(V);
+            ctx.beginPath();
+            ctx.moveTo(x, py1); ctx.lineTo(x, py1 + 5);
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.stroke();
+            ctx.textAlign = 'center';
+            ctx.fillText(`${V}`, x, py1 + 18);
+            ctx.textAlign = 'left';
+        }
+        for (let i = 0; i <= 4; i++) {
+            const P = (Pmax / 4) * i;
+            const y = yPV(P);
+            ctx.beginPath();
+            ctx.moveTo(px0 - 5, y); ctx.lineTo(px0, y);
+            ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+            ctx.textAlign = 'end';
+            ctx.fillText(P.toFixed(1), px0 - 8, y + 3);
+            ctx.textAlign = 'left';
+        }
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        for (let i = 0; i <= 100; i++) {
+            const V = Vlo + (Vhi - Vlo) * (i / 100);
+            const P = Piso(V);
+            if (i === 0) ctx.moveTo(xPV(V), yPV(P));
+            else         ctx.lineTo(xPV(V), yPV(P));
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font      = '9px sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('isotherm (PV = nRT)', xPV(Vhi) - 110, yPV(Piso(Vhi)) - 6);
+
+        const fillWork = (color: string, soft: string) => {
+            ctx.fillStyle = soft;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+        };
+
+        if (mode === 'reversible') {
+            fillWork('#16a34a', '#bbf7d055');
+            ctx.beginPath();
+            ctx.moveTo(xPV(Vi), yPV(0));
+            ctx.lineTo(xPV(Vi), yPV(Piso(Vi)));
+            for (let i = 0; i <= 60; i++) {
+                const V = Vi + (Vf - Vi) * (i / 60);
+                ctx.lineTo(xPV(V), yPV(Piso(V)));
+            }
+            ctx.lineTo(xPV(Vf), yPV(0));
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            for (let i = 0; i <= 60; i++) {
+                const V = Vi + (Vf - Vi) * (i / 60);
+                if (i === 0) ctx.moveTo(xPV(V), yPV(Piso(V)));
+                else         ctx.lineTo(xPV(V), yPV(Piso(V)));
+            }
+            ctx.stroke();
+        } else if (mode === 'irreversible_single') {
+            fillWork('#d97706', '#fde68a55');
+            const Pext = Pf;
+            ctx.beginPath();
+            ctx.rect(xPV(Vi), yPV(Pext), xPV(Vf) - xPV(Vi), yPV(0) - yPV(Pext));
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(xPV(Vi), yPV(Pi));
+            ctx.lineTo(xPV(Vi), yPV(Pext));
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([5, 3]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        } else if (mode === 'irreversible_multi') {
+            fillWork('#0891b2', '#a5f3fc55');
+            ctx.beginPath();
+            ctx.moveTo(xPV(Vi), yPV(0));
+            ctx.lineTo(xPV(Vi), yPV(Piso(Vi)));
+            for (let i = 1; i <= steps; i++) {
+                const v0 = Vi + ((Vf - Vi) * (i - 1)) / steps;
+                const v1 = Vi + ((Vf - Vi) * i) / steps;
+                const Pext = Piso(v1);
+                ctx.lineTo(xPV(v0), yPV(Pext));
+                ctx.lineTo(xPV(v1), yPV(Pext));
+            }
+            ctx.lineTo(xPV(Vf), yPV(0));
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(xPV(Vi), yPV(Piso(Vi)));
+            for (let i = 1; i <= steps; i++) {
+                const v0 = Vi + ((Vf - Vi) * (i - 1)) / steps;
+                const v1 = Vi + ((Vf - Vi) * i) / steps;
+                const Pext = Piso(v1);
+                ctx.lineTo(xPV(v0), yPV(Pext));
+                ctx.lineTo(xPV(v1), yPV(Pext));
+            }
+            ctx.stroke();
+            if (currentStep > 0 && currentStep <= steps) {
+                const v0 = Vi + ((Vf - Vi) * (currentStep - 1)) / steps;
+                const v1 = Vi + ((Vf - Vi) * currentStep)       / steps;
+                const Pext = Piso(v1);
+                ctx.fillStyle = '#0891b288';
+                ctx.fillRect(xPV(v0), yPV(Pext), xPV(v1) - xPV(v0), yPV(0) - yPV(Pext));
+            }
+        } else {
+            ctx.font      = 'bold 14px sans-serif';
+            ctx.fillStyle = '#7c3aed';
+            ctx.textAlign = 'center';
+            ctx.fillText('w = 0  (no work — vacuum)', (px0 + px1) / 2, (py0 + py1) / 2);
+            ctx.textAlign = 'left';
+        }
+
+        ctx.beginPath();
+        ctx.arc(xPV(Vi), yPV(Pi), 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#1e293b';
+        ctx.fill();
+        ctx.font      = 'bold 10px monospace';
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText(`A (V₁=${Vi.toFixed(1)} L, P₁=${Pi.toFixed(2)} atm)`, xPV(Vi) + 10, yPV(Pi) - 6);
+
+        ctx.beginPath();
+        ctx.arc(xPV(Vf), yPV(Pf), 6, 0, Math.PI * 2);
+        ctx.fillStyle = modeInfo.color;
+        ctx.fill();
+        ctx.fillText(`B (V₂=${Vf.toFixed(1)} L, P₂=${Pf.toFixed(2)} atm)`, xPV(Vf) - 90, yPV(Pf) + 18);
+
+        const midX = (xPV(Vi) + xPV(Vf)) / 2;
+        const midY = yPV(0) - 18;
+        ctx.font      = 'bold 14px sans-serif';
+        ctx.fillStyle = modeInfo.color;
+        ctx.textAlign = 'center';
+        ctx.fillText(`|w| = ${Math.abs(work.J).toFixed(1)} J = ${Math.abs(work.latm).toFixed(3)} L·atm`, midX, midY);
+        ctx.textAlign = 'left';
+    }, [mode, Vi, Vf, n, T, steps, Pi, Pf, currentStep, work, Piso]);
+
+    useEffect(() => { drawFrame(); }, [drawFrame]);
+    useEffect(() => {
+        let last = performance.now();
+        const loop = (now: number) => {
+            const dt = Math.min((now - last) / 1000, 0.1);
+            last = now;
+            if (!paused) pulseRef.current += dt;
+            drawFrame();
+            rafRef.current = requestAnimationFrame(loop);
+        };
+        rafRef.current = requestAnimationFrame(loop);
+        return () => cancelAnimationFrame(rafRef.current);
+    }, [drawFrame, paused]);
+
+    const allWorks = useMemo(() => {
+        const dV = Vf - Vi;
+        const wRev = -n * R_LATM_MOL_K * T * Math.log(Vf / Vi);
+        const wIrrSingle = -Pf * dV;
+        let wIrrMulti = 0;
+        for (let i = 0; i < steps; i++) {
+            const v0 = Vi + (dV * i)       / steps;
+            const v1 = Vi + (dV * (i + 1)) / steps;
+            wIrrMulti += -Piso(v1) * (v1 - v0);
+        }
+        return {
+            reversible:          wRev * J_PER_LATM,
+            irreversible_single: wIrrSingle * J_PER_LATM,
+            irreversible_multi:  wIrrMulti * J_PER_LATM,
+            free:                0,
+        };
+    }, [Vi, Vf, n, T, steps, Pf, Piso]);
+
+    const maxWork = Math.max(Math.abs(allWorks.reversible), Math.abs(allWorks.irreversible_single), Math.abs(allWorks.irreversible_multi));
+
+    const workCompareCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">Work Comparison</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">|w_rev| is the maximum (NCERT §5.2.1)</div>
+            <div className="flex flex-col gap-1.5">
+                {([
+                    { id: 'reversible',          label: 'Reversible',          col: '#16a34a', bg: '#d1fae5' },
+                    { id: 'irreversible_multi',  label: `Irrev. (${steps} steps)`, col: '#0891b2', bg: '#cffafe' },
+                    { id: 'irreversible_single', label: 'Irrev. (1 step)',     col: '#d97706', bg: '#fef3c7' },
+                    { id: 'free',                label: 'Free expansion',      col: '#7c3aed', bg: '#ede9fe' },
+                ] as const).map(r => {
+                    const w = allWorks[r.id];
+                    const frac = maxWork === 0 ? 0 : (Math.abs(w) / maxWork) * 100;
+                    return (
+                        <div key={r.id} className="rounded-lg border border-slate-100 px-2 py-1.5" style={{ backgroundColor: r.bg }}>
+                            <div className="flex justify-between items-center text-[10px] font-bold">
+                                <span className="text-slate-800">{r.label}</span>
+                                <span style={{ color: r.col }} className="font-mono">{w.toFixed(1)} J</span>
+                            </div>
+                            <div className="mt-1 h-1.5 bg-white rounded-full overflow-hidden">
+                                <div className="h-full rounded-full" style={{ width: `${frac}%`, backgroundColor: r.col }} />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
-            <div className="text-[10px] text-slate-400 font-mono tracking-widest bg-black/20 px-2 py-0.5 rounded-full mt-1">
-                T = {temperature}K · n = {nMoles}mol · PV = nRT
+            <div className="mt-2 text-[10px] text-slate-500 italic leading-snug">
+                As n_steps → ∞, irreversible → reversible curve (Fig. 5.5b → c).
             </div>
         </div>
     );
 
-    const controlsCombo = (
-        <div className="w-full flex flex-col md:flex-row gap-4">
-            {/* Process type toggle */}
-            <div className="flex-1 bg-slate-950/50 p-3 flex flex-col gap-2 rounded-xl border border-slate-700/50">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Process Type</label>
-                <div className="flex bg-slate-900 border border-slate-600 rounded-lg overflow-hidden h-full">
-                    <button onClick={() => setProcessType('reversible')}
-                        className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${processType === 'reversible' ? 'bg-emerald-500/20 text-emerald-400 border-r border-emerald-500/30' : 'text-slate-400 hover:text-white border-r border-slate-700'}`}>
-                        Reversible
-                    </button>
-                    <button onClick={() => setProcessType('irreversible')}
-                        className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${processType === 'irreversible' ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-white'}`}>
-                        Irreversible
-                    </button>
+    const firstLawCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">First Law (Isothermal)</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">ΔU = q + w · ideal gas ⇒ ΔU = 0</div>
+            <div className="grid grid-cols-3 gap-1.5">
+                <div className="rounded-lg border border-slate-100 bg-rose-50 px-2 py-1.5 text-center">
+                    <div className="text-[9px] font-bold uppercase text-slate-500">w</div>
+                    <div className="font-mono text-sm font-extrabold text-rose-700">{work.J.toFixed(1)}</div>
+                    <div className="text-[9px] text-rose-500">J</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-emerald-50 px-2 py-1.5 text-center">
+                    <div className="text-[9px] font-bold uppercase text-slate-500">q</div>
+                    <div className="font-mono text-sm font-extrabold text-emerald-700">{heat.J.toFixed(1)}</div>
+                    <div className="text-[9px] text-emerald-500">J</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 text-center">
+                    <div className="text-[9px] font-bold uppercase text-slate-500">ΔU</div>
+                    <div className="font-mono text-sm font-extrabold text-slate-800">{dU}</div>
+                    <div className="text-[9px] text-slate-500">J</div>
                 </div>
             </div>
+            <div className="mt-2 text-[10px] text-slate-500 leading-snug">
+                For ideal gas at constant T, U depends only on T ⇒ ΔU = 0; all heat absorbed converts to work done.
+            </div>
+        </div>
+    );
 
-            {/* Volume slider */}
-            <div className="flex-[2] bg-slate-950/50 p-3 rounded-xl border border-slate-700/50">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex justify-between mb-2">
-                    <span>Final Volume (V₂)</span>
-                    <span className="text-emerald-400 font-mono">{volume.toFixed(1)} L</span>
-                </label>
-                <input type="range" min="1" max="5" step="0.1" value={volume}
-                    onChange={e => setVolume(Number(e.target.value))}
-                    className="w-full accent-emerald-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
-                <div className="flex justify-between text-[9px] text-slate-500 mt-1 uppercase font-bold tracking-widest">
-                    <span>V₁ = 1 L</span><span>5 L</span>
+    const equationsCard = (
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
+            <div className="text-base font-extrabold text-slate-900">NCERT Equations</div>
+            <div className="text-xs font-semibold text-slate-500 mb-2">Ch 5, §5.2.1</div>
+            <div className="space-y-1.5">
+                <div className="rounded-lg border border-slate-100 bg-emerald-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-emerald-700 uppercase">Reversible (Eq. 5.5)</div>
+                    <div className="font-mono text-[10px] text-slate-800">w_rev = −nRT ln(V₂/V₁)</div>
+                    <div className="font-mono text-[10px] text-slate-500">     = −2.303 nRT log(V₂/V₁)</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-amber-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-amber-700 uppercase">Irreversible (Eq. 5.2)</div>
+                    <div className="font-mono text-[10px] text-slate-800">w_irr = −p_ext (V₂ − V₁)</div>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-violet-50 px-2 py-1.5">
+                    <div className="text-[9px] font-bold text-violet-700 uppercase">Free expansion</div>
+                    <div className="font-mono text-[10px] text-slate-800">p_ext = 0 ⇒ w = q = ΔU = 0</div>
+                    <div className="text-[9px] text-violet-500">Joule's experiment</div>
                 </div>
             </div>
+        </div>
+    );
 
-            {/* Reset */}
-            <div className="flex items-center">
-                <button onClick={handleReset}
-                    className="h-full py-2 px-6 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-widest font-bold text-slate-300 transition-colors cursor-pointer" title="Reset">
-                    <RefreshCcw size={16} /> Reset
-                </button>
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] 2xl:block overflow-y-auto pr-1">
+            <div className="flex flex-col gap-2.5">
+                {workCompareCard}
+                {firstLawCard}
+                {equationsCard}
             </div>
+        </aside>
+    );
+
+    const currentMode = MODES.find(m => m.id === mode)!;
+
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[310px] 2xl:block overflow-y-auto pl-1">
+            <div className="flex flex-col gap-3">
+
+                <div className="rounded-2xl border border-violet-200 bg-violet-50/95 p-4 shadow-xl">
+                    <div className="text-base font-extrabold text-violet-900">Reversible vs Irreversible</div>
+                    <div className="text-xs font-semibold text-violet-600 mb-2">NCERT §5.2.1</div>
+                    <ul className="text-xs leading-relaxed text-violet-900 space-y-1.5">
+                        <li>• <strong>Reversible</strong>: p_ext = p_in ± dp; ∞-slow; series of equilibria; reverses by infinitesimal change.</li>
+                        <li>• <strong>Irreversible</strong>: finite p_ext difference; single or finite steps; fast; not in equilibrium during.</li>
+                        <li>• <strong>Sign:</strong> w &lt; 0 for expansion; w &gt; 0 for compression.</li>
+                        <li>• <strong>|w_rev| is the maximum work</strong> a system can deliver between two states.</li>
+                        <li>• <strong>Free expansion</strong> (p_ext=0) ⇒ w = 0 (Problem 5.2).</li>
+                    </ul>
+                    <div className="mt-3 rounded-xl border border-violet-300 bg-white/80 p-2.5">
+                        <div className="text-[10px] font-bold text-violet-700 uppercase tracking-wider">Constants</div>
+                        <div className="font-mono text-[10px] text-slate-800 mt-1">R = 8.314 J·mol⁻¹·K⁻¹ = 0.08206 L·atm·mol⁻¹·K⁻¹</div>
+                        <div className="font-mono text-[10px] text-slate-800">1 L·atm = 101.325 J</div>
+                    </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-base font-extrabold text-slate-900">Real-time values</div>
+                        <span className="animate-pulse rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">LIVE</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <div className="rounded-lg border border-slate-100 px-3 py-2" style={{ backgroundColor: currentMode.soft }}>
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Process</div>
+                            <div className="mt-0.5 font-mono text-base font-extrabold" style={{ color: currentMode.color }}>
+                                {currentMode.label}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                            <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5">
+                                <div className="text-[9px] font-bold uppercase text-slate-400">V₁</div>
+                                <div className="font-mono text-sm font-extrabold text-slate-800">{Vi.toFixed(2)} L</div>
+                            </div>
+                            <div className="rounded-lg border border-slate-100 bg-emerald-50 px-2 py-1.5">
+                                <div className="text-[9px] font-bold uppercase text-slate-400">V₂</div>
+                                <div className="font-mono text-sm font-extrabold text-emerald-700">{Vf.toFixed(2)} L</div>
+                            </div>
+                            <div className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5">
+                                <div className="text-[9px] font-bold uppercase text-slate-400">P₁</div>
+                                <div className="font-mono text-xs font-extrabold text-slate-800">{Pi.toFixed(2)} atm</div>
+                                <div className="text-[8px] text-slate-500">{Pi_kPa.toFixed(1)} kPa</div>
+                            </div>
+                            <div className="rounded-lg border border-slate-100 bg-emerald-50 px-2 py-1.5">
+                                <div className="text-[9px] font-bold uppercase text-slate-400">P₂</div>
+                                <div className="font-mono text-xs font-extrabold text-emerald-700">{Pf.toFixed(2)} atm</div>
+                                <div className="text-[8px] text-emerald-500">{Pf_kPa.toFixed(1)} kPa</div>
+                            </div>
+                        </div>
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-rose-500">Work done (w)</div>
+                            <div className="mt-0.5 font-mono text-base font-extrabold text-rose-700">{work.J.toFixed(1)} J</div>
+                            <div className="text-[9px] text-rose-500 font-mono">{work.latm.toFixed(3)} L·atm</div>
+                        </div>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-emerald-500">Heat absorbed (q)</div>
+                            <div className="mt-0.5 font-mono text-base font-extrabold text-emerald-700">{heat.J.toFixed(1)} J</div>
+                            <div className="text-[9px] text-emerald-500">q = −w (isothermal ideal gas)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+
+    const inCanvasStatus = (
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-md text-xs font-bold"
+             style={{ borderColor: currentMode.color + '60' }}>
+            <Atom size={12} style={{ color: currentMode.color }} />
+            <span className="text-base font-extrabold" style={{ color: currentMode.color }}>{currentMode.label}</span>
+            <span className="text-slate-300">|</span>
+            <span className="font-mono text-slate-700">{Vi.toFixed(1)} → {Vf.toFixed(1)} L</span>
+            <span className="text-slate-300">|</span>
+            <span className="font-mono text-rose-700">w = {work.J.toFixed(1)} J</span>
         </div>
     );
 
     const simulationCombo = (
-        <div className="w-full h-full flex items-center justify-center gap-8 lg:gap-12 relative bg-transparent overflow-hidden rounded-3xl min-h-0">
-            {/* Grid background */}
-            <div className="absolute inset-0 transition-opacity duration-1000" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-                backgroundSize: '80px 80px',
-                maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)'
-            }} />
-
-            {/* ---- LEFT: PISTON-CYLINDER ---- */}
-            <div className="flex flex-col items-center gap-4 flex-shrink-0 z-10 w-full lg:w-auto h-full lg:h-auto overflow-y-auto lg:overflow-visible p-4 pb-24 lg:pb-0 justify-start lg:justify-center">
-                <div className="text-[11px] font-bold text-white/50 uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full">Piston-Cylinder System</div>
-                <div className="relative w-[200px] h-[250px] lg:w-[260px] lg:h-[320px]">
-                    {/* Cylinder body */}
-                    <div className="absolute bottom-0 left-4 right-4 rounded-b-xl border-2 border-slate-500/50 bg-slate-800/60 backdrop-blur-md shadow-2xl"
-                        style={{ height: '85%' }}>
-                        {/* Gas region (below piston) */}
-                        <div className="absolute bottom-0 left-0 right-0 rounded-b-lg overflow-hidden transition-all duration-300"
-                            style={{
-                                height: `${Math.max(20, pistonFrac * 100)}%`,
-                                background: `linear-gradient(180deg, rgba(52,211,153,${0.08 + pistonFrac * 0.08}) 0%, rgba(96,165,250,${0.05 + pistonFrac * 0.05}) 100%)`,
-                            }}>
-                            {molecules.map((m, i) => (
-                                <div key={i} className="absolute w-3 h-3 rounded-full"
-                                    style={{
-                                        left: `${m.x}%`,
-                                        top: `${m.y}%`,
-                                        backgroundColor: 'rgba(96,165,250,0.8)',
-                                        boxShadow: '0 0 8px rgba(96,165,250,0.6)',
-                                        animation: `molecule-bounce ${1.5 + m.delay}s ease-in-out infinite alternate`,
-                                    }} />
-                            ))}
-                        </div>
-
-                        {/* Piston head */}
-                        <div className="absolute left-0 right-0 h-5 transition-all duration-300 flex items-center justify-center"
-                            style={{
-                                bottom: `${Math.max(20, pistonFrac * 100)}%`,
-                                background: 'linear-gradient(180deg, #64748b 0%, #475569 50%, #334155 100%)',
-                                borderTop: '2px solid #94a3b8',
-                                borderBottom: '1px solid #1e293b',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.7)',
-                            }}>
-                            <div className="flex gap-4">
-                                {[0, 1, 2].map(i => (
-                                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-400/50 shadow-inner" />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Piston rod */}
-                        <div className="absolute left-1/2 -translate-x-1/2 w-2.5 bg-gradient-to-b from-slate-400 to-slate-500 rounded-t transition-all duration-300 shadow-md"
-                            style={{
-                                bottom: `calc(${Math.max(20, pistonFrac * 100)}% + 20px)`,
-                                height: `calc(100% - ${Math.max(20, pistonFrac * 100)}% - 10px)`,
-                            }} />
-
-                        {/* Weight on top (for irreversible) */}
-                        {processType === 'irreversible' && (
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-8 bg-gradient-to-b from-amber-600 to-amber-800 rounded-md border border-amber-500/50 flex items-center justify-center shadow-[0_6px_16px_rgba(217,119,6,0.4)] transition-all duration-300">
-                                <span className="text-[10px] uppercase tracking-widest font-bold text-amber-100">P_ext</span>
-                            </div>
-                        )}
-                    </div>
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas ref={canvasRef} width={W_CV} height={H_CV} className="absolute inset-0 h-full w-full" />
+                <div className="absolute top-3 left-3 z-10 pointer-events-auto">{inCanvasStatus}</div>
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 pointer-events-auto">
+                    <button onClick={() => setPaused(p => !p)}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title={paused ? 'Play' : 'Pause'}>
+                        {paused ? <Play size={15} /> : <Pause size={15} />}
+                    </button>
+                    <button onClick={handleReset}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title="Reset">
+                        <RotateCcw size={15} />
+                    </button>
                 </div>
+            </div>
+            {graphPanel}
+            {valuesPanel}
+        </div>
+    );
 
-                {/* Data readout */}
-                <div className="flex gap-6 text-center bg-slate-900/80 backdrop-blur-xl border border-white/10 p-3 pb-2 rounded-2xl shadow-xl mt-2 w-[300px] justify-between">
-                    <div>
-                        <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Volume</div>
-                        <div className="text-xl font-bold font-mono text-emerald-400 group relative">
-                            {volume.toFixed(1)} L
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Pressure</div>
-                        <div className="text-xl font-bold font-mono text-blue-400 group relative">
-                            {(displayPressure / 1000).toFixed(2)} kPa
-                        </div>
-                    </div>
-                    <div>
-                        <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Temp</div>
-                        <div className="text-xl font-bold font-mono text-orange-400 group relative">
-                            {temperature} K
-                        </div>
-                    </div>
-                </div>
+    const modeBtn = (m: ModeInfo) => {
+        const active = m.id === mode;
+        return (
+            <button key={m.id} onClick={() => setMode(m.id)}
+                className={`flex-1 min-w-[100px] px-2 py-1.5 rounded-lg border transition-all flex flex-col items-center text-center ${
+                    active ? 'text-white shadow-md scale-105' : 'bg-white hover:scale-105 hover:shadow'
+                }`}
+                style={{
+                    backgroundColor: active ? m.color : 'white',
+                    borderColor:     active ? m.color : (m.color + '60'),
+                    color:           active ? 'white' : m.color,
+                }}>
+                <span className="text-[11px] font-extrabold">{m.label}</span>
+                <span className={`text-[9px] mt-0.5 ${active ? 'text-white/85' : 'opacity-70'}`}>
+                    {m.id === 'reversible'          && 'p_ext = p ± dp'}
+                    {m.id === 'irreversible_single' && 'p_ext = P_f (const)'}
+                    {m.id === 'irreversible_multi'  && 'staircase'}
+                    {m.id === 'free'                && 'p_ext = 0'}
+                </span>
+            </button>
+        );
+    };
 
-                {/* Embedded Work Comparison directly under the Cylinder Data on Mobile, inside the Scroll on Desktop it goes under the right side graph, so let's put it on the right instead of left */}
+    const controlsCombo = (
+        <div className="w-full flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+                <Atom size={16} className="text-violet-600" />
+                <span className="text-sm font-extrabold text-slate-800">Isothermal Work Bench</span>
+                <span className="ml-auto font-mono text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-2 py-0.5">
+                    {currentMode.label} · w = {work.J.toFixed(1)} J
+                </span>
             </div>
 
-            {/* ---- RIGHT: P-V GRAPH ---- */}
-            <div className="hidden lg:flex flex-col items-center gap-4 flex-1 min-w-0 max-w-lg z-10 self-center">
-                <div className="text-[11px] font-bold text-white/50 uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full">P–V Diagram (Real-time)</div>
-                <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 w-full shadow-2xl relative">
-                    <svg viewBox={`0 0 ${gW} ${gH}`} className="w-full h-auto overflow-visible">
-                        {/* Grid lines */}
-                        {[1, 2, 3, 4, 5].map(v => (
-                            <line key={`gv${v}`} x1={toX(v)} y1={gPad.t} x2={toX(v)} y2={gPad.t + plotH} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                        ))}
-                        {[0, 0.25, 0.5, 0.75, 1].map((f, i) => {
-                            const p = minP * 0.5 + f * (maxP * 1.1 - minP * 0.5);
-                            return <line key={`gh${i}`} x1={gPad.l} y1={toY(p)} x2={gPad.l + plotW} y2={toY(p)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />;
-                        })}
+            <div className="grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr] gap-3">
 
-                        {/* Axes */}
-                        <line x1={gPad.l} y1={gPad.t} x2={gPad.l} y2={gPad.t + plotH} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-                        <line x1={gPad.l} y1={gPad.t + plotH} x2={gPad.l + plotW} y2={gPad.t + plotH} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-
-                        {/* Axis labels */}
-                        <text x={gPad.l - 12} y={gPad.t + plotH / 2} fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="bold" textAnchor="middle" transform={`rotate(-90 ${gPad.l - 12} ${gPad.t + plotH / 2})`}>P (kPa)</text>
-                        <text x={gPad.l + plotW / 2} y={gH - 2} fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="bold" textAnchor="middle">V (L)</text>
-
-                        {/* Volume labels */}
-                        {[1, 2, 3, 4, 5].map(v => (
-                            <text key={`lv${v}`} x={toX(v)} y={gPad.t + plotH + 16} fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="bold" textAnchor="middle">{v}</text>
-                        ))}
-
-                        {/* Shaded work area */}
-                        {processType === 'reversible' && shadedPathRev && (
-                            <path d={shadedPathRev} fill="url(#revGrad)" stroke="none" />
-                        )}
-                        {processType === 'irreversible' && shadedRectIrr && (
-                            <rect {...shadedRectIrr} fill="url(#irrGrad)" stroke="none" rx="2" />
-                        )}
-
-                        <defs>
-                            <linearGradient id="revGrad" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stopColor="rgba(52,211,153,0.3)" />
-                                <stop offset="100%" stopColor="rgba(52,211,153,0.05)" />
-                            </linearGradient>
-                            <linearGradient id="irrGrad" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stopColor="rgba(251,191,36,0.25)" />
-                                <stop offset="100%" stopColor="rgba(251,191,36,0.05)" />
-                            </linearGradient>
-                        </defs>
-
-                        {/* Isothermal curve (always shown as reference) */}
-                        <path d={curvePath} fill="none" stroke="rgba(96,165,250,0.4)" strokeWidth="2.5" strokeDasharray="4 4" />
-
-                        {/* Irreversible process path: vertical drop + horizontal */}
-                        {processType === 'irreversible' && irrProcessPath && volume > initialVolume && (
-                            <path d={irrProcessPath} fill="none" stroke="#fbbf24" strokeWidth="3" strokeLinejoin="round" />
-                        )}
-
-                        {/* Reversible process path highlight (follows isotherm) */}
-                        {processType === 'reversible' && volume > initialVolume && (
-                            <path d={pvCurve.filter(pt => pt.v >= initialVolume && pt.v <= volume)
-                                .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${toX(pt.v).toFixed(1)} ${toY(pt.p).toFixed(1)}`)
-                                .join(' ')}
-                                fill="none" stroke="#34d399" strokeWidth="3" />
-                        )}
-
-                        {/* P_ext dashed line (for irreversible) */}
-                        {processType === 'irreversible' && (
-                            <>
-                                <line x1={toX(1)} y1={toY(externalPressure)} x2={toX(5)} y2={toY(externalPressure)}
-                                    stroke="rgba(251,191,36,0.3)" strokeWidth="1.5" strokeDasharray="4 3" />
-                                <text x={toX(5) + 4} y={toY(externalPressure) + 4} fill="rgba(251,191,36,0.7)" fontSize="9" fontWeight="bold" textAnchor="start">P_ext</text>
-                            </>
-                        )}
-
-                        {/* V1 line */}
-                        <line x1={toX(initialVolume)} y1={gPad.t} x2={toX(initialVolume)} y2={gPad.t + plotH}
-                            stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="3 3" />
-                        <text x={toX(initialVolume)} y={gPad.t - 6} fill="rgba(255,255,255,0.6)" fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="middle">V₁</text>
-
-                        {/* Current V line */}
-                        {volume > initialVolume && (
-                            <>
-                                <line x1={toX(volume)} y1={gPad.t} x2={toX(volume)} y2={gPad.t + plotH}
-                                    stroke="rgba(52,211,153,0.4)" strokeWidth="1.5" strokeDasharray="3 3" />
-                                <text x={toX(volume)} y={gPad.t - 6} fill="rgba(52,211,153,0.9)" fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="middle">V₂</text>
-                            </>
-                        )}
-
-                        {/* Initial state dot (at V1, P1) */}
-                        <circle cx={toX(initialVolume)} cy={toY(initialPressure)} r="5"
-                            fill="rgba(255,255,255,0.8)" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-
-                        {/* Current state dot */}
-                        {volume > initialVolume && (
-                            <circle cx={toX(volume)} cy={processType === 'reversible' ? toY(pressureOnIsotherm) : toY(externalPressure)} r="7"
-                                fill={processType === 'reversible' ? '#34d399' : '#fbbf24'}
-                                style={{ filter: `drop-shadow(0 0 10px ${processType === 'reversible' ? '#34d399' : '#fbbf24'})` }} />
-                        )}
-
-                        {/* Work value label inside graph */}
-                        {volume > 1.3 && (
-                            <text x={toX((initialVolume + volume) / 2)} y={toY(0) - 12}
-                                fill={processType === 'reversible' ? 'rgba(52,211,153,1)' : 'rgba(251,191,36,1)'}
-                                fontSize="12" textAnchor="middle" fontWeight="bold" style={{ textShadow: "0px 2px 4px rgba(0,0,0,0.8)" }}>
-                                W = {(currentWork / 1000).toFixed(2)} kJ
-                            </text>
-                        )}
-                    </svg>
-
-                    {/* Legend */}
-                    <div className="absolute top-4 right-4 flex flex-col gap-1.5 bg-black/40 px-3 py-2 rounded-lg border border-white/10 backdrop-blur">
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-1 rounded-full bg-blue-400/50"></div>
-                            <span className="text-[9px] uppercase tracking-widest text-slate-300 font-bold">Isotherm Ref</span>
+                <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Process Mode</div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2 flex flex-wrap gap-1.5">
+                        {MODES.map(modeBtn)}
+                    </div>
+                    {mode === 'irreversible_multi' && (
+                        <div className="mt-2">
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-cyan-600">Number of steps</label>
+                                <span className="font-mono text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-2 rounded">{steps}</span>
+                            </div>
+                            <input type="range" min={2} max={20} step={1} value={steps}
+                                onChange={e => setSteps(Number(e.target.value))}
+                                className="w-full accent-cyan-600 h-1.5 cursor-pointer" />
+                            <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                                <span>2 (coarse)</span>
+                                <span>20 (≈ reversible)</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className={`w-4 h-1 rounded-full ${processType === 'reversible' ? 'bg-emerald-400' : 'bg-amber-400'}`}></div>
-                            <span className="text-[9px] uppercase tracking-widest text-slate-300 font-bold">Process Path</span>
+                    )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Initial V₁</label>
+                            <span className="font-mono text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 rounded">{Vi.toFixed(1)} L</span>
                         </div>
+                        <input type="range" min={0.5} max={3} step={0.1} value={Vi}
+                            onChange={e => setVi(Math.min(Number(e.target.value), Vf - 0.5))}
+                            className="w-full accent-slate-600 h-1.5 cursor-pointer" />
+                    </div>
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Final V₂</label>
+                            <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 rounded">{Vf.toFixed(1)} L</span>
+                        </div>
+                        <input type="range" min={1} max={6} step={0.1} value={Vf}
+                            onChange={e => setVf(Math.max(Number(e.target.value), Vi + 0.5))}
+                            className="w-full accent-emerald-600 h-1.5 cursor-pointer" />
                     </div>
                 </div>
 
-                {/* Work comparison */}
-                <div className="flex gap-4 w-full mt-2">
-                    <div className={`flex-1 rounded-2xl p-3 text-center border shadow-xl backdrop-blur-md transition-all ${processType === 'reversible' ? 'bg-emerald-500/20 border-emerald-500/40 scale-105' : 'bg-emerald-500/5 border-emerald-500/10 grayscale opacity-60'}`}>
-                        <div className="text-[10px] text-emerald-400 uppercase font-bold tracking-widest shadow-emerald-400/20 drop-shadow-md">W (Reversible)</div>
-                        <div className="text-xl font-bold font-mono text-emerald-300">{(workReversible / 1000).toFixed(3)} kJ</div>
+                <div className="flex flex-col gap-2">
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Moles (n)</label>
+                            <span className="font-mono text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 rounded">{n} mol</span>
+                        </div>
+                        <input type="range" min={1} max={5} step={1} value={n}
+                            onChange={e => setN(Number(e.target.value))}
+                            className="w-full accent-amber-600 h-1.5 cursor-pointer" />
                     </div>
-                    <div className={`flex-1 rounded-2xl p-3 text-center border shadow-xl backdrop-blur-md transition-all ${processType === 'irreversible' ? 'bg-amber-500/20 border-amber-500/40 scale-105' : 'bg-amber-500/5 border-amber-500/10 grayscale opacity-60'}`}>
-                        <div className="text-[10px] text-amber-400 uppercase font-bold tracking-widest shadow-amber-400/20 drop-shadow-md">W (Irreversible)</div>
-                        <div className="text-xl font-bold font-mono text-amber-300">{(workIrreversible / 1000).toFixed(3)} kJ</div>
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Temperature</label>
+                            <span className="font-mono text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 rounded">{T} K</span>
+                        </div>
+                        <input type="range" min={200} max={500} step={10} value={T}
+                            onChange={e => setT(Number(e.target.value))}
+                            className="w-full accent-rose-600 h-1.5 cursor-pointer" />
+                        <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                            <span>200</span>
+                            <span>{T - 273} °C</span>
+                            <span>500</span>
+                        </div>
                     </div>
                 </div>
-
-                {volume > 1.2 && (
-                    <div className="text-[12px] text-white/50 text-center max-w-md mt-1 font-medium bg-black/20 px-4 py-2 rounded-xl backdrop-blur border border-white/5">
-                        {Math.abs(workReversible) > Math.abs(workIrreversible)
-                            ? <span>|W<sub>rev</sub>| &gt; |W<sub>irr</sub>| → <span className="text-emerald-400 font-bold uppercase tracking-wider">Reversible = max work</span></span>
-                            : <span>Slide V₂ further to see the difference grow</span>
-                        }
-                    </div>
-                )}
             </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes molecule-bounce {
-                    0% { transform: translate(0, 0); }
-                    100% { transform: translate(${Math.random() > 0.5 ? '' : '-'}${3 + Math.random() * 4}px, ${Math.random() > 0.5 ? '' : '-'}${3 + Math.random() * 4}px); }
-                }
-            `}} />
         </div>
     );
 
@@ -424,7 +742,6 @@ const IsothermalWorkLab: React.FC<Props> = ({ topic, onExit }) => {
         <TopicLayoutContainer
             topic={topic}
             onExit={onExit}
-            StatusBadgeComponent={statusBadge}
             SimulationComponent={simulationCombo}
             ControlsComponent={controlsCombo}
         />

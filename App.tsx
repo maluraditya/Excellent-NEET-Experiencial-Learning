@@ -79,7 +79,6 @@ import ElectrochemistryLab from './components/grade-12/chemistry/Electrochemistr
 import StereochemistryLab from './components/grade-12/chemistry/StereochemistryLab';
 import DBlockLab from './components/grade-12/chemistry/DBlockLab';
 import HaloalkaneLab from './components/grade-12/chemistry/HaloalkaneLab';
-import PolymerLab from './components/grade-12/chemistry/PolymerLab';
 
 // Grade 12 - Biology
 import DoubleFertilisationSeedDevelopmentLab from './components/grade-12/biology/DoubleFertilisationSeedDevelopmentLab';
@@ -280,11 +279,6 @@ const App: React.FC = () => {
       return `
         Topic: Haloalkanes (SN1 vs SN2)
         Concept: Primary favors SN2 (Backside attack, Inversion). Tertiary favors SN1 (Carbocation, Racemization). Tertiary blocks SN2 via Steric Hindrance.
-      `;
-    } else if (activeTopicId === 'polymers') {
-      return `
-        Topic: Polymers
-        Concept: Ziegler-Natta catalysis grows chains. Conjugated polymers (Polyacetylene) conduct electricity via delocalized electrons.
       `;
     } else if (activeTopicId === 'solids_classification') {
       return `
@@ -1120,10 +1114,6 @@ const App: React.FC = () => {
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'haloalkanes' && (
           <HaloalkaneLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}
-        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'polymers' && (
-          <PolymerLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
-        )}
-
         {/* ================== ANGIOSPERMS DOUBLE FERTILISATION ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'angiosperms-double-fertilisation-seed-development' && (
           <DoubleFertilisationSeedDevelopmentLab

@@ -20,6 +20,7 @@ interface TopicLayoutContainerProps {
     contentDrawerSide?: 'left' | 'right';
     rootClassName?: string;
     simulationClassName?: string;
+    controlsWrapperClassName?: string;
     contentToggleClassName?: string;
 }
 
@@ -95,6 +96,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     contentDrawerSide = 'right',
     rootClassName,
     simulationClassName,
+    controlsWrapperClassName,
     contentToggleClassName
 }) => {
     const [isContentOpen, setIsContentOpen] = useState(false);
@@ -274,7 +276,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                     {/* Bottom Control Bar / Overlay naturally flowing at the bottom */}
                     {ControlsComponent && (
                         <div className="w-full min-h-0 px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 flex justify-center z-30 pointer-events-auto" style={{ flex: resolvedControlsAreaFlex }}>
-                            <div className="w-full h-full max-w-[min(100%,980px)] overflow-y-auto overscroll-contain bg-white/95 backdrop-blur-2xl border border-slate-200 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4">
+                            <div className={controlsWrapperClassName ?? "w-full h-full max-w-[min(100%,980px)] overflow-y-auto overscroll-contain bg-white/95 backdrop-blur-2xl border border-slate-200 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4"}>
                                 {ControlsComponent}
                             </div>
                         </div>
@@ -338,7 +340,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 {/* Bottom Control Bar / Overlay naturally flowing at the bottom */}
                 {ControlsComponent && (
                     <div className="w-full min-h-0 px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6 flex justify-center z-30 pointer-events-auto" style={{ flex: resolvedControlsAreaFlex }}>
-                        <div className="w-full h-full max-w-[min(100%,800px)] overflow-y-auto overscroll-contain bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4">
+                        <div className={controlsWrapperClassName ?? "w-full h-full max-w-[min(100%,800px)] overflow-y-auto overscroll-contain bg-slate-900/90 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col gap-3 md:gap-4"}>
                             {ControlsComponent}
                         </div>
                     </div>

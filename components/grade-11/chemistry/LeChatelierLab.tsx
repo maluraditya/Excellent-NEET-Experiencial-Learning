@@ -1,17 +1,14 @@
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Play, Pause, RotateCcw, FlaskConical, Beaker, Droplet } from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 import { Topic } from '../../../types';
 
-/*================================================================
-  CONSTANTS
-================================================================*/
+/* ───────── Equilibrium solver ─────────────────────────────────────────────
+   Fe³⁺ + SCN⁻ ⇌ [Fe(SCN)]²⁺,  Kc = x / ((F−x)(S−x))
+   Quadratic: Kc·x² − (Kc·F + Kc·S + 1)·x + Kc·F·S = 0
+─────────────────────────────────────────────────────────────────────────── */
 const Kc = 200;
 
-/*================================================================
-  Solve equilibrium: Fe3+ + SCN- ⇌ FeSCN2+
-  Kc = x / ((F-x)(S-x))  →  quadratic in x
-================================================================*/
 function solveEquilibrium(totalFe: number, totalSCN: number) {
     const F = Math.max(0, totalFe);
     const S = Math.max(0, totalSCN);
@@ -29,340 +26,599 @@ function solveEquilibrium(totalFe: number, totalSCN: number) {
     return { fe: F - x, scn: S - x, product: x };
 }
 
-/*================================================================
-  MAIN COMPONENT
-================================================================*/
+/* ───────── Component ─────────────────────────────────────────────────── */
 interface Props {
     topic: Topic;
     onExit: () => void;
 }
 
+const CANVAS_W = 1280;
+const CANVAS_H = 760;
+
+interface Particle { x: number; y: number; vx: number; vy: number; type: 'fe' | 'scn' | 'product'; r: number; }
+
 const LeChatelierLab: React.FC<Props> = ({ topic, onExit }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const animRef = useRef<number>(0);
+    const particlesRef = useRef<Particle[]>([]);
+    const lastTimeRef = useRef<number>(performance.now());
+
     const [totalFe, setTotalFe] = useState(0.005);
     const [totalSCN, setTotalSCN] = useState(0.005);
+    const [paused, setPaused] = useState(false);
 
-    // Animated concentrations
+    // Animated (eased) concentrations
     const [fe, setFe] = useState(0);
     const [scn, setScn] = useState(0);
     const [product, setProduct] = useState(0);
-
-    // Pouring animation state
-    const [pouring, setPouring] = useState<string | null>(null); // dropper id or null
-    const pourTimer = useRef<number>(0);
+    const [message, setMessage] = useState('System at equilibrium. Add a reagent to disturb it.');
+    const [lastAction, setLastAction] = useState<string | null>(null);
+    const [flash, setFlash] = useState<{ id: string; t: number } | null>(null);
 
     const eqTarget = useMemo(() => solveEquilibrium(totalFe, totalSCN), [totalFe, totalSCN]);
 
-    // Animation
-    const animRef = useRef<number>(0);
-    const startTimeRef = useRef<number>(0);
+    // Refs the render loop reads — keeps the canvas useEffect stable (no teardown per frame)
+    const feRef = useRef(0);
+    const scnRef = useRef(0);
+    const productRef = useRef(0);
+    const pausedRef = useRef(false);
+    const messageRef = useRef('System at equilibrium. Add a reagent to disturb it.');
+    const lastActionRef = useRef<string | null>(null);
+    const flashRef = useRef<{ id: string; t: number } | null>(null);
+
+    useEffect(() => { feRef.current = fe; }, [fe]);
+    useEffect(() => { scnRef.current = scn; }, [scn]);
+    useEffect(() => { productRef.current = product; }, [product]);
+    useEffect(() => { pausedRef.current = paused; }, [paused]);
+    useEffect(() => { messageRef.current = message; }, [message]);
+    useEffect(() => { lastActionRef.current = lastAction; }, [lastAction]);
+    useEffect(() => { flashRef.current = flash; }, [flash]);
+
+    // Tween toward equilibrium target — runs in its own RAF loop, writes state once per frame
+    const tweenStartRef = useRef<number>(0);
     const fromRef = useRef({ fe: 0, scn: 0, product: 0 });
     const toRef = useRef({ fe: 0, scn: 0, product: 0 });
-
-    const animateToEquilibrium = useCallback((target: { fe: number; scn: number; product: number }) => {
-        cancelAnimationFrame(animRef.current);
-        fromRef.current = { fe, scn, product };
-        toRef.current = target;
-        startTimeRef.current = performance.now();
-        const tick = (now: number) => {
-            const t = Math.min(1, (now - startTimeRef.current) / 3000);
-            const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-            setFe(fromRef.current.fe + (toRef.current.fe - fromRef.current.fe) * ease);
-            setScn(fromRef.current.scn + (toRef.current.scn - fromRef.current.scn) * ease);
-            setProduct(fromRef.current.product + (toRef.current.product - fromRef.current.product) * ease);
-            if (t < 1) animRef.current = requestAnimationFrame(tick);
-        };
-        animRef.current = requestAnimationFrame(tick);
-    }, [fe, scn, product]);
+    const tweeningRef = useRef(false);
+    const tweenRafRef = useRef<number>(0);
 
     useEffect(() => {
-        animateToEquilibrium(eqTarget);
-        return () => cancelAnimationFrame(animRef.current);
-    }, [eqTarget]);
-
-    useEffect(() => {
+        // Baseline equilibrium on mount
         const eq = solveEquilibrium(0.005, 0.005);
+        feRef.current = eq.fe; scnRef.current = eq.scn; productRef.current = eq.product;
         setFe(eq.fe); setScn(eq.scn); setProduct(eq.product);
     }, []);
 
-    // Qc
+    useEffect(() => {
+        fromRef.current = { fe: feRef.current, scn: scnRef.current, product: productRef.current };
+        toRef.current = eqTarget;
+        tweenStartRef.current = performance.now();
+        tweeningRef.current = true;
+        const tick = (now: number) => {
+            if (!tweeningRef.current) return;
+            const t = Math.min(1, (now - tweenStartRef.current) / 1800);
+            const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+            const f = fromRef.current, to = toRef.current;
+            const nf = f.fe + (to.fe - f.fe) * ease;
+            const ns = f.scn + (to.scn - f.scn) * ease;
+            const np = f.product + (to.product - f.product) * ease;
+            feRef.current = nf; scnRef.current = ns; productRef.current = np;
+            setFe(nf); setScn(ns); setProduct(np);
+            if (t < 1) tweenRafRef.current = requestAnimationFrame(tick);
+            else tweeningRef.current = false;
+        };
+        tweenRafRef.current = requestAnimationFrame(tick);
+        return () => { tweeningRef.current = false; cancelAnimationFrame(tweenRafRef.current); };
+    }, [eqTarget]);
+
     const Qc = (fe > 1e-8 && scn > 1e-8) ? product / (fe * scn) : 0;
-    const qcStatus = Math.abs(Qc - Kc) < 5 ? 'equilibrium' : Qc < Kc ? 'forward' : 'backward';
+    const qcStatus: 'equilibrium' | 'forward' | 'backward' = Math.abs(Qc - Kc) < 5 ? 'equilibrium' : Qc < Kc ? 'forward' : 'backward';
 
-    const [message, setMessage] = useState('System at equilibrium. Click a reagent bottle below to disturb it!');
+    // (Solution colour & name are computed inside the canvas render via liveColour())
 
-    // Color: pale yellow → deep blood red
-    const maxProduct = 0.012;
-    const pRatio = Math.min(1, product / maxProduct);
-    const solR = Math.round(255 - pRatio * 40);
-    const solG = Math.round(230 - pRatio * 200);
-    const solB = Math.round(160 - pRatio * 140);
-    const solutionColor = `rgb(${solR}, ${solG}, ${solB})`;
+    /* ──── Reagent actions ──── */
+    const triggerFlash = (id: string) => setFlash({ id, t: performance.now() });
+    const addFe = () => { triggerFlash('fe'); setLastAction('fe'); setTotalFe(p => p + 0.003); setMessage('Fe(NO₃)₃ added — Fe³⁺ ↑ → Q꜀ < K꜀ → shifts FORWARD → solution deepens red.'); };
+    const addSCN = () => { triggerFlash('scn'); setLastAction('scn'); setTotalSCN(p => p + 0.003); setMessage('KSCN added — SCN⁻ ↑ → Q꜀ < K꜀ → shifts FORWARD → solution deepens red.'); };
+    const removeFe = () => { triggerFlash('oxalic'); setLastAction('oxalic'); setTotalFe(p => Math.max(0.001, p - 0.003)); setMessage('Oxalic acid added — binds Fe³⁺ → Q꜀ > K꜀ → shifts BACKWARD → colour fades toward yellow.'); };
+    const removeSCN = () => { triggerFlash('hgcl'); setLastAction('hgcl'); setTotalSCN(p => Math.max(0.001, p - 0.003)); setMessage('HgCl₂ added — binds SCN⁻ → Q꜀ > K꜀ → shifts BACKWARD → colour fades toward yellow.'); };
+    const handleReset = () => { setTotalFe(0.005); setTotalSCN(0.005); setLastAction(null); setFlash(null); setMessage('System reset to baseline equilibrium.'); };
 
-    // Color name for label
-    const colorName = pRatio < 0.15 ? 'Pale Yellow' : pRatio < 0.35 ? 'Light Orange' : pRatio < 0.55 ? 'Orange' : pRatio < 0.75 ? 'Reddish Orange' : 'Deep Blood Red';
+    /* ──── Canvas particles ──── */
+    const FLASK_CX = 540;
+    const FLASK_CY = 440;
+    const FLASK_BODY_R = 180;          // body radius
+    const FLASK_NECK_W = 80;
+    const FLASK_NECK_H = 110;
+    const LIQUID_TOP_Y = FLASK_CY - FLASK_BODY_R * 0.55;
+    const LIQUID_BOTTOM_Y = FLASK_CY + FLASK_BODY_R * 0.9;
 
-    // Pour animation trigger
-    const triggerPour = (id: string) => {
-        clearTimeout(pourTimer.current);
-        setPouring(id);
-        pourTimer.current = window.setTimeout(() => setPouring(null), 1200);
+    // Maintain particle pool sized to current concentrations
+    useEffect(() => {
+        const wantFe = Math.max(2, Math.round(fe * 3500));
+        const wantScn = Math.max(2, Math.round(scn * 3500));
+        const wantProd = Math.max(0, Math.round(product * 3500));
+        const pool = particlesRef.current;
+        const count = (t: 'fe' | 'scn' | 'product') => pool.filter(p => p.type === t).length;
+        const spawn = (t: 'fe' | 'scn' | 'product', n: number) => {
+            for (let i = 0; i < n; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const rad = Math.random() * (FLASK_BODY_R - 24);
+                pool.push({
+                    x: FLASK_CX + Math.cos(angle) * rad,
+                    y: FLASK_CY + Math.sin(angle) * rad * 0.85,
+                    vx: (Math.random() - 0.5) * 40,
+                    vy: (Math.random() - 0.5) * 40,
+                    type: t,
+                    r: t === 'product' ? 5 : 4,
+                });
+            }
+        };
+        const trim = (t: 'fe' | 'scn' | 'product', n: number) => {
+            let removed = 0;
+            for (let i = pool.length - 1; i >= 0 && removed < n; i--) {
+                if (pool[i].type === t) { pool.splice(i, 1); removed++; }
+            }
+        };
+        const dFe = wantFe - count('fe'); if (dFe > 0) spawn('fe', dFe); else if (dFe < 0) trim('fe', -dFe);
+        const dSc = wantScn - count('scn'); if (dSc > 0) spawn('scn', dSc); else if (dSc < 0) trim('scn', -dSc);
+        const dPr = wantProd - count('product'); if (dPr > 0) spawn('product', dPr); else if (dPr < 0) trim('product', -dPr);
+    }, [fe, scn, product]);
+
+    /* ──── Render loop — runs once, reads refs ──── */
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+
+        const render = (time: number) => {
+            const rawDt = (time - lastTimeRef.current) / 1000;
+            const dt = pausedRef.current ? 0 : Math.min(rawDt, 0.1);
+            lastTimeRef.current = time;
+            drawScene(ctx, dt, time);
+            animRef.current = requestAnimationFrame(render);
+        };
+
+        animRef.current = requestAnimationFrame(render);
+        return () => cancelAnimationFrame(animRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Computes the live colour fields from the current productRef value
+    const liveColour = () => {
+        const p = productRef.current;
+        const pR = Math.min(1, p / 0.012);
+        const r = Math.round(255 - pR * 40);
+        const g = Math.round(230 - pR * 200);
+        const b = Math.round(160 - pR * 140);
+        const name = pR < 0.15 ? 'Pale Yellow' : pR < 0.35 ? 'Light Orange' : pR < 0.55 ? 'Orange' : pR < 0.75 ? 'Reddish Orange' : 'Deep Blood Red';
+        return { r, g, b, pR, name, css: `rgb(${r}, ${g}, ${b})` };
     };
 
-    const addFe = () => {
-        triggerPour('fe');
-        setTotalFe(prev => prev + 0.003);
-        setMessage('🧪 Fe(NO₃)₃ poured! Fe³⁺ added → Q꜀ < K꜀ → shifts FORWARD → solution turns deeper red.');
-    };
-    const addSCN = () => {
-        triggerPour('scn');
-        setTotalSCN(prev => prev + 0.003);
-        setMessage('🧪 KSCN poured! SCN⁻ added → Q꜀ < K꜀ → shifts FORWARD → solution turns deeper red.');
-    };
-    const removeFe = () => {
-        triggerPour('oxalic');
-        setTotalFe(prev => Math.max(0.001, prev - 0.003));
-        setMessage('🧫 Oxalic acid poured! Binds Fe³⁺ → Q꜀ > K꜀ → shifts BACKWARD → color fades toward yellow.');
-    };
-    const removeSCN = () => {
-        triggerPour('hgcl');
-        setTotalSCN(prev => Math.max(0.001, prev - 0.003));
-        setMessage('🧫 HgCl₂ poured! Binds SCN⁻ → Q꜀ > K꜀ → shifts BACKWARD → color fades toward yellow.');
-    };
-    const handleReset = () => {
-        setTotalFe(0.005); setTotalSCN(0.005);
-        setPouring(null);
-        setMessage('System reset to baseline equilibrium.');
+    const drawScene = (ctx: CanvasRenderingContext2D, dt: number, time: number) => {
+        const col = liveColour();
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+        // Subtle grid
+        ctx.strokeStyle = 'rgba(15,23,42,0.05)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= CANVAS_W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, CANVAS_H); ctx.stroke(); }
+        for (let y = 0; y <= CANVAS_H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(CANVAS_W, y); ctx.stroke(); }
+
+        drawFlask(ctx, col);
+        updateAndDrawParticles(ctx, dt);
+        drawReagentRow(ctx, time);
+        drawLegend(ctx);
+        drawTitle(ctx);
+        drawHint(ctx);
     };
 
-    // Reagent bottle component
-    const ReagentBottle = ({ id, label, sublabel, color, onClick, effect }: {
-        id: string; label: string; sublabel: string; color: string; onClick: () => void; effect: string;
-    }) => {
-        const isPouring = pouring === id;
-        return (
-            <button onClick={onClick}
-                className="flex flex-col items-center gap-1 group cursor-pointer transition-all active:scale-95"
-                title={effect}>
-                {/* Bottle */}
-                <div className={`relative transition-transform duration-300 ${isPouring ? '-rotate-45 translate-x-3 -translate-y-2' : 'group-hover:-rotate-12'}`}>
-                    {/* Neck */}
-                    <div className="w-3 h-4 mx-auto rounded-t-sm" style={{ backgroundColor: `${color}90` }} />
-                    {/* Body */}
-                    <div className="w-10 h-14 rounded-b-lg border-2 relative overflow-hidden" style={{ borderColor: `${color}60` }}>
-                        <div className="absolute bottom-0 left-0 right-0 h-3/4" style={{ backgroundColor: `${color}40` }} />
-                    </div>
-                    {/* Pour stream */}
-                    {isPouring && (
-                        <div className="absolute -right-1 top-2 w-1 h-10 rounded-b animate-pulse" style={{
-                            backgroundColor: `${color}80`,
-                            transformOrigin: 'top',
-                        }} />
-                    )}
-                </div>
-                <div className="text-[10px] font-bold text-center leading-tight mt-1" style={{ color }}>{label}</div>
-                <div className="text-[8px] text-white/30 text-center">{sublabel}</div>
-                <div className={`text-[8px] font-bold px-2 py-0.5 rounded-full mt-0.5 ${effect.includes('Forward') ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-500/15 text-blue-400'}`}>
-                    {effect}
-                </div>
-            </button>
-        );
+    const drawFlask = (ctx: CanvasRenderingContext2D, col: { r: number; g: number; b: number; pR: number; name: string; css: string }) => {
+        // Neck
+        const neckX = FLASK_CX - FLASK_NECK_W / 2;
+        const neckY = FLASK_CY - FLASK_BODY_R - FLASK_NECK_H + 20;
+        ctx.fillStyle = '#f8fafc';
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(neckX, neckY);
+        ctx.lineTo(neckX, neckY + FLASK_NECK_H);
+        ctx.lineTo(neckX + FLASK_NECK_W, neckY + FLASK_NECK_H);
+        ctx.lineTo(neckX + FLASK_NECK_W, neckY);
+        ctx.stroke();
+        // Opening rim
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.ellipse(FLASK_CX, neckY, FLASK_NECK_W / 2 + 4, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Body outline
+        ctx.beginPath();
+        ctx.moveTo(neckX, neckY + FLASK_NECK_H);
+        ctx.lineTo(neckX - 30, FLASK_CY - FLASK_BODY_R + 30);
+        ctx.arc(FLASK_CX, FLASK_CY, FLASK_BODY_R, Math.PI * 1.1, Math.PI * 1.9, true);
+        // Smooth body — instead use ellipse
+        ctx.closePath();
+        // Reset for clean body
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(FLASK_CX, FLASK_CY, FLASK_BODY_R, FLASK_BODY_R * 0.95, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Liquid (clipped to body ellipse)
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(FLASK_CX, FLASK_CY, FLASK_BODY_R - 4, FLASK_BODY_R * 0.95 - 4, 0, 0, Math.PI * 2);
+        ctx.clip();
+        const grad = ctx.createLinearGradient(FLASK_CX, LIQUID_TOP_Y, FLASK_CX, LIQUID_BOTTOM_Y);
+        grad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, 0.65)`);
+        grad.addColorStop(1, `rgba(${col.r}, ${col.g}, ${col.b}, 0.95)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(FLASK_CX - FLASK_BODY_R, LIQUID_TOP_Y, FLASK_BODY_R * 2, LIQUID_BOTTOM_Y - LIQUID_TOP_Y + 10);
+        // Meniscus
+        ctx.strokeStyle = `rgba(${col.r}, ${col.g}, ${col.b}, 0.95)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(FLASK_CX, LIQUID_TOP_Y, FLASK_BODY_R - 4, 8, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // Highlight
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(FLASK_CX - FLASK_BODY_R * 0.55, FLASK_CY - 30, 60, Math.PI * 0.85, Math.PI * 1.15);
+        ctx.stroke();
+
+        // Colour swatch + name below flask
+        const swatchY = FLASK_CY + FLASK_BODY_R + 26;
+        ctx.fillStyle = col.css;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(FLASK_CX - 84, swatchY, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '700 17px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(col.name, FLASK_CX - 60, swatchY + 6);
+        ctx.font = '500 13px monospace';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(`[Fe(SCN)²⁺] = ${(productRef.current * 1000).toFixed(2)} mM`, FLASK_CX - 60, swatchY + 26);
     };
 
-    // Bar component
-    const Bar = ({ label, value, max, color }: { label: string; value: number; max: number; color: string }) => (
-        <div className="flex flex-col items-center gap-1">
-            <div className="text-[9px] text-white/30 font-mono">{label}</div>
-            <div className="w-10 h-24 bg-slate-800/50 rounded border border-white/5 relative overflow-hidden flex items-end">
-                <div className="w-full rounded-t transition-all duration-500" style={{
-                    height: `${Math.min(100, (value / max) * 100)}%`,
-                    backgroundColor: color,
-                    opacity: 0.6,
-                }} />
-            </div>
-            <div className="text-[10px] font-mono font-bold" style={{ color }}>
-                {(value * 1000).toFixed(1)}
-            </div>
-            <div className="text-[7px] text-white/20">mM</div>
-        </div>
-    );
+    const updateAndDrawParticles = (ctx: CanvasRenderingContext2D, dt: number) => {
+        const pool = particlesRef.current;
+        const left = FLASK_CX - FLASK_BODY_R + 14;
+        const right = FLASK_CX + FLASK_BODY_R - 14;
+        const top = LIQUID_TOP_Y + 8;
+        const bot = LIQUID_BOTTOM_Y - 10;
 
-    const statusBadge = (
-        <div className="flex flex-col items-center px-4 py-2 bg-slate-800/80 rounded-2xl backdrop-blur-md border border-white/10 shadow-xl max-w-xl text-center">
-            <div className="text-[12px] text-white/70 font-medium leading-tight">
-                {message}
-            </div>
-        </div>
-    );
+        // Clip particles to liquid region (body ellipse)
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(FLASK_CX, FLASK_CY, FLASK_BODY_R - 6, FLASK_BODY_R * 0.95 - 6, 0, 0, Math.PI * 2);
+        ctx.clip();
 
-    const controlsCombo = (
-        <div className="w-full flex flex-col md:flex-row gap-4 lg:gap-8 items-center justify-center">
-            <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest text-center hidden md:block">
-                Reagents<br /><span className="text-[8px] font-normal opacity-70">Click to pour</span>
-            </div>
+        for (const p of pool) {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            // Mild jitter
+            p.vx += (Math.random() - 0.5) * 12;
+            p.vy += (Math.random() - 0.5) * 12;
+            // Damping
+            p.vx *= 0.97; p.vy *= 0.97;
+            // Soft bounds
+            if (p.x < left) { p.x = left; p.vx = Math.abs(p.vx); }
+            if (p.x > right) { p.x = right; p.vx = -Math.abs(p.vx); }
+            if (p.y < top) { p.y = top; p.vy = Math.abs(p.vy); }
+            if (p.y > bot) { p.y = bot; p.vy = -Math.abs(p.vy); }
 
-            <div className="flex flex-wrap justify-center gap-4 lg:gap-8">
-                <ReagentBottle id="fe" label="Fe(NO₃)₃" sublabel="Adds Fe³⁺" color="#facc15" onClick={addFe} effect="→ Forward Shift" />
-                <ReagentBottle id="scn" label="KSCN" sublabel="Adds SCN⁻" color="#94a3b8" onClick={addSCN} effect="→ Forward Shift" />
-            </div>
+            ctx.save();
+            if (p.type === 'product') {
+                ctx.shadowColor = '#dc2626';
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r + 1, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (p.type === 'fe') {
+                // Fe³⁺: bright yellow core with dark amber ring — visible against pale-yellow solution
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r + 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#854d0e';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            } else {
+                // SCN⁻: dark slate dot
+                ctx.fillStyle = '#334155';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        ctx.restore();
+    };
 
-            <div className="w-16 h-px md:w-px md:h-16 bg-white/10" />
+    const drawReagentRow = (ctx: CanvasRenderingContext2D, time: number) => {
+        // Four reagent indicators on canvas — visual only; clickable buttons are in controls
+        const baseY = 130;
+        const reagents = [
+            { id: 'fe', label: 'Fe(NO₃)₃', sub: '↑ Fe³⁺', color: '#eab308' },
+            { id: 'scn', label: 'KSCN', sub: '↑ SCN⁻', color: '#475569' },
+            { id: 'oxalic', label: 'Oxalic acid', sub: '↓ Fe³⁺', color: '#a855f7' },
+            { id: 'hgcl', label: 'HgCl₂', sub: '↓ SCN⁻', color: '#06b6d4' },
+        ];
+        const startX = 940;
+        const spacing = 64;
+        ctx.textAlign = 'center';
+        reagents.forEach((r, i) => {
+            const x = startX + i * spacing;
+            const y = baseY;
+            const active = lastActionRef.current === r.id;
+            // Bottle
+            ctx.fillStyle = r.color + '20';
+            ctx.strokeStyle = r.color;
+            ctx.lineWidth = active ? 3 : 1.8;
+            ctx.beginPath();
+            ctx.rect(x - 16, y - 6, 32, 46);
+            ctx.fill();
+            ctx.stroke();
+            // Neck
+            ctx.fillStyle = r.color;
+            ctx.fillRect(x - 5, y - 16, 10, 10);
+            // Label
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '700 11px Inter, sans-serif';
+            ctx.fillText(r.label, x, y + 60);
+            ctx.fillStyle = r.color;
+            ctx.font = '600 10px Inter, sans-serif';
+            ctx.fillText(r.sub, x, y + 74);
 
-            <div className="flex flex-wrap justify-center gap-4 lg:gap-8">
-                <ReagentBottle id="oxalic" label="Oxalic Acid" sublabel="Removes Fe³⁺" color="#a78bfa" onClick={removeFe} effect="← Backward Shift" />
-                <ReagentBottle id="hgcl" label="HgCl₂" sublabel="Removes SCN⁻" color="#22d3ee" onClick={removeSCN} effect="← Backward Shift" />
-            </div>
-
-            <div className="w-16 h-px md:w-px md:h-16 bg-white/10" />
-
-            <button onClick={handleReset}
-                className="flex flex-col items-center justify-center gap-1 cursor-pointer group active:scale-95 bg-slate-800/50 hover:bg-slate-700/50 p-2 lg:p-3 rounded-xl border border-slate-700 transition-all">
-                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-700/50 border border-slate-600 flex items-center justify-center group-hover:bg-slate-600 transition-colors">
-                    <RefreshCcw size={16} className="text-slate-300" />
-                </div>
-                <div className="text-[10px] text-slate-300 font-bold tracking-widest uppercase">Reset</div>
-            </button>
-        </div>
-    );
-
-    const simulationCombo = (
-        <div className="w-full h-full flex items-center justify-center p-4 lg:p-8 relative bg-transparent overflow-y-auto lg:overflow-hidden rounded-3xl min-h-0">
-            {/* Grid */}
-            <div className="absolute inset-0 transition-opacity duration-1000" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-                backgroundSize: '80px 80px',
-                maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)'
-            }} />
-
-            <div className="w-full max-w-[1400px] flex flex-col lg:flex-row items-center lg:items-center justify-center gap-8 lg:gap-24 z-10 h-full max-h-[800px]">
-                {/* ── LEFT: MAIN FLASK ── */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-4 w-full min-w-0 h-full">
-                    <div className="text-sm font-bold text-white/50 bg-black/30 px-6 py-2 rounded-full border border-white/5 uppercase tracking-widest shadow-inner">Reaction Flask</div>
-                    <div className="text-[11px] lg:text-sm 2xl:text-base font-mono text-white/40 bg-slate-900/50 px-4 py-2 rounded-xl border border-slate-700/50 shadow-inner">
-                        Fe³⁺<span className="text-yellow-400/60">(yellow)</span> + SCN⁻ ⇌ [Fe(SCN)]²⁺<span className="text-red-400/60">(deep red)</span>
-                    </div>
-
-                    {/* Large flask (Scaled up dynamically via aspect ratio and height constraints) */}
-                    <div className="relative w-full max-w-[280px] lg:max-w-[400px] aspect-[4/5] mt-4 flex-shrink">
-                        {/* Flask neck */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[20%] h-[15%] rounded-t-lg border-2 border-b-0 border-slate-500/30 bg-slate-800/20 backdrop-blur-sm shadow-[0_-5px_15px_rgba(0,0,0,0.2)]" />
-
-                        {/* Flask opening highlight */}
-                        <div className="absolute top-[2%] left-1/2 -translate-x-1/2 w-[24%] h-[3%] rounded-full border-2 border-slate-400/40 bg-slate-800/40 -mt-1 shadow-[0_2px_5px_rgba(0,0,0,0.5)] z-10" />
-
-                        {/* Flask body */}
-                        <div className="absolute top-[12%] inset-x-0 bottom-0 rounded-b-[3rem] overflow-hidden backdrop-blur-sm"
-                            style={{
-                                border: '2px solid rgba(148,163,184,0.3)',
-                                boxShadow: `inset 0 0 60px rgba(${solR},${solG},${solB},0.2), 0 10px 40px rgba(0,0,0,0.5)`,
-                            }}>
-                            {/* Liquid */}
-                            <div className="absolute bottom-0 left-0 right-0 transition-all duration-700 rounded-b-[2rem]" style={{
-                                height: '80%',
-                                background: `linear-gradient(180deg, rgba(${solR},${solG},${solB},0.3) 0%, rgba(${solR},${solG},${solB},0.6) 100%)`,
-                            }}>
-                                {/* Animated particles inside */}
-                                {Array.from({ length: 10 }).map((_, i) => (
-                                    <div key={i} className="absolute rounded-full" style={{
-                                        width: i >= 7 ? '6px' : '5px',
-                                        height: i >= 7 ? '6px' : '5px',
-                                        left: `${8 + ((i * 29 + i * i * 3) % 80)}%`,
-                                        top: `${8 + ((i * 41 + i * 7) % 78)}%`,
-                                        backgroundColor: i < 3 ? 'rgba(250,204,21,0.6)' : i < 6 ? 'rgba(148,163,184,0.3)' : `rgba(220,38,38,${0.3 + pRatio * 0.7})`,
-                                        boxShadow: i >= 7 ? `0 0 10px rgba(220,38,38,${pRatio * 0.5})` : 'none',
-                                        animation: `eq-float ${2 + (i % 3) * 0.6}s ease-in-out infinite alternate`,
-                                    }} />
-                                ))}
-                            </div>
-
-                            {/* Meniscus reflection */}
-                            <div className="absolute top-[20%] left-0 right-0 h-2 bg-gradient-to-b from-white/20 to-transparent flex items-center justify-center">
-                                <div className="w-[90%] h-[1px] bg-white/30 rounded-full blur-[1px]" />
-                            </div>
-
-                            {/* Flask glare */}
-                            <div className="absolute top-[25%] left-[5%] w-[10%] h-[60%] rounded-[50%] bg-gradient-to-r from-white/20 to-transparent rotate-[-10deg] blur-[2px]" />
-
-                            {/* White base glow */}
-                            <div className="absolute bottom-0 left-0 right-0 h-4 rounded-b-[2rem]" style={{
-                                background: `linear-gradient(0deg, rgba(${solR},${solG},${solB},0.3), transparent)`,
-                            }} />
-                        </div>
-                    </div>
-
-                    {/* Color indicator strip */}
-                    <div className="flex items-center gap-3 mt-3 bg-slate-900/60 p-2.5 rounded-xl border border-white/5 backdrop-blur-sm">
-                        <div className="w-8 h-8 rounded-full border-2 border-white/20 shadow-lg" style={{
-                            backgroundColor: solutionColor,
-                            boxShadow: `0 0 15px rgba(${solR},${solG},${solB},0.5)`,
-                        }} />
-                        <div className="flex flex-col justify-center">
-                            <div className="text-sm lg:text-lg 2xl:text-xl font-bold tracking-wide" style={{ color: solutionColor }}>{colorName}</div>
-                            <div className="text-[10px] lg:text-xs 2xl:text-sm text-white/40 font-mono mt-0.5 lg:mt-1">
-                                [FeSCN²⁺] = <span className="text-red-400">{(product * 1000).toFixed(2)} mM</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── RIGHT: DASHBOARD ── */}
-                <div className="w-full lg:w-64 flex flex-col items-center justify-center gap-4 shrink-0">
-                    {/* Shift direction */}
-                    <div className={`w-full px-4 py-3 rounded-2xl text-center text-sm font-bold border shadow-lg backdrop-blur-sm transition-all duration-500 ${qcStatus === 'equilibrium' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                        : qcStatus === 'forward' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                            : 'bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                        }`}>
-                        {qcStatus === 'equilibrium' ? '⚖️ At Equilibrium (Q꜀ = K꜀)' :
-                            qcStatus === 'forward' ? '→ Shifting Forward (making product)' :
-                                '← Shifting Backward (consuming product)'}
-                    </div>
-
-                    {/* Qc vs Kc */}
-                    <div className="bg-slate-900/80 border border-white/10 shadow-lg rounded-2xl p-4 w-full text-center backdrop-blur-sm">
-                        <div className="text-[9px] text-white/50 font-bold uppercase tracking-widest mb-1.5">Reaction Quotient</div>
-                        <div className="font-mono text-xs text-white/70 bg-black/40 py-1.5 rounded-lg border border-white/5">
-                            Q꜀ = <span className="text-red-400">[P]</span> / (<span className="text-yellow-400">[Fe³⁺]</span>·<span className="text-slate-300">[SCN⁻]</span>)
-                        </div>
-                        <div className="mt-3 flex items-center justify-center gap-4">
-                            <div className="text-center bg-black/20 p-2 rounded-xl flex-1 border border-white/5">
-                                <div className="text-[9px] text-white/40 font-medium mb-0.5">Q꜀</div>
-                                <div className="text-xl font-bold font-mono" style={{
-                                    color: qcStatus === 'equilibrium' ? '#34d399' : qcStatus === 'forward' ? '#f59e0b' : '#3b82f6',
-                                    textShadow: qcStatus === 'equilibrium' ? '0 0 10px rgba(52,211,153,0.3)' : qcStatus === 'forward' ? '0 0 10px rgba(245,158,11,0.3)' : '0 0 10px rgba(59,130,246,0.3)'
-                                }}>{Qc.toFixed(0)}</div>
-                            </div>
-
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                                <span className={`text-lg font-bold ${qcStatus === 'equilibrium' ? 'text-emerald-400' : qcStatus === 'forward' ? 'text-amber-400' : 'text-blue-400'}`}>{qcStatus === 'equilibrium' ? '=' : qcStatus === 'forward' ? '<' : '>'}</span>
-                            </div>
-
-                            <div className="text-center bg-black/20 p-2 rounded-xl flex-1 border border-white/5 relative overflow-hidden">
-                                {/* Lock icon watermark */}
-                                <div className="absolute right-1 top-1 text-white/5">🔒</div>
-                                <div className="text-[9px] text-white/40 font-medium mb-0.5">K꜀ (Fixed)</div>
-                                <div className="text-xl font-bold font-mono text-emerald-400/80 drop-shadow-[0_0_8px_rgba(52,211,153,0.2)]">{Kc}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Concentration bars */}
-                    <div className="bg-slate-900/80 border border-white/10 shadow-lg rounded-2xl p-4 w-full backdrop-blur-sm">
-                        <div className="text-[9px] text-white/50 text-center font-bold uppercase tracking-widest mb-3">Concentrations</div>
-                        <div className="flex justify-center gap-6">
-                            <Bar label="Fe³⁺" value={fe} max={0.015} color="#facc15" />
-                            <Bar label="SCN⁻" value={scn} max={0.015} color="#94a3b8" />
-                            <Bar label="FeSCN²⁺" value={product} max={0.015} color="#ef4444" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes eq-float {
-                    0% { transform: translate(0, 0) scale(1); }
-                    100% { transform: translate(4px, -5px) scale(1.15); }
+            // Active drop travels along a curve from the bottle nozzle to the flask opening
+            const fl = flashRef.current;
+            if (active && fl && fl.id === r.id) {
+                const elapsed = (time - fl.t) / 1000;
+                const DUR = 1.0;
+                // Start of arc: bottom of bottle (where the liquid exits)
+                const x0 = x;
+                const y0 = y + 42;
+                // End of arc: just inside the flask opening (top of liquid surface)
+                const x1 = FLASK_CX;
+                const y1 = LIQUID_TOP_Y + 4;
+                if (elapsed < DUR) {
+                    const prog = elapsed / DUR;
+                    // Parabolic arc — bottle to flask, curving outward (over the top)
+                    const px = x0 + (x1 - x0) * prog;
+                    // Vertical motion eases in (gravity); add upward arc bump
+                    const arcBump = -60 * Math.sin(Math.PI * prog);
+                    const py = y0 + (y1 - y0) * prog * prog + arcBump;
+                    // Trail (3 fading droplets behind the head)
+                    for (let s = 0; s < 4; s++) {
+                        const tProg = Math.max(0, prog - s * 0.05);
+                        const tx = x0 + (x1 - x0) * tProg;
+                        const ty = y0 + (y1 - y0) * tProg * tProg + (-60 * Math.sin(Math.PI * tProg));
+                        ctx.fillStyle = r.color;
+                        ctx.globalAlpha = (1 - s * 0.25) * (1 - prog * 0.3);
+                        ctx.beginPath();
+                        ctx.arc(tx, ty, 4 - s * 0.6, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.globalAlpha = 1;
+                    // Head droplet — pulsing
+                    ctx.save();
+                    ctx.shadowColor = r.color;
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = r.color;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                } else if (elapsed < DUR + 0.45) {
+                    // Splash ripple at flask opening
+                    const rp = (elapsed - DUR) / 0.45;
+                    ctx.strokeStyle = r.color;
+                    ctx.lineWidth = 2 * (1 - rp);
+                    ctx.globalAlpha = 1 - rp;
+                    ctx.beginPath();
+                    ctx.ellipse(x1, y1, 6 + rp * 28, 2 + rp * 6, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
                 }
-            `}} />
+            }
+        });
+    };
+
+    const drawLegend = (ctx: CanvasRenderingContext2D) => {
+        const items = [
+            { color: '#eab308', label: 'Fe³⁺ (yellow)' },
+            { color: '#475569', label: 'SCN⁻ (colourless)' },
+            { color: '#dc2626', label: '[Fe(SCN)]²⁺ (deep red)' },
+        ];
+        const x0 = 80; const y0 = 690;
+        ctx.font = '600 13px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        items.forEach((it, i) => {
+            const x = x0 + i * 220;
+            ctx.fillStyle = it.color;
+            ctx.beginPath();
+            ctx.arc(x, y0, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#334155';
+            ctx.fillText(it.label, x + 14, y0 + 5);
+        });
+    };
+
+    const drawTitle = (ctx: CanvasRenderingContext2D) => {
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '800 22px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Iron(III)–Thiocyanate Equilibrium', 60, 60);
+        ctx.fillStyle = '#475569';
+        ctx.font = '600 14px Inter, sans-serif';
+        ctx.fillText('Fe³⁺(aq) + SCN⁻(aq) ⇌ [Fe(SCN)]²⁺(aq)   (NCERT Eq. 6.24)', 60, 84);
+    };
+
+    const drawHint = (ctx: CanvasRenderingContext2D) => {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '500 12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(messageRef.current, CANVAS_W / 2, 735);
+    };
+
+    /* ───── Left aside: graph cards ────────────────────────────────────── */
+    const maxBar = 0.015;
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] 2xl:block overflow-y-auto pr-1">
+            <div className="flex flex-col gap-3">
+                {/* Qc vs Kc card */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+                    <div className="text-base font-extrabold text-slate-950">Q꜀ vs K꜀</div>
+                    <div className="mt-1 text-xs font-semibold text-slate-500">Comparing the reaction quotient to the constant predicts the shift.</div>
+                    <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3 font-mono text-xs text-slate-700">
+                        Q꜀ = [FeSCN²⁺] / ([Fe³⁺]·[SCN⁻])
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 items-end gap-2">
+                        <div className="rounded-lg border border-amber-100 bg-amber-50 px-2 py-2 text-center">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Q꜀</div>
+                            <div className={`mt-0.5 font-mono text-lg font-extrabold ${qcStatus === 'equilibrium' ? 'text-emerald-700' : qcStatus === 'forward' ? 'text-amber-700' : 'text-blue-700'}`}>{Qc.toFixed(0)}</div>
+                        </div>
+                        <div className="flex items-center justify-center pb-1">
+                            <span className={`text-2xl font-extrabold ${qcStatus === 'equilibrium' ? 'text-emerald-600' : qcStatus === 'forward' ? 'text-amber-600' : 'text-blue-600'}`}>
+                                {qcStatus === 'equilibrium' ? '=' : qcStatus === 'forward' ? '<' : '>'}
+                            </span>
+                        </div>
+                        <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-2 py-2 text-center">
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">K꜀ (fixed)</div>
+                            <div className="mt-0.5 font-mono text-lg font-extrabold text-emerald-700">{Kc}</div>
+                        </div>
+                    </div>
+                    <div className={`mt-3 rounded-lg px-3 py-2 text-center text-xs font-extrabold ${qcStatus === 'equilibrium' ? 'bg-emerald-100 text-emerald-800' : qcStatus === 'forward' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
+                        {qcStatus === 'equilibrium' ? 'At equilibrium — no net shift' : qcStatus === 'forward' ? '→ Shifting forward (making product)' : '← Shifting backward (consuming product)'}
+                    </div>
+                </div>
+
+                {/* Concentrations bar card */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+                    <div className="text-base font-extrabold text-slate-950">Concentrations</div>
+                    <div className="mt-1 text-xs font-semibold text-slate-500">Live species concentrations in the flask.</div>
+                    <div className="mt-3 space-y-2.5">
+                        <ConcBar label="Fe³⁺" value={fe} max={maxBar} color="#eab308" />
+                        <ConcBar label="SCN⁻" value={scn} max={maxBar} color="#475569" />
+                        <ConcBar label="[Fe(SCN)]²⁺" value={product} max={maxBar} color="#dc2626" />
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+
+    /* ───── Right aside: theory + live values ──────────────────────────── */
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[310px] 2xl:block overflow-y-auto pl-1">
+            <div className="flex flex-col gap-3">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/95 p-4 shadow-xl backdrop-blur">
+                    <div className="text-base font-extrabold text-amber-900">Le Chatelier's Principle</div>
+                    <div className="mt-0.5 text-xs font-semibold text-amber-700">NCERT §6.8.1</div>
+                    <div className="mt-2 space-y-1.5 text-sm leading-snug text-amber-900">
+                        <p>A change in concentration shifts equilibrium so as to counteract the change.</p>
+                        <p>• Adding a reactant or removing a product → Q꜀ &lt; K꜀ → forward shift.</p>
+                        <p>• Removing a reactant or adding a product → Q꜀ &gt; K꜀ → reverse shift.</p>
+                        <p>Oxalic acid binds Fe³⁺ as [Fe(C₂O₄)₃]³⁻; HgCl₂ binds SCN⁻ as [Hg(SCN)₄]²⁻.</p>
+                    </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="mb-3 flex items-center justify-between">
+                        <div className="text-base font-extrabold text-slate-900">Real-time values</div>
+                        <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> LIVE
+                        </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <ValueChip label="[Fe³⁺]" value={`${(fe * 1000).toFixed(2)} mM`} tone="amber" />
+                        <ValueChip label="[SCN⁻]" value={`${(scn * 1000).toFixed(2)} mM`} tone="slate" />
+                        <ValueChip label="[FeSCN²⁺]" value={`${(product * 1000).toFixed(2)} mM`} tone="red" />
+                        <ValueChip label="Q꜀" value={Qc.toFixed(0)} tone={qcStatus === 'equilibrium' ? 'emerald' : qcStatus === 'forward' ? 'amber' : 'blue'} />
+                        <ValueChip label="K꜀" value={`${Kc}`} tone="emerald" />
+                        <ValueChip label="Shift" value={qcStatus === 'equilibrium' ? '— none —' : qcStatus === 'forward' ? '→ forward' : '← reverse'} tone={qcStatus === 'equilibrium' ? 'emerald' : qcStatus === 'forward' ? 'amber' : 'blue'} />
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+
+    /* ───── Simulation wrapper ───────────────────────────────────────── */
+    const simulationCombo = (
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas
+                    ref={canvasRef}
+                    width={CANVAS_W}
+                    height={CANVAS_H}
+                    className="absolute inset-0 h-full w-full"
+                />
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 pointer-events-auto">
+                    <button
+                        onClick={() => setPaused(p => !p)}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title={paused ? 'Play' : 'Pause'}
+                    >
+                        {paused ? <Play size={15} /> : <Pause size={15} />}
+                    </button>
+                    <button
+                        onClick={handleReset}
+                        className="p-2 rounded-lg bg-white/90 border border-slate-200 shadow text-slate-700 hover:bg-slate-50 transition-colors"
+                        title="Reset"
+                    >
+                        <RotateCcw size={15} />
+                    </button>
+                </div>
+            </div>
+            {graphPanel}
+            {valuesPanel}
+        </div>
+    );
+
+    /* ───── Bottom controls: reagent buttons + initial sliders ─────────── */
+    const controlsCombo = (
+        <div className="w-full p-4 space-y-3">
+            <div className="flex items-center gap-2 text-slate-800">
+                <FlaskConical size={18} className="text-amber-600" />
+                <span className="text-sm font-extrabold uppercase tracking-wide">Le Chatelier Equilibrium Bench</span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+                    <div className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-amber-800">Forward shift — add reactant</div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <ReagentButton icon={<Droplet size={14} />} label="Fe(NO₃)₃" sub="↑ [Fe³⁺]" onClick={addFe} color="amber" />
+                        <ReagentButton icon={<Droplet size={14} />} label="KSCN" sub="↑ [SCN⁻]" onClick={addSCN} color="slate" />
+                    </div>
+                </div>
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+                    <div className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-blue-800">Reverse shift — remove reactant</div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <ReagentButton icon={<Beaker size={14} />} label="Oxalic acid" sub="↓ [Fe³⁺]" onClick={removeFe} color="violet" />
+                        <ReagentButton icon={<Beaker size={14} />} label="HgCl₂" sub="↓ [SCN⁻]" onClick={removeSCN} color="cyan" />
+                    </div>
+                </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+                <SliderRow label="Initial [Fe³⁺]" value={`${(totalFe * 1000).toFixed(1)} mM`} min={0.001} max={0.015} step={0.0005} current={totalFe} onChange={setTotalFe} accent="accent-amber-500" />
+                <SliderRow label="Initial [SCN⁻]" value={`${(totalSCN * 1000).toFixed(1)} mM`} min={0.001} max={0.015} step={0.0005} current={totalSCN} onChange={setTotalSCN} accent="accent-slate-500" />
+            </div>
         </div>
     );
 
@@ -370,11 +626,71 @@ const LeChatelierLab: React.FC<Props> = ({ topic, onExit }) => {
         <TopicLayoutContainer
             topic={topic}
             onExit={onExit}
-            StatusBadgeComponent={statusBadge}
             SimulationComponent={simulationCombo}
             ControlsComponent={controlsCombo}
         />
     );
 };
+
+/* ───── Sub-components ───────────────────────────────────────────────── */
+
+function ConcBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+    const pct = Math.min(100, (value / max) * 100);
+    return (
+        <div>
+            <div className="mb-1 flex items-center justify-between text-xs font-bold">
+                <span style={{ color }}>{label}</span>
+                <span className="font-mono text-slate-700">{(value * 1000).toFixed(2)} mM</span>
+            </div>
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
+            </div>
+        </div>
+    );
+}
+
+function ValueChip({ label, value, tone }: { label: string; value: string; tone: 'amber' | 'slate' | 'red' | 'emerald' | 'blue' }) {
+    const palette: Record<string, { bg: string; text: string }> = {
+        amber: { bg: 'bg-amber-50', text: 'text-amber-700' },
+        slate: { bg: 'bg-slate-50', text: 'text-slate-800' },
+        red: { bg: 'bg-red-50', text: 'text-red-700' },
+        emerald: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
+        blue: { bg: 'bg-blue-50', text: 'text-blue-700' },
+    };
+    const p = palette[tone];
+    return (
+        <div className={`rounded-lg border border-slate-100 ${p.bg} px-3 py-2.5`}>
+            <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</div>
+            <div className={`mt-1 font-mono text-sm font-extrabold ${p.text}`}>{value}</div>
+        </div>
+    );
+}
+
+function ReagentButton({ icon, label, sub, onClick, color }: { icon: React.ReactNode; label: string; sub: string; onClick: () => void; color: 'amber' | 'slate' | 'violet' | 'cyan' }) {
+    const palette: Record<string, string> = {
+        amber: 'border-amber-300 bg-white text-amber-800 hover:bg-amber-100',
+        slate: 'border-slate-300 bg-white text-slate-800 hover:bg-slate-100',
+        violet: 'border-violet-300 bg-white text-violet-800 hover:bg-violet-100',
+        cyan: 'border-cyan-300 bg-white text-cyan-800 hover:bg-cyan-100',
+    };
+    return (
+        <button onClick={onClick} className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm font-extrabold transition-all active:scale-95 ${palette[color]}`}>
+            <span className="flex items-center gap-2">{icon}{label}</span>
+            <span className="font-mono text-[11px] font-bold opacity-80">{sub}</span>
+        </button>
+    );
+}
+
+function SliderRow({ label, value, min, max, step, current, onChange, accent }: { label: string; value: string; min: number; max: number; step: number; current: number; onChange: (v: number) => void; accent: string }) {
+    return (
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-extrabold uppercase tracking-wide text-slate-600">{label}</span>
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-bold text-slate-800">{value}</span>
+            </div>
+            <input type="range" min={min} max={max} step={step} value={current} onChange={(e) => onChange(Number(e.target.value))} className={`h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-100 ${accent}`} />
+        </div>
+    );
+}
 
 export default LeChatelierLab;

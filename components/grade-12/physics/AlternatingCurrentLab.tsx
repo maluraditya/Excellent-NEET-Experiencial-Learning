@@ -466,15 +466,15 @@ const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
                   </g>
                 );
               })}
-              <text x="170" y="20" textAnchor="middle" fill="#f1f5f9" fontSize="12" fontWeight="bold">Relative I²R Loss</text>
-              <text x="170" y="38" textAnchor="middle" fill="#94a3b8" fontSize="10">Lower voltage = more cable loss</text>
+              <text x="170" y="20" textAnchor="middle" fill="#0f172a" fontSize="12" fontWeight="bold">Relative I²R Loss</text>
+              <text x="170" y="38" textAnchor="middle" fill="#64748b" fontSize="10">Lower voltage = more cable loss</text>
             </svg>
           </div>
         )}
         {mode === 'rlc' && (
-          <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-100 shadow-xl">
-            <div className="text-lg font-extrabold text-white">Resonance Curve</div>
-            <div className="mt-1 text-sm font-semibold text-slate-300">Im vs frequency: peak at nu0</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
+            <div className="text-lg font-extrabold text-slate-950">Resonance Curve</div>
+            <div className="mt-1 text-sm font-semibold text-slate-600">Im vs frequency: peak at nu0</div>
             <RLCResonanceSvg values={rlcValues} />
           </div>
         )}
@@ -875,25 +875,25 @@ function RLCResonanceSvg({ values }: { values: RLCValues }) {
   return (
     <svg viewBox={`0 0 ${graphW + 58} ${graphH + 74}`} className="mt-2 h-[240px] w-full">
       <g transform="translate(42 14)">
-        <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(226,232,240,0.68)" strokeWidth="1.4" />
+        <path d={`M0 0V${graphH}H${graphW}`} fill="none" stroke="rgba(15,23,42,0.45)" strokeWidth="1.4" />
         {[1, 2, 3].map((line) => (
-          <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(148,163,184,0.24)" />
+          <line key={line} x1="0" x2={graphW} y1={(graphH * line) / 4} y2={(graphH * line) / 4} stroke="rgba(15,23,42,0.10)" />
         ))}
         {resonanceX >= 0 && resonanceX <= graphW && (
           <g>
             <line x1={resonanceX} x2={resonanceX} y1="0" y2={graphH} stroke="#22c55e" strokeDasharray="6 7" strokeWidth="1.8" />
-            <text x={resonanceX} y="14" textAnchor="middle" className="fill-emerald-300 text-[11px] font-bold">nu0</text>
+            <text x={resonanceX} y="14" textAnchor="middle" className="fill-emerald-600 text-[11px] font-bold">nu0</text>
           </g>
         )}
         <path d={path} fill="none" stroke="#facc15" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx={currentX} cy={currentY} r="5.5" fill={values.isResonant ? '#22c55e' : '#38bdf8'} />
-        <text x="-32" y="-4" className="fill-slate-200 text-[11px] font-bold">Im</text>
-        <text x={graphW / 2} y={graphH + 34} textAnchor="middle" className="fill-slate-300 text-[11px] font-semibold">frequency nu (Hz)</text>
-        <text x={graphW - 4} y={graphH - 10} textAnchor="end" className="fill-slate-200 text-[12px] font-bold">
+        <text x="-32" y="-4" className="fill-slate-700 text-[11px] font-bold">Im</text>
+        <text x={graphW / 2} y={graphH + 34} textAnchor="middle" className="fill-slate-600 text-[11px] font-semibold">frequency nu (Hz)</text>
+        <text x={graphW - 4} y={graphH - 10} textAnchor="end" className="fill-slate-700 text-[12px] font-bold">
           Q = {Number.isFinite(values.qFactor) ? values.qFactor.toFixed(2) : 'inf'}
         </text>
-        <text x="0" y={graphH + 18} className="fill-slate-400 text-[10px] font-bold">10</text>
-        <text x={graphW} y={graphH + 18} textAnchor="end" className="fill-slate-400 text-[10px] font-bold">500 Hz</text>
+        <text x="0" y={graphH + 18} className="fill-slate-500 text-[10px] font-bold">10</text>
+        <text x={graphW} y={graphH + 18} textAnchor="end" className="fill-slate-500 text-[10px] font-bold">500 Hz</text>
       </g>
     </svg>
   );
@@ -978,7 +978,7 @@ function WaveformSvg({
           <g key={s.label} transform={`translate(${i * 130} 0)`}>
             {/* colored line swatch */}
             <line x1="0" y1="7" x2="22" y2="7" stroke={s.color} strokeWidth="4" strokeLinecap="round" />
-            <text x="28" y="12" fill="#e2e8f0" fontSize="14" fontWeight="bold">{s.label}</text>
+            <text x="28" y="12" fill="#1e293b" fontSize="14" fontWeight="bold">{s.label}</text>
           </g>
         ))}
       </g>
@@ -1073,7 +1073,7 @@ function drawTransformerMode(
   // ── Core frame ───────────────────────────────────────────────────────────
   //  Outer rect
   const CX = 640;           // horizontal centre of canvas
-  const CY = 310;           // vertical centre of schematic area
+  const CY = 360;           // vertical centre of schematic area (shifted down to fill freed bottom space)
 
   const CORE_W  = 320;      // total outer width  of the iron frame
   const CORE_H  = 380;      // total outer height of the iron frame
@@ -1218,8 +1218,6 @@ function drawTransformerMode(
   drawInstantBadge(ctx, (RIGHT_LIMB_CX + loadX) / 2, badgeMidSecY - 16,
     `is = ${(normVs * isRms).toFixed(1)} A`, '#3b82f6');
 
-  // ── Bottom strip ─────────────────────────────────────────────────────────
-  drawBottomStrip(ctx, np, ns, vpPeak, vsPeak, vpRms, vsRms, ipRms, isRms, ppW, psW, efficiency);
 }
 
 // ── Draw: iron core ───────────────────────────────────────────────────────────
@@ -1349,7 +1347,7 @@ function drawACSource(
   ctx.save();
   ctx.shadowColor = '#ef4444';
   ctx.shadowBlur = 10 * glowIntensity;
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#ffffff';
   ctx.strokeStyle = '#ef4444';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1380,7 +1378,7 @@ function drawLoadVoltmeter(
   ctx.save();
   ctx.shadowColor = '#3b82f6';
   ctx.shadowBlur = 10 * glowIntensity;
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#ffffff';
   ctx.strokeStyle = '#3b82f6';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1704,22 +1702,22 @@ function drawPhasorDiagram(ctx: CanvasRenderingContext2D, cx: number, cy: number
   const vx = vr * scale;
   const vy = -vertical * scale;
 
-  ctx.fillStyle = 'rgba(15,23,42,0.92)';
+  ctx.fillStyle = 'rgba(255,255,255,0.97)';
   roundRect(ctx, cx - 250, cy - 190, 340, 330, 18);
   ctx.fill();
-  ctx.strokeStyle = values.isResonant ? '#22c55e' : 'rgba(148,163,184,0.35)';
+  ctx.strokeStyle = values.isResonant ? '#22c55e' : 'rgba(148,163,184,0.55)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.fillStyle = '#f8fafc';
+  ctx.fillStyle = '#0f172a';
   ctx.font = '900 18px Inter, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('Phasor Diagram', cx - 226, cy - 158);
-  ctx.fillStyle = '#cbd5e1';
+  ctx.fillStyle = '#475569';
   ctx.font = '700 12px Inter, sans-serif';
   ctx.fillText('VR along I, VL ahead, VC behind', cx - 226, cy - 136);
 
-  ctx.strokeStyle = 'rgba(148,163,184,0.35)';
+  ctx.strokeStyle = 'rgba(15,23,42,0.18)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(cx - 210, cy);
@@ -1731,7 +1729,7 @@ function drawPhasorDiagram(ctx: CanvasRenderingContext2D, cx: number, cy: number
   drawVector(ctx, cx - 76, cy, cx - 76 + vx, cy, '#ef4444', 'VR');
   drawVector(ctx, cx - 76 + vx, cy, cx - 76 + vx, cy - vl * scale, '#3b82f6', 'VL');
   drawVector(ctx, cx - 76 + vx + 18, cy, cx - 76 + vx + 18, cy + vc * scale, '#f59e0b', 'VC');
-  drawVector(ctx, cx - 76, cy, cx - 76 + vx, cy + vy, values.isResonant ? '#22c55e' : '#f8fafc', 'V');
+  drawVector(ctx, cx - 76, cy, cx - 76 + vx, cy + vy, values.isResonant ? '#22c55e' : '#0f172a', 'V');
 
   ctx.fillStyle = values.isResonant ? '#86efac' : '#facc15';
   ctx.font = '900 13px Inter, monospace';
@@ -1872,21 +1870,21 @@ function drawTransmissionMode(
 
   // ── Bottom info bar ────────────────────────────────────────────────────────
   const infoY = 510;
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#ffffff';
   roundRect(ctx, 40, infoY, CANVAS_W - 80, 200, 14);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(71,85,105,0.5)';
+  ctx.strokeStyle = 'rgba(148,163,184,0.5)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
   ctx.textAlign = 'left';
   const lines = [
-    { text: 'Why transmit at high voltage?', color: '#f8fafc', size: '700 15px' },
-    { text: 'Power loss in cables:  Pc = I²Rc', color: '#f1f5f9', size: '600 13px' },
-    { text: 'For same power P = VI: higher V → lower I → much lower I²R loss', color: '#cbd5e1', size: '600 13px' },
-    { text: 'Pc ∝ 1/V²   (NCERT Ch.7 §7.8)', color: '#facc15', size: '700 13px' },
-    { text: 'NCERT example: 220V 10A stepped up to 440V → only 5A (Eq.7.35)', color: '#94a3b8', size: '600 12px' },
-    { text: 'India supply chain: 11 kV → Step-up → 132 kV → Area sub-station → 33 kV → Distribution → 240 V homes', color: '#94a3b8', size: '600 11px' },
+    { text: 'Why transmit at high voltage?', color: '#0f172a', size: '700 15px' },
+    { text: 'Power loss in cables:  Pc = I²Rc', color: '#1e293b', size: '600 13px' },
+    { text: 'For same power P = VI: higher V → lower I → much lower I²R loss', color: '#334155', size: '600 13px' },
+    { text: 'Pc ∝ 1/V²   (NCERT Ch.7 §7.8)', color: '#d97706', size: '700 13px' },
+    { text: 'NCERT example: 220V 10A stepped up to 440V → only 5A (Eq.7.35)', color: '#64748b', size: '600 12px' },
+    { text: 'India supply chain: 11 kV → Step-up → 132 kV → Area sub-station → 33 kV → Distribution → 240 V homes', color: '#64748b', size: '600 11px' },
   ];
   lines.forEach((line, i) => {
     ctx.fillStyle = line.color;
@@ -1904,7 +1902,7 @@ function drawGenerator(
 ) {
   const cx = x + w / 2;
   const cy = y + h / 2;
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#ffffff';
   ctx.strokeStyle = '#ef4444';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1945,7 +1943,7 @@ function drawSmallTransformer(
   color: string,
   stepUp: boolean
 ) {
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#ffffff';
   roundRect(ctx, x, y, w, h, 8);
   ctx.fill();
   ctx.strokeStyle = color;
@@ -2022,7 +2020,7 @@ function drawHome(
 ) {
   const cx = x + 40;
   // house body
-  ctx.fillStyle = '#1e293b';
+  ctx.fillStyle = '#f0fdf4';
   ctx.strokeStyle = '#22c55e';
   ctx.lineWidth = 2;
   ctx.beginPath();
