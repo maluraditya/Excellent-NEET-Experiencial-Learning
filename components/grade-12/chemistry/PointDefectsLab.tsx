@@ -9,7 +9,7 @@ interface Props {
 
 const PointDefectsLab: React.FC<Props> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
 
     const [defectMode, setDefectMode] = useState<'schottky' | 'frenkel' | 'metal_excess'>('schottky');
     const gridRef = useRef<Array<{ id: number, type: 'cation' | 'anion', x: number, y: number, originalX: number, originalY: number, removed: boolean, interstitial: boolean, fCenter: boolean }>>([]);

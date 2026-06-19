@@ -132,11 +132,23 @@ const HydrogenOrbitalsLab: React.FC<Props> = ({ topic, onExit }) => {
             drawLobe(0, 0, sx * 0.85, sy * 0.85, 0, '+');
         }
         else if (l === 1) {
-            const axisAngle = m === 0 ? -Math.PI / 2 : m === 1 ? 0 : Math.PI / 2;
-            const lobeR     = sx * 0.50;
-            const lobeS     = sy * 0.32;
-            drawLobe(0,  -sy * 0.55, lobeS, lobeR, axisAngle, '+');
-            drawLobe(0,   sy * 0.55, lobeS, lobeR, axisAngle, '-');
+            // pz → z-axis (vertical), px → x-axis (horizontal),
+            // py → y-axis (depth, into the page). py is shown foreshortened along a
+            // diagonal so it reads as depth and is NOT identical to pz.
+            if (m === -1) {
+                // py: depth axis — diagonal + foreshortened dumbbell
+                const lobeR = sx * 0.38;   // shorter lobes = foreshortening
+                const lobeS = sy * 0.30;
+                drawLobe(0, -sy * 0.42, lobeS, lobeR, -Math.PI / 4, '+');
+                drawLobe(0,  sy * 0.42, lobeS, lobeR, -Math.PI / 4, '-');
+            } else {
+                // pz (m=0) → vertical (z up);  px (m=1) → horizontal (x)
+                const axisAngle = m === 0 ? 0 : -Math.PI / 2;
+                const lobeR     = sx * 0.50;
+                const lobeS     = sy * 0.32;
+                drawLobe(0,  -sy * 0.55, lobeS, lobeR, axisAngle, '+');
+                drawLobe(0,   sy * 0.55, lobeS, lobeR, axisAngle, '-');
+            }
         }
         else if (l === 2) {
             if (m === 0) {

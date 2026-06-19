@@ -136,7 +136,7 @@ function IntensitySvg({ points, color, xLabel, yLabel, markers }: {
 // ─── Main Component ───────────────────────────────────────────────────────────
 const WaveOpticsLab: React.FC<WaveOpticsLabProps> = ({ topic, onExit }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>();
+  const animRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef(performance.now());
   const tRef = useRef(0);
 

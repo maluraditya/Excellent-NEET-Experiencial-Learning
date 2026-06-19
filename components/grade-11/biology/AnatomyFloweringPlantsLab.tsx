@@ -237,12 +237,12 @@ const AnatomyFloweringPlantsLab: React.FC<AnatomyFloweringPlantsLabProps> = ({ t
 
             <div className="grid min-h-0 grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-12">
                 <ControlGroup className="xl:col-span-4" icon={<Layers size={15} />} label="View">
-                    <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={setMode} />
+                    <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={(value: Mode) => setMode(value)} />
                 </ControlGroup>
 
                 {mode === 'tissue' && (
                     <ControlGroup className="xl:col-span-3" icon={<Microscope size={15} />} label="Focus">
-                        <SegmentedControl options={TISSUE_OPTIONS} value={tissueFocus} onChange={setTissueFocus} />
+                        <SegmentedControl options={TISSUE_OPTIONS} value={tissueFocus} onChange={(value: TissueFocus) => setTissueFocus(value)} />
                     </ControlGroup>
                 )}
 

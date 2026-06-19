@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Ideal vs non-ideal solutions thumbnail">
+  <rect width="640" height="360" rx="32" fill="#f0fdfa"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#115e59">Ideal vs Non-ideal Solutions</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">Raoult's law &amp; deviations</text>
+
+  <!-- P-x plot -->
+  <g transform="translate(96 116)">
+    <rect x="0" y="0" width="320" height="200" rx="12" fill="#fff" stroke="#99f6e4" stroke-width="4"/>
+    <!-- axes -->
+    <line x1="40" y1="170" x2="300" y2="170" stroke="#334155" stroke-width="3"/>
+    <line x1="40" y1="20" x2="40" y2="170" stroke="#334155" stroke-width="3"/>
+    <text x="170" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#475569">mole fraction x</text>
+    <text x="20" y="100" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#475569" transform="rotate(-90 20 100)">P</text>
+    <!-- ideal dashed line -->
+    <line x1="40" y1="150" x2="300" y2="50" stroke="#94a3b8" stroke-width="3" stroke-dasharray="7 6"/>
+    <!-- positive deviation (bow up) -->
+    <path d="M40 150 Q170 40 300 50" fill="none" stroke="#ef4444" stroke-width="4"/>
+    <!-- negative deviation (bow down) -->
+    <path d="M40 150 Q170 150 300 50" fill="none" stroke="#2563eb" stroke-width="4"/>
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(440 130)" font-family="Arial, sans-serif" font-size="14" font-weight="800">
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#94a3b8" stroke-width="3" stroke-dasharray="7 6"/>
+    <text x="36" y="5" fill="#475569">ideal (Raoult)</text>
+    <line x1="0" y1="36" x2="28" y2="36" stroke="#ef4444" stroke-width="4"/>
+    <text x="36" y="41" fill="#dc2626">+ deviation</text>
+    <line x1="0" y1="72" x2="28" y2="72" stroke="#2563eb" stroke-width="4"/>
+    <text x="36" y="77" fill="#2563eb">− deviation</text>
+    <text x="0" y="120" fill="#115e59" font-weight="900">azeotropes</text>
+  </g>
+</svg>

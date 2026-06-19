@@ -281,7 +281,7 @@ function getScatteringNucleus(): Vec {
 
 const AtomsLab: React.FC<AtomsLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number | undefined>(undefined);
     const lastTimeRef = useRef<number>(performance.now());
     const particlesRef = useRef<AlphaParticle[]>([]);
     const flashesRef = useRef<Flash[]>([]);

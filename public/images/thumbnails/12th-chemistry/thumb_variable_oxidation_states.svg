@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Variable oxidation states thumbnail">
+  <rect width="640" height="360" rx="32" fill="#fdf4ff"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#86198f">Variable Oxidation States</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">3d transition elements · incomplete d-orbitals</text>
+
+  <!-- Mn central tile -->
+  <g transform="translate(70 132)">
+    <rect x="0" y="20" width="120" height="120" rx="14" fill="#a21caf" stroke="#701a75" stroke-width="4"/>
+    <text x="60" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="900" fill="#fff">Mn</text>
+    <text x="60" y="106" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" fill="#f5d0fe">3d⁵ 4s²</text>
+    <text x="60" y="168" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#86198f">widest range</text>
+  </g>
+
+  <!-- oxidation state ladder -->
+  <g transform="translate(250 120)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#475569">oxidation states</text>
+    <g font-family="Arial, sans-serif" font-size="17" font-weight="900">
+      <rect x="0" y="14" width="60" height="30" rx="8" fill="#f0abfc"/><text x="30" y="35" text-anchor="middle" fill="#701a75">+2</text>
+      <rect x="70" y="14" width="60" height="30" rx="8" fill="#e879f9"/><text x="100" y="35" text-anchor="middle" fill="#fff">+3</text>
+      <rect x="140" y="14" width="60" height="30" rx="8" fill="#d946ef"/><text x="170" y="35" text-anchor="middle" fill="#fff">+4</text>
+      <rect x="0" y="54" width="60" height="30" rx="8" fill="#c026d3"/><text x="30" y="75" text-anchor="middle" fill="#fff">+5</text>
+      <rect x="70" y="54" width="60" height="30" rx="8" fill="#a21caf"/><text x="100" y="75" text-anchor="middle" fill="#fff">+6</text>
+      <rect x="140" y="54" width="60" height="30" rx="8" fill="#86198f"/><text x="170" y="75" text-anchor="middle" fill="#fff">+7</text>
+    </g>
+    <!-- example ions -->
+    <g font-family="Arial, sans-serif" font-size="15" font-weight="800" fill="#475569">
+      <text x="0" y="124">MnO₄⁻ (+7, purple)</text>
+      <text x="0" y="152">MnO₂ (+4)  ·  Mn²⁺ (+2)</text>
+    </g>
+  </g>
+</svg>

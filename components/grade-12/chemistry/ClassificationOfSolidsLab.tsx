@@ -9,7 +9,7 @@ interface Props {
 
 const ClassificationOfSolidsLab: React.FC<Props> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
     const startTime = useRef(Date.now());
 
     const [solidType, setSolidType] = useState<'ionic' | 'metallic' | 'molecular' | 'covalent'>('ionic');

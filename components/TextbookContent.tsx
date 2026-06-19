@@ -1581,6 +1581,68 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'heat-work-energy-changes') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Heat, Work, and Energy Changes</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Thermodynamics tracks how energy enters or leaves a system as <strong>heat</strong> and <strong>work</strong>, and how their combined effect changes the system&apos;s internal energy.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Internal Energy Is a State Function</h3>
+        <p>
+          Internal energy, U, is characteristic of the state of a system. We usually cannot assign an absolute value of U, but we can measure its change, &Delta;U, between initial and final states.
+        </p>
+        <div className="my-6 rounded-xl border border-slate-300 bg-slate-100 p-4">
+          <p className="text-center font-mono text-lg text-brand-primary">&Delta;U = U<sub>final</sub> - U<sub>initial</sub></p>
+          <p className="mt-2 text-center text-sm text-slate-600">The value of &Delta;U depends only on the initial and final states, not on the path.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Heat and Work Are Path Functions</h3>
+        <p>
+          Heat, q, is energy transfer caused by a temperature difference. Work, w, is energy transfer by any other mechanical mode, such as moving a piston. Their individual values depend on how the change is carried out.
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 my-6">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <h4 className="mb-2 font-bold text-red-900">Heat q</h4>
+            <p className="text-sm text-red-800">q &gt; 0 when heat enters the system. q &lt; 0 when heat leaves the system.</p>
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+            <h4 className="mb-2 font-bold text-blue-900">Work w</h4>
+            <p className="text-sm text-blue-800">w &gt; 0 when work is done on the system. w &lt; 0 when work is done by the system.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. First Law of Thermodynamics</h3>
+        <div className="my-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-center font-mono text-lg text-emerald-700">&Delta;U = q + w</p>
+          <p className="mt-2 text-center text-sm text-emerald-700">Energy is conserved: heat and work added to the system appear as a change in internal energy.</p>
+        </div>
+        <p>
+          If q = 0 and w = 0, the system is isolated and &Delta;U = 0. This is the conservation of energy applied to thermodynamic systems.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Pressure-Volume Work</h3>
+        <p>
+          For gas expansion or compression against an external pressure, the chemistry convention writes pressure-volume work as:
+        </p>
+        <div className="my-6 rounded-xl border border-purple-200 bg-purple-50 p-4">
+          <p className="text-center font-mono text-lg text-purple-700">w = -P<sub>ext</sub>&Delta;V</p>
+          <p className="mt-2 text-center text-sm text-purple-700">Expansion: &Delta;V &gt; 0, so w &lt; 0. Compression: &Delta;V &lt; 0, so w &gt; 0.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Common Exam Trap</h3>
+        <div className="my-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm text-amber-900">
+            Chemistry and physics books may use different signs for work. In NCERT Chemistry, use the IUPAC convention: energy added to the system is positive. That is why compression work is positive and expansion work is negative.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   if (topic?.id === 'extensive-intensive-properties') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
@@ -1733,6 +1795,1070 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
       </div>
     );
   }
+  if (topic?.id === 'mole-concept-limiting-reagent') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Mole Concept and Limiting Reagent</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The mole is the chemist's counting unit. It connects the macroscopic mass of a substance to the number of individual particles it contains. Together with the limiting reagent idea, it powers every stoichiometric calculation. <span className="text-sm text-slate-500">NCERT Class 11 · Ch 1 Some Basic Concepts of Chemistry · §1.8 – §1.10</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Mole &amp; Avogadro Constant</h3>
+        <p>One mole of any substance contains exactly <strong>6.0221367 × 10²³</strong> entities (atoms, molecules, ions or formula units). This is the <strong>Avogadro constant</strong>, N<sub>A</sub>.</p>
+        <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="font-mono text-lg text-purple-700 text-center">1 mol = 6.022 × 10²³ entities</p>
+        </div>
+        <ul className="list-disc pl-5 space-y-1 text-sm">
+          <li>1 mol of H atoms = 6.022 × 10²³ atoms</li>
+          <li>1 mol of H₂O molecules = 6.022 × 10²³ water molecules</li>
+          <li>1 mol of NaCl = 6.022 × 10²³ formula units</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Molar Mass</h3>
+        <p>The molar mass of a substance is the mass of one mole, in grams. Numerically it equals the atomic / molecular / formula mass expressed in u.</p>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm text-amber-900">Molar mass of H₂O = <strong>18.02 g mol⁻¹</strong></p>
+          <p className="text-sm text-amber-900 mt-1">Molar mass of NaCl = <strong>58.5 g mol⁻¹</strong></p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Stoichiometry</h3>
+        <p>From the Greek <em>stoicheion</em> (element) + <em>metron</em> (measure). A balanced chemical equation supplies <strong>molar ratios</strong> — the bridge between reactants and products.</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-base text-slate-800 text-center">CH₄(g) + 2 O₂(g) → CO₂(g) + 2 H₂O(g)</p>
+          <p className="text-sm text-slate-700 text-center mt-2">1 mol CH₄ reacts with 2 mol O₂ to give 1 mol CO₂ and 2 mol H₂O.</p>
+        </div>
+        <p className="text-sm">Interconvert via:</p>
+        <div className="my-2 p-3 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="font-mono text-sm text-purple-800 text-center">mass ⇌ moles ⇌ number of molecules &nbsp;|&nbsp; mass / volume = density</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Limiting Reagent (§1.10.1)</h3>
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="text-sm text-red-900">The reactant <strong>consumed first</strong> in a non-stoichiometric mixture is the <strong>limiting reagent</strong>. It fixes the maximum amount of product; once exhausted, the reaction stops regardless of how much of the other reactant is left.</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">NCERT worked example — Haber process</p>
+          <p className="text-sm text-slate-700 mt-2">Need 5.36 × 10³ mol H₂ to react with 1.786 × 10³ mol N₂; only 4.96 × 10³ mol H₂ available ⇒ <strong>H₂ is limiting</strong>. NH₃ produced = (4.96 × 10³) × (2/3) = 3.30 × 10³ mol = <strong>56.1 kg NH₃</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">Industrial NH₃ Manufacture</h4>
+          <p className="text-sm">Fertiliser plants must feed the Haber reactor in <strong>exactly the 1 : 3 N₂ : H₂ ratio</strong>. Run rich in H₂ and you waste hydrogen; run lean and N₂ becomes limiting — output crashes.</p>
+        </div>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">Combustion Air-Fuel Ratio</h4>
+          <p className="text-sm">An engine running rich (too much fuel) wastes hydrocarbons; running lean (too much air) drops power. Both are limiting-reagent failures in mol terms.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'solution-concentration-dilution') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Solution Concentration and Dilution</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          NCERT defines four distinct ways to express how much solute sits in a given amount of solvent — and one master relation that governs dilution. <span className="text-sm text-slate-500">NCERT Class 11 · Ch 1 Some Basic Concepts of Chemistry · §1.10.2</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Four NCERT Units</h3>
+
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm font-bold text-amber-900">1 · Mass per cent (w/w %)</p>
+          <p className="font-mono text-sm text-amber-800 text-center mt-2">Mass % = (Mass of solute / Mass of solution) × 100</p>
+          <p className="text-xs text-amber-700 mt-2"><strong>NCERT Problem 1.6.</strong> 2 g solute in 18 g water ⇒ 2 / 20 × 100 = <strong>10 %</strong>.</p>
+        </div>
+
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm font-bold text-emerald-900">2 · Mole fraction (x)</p>
+          <p className="font-mono text-sm text-emerald-800 text-center mt-2">x<sub>A</sub> = n<sub>A</sub> / (n<sub>A</sub> + n<sub>B</sub>) &nbsp; x<sub>A</sub> + x<sub>B</sub> = 1</p>
+          <p className="text-xs text-emerald-700 mt-2">Dimensionless; unaffected by temperature.</p>
+        </div>
+
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm font-bold text-purple-900">3 · Molarity (M)</p>
+          <p className="font-mono text-sm text-purple-800 text-center mt-2">M = moles of solute / volume of solution (L)</p>
+          <p className="text-xs text-purple-700 mt-2"><strong>NCERT Problem 1.7.</strong> 4 g NaOH in 250 mL ⇒ (4/40) / 0.250 = <strong>0.4 M</strong>. Note: M is <em>temperature-dependent</em> because volume changes with T.</p>
+        </div>
+
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="text-sm font-bold text-teal-900">4 · Molality (m)</p>
+          <p className="font-mono text-sm text-teal-800 text-center mt-2">m = moles of solute / mass of solvent (kg)</p>
+          <p className="text-xs text-teal-700 mt-2"><strong>NCERT Problem 1.8.</strong> 3 M NaCl, density 1.25 g mL⁻¹ ⇒ 175.5 g NaCl in 1250 g solution ⇒ 1074.5 g solvent ⇒ m = 3 / 1.0745 = <strong>2.79 m</strong>. Mass is T-independent, so <strong>m is also T-independent</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Dilution Master Relation</h3>
+        <p>Adding solvent leaves the <strong>moles of solute unchanged</strong>. So for two molarities of the same solute:</p>
+        <div className="my-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="font-mono text-xl text-violet-800 text-center"><strong>M₁ × V₁ = M₂ × V₂</strong></p>
+          <p className="text-sm text-violet-700 text-center mt-2">M₁, V₁ = stock · M₂, V₂ = diluted</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">Worked example (NCERT)</p>
+          <p className="text-sm text-slate-700 mt-2">Need 1 L of 0.2 M NaOH from 1 M stock. <span className="font-mono">0.2 × 1000 = 1.0 × V₁</span> ⇒ V₁ = <strong>200 mL</strong>. Take 200 mL of 1 M and add water to 1 L.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Why It Matters — Molarity vs Molality</h3>
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="text-sm text-red-900"><strong>Molarity</strong> is convenient for volumetric work in the lab (titrations, dilutions). <strong>Molality</strong> is the right choice for studies where temperature changes (boiling-point elevation, freezing-point depression) — because volume drifts with T but mass does not.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Real-World Applications</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">IV Saline (0.9 % NaCl)</h4>
+          <p className="text-sm">Hospital "normal saline" is 0.9 % w/v — isotonic with blood plasma. Outside that window, red blood cells crenate or burst.</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">Coolants &amp; Antifreeze</h4>
+          <p className="text-sm">Ethylene glycol is specified in <strong>molality</strong>, not molarity — because the radiator runs from −40 °C to +120 °C, where any volume-based unit would drift.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'glucose-conformations') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Biomolecules – Glucose Conformations</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Glucose looks simple — C₆H₁₂O₆ — but it lives a double life: an open-chain aldehyde and a six-membered ring that exists as two anomers in constant interconversion. <span className="text-sm text-slate-500">NCERT Class 12 · Unit 14 Biomolecules · Structure of Glucose</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Open-Chain Structure</h3>
+        <p>Glucose is an <strong>aldohexose</strong> (an aldehyde + six carbons), also called dextrose, written as <strong>D-(+)-glucose</strong>. Its Fischer structure was deduced from experiments:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <ul className="list-disc pl-5 space-y-1 text-sm text-slate-700">
+            <li>Heating with <strong>HI</strong> gives <strong>n-hexane</strong> ⇒ six carbons in a straight chain.</li>
+            <li>Forms an <strong>oxime</strong> and a <strong>cyanohydrin</strong> ⇒ a carbonyl group (&gt;C=O).</li>
+            <li>Bromine water gives <strong>gluconic acid</strong> ⇒ the carbonyl is an <strong>aldehyde (–CHO)</strong>.</li>
+            <li>Acetic anhydride gives <strong>glucose pentaacetate</strong> ⇒ <strong>five –OH</strong> groups.</li>
+            <li>Nitric acid gives <strong>saccharic acid</strong> ⇒ one of them is a <strong>primary –OH</strong>.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Why a Ring? The Cyclic Hemiacetal</h3>
+        <p>The open chain cannot explain some facts: glucose gives <strong>no Schiff's test</strong>, forms <strong>no NaHSO₃ adduct</strong>, its pentaacetate does <strong>not react with hydroxylamine</strong> (no free –CHO), and it exists in <strong>two crystalline forms</strong> (α and β).</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm text-emerald-900">So the <strong>–OH on C5 adds to the –CHO on C1</strong>, forming a six-membered <strong>cyclic hemiacetal</strong>. This ring is called the <strong>pyranose</strong> structure (by analogy with pyran — one O and five C in the ring) and is best drawn as a <strong>Haworth structure</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Anomers: α vs β</h3>
+        <p>On ring closure, C1 becomes the <strong>anomeric carbon</strong> (it was the aldehyde carbon). The two ring forms differ <em>only</em> in the orientation of the C1–OH — such isomers are called <strong>anomers</strong>.</p>
+        <div className="my-4 grid gap-3 md:grid-cols-2">
+          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <p className="font-bold text-amber-900">α-D-(+)-Glucopyranose</p>
+            <p className="text-sm text-amber-800 mt-1">C1–OH is <strong>below</strong> the ring (opposite the CH₂OH at C6).</p>
+          </div>
+          <div className="p-4 bg-teal-50 rounded-xl border border-teal-200">
+            <p className="font-bold text-teal-900">β-D-(+)-Glucopyranose</p>
+            <p className="text-sm text-teal-800 mt-1">C1–OH is <strong>above</strong> the ring (same side as the CH₂OH at C6).</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Mutarotation</h3>
+        <div className="my-4 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="text-sm text-violet-900">In water the two cyclic forms are in equilibrium with the open chain: <strong>α-D-glucose ⇌ open chain ⇌ β-D-glucose</strong>. When either pure anomer is dissolved, its specific rotation gradually changes until it reaches a constant value — this is <strong>mutarotation</strong>. The equilibrium mixture is roughly <strong>36% α and 64% β</strong> (with a trace of open chain).</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Connection</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">🍞 Starch vs cellulose</h4>
+          <p className="text-sm">Whether glucose links through its α or β anomer changes everything: α-linkages build <strong>starch</strong> (digestible energy store), while β-linkages build <strong>cellulose</strong> (rigid plant fibre humans cannot digest). The same monomer, a different anomer.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'rate-law-half-life') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Rate Laws &amp; Half-life</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Integrated rate equations link concentration directly to time, so a single graph reveals a reaction's order — and the half-life tells you how fast it disappears. <span className="text-sm text-slate-500">NCERT Class 12 · Ch 3 Chemical Kinetics · §3.3 (Table 3.4)</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Zero-Order Reactions</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm font-bold text-blue-900">Rate is independent of concentration: Rate = k[R]⁰ = k</p>
+          <p className="font-mono text-sm text-blue-800 text-center mt-2">[R] = [R]₀ − kt &nbsp;(Eq 3.6) &nbsp;·&nbsp; k = ([R]₀ − [R]) / t &nbsp;(Eq 3.7)</p>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-blue-900 mt-2">
+            <li>A plot of <strong>[R] vs t is a straight line</strong>, slope = −k, intercept = [R]₀.</li>
+            <li>Half-life: <strong>t½ = [R]₀ / 2k</strong> — proportional to [R]₀ (successive half-lives shorten).</li>
+            <li>Units of k: <strong>mol L⁻¹ s⁻¹</strong>. Example: decomposition of NH₃ on hot Pt at high pressure.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. First-Order Reactions</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm font-bold text-emerald-900">Rate ∝ first power of concentration: Rate = k[R]</p>
+          <p className="font-mono text-sm text-emerald-800 text-center mt-2">[R] = [R]₀·e^(−kt) &nbsp;(Eq 3.14) &nbsp;·&nbsp; k = (2.303/t)·log([R]₀/[R]) &nbsp;(Eq 3.10)</p>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-emerald-900 mt-2">
+            <li>A plot of <strong>ln[R] vs t is a straight line</strong>, slope = −k.</li>
+            <li>Half-life: <strong>t½ = 0.693 / k</strong> — <em>independent</em> of [R]₀ (constant).</li>
+            <li>Units of k: <strong>s⁻¹</strong>. Examples: N₂O₅ decomposition, all radioactive decay.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Comparing the Two Orders</h3>
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full text-sm border border-slate-200">
+            <thead><tr className="bg-slate-100"><th className="p-2 text-left">Feature</th><th className="p-2">Zero order</th><th className="p-2">First order</th></tr></thead>
+            <tbody>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">Integrated law</td><td className="p-2 text-center font-mono">[R]=[R]₀−kt</td><td className="p-2 text-center font-mono">[R]=[R]₀e^(−kt)</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">Straight-line plot</td><td className="p-2 text-center">[R] vs t</td><td className="p-2 text-center">ln[R] vs t</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">Half-life t½</td><td className="p-2 text-center font-mono">[R]₀ / 2k</td><td className="p-2 text-center font-mono">0.693 / k</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">t½ vs [R]₀</td><td className="p-2 text-center">∝ [R]₀</td><td className="p-2 text-center">independent</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">Units of k</td><td className="p-2 text-center">mol L⁻¹ s⁻¹</td><td className="p-2 text-center">s⁻¹</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Worked Examples (NCERT)</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-700"><strong>Example 3.7:</strong> First-order k = 5.5×10⁻¹⁴ s⁻¹ ⇒ t½ = 0.693 / (5.5×10⁻¹⁴) = <strong>1.26×10¹³ s</strong>.</p>
+          <p className="text-sm text-slate-700 mt-2"><strong>99.9% completion</strong> of a first-order reaction takes t = 6.909/k = <strong>10 × t½</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Connection</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🕰️ Carbon-14 dating</h4>
+          <p className="text-sm">Radioactive decay is first-order with a constant half-life (¹⁴C: 5730 years). Measuring how much ¹⁴C remains in wood or bone lets archaeologists estimate its age — exactly the t½ = 0.693/k relationship in action.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'alcohol-reactivity-hbonding') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Alcohol Reactivity &amp; Hydrogen Bonding</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The −OH group controls everything about an alcohol: it raises boiling points through hydrogen bonding, dissolves small alcohols in water, and dictates how 1°, 2° and 3° alcohols react with reagents. <span className="text-sm text-slate-500">NCERT Class 12 · Unit 7 Alcohols, Phenols &amp; Ethers · §7.4.3–§7.4.4</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Hydrogen Bonding &amp; Boiling Point</h3>
+        <p>The −OH group is both a hydrogen-bond <strong>donor</strong> and <strong>acceptor</strong>, so alcohol molecules cling to each other — boiling points are far higher than ethers or hydrocarbons of similar mass.</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm font-bold text-emerald-900">Same mass, very different boiling points (NCERT §7.4.3)</p>
+          <div className="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
+            <div className="rounded-lg bg-white px-2 py-2"><div className="font-bold text-emerald-800">Ethanol</div><div className="font-mono text-xs">Mr 46 · 351 K</div></div>
+            <div className="rounded-lg bg-white px-2 py-2"><div className="font-bold text-amber-800">Methoxymethane</div><div className="font-mono text-xs">Mr 46 · 248 K</div></div>
+            <div className="rounded-lg bg-white px-2 py-2"><div className="font-bold text-slate-700">Propane</div><div className="font-mono text-xs">Mr 44 · 231 K</div></div>
+          </div>
+          <p className="text-xs text-emerald-700 mt-2">Only ethanol has an −OH to hydrogen-bond, so it boils ~100 K higher.</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-800"><strong>Trends:</strong> b.p. <strong>increases</strong> with chain length (more van der Waals area) and <strong>decreases</strong> with branching (less surface area). Lower alcohols are miscible with water in all proportions; solubility falls as the alkyl chain grows.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Lucas Test (1° vs 2° vs 3°)</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm text-blue-900">Lucas reagent = conc. HCl + anhydrous ZnCl₂. The alkyl chloride formed is immiscible → <strong>turbidity</strong>.</p>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-blue-900 mt-2">
+            <li><strong>3°</strong> — turbidity <strong>immediately</strong> (stable 3° carbocation).</li>
+            <li><strong>2°</strong> — turbidity in <strong>~5 min</strong>.</li>
+            <li><strong>1°</strong> — <strong>no turbidity</strong> at room temperature.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Dehydration to Alkenes</h3>
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="font-mono text-sm text-red-800 text-center">CH₃CH₂OH —(conc. H₂SO₄, 443 K)→ CH₂=CH₂ + H₂O</p>
+          <p className="text-sm text-red-700 mt-2">Ease of dehydration: <strong>3° &gt; 2° &gt; 1°</strong> (carbocation stability). 3° dehydrates under milder conditions (~358 K), 1° needs 443 K.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Oxidation &amp; Dehydrogenation</h3>
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full text-sm border border-slate-200">
+            <thead><tr className="bg-slate-100"><th className="p-2 text-left">Reagent</th><th className="p-2">1°</th><th className="p-2">2°</th><th className="p-2">3°</th></tr></thead>
+            <tbody>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">PCC (mild)</td><td className="p-2 text-center">aldehyde</td><td className="p-2 text-center">ketone</td><td className="p-2 text-center">no reaction</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">KMnO₄ / H⁺ (strong)</td><td className="p-2 text-center">carboxylic acid</td><td className="p-2 text-center">ketone</td><td className="p-2 text-center">resists</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">Cu, 573 K</td><td className="p-2 text-center">aldehyde</td><td className="p-2 text-center">ketone</td><td className="p-2 text-center">alkene (dehydration)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm text-purple-900"><strong>Why 3° resists oxidation:</strong> it has no α-hydrogen on the −OH carbon, so the C=O double bond cannot form. Only strong agents at high T cleave C–C bonds.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Connection</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">⚠️ Methanol poisoning</h4>
+          <p className="text-sm">In the body methanol is oxidised to methanal then methanoic acid, which can cause blindness or death. Treatment is intravenous dilute ethanol — it occupies the enzyme so the kidneys can excrete methanol (NCERT note).</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'basicity-of-amines') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Basicity of Amines</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Amines act as bases because the nitrogen lone pair can accept a proton. Their basic strength depends on how available that lone pair is and how stable the protonated cation is relative to the neutral amine. <span className="text-sm text-slate-500">NCERT Class 12 Chemistry, Unit 9 Amines, Table 9.3 and structure-basicity relationship</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. K<sub>b</sub>, pK<sub>b</sub>, and Proton Acceptance</h3>
+        <div className="my-4 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="font-mono text-sm text-violet-900 text-center">RNH<sub>2</sub> + H<sub>2</sub>O &#8652; RNH<sub>3</sub><sup>+</sup> + OH<sup>-</sup></p>
+          <p className="font-mono text-sm text-violet-900 text-center mt-2">K<sub>b</sub> = [RNH<sub>3</sub><sup>+</sup>][OH<sup>-</sup>] / [RNH<sub>2</sub>] &nbsp;&nbsp; pK<sub>b</sub> = -log K<sub>b</sub></p>
+          <p className="text-sm text-violet-800 mt-3"><strong>Larger K<sub>b</sub> or smaller pK<sub>b</sub> means a stronger base.</strong> The easier it is to form a stable cation by proton acceptance, the more basic the amine.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. NCERT Table 9.3: Aqueous pK<sub>b</sub> Values</h3>
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full text-sm border border-slate-200">
+            <thead><tr className="bg-slate-100"><th className="p-2 text-left">Base</th><th className="p-2 text-left">Formula</th><th className="p-2">pK<sub>b</sub></th></tr></thead>
+            <tbody>
+              <tr className="border-t border-slate-200"><td className="p-2">Ammonia</td><td className="p-2 font-mono">NH<sub>3</sub></td><td className="p-2 text-center font-mono">4.75</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Methanamine</td><td className="p-2 font-mono">CH<sub>3</sub>NH<sub>2</sub></td><td className="p-2 text-center font-mono">3.38</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N-Methylmethanamine</td><td className="p-2 font-mono">(CH<sub>3</sub>)<sub>2</sub>NH</td><td className="p-2 text-center font-mono">3.27</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N,N-Dimethylmethanamine</td><td className="p-2 font-mono">(CH<sub>3</sub>)<sub>3</sub>N</td><td className="p-2 text-center font-mono">4.22</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Ethanamine</td><td className="p-2 font-mono">C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub></td><td className="p-2 text-center font-mono">3.29</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N-Ethylethanamine</td><td className="p-2 font-mono">(C<sub>2</sub>H<sub>5</sub>)<sub>2</sub>NH</td><td className="p-2 text-center font-mono">3.00</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N,N-Diethylethanamine</td><td className="p-2 font-mono">(C<sub>2</sub>H<sub>5</sub>)<sub>3</sub>N</td><td className="p-2 text-center font-mono">3.25</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Benzenamine (aniline)</td><td className="p-2 font-mono">C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub></td><td className="p-2 text-center font-mono">9.38</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Phenylmethanamine</td><td className="p-2 font-mono">C<sub>6</sub>H<sub>5</sub>CH<sub>2</sub>NH<sub>2</sub></td><td className="p-2 text-center font-mono">4.70</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N-Methylaniline</td><td className="p-2 font-mono">C<sub>6</sub>H<sub>5</sub>NHCH<sub>3</sub></td><td className="p-2 text-center font-mono">9.30</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">N,N-Dimethylaniline</td><td className="p-2 font-mono">C<sub>6</sub>H<sub>5</sub>N(CH<sub>3</sub>)<sub>2</sub></td><td className="p-2 text-center font-mono">8.92</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm">NCERT notes that aliphatic amines have pK<sub>b</sub> values from 3.00 to 4.22 and are stronger bases than ammonia because alkyl groups release electrons by the +I effect.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Gas-Phase Order</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="font-mono text-base text-amber-900 text-center">tertiary amine &gt; secondary amine &gt; primary amine &gt; NH<sub>3</sub></p>
+          <p className="text-sm text-amber-800 mt-3">In the gas phase, the +I effect dominates. More alkyl groups push more electron density toward nitrogen and stabilise the positive charge of the protonated amine.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Aqueous-Phase Order</h3>
+        <p>In water, three effects compete: the alkyl-group +I effect, solvation of the substituted ammonium ion, and steric hindrance to hydrogen bonding.</p>
+        <div className="grid gap-4 my-6 sm:grid-cols-3">
+          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200"><h4 className="font-bold text-emerald-900">+I effect</h4><p className="text-sm text-emerald-800">Raises electron density and stabilises positive charge.</p></div>
+          <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-200"><h4 className="font-bold text-cyan-900">Solvation</h4><p className="text-sm text-cyan-800">Hydrogen-bond stabilisation decreases in the order primary &gt; secondary &gt; tertiary ammonium ion.</p></div>
+          <div className="bg-orange-50 p-4 rounded-xl border border-orange-200"><h4 className="font-bold text-orange-900">Steric effect</h4><p className="text-sm text-orange-800">Groups larger than methyl hinder water from solvating the cation.</p></div>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 space-y-3">
+          <div><p className="text-sm font-bold text-slate-800">Methyl-substituted amines:</p><p className="font-mono text-sm text-slate-700">(CH<sub>3</sub>)<sub>2</sub>NH &gt; CH<sub>3</sub>NH<sub>2</sub> &gt; (CH<sub>3</sub>)<sub>3</sub>N &gt; NH<sub>3</sub></p></div>
+          <div><p className="text-sm font-bold text-slate-800">Ethyl-substituted amines:</p><p className="font-mono text-sm text-slate-700">(C<sub>2</sub>H<sub>5</sub>)<sub>2</sub>NH &gt; (C<sub>2</sub>H<sub>5</sub>)<sub>3</sub>N &gt; C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub> &gt; NH<sub>3</sub></p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Why Aniline Is a Weak Base</h3>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-purple-900">
+            <li>The nitrogen lone pair in aniline is conjugated with the benzene ring and is therefore less available for protonation.</li>
+            <li>Aniline is represented by five resonance structures, while the anilinium ion has only two Kekule structures.</li>
+            <li>The neutral aniline molecule is therefore stabilised relative to its cation, reducing proton acceptability.</li>
+            <li>Numerically, aniline has pK<sub>b</sub> 9.38 while ammonia has pK<sub>b</sub> 4.75, so aniline is much weaker.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Substituted Anilines</h3>
+        <div className="grid gap-4 my-6 sm:grid-cols-2">
+          <div className="bg-green-50 p-5 rounded-xl border border-green-200"><h4 className="font-bold text-green-900 mb-2">Increase basicity</h4><p className="text-sm text-green-900">Electron-releasing groups: -OCH<sub>3</sub> and -CH<sub>3</sub>.</p></div>
+          <div className="bg-red-50 p-5 rounded-xl border border-red-200"><h4 className="font-bold text-red-900 mb-2">Decrease basicity</h4><p className="text-sm text-red-900">Electron-withdrawing groups: -NO<sub>2</sub>, -SO<sub>3</sub>H, -COOH, and -X.</p></div>
+        </div>
+        <p className="text-sm">NCERT gives these as qualitative categories here; it does not assign a universal numerical order among these substituents without specifying their ring positions.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. NCERT Example 9.4</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm font-bold text-blue-900">Decreasing basic strength:</p>
+          <p className="font-mono text-sm text-blue-800 mt-2">(C<sub>2</sub>H<sub>5</sub>)<sub>2</sub>NH &gt; C<sub>2</sub>H<sub>5</sub>NH<sub>2</sub> &gt; NH<sub>3</sub> &gt; C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub></p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'carboxylic-acids-reactions-acidity') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Carboxylic Acids: Key Reactions and Acidity</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Carboxylic acids react through O-H cleavage, C-OH cleavage, the complete -COOH group, and substitution in the hydrocarbon part. Their acidity follows directly from the stability of the carboxylate ion. <span className="text-sm text-slate-500">NCERT Class 12 Chemistry, Unit 8, Sections 8.9.1-8.10</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Acid Dissociation and pK<sub>a</sub></h3>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="font-mono text-sm text-rose-900 text-center">RCOOH + H<sub>2</sub>O &#8652; RCOO<sup>-</sup> + H<sub>3</sub>O<sup>+</sup></p>
+          <p className="font-mono text-sm text-rose-900 text-center mt-2">K<sub>a</sub> = [H<sub>3</sub>O<sup>+</sup>][RCOO<sup>-</sup>] / [RCOOH] &nbsp;&nbsp; pK<sub>a</sub> = -log K<sub>a</sub></p>
+          <p className="text-sm text-rose-800 mt-3"><strong>Smaller pK<sub>a</sub> means a stronger acid.</strong> NCERT classifies pK<sub>a</sub> &lt; 1 as strong, 1-5 as moderately strong, 5-15 as weak, and &gt;15 as extremely weak.</p>
+        </div>
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full text-sm border border-slate-200">
+            <thead><tr className="bg-slate-100"><th className="p-2 text-left">Acid</th><th className="p-2">NCERT pK<sub>a</sub></th><th className="p-2 text-left">Comparison</th></tr></thead>
+            <tbody>
+              <tr className="border-t border-slate-200"><td className="p-2">Hydrochloric acid</td><td className="p-2 text-center font-mono">-7.0</td><td className="p-2">Mineral acid reference</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Trifluoroacetic acid</td><td className="p-2 text-center font-mono">0.23</td><td className="p-2">Strongest carboxylic acid cited</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">4-Nitrobenzoic acid</td><td className="p-2 text-center font-mono">3.41</td><td className="p-2">EWG increases acidity</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Benzoic acid</td><td className="p-2 text-center font-mono">4.19</td><td className="p-2">Aromatic reference</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">4-Methoxybenzoic acid</td><td className="p-2 text-center font-mono">4.46</td><td className="p-2">EDG decreases acidity</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Ethanoic acid</td><td className="p-2 text-center font-mono">4.76</td><td className="p-2">Aliphatic reference</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2">Phenol / ethanol</td><td className="p-2 text-center font-mono">~10 / ~16</td><td className="p-2">Both weaker than carboxylic acids</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Why Carboxylic Acids Are Acidic</h3>
+        <p>The carboxylate ion has two equivalent resonance structures. Its negative charge is delocalised over two electronegative oxygen atoms, so it is more stable than a phenoxide ion, whose resonance structures are non-equivalent and place charge partly on carbon.</p>
+        <div className="grid gap-4 my-6 sm:grid-cols-2">
+          <div className="bg-blue-50 p-5 rounded-xl border border-blue-200"><h4 className="font-bold text-blue-900 mb-2">Electron-withdrawing groups</h4><p className="text-sm text-blue-900">Stabilise RCOO<sup>-</sup> by inductive and/or resonance effects and therefore increase acidity.</p></div>
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200"><h4 className="font-bold text-amber-900 mb-2">Electron-donating groups</h4><p className="text-sm text-amber-900">Destabilise RCOO<sup>-</sup> and therefore decrease acidity.</p></div>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">Increasing electron-withdrawing effect:</p>
+          <p className="font-mono text-xs text-slate-700 mt-2">Ph &lt; I &lt; Br &lt; Cl &lt; F &lt; CN &lt; NO<sub>2</sub> &lt; CF<sub>3</sub></p>
+          <p className="text-sm font-bold text-slate-800 mt-3">Decreasing acid strength:</p>
+          <p className="font-mono text-xs leading-relaxed text-slate-700 mt-2">CF<sub>3</sub>COOH &gt; CCl<sub>3</sub>COOH &gt; CHCl<sub>2</sub>COOH &gt; NO<sub>2</sub>CH<sub>2</sub>COOH &gt; NC-CH<sub>2</sub>COOH &gt; FCH<sub>2</sub>COOH &gt; ClCH<sub>2</sub>COOH &gt; BrCH<sub>2</sub>COOH &gt; HCOOH &gt; ClCH<sub>2</sub>CH<sub>2</sub>COOH &gt; C<sub>6</sub>H<sub>5</sub>COOH &gt; C<sub>6</sub>H<sub>5</sub>CH<sub>2</sub>COOH &gt; CH<sub>3</sub>COOH &gt; CH<sub>3</sub>CH<sub>2</sub>COOH</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Reactions Involving O-H Cleavage</h3>
+        <div className="my-4 p-4 bg-cyan-50 rounded-xl border border-cyan-200 space-y-2">
+          <p className="font-mono text-sm text-cyan-900">2RCOOH + 2Na &rarr; 2RCOONa + H<sub>2</sub></p>
+          <p className="font-mono text-sm text-cyan-900">RCOOH + NaOH &rarr; RCOONa + H<sub>2</sub>O</p>
+          <p className="font-mono text-sm text-cyan-900">RCOOH + NaHCO<sub>3</sub> &rarr; RCOONa + H<sub>2</sub>O + CO<sub>2</sub></p>
+          <p className="text-sm text-cyan-800">Unlike phenols, carboxylic acids react with carbonates and hydrogencarbonates. CO<sub>2</sub> effervescence detects the carboxyl group.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Reactions Involving C-OH Cleavage</h3>
+        <ul className="list-disc pl-5 space-y-3 text-sm">
+          <li><strong>Anhydride formation:</strong> heating carboxylic acids with a mineral acid such as H<sub>2</sub>SO<sub>4</sub>, or with P<sub>2</sub>O<sub>5</sub>, gives the corresponding anhydride.</li>
+          <li><strong>Esterification:</strong> RCOOH + R&apos;OH &#8652; RCOOR&apos; + H<sub>2</sub>O, catalysed by concentrated H<sub>2</sub>SO<sub>4</sub> or HCl gas. Protonation activates the carbonyl, alcohol adds, proton transfer makes water a good leaving group, and deprotonation gives the ester.</li>
+          <li><strong>Amide formation:</strong> RCOOH + NH<sub>3</sub> first gives an ammonium carboxylate; heating at high temperature removes water and gives RCONH<sub>2</sub>.</li>
+        </ul>
+        <div className="my-4 p-4 bg-orange-50 rounded-xl border border-orange-200 space-y-2">
+          <p className="font-mono text-xs text-orange-900">RCOOH + PCl<sub>5</sub> &rarr; RCOCl + POCl<sub>3</sub> + HCl</p>
+          <p className="font-mono text-xs text-orange-900">3RCOOH + PCl<sub>3</sub> &rarr; 3RCOCl + H<sub>3</sub>PO<sub>3</sub></p>
+          <p className="font-mono text-xs text-orange-900">RCOOH + SOCl<sub>2</sub> &rarr; RCOCl + SO<sub>2</sub> + HCl</p>
+          <p className="text-sm text-orange-800">SOCl<sub>2</sub> is preferred because SO<sub>2</sub> and HCl are gases and escape, making purification easier.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Reactions of the Complete -COOH Group</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="font-mono text-sm text-emerald-900">RCOOH &mdash;(i) LiAlH<sub>4</sub>/ether or B<sub>2</sub>H<sub>6</sub>; (ii) H<sub>3</sub>O<sup>+</sup>&rarr; RCH<sub>2</sub>OH</p>
+          <p className="text-sm text-emerald-800 mt-2">Diborane is better because it does not easily reduce ester, nitro, or halo groups. NaBH<sub>4</sub> does not reduce the carboxyl group.</p>
+        </div>
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="font-mono text-sm text-red-900">RCOONa &mdash;(NaOH : CaO = 3 : 1, heat)&rarr; RH + Na<sub>2</sub>CO<sub>3</sub></p>
+          <p className="text-sm text-red-800 mt-2">This is soda-lime decarboxylation. The product hydrocarbon has one carbon fewer than the original acid. Electrolysis of aqueous alkali-metal carboxylates instead gives a hydrocarbon with twice the number of carbon atoms in the acid&apos;s alkyl group (Kolbe electrolysis).</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Substitution in the Hydrocarbon Part</h3>
+        <div className="my-4 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="text-sm text-violet-900"><strong>Hell-Volhard-Zelinsky reaction:</strong> acids containing an alpha-hydrogen react with Cl<sub>2</sub> or Br<sub>2</sub> in the presence of a small amount of red phosphorus, followed by water, to form alpha-halocarboxylic acids.</p>
+          <p className="font-mono text-xs text-violet-800 mt-2">RCH<sub>2</sub>COOH &mdash;(i) X<sub>2</sub>/red P; (ii) H<sub>2</sub>O&rarr; RCHXCOOH &nbsp; (X = Cl or Br)</p>
+        </div>
+        <p>Aromatic carboxylic acids undergo electrophilic substitution with -COOH acting as a <strong>deactivating, meta-directing group</strong>. They do not undergo Friedel-Crafts reaction because the ring is deactivated and AlCl<sub>3</sub> bonds to the carboxyl group.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. NCERT Uses</h3>
+        <p className="text-sm">Methanoic acid is used in rubber, textile, dyeing, leather, and electroplating industries; ethanoic acid is a solvent and vinegar component; hexanedioic acid is used for nylon-6,6; benzoate esters are used in perfumery; and sodium benzoate is a food preservative.</p>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'aldehyde-ketone-reactivity') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Aldehyde vs Ketone Reactivity</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Aldehydes and ketones undergo nucleophilic addition at the polar carbonyl group. Aldehydes are generally more reactive because their carbonyl carbon is less crowded and more electrophilic. <span className="text-sm text-slate-500">NCERT Class 12 Chemistry, Aldehydes, Ketones and Carboxylic Acids, Figs. 8.1-8.2 and Example 8.3</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Structure and Polarity of the Carbonyl Group</h3>
+        <div className="my-4 p-4 bg-cyan-50 rounded-xl border border-cyan-200">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-cyan-950">
+            <li>The carbonyl carbon is <strong>sp<sup>2</sup> hybridised</strong> and trigonal coplanar; bond angles are approximately <strong>120 degrees</strong>.</li>
+            <li>The pi-electron cloud lies above and below the plane, and oxygen has two non-bonding electron pairs.</li>
+            <li>Because oxygen is more electronegative, carbon is <strong>delta+</strong> and electrophilic (Lewis acid), while oxygen is <strong>delta-</strong> and nucleophilic (Lewis base).</li>
+            <li>An aldehyde has one carbon group and one H on the carbonyl carbon; a ketone has two carbon groups.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. NCERT Nucleophilic Addition Mechanism</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <ol className="list-decimal pl-5 space-y-2 text-sm text-emerald-950">
+            <li>Nu<sup>-</sup> approaches the electrophilic carbon approximately perpendicular to the plane of its sp<sup>2</sup> orbitals.</li>
+            <li>The carbon changes from sp<sup>2</sup> to sp<sup>3</sup>, forming a <strong>tetrahedral alkoxide intermediate</strong>.</li>
+            <li>The alkoxide rapidly captures H<sup>+</sup> from the medium to form the electrically neutral addition product.</li>
+          </ol>
+          <p className="font-mono text-sm text-emerald-800 text-center mt-3">&gt;C=O + Nu<sup>-</sup> + H<sup>+</sup> -&gt; &gt;C(OH)(Nu)</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Why Aldehydes Are Generally More Reactive</h3>
+        <div className="grid gap-4 my-6 sm:grid-cols-2">
+          <div className="bg-amber-50 p-5 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900 mb-2">Steric reason</h4>
+            <p className="text-sm text-amber-900">A ketone's two relatively large substituents hinder nucleophile approach more than the single large substituent in an aldehyde.</p>
+          </div>
+          <div className="bg-violet-50 p-5 rounded-xl border border-violet-200">
+            <h4 className="font-bold text-violet-900 mb-2">Electronic reason</h4>
+            <p className="text-sm text-violet-900">Two electron-donating alkyl groups reduce the electrophilicity of ketone carbonyl carbon more effectively than the one alkyl group of an aldehyde.</p>
+          </div>
+        </div>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="text-sm text-rose-900"><strong>NCERT Example 8.3:</strong> benzaldehyde is less reactive than propanal. Conjugation with the benzene ring reduces carbonyl polarity by resonance, so benzaldehyde's carbonyl carbon is less electrophilic.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Important Addition Reactions</h3>
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full text-sm border border-slate-200">
+            <thead><tr className="bg-slate-100"><th className="p-2 text-left">Reagent</th><th className="p-2 text-left">NCERT observation</th></tr></thead>
+            <tbody>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">HCN / base</td><td className="p-2">Pure HCN reacts very slowly. Base generates the stronger nucleophile CN<sup>-</sup>, giving cyanohydrins, useful synthetic intermediates.</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">NaHSO<sub>3</sub></td><td className="p-2">Forms crystalline, water-soluble bisulphite adducts. Equilibrium lies largely right for most aldehydes and left for most ketones due to steric reasons.</td></tr>
+              <tr className="border-t border-slate-200"><td className="p-2 font-bold">H<sub>2</sub>N-Z</td><td className="p-2">Acid-catalysed reversible addition followed by rapid dehydration gives &gt;C=N-Z derivatives.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm text-blue-900"><strong>Separation and purification:</strong> treating a bisulphite adduct with dilute mineral acid or alkali regenerates the original carbonyl compound. NCERT therefore uses these water-soluble adducts for separation and purification of aldehydes.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore</h3>
+        <ul className="list-disc pl-5 space-y-2 text-sm text-slate-700">
+          <li>Compare the open attack path of an aldehyde with the crowded path of a ketone.</li>
+          <li>Follow carbonyl carbon from planar sp<sup>2</sup> geometry to the tetrahedral sp<sup>3</sup> intermediate, then watch proton capture.</li>
+          <li>Use Resonance mode to compare propanal with benzaldehyde.</li>
+          <li>Use Bisulphite mode to connect steric hindrance with equilibrium position and purification.</li>
+        </ul>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'conductance-concentration') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conductance vs Concentration</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          How well an electrolyte solution conducts depends on how many ions are present and how freely they move. Tracking conductivity and molar conductivity as a solution is diluted reveals the difference between strong and weak electrolytes — and lets us measure a weak acid's dissociation. <span className="text-sm text-slate-500">NCERT Class 12 · Ch 2 Electrochemistry · §2.4</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Conductivity (κ) and Molar Conductivity (Λm)</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm font-bold text-amber-900">Conductivity κ</p>
+          <p className="text-sm text-amber-800 mt-1">Conductance of unit volume of solution between electrodes 1 cm apart with 1 cm² area. <strong>κ always decreases on dilution</strong> — fewer ions per unit volume to carry current.</p>
+        </div>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm font-bold text-emerald-900">Molar conductivity Λm</p>
+          <p className="font-mono text-sm text-emerald-800 text-center mt-2">Λm = κ × 1000 / c &nbsp;(S cm² mol⁻¹)</p>
+          <p className="text-sm text-emerald-700 mt-2"><strong>Λm increases on dilution</strong> — the same one mole of electrolyte spreads through more volume, so more ions conduct.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Strong vs Weak Electrolytes</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm font-bold text-blue-900">Strong electrolytes (KCl, NaCl, HCl)</p>
+          <p className="font-mono text-sm text-blue-800 text-center mt-2">Λm = Λ°m − A·√c &nbsp;(Eq 2.23)</p>
+          <p className="text-sm text-blue-700 mt-2">A plot of Λm vs √c is a <strong>straight line</strong>; the y-intercept gives Λ°m (limiting molar conductivity) and the slope is −A. For KCl, Λ°m = 150.0 and A = 87.46.</p>
+        </div>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm font-bold text-purple-900">Weak electrolytes (CH₃COOH)</p>
+          <p className="text-sm text-purple-800 mt-1">Λm rises <strong>steeply</strong> at low concentration because the degree of dissociation α grows toward 1. Λ°m <em>cannot</em> be found by extrapolation — it is obtained from Kohlrausch's law instead.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Kohlrausch's Law of Independent Migration</h3>
+        <div className="my-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="font-mono text-lg text-violet-800 text-center"><strong>Λ°m = ν₊·λ°₊ + ν₋·λ°₋</strong> &nbsp;(Eq 2.25)</p>
+          <p className="text-sm text-violet-700 text-center mt-2">Each ion contributes its own fixed λ° at infinite dilution.</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">Worked example (NCERT 2.8)</p>
+          <p className="text-sm text-slate-700 mt-2">Λ°m(HAc) = Λ°m(HCl) + Λ°m(NaAc) − Λ°m(NaCl) = 425.9 + 91.0 − 126.4 = <strong>390.5 S cm² mol⁻¹</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Weak-Acid Dissociation from Conductivity</h3>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="font-mono text-sm text-rose-800 text-center">α = Λm / Λ°m &nbsp;(Eq 2.26) &nbsp;·&nbsp; Ka = cα²/(1−α) = c·Λm² / [Λ°m(Λ°m − Λm)] &nbsp;(Eq 2.27)</p>
+          <p className="text-sm text-rose-700 mt-2"><strong>NCERT 2.9:</strong> 0.001028 M acetic acid, κ = 4.95×10⁻⁵ ⇒ Λm = 48.15, α = 0.1233, Ka = <strong>1.78×10⁻⁵</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">💧 Water purity &amp; sensors</h4>
+          <p className="text-sm">Conductivity meters check the purity of drinking and distilled water (pure water conducts almost nothing) and monitor industrial process streams.</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🧪 Conductometric titration</h4>
+          <p className="text-sm">Following conductivity during a titration pinpoints the equivalence point even in coloured or dilute solutions, where indicators fail.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'ideal-nonideal-solutions') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Ideal vs Non-ideal Solutions</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When two volatile liquids mix, their combined vapour pressure either follows Raoult's straight-line prediction (ideal) or bows above/below it (non-ideal) — and the molecular reason is the balance of A–A, B–B and A–B forces. <span className="text-sm text-slate-500">NCERT Class 12 · Ch 1 Solutions · §1.4–§1.5</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Raoult's Law for Two Volatile Liquids</h3>
+        <div className="my-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="font-mono text-lg text-violet-800 text-center"><strong>p₁ = p₁°·x₁ &nbsp; p₂ = p₂°·x₂ &nbsp; p_total = x₁p₁° + x₂p₂°</strong></p>
+          <p className="text-sm text-violet-700 text-center mt-2">Each component's partial pressure = its pure vapour pressure × its mole fraction in the liquid.</p>
+        </div>
+        <p>The vapour is always richer in the more volatile component (Dalton's law: yᵢ = pᵢ / p_total).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Ideal Solutions</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-800">Obey Raoult's law over the <strong>entire</strong> composition range because A–B forces ≈ A–A ≈ B–B.</p>
+          <p className="font-mono text-sm text-slate-700 text-center mt-2">Δmix H = 0 &nbsp;·&nbsp; Δmix V = 0</p>
+          <p className="text-xs text-slate-600 mt-2">No heat change, no volume change on mixing. Examples: benzene + toluene, n-hexane + n-heptane, bromoethane + chloroethane.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Non-ideal Solutions — Two Deviations</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm font-bold text-amber-900">Positive deviation (P higher than Raoult)</p>
+          <p className="text-sm text-amber-800 mt-1">A–B forces <strong>weaker</strong> than A–A/B–B ⇒ molecules escape more easily ⇒ vapour pressure rises. <span className="font-mono">Δmix H &gt; 0, Δmix V &gt; 0</span> (endothermic, expands).</p>
+          <p className="text-xs text-amber-700 mt-2">Example: ethanol + acetone (acetone breaks ethanol's H-bonds); also CS₂ + acetone.</p>
+        </div>
+        <div className="my-4 p-4 bg-cyan-50 rounded-xl border border-cyan-200">
+          <p className="text-sm font-bold text-cyan-900">Negative deviation (P lower than Raoult)</p>
+          <p className="text-sm text-cyan-800 mt-1">A–B forces <strong>stronger</strong> than A–A/B–B ⇒ molecules held back ⇒ vapour pressure falls. <span className="font-mono">Δmix H &lt; 0, Δmix V &lt; 0</span> (exothermic, contracts).</p>
+          <p className="text-xs text-cyan-700 mt-2">Example: chloroform + acetone (new H-bond between CHCl₃–H and acetone C=O); also phenol + aniline.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Azeotropes</h3>
+        <p>Large deviations create <strong>azeotropes</strong> — mixtures with the <em>same composition in liquid and vapour</em>, boiling at a constant temperature, so they cannot be separated by fractional distillation.</p>
+        <div className="my-4 p-4 bg-orange-50 rounded-xl border border-orange-200">
+          <p className="text-sm font-bold text-orange-900">Minimum-boiling azeotrope</p>
+          <p className="text-sm text-orange-800 mt-1">From large <strong>positive</strong> deviation. Boils below both components. <strong>Ethanol–water at ≈ 95% v/v ethanol</strong> — why pure (100%) ethanol cannot be obtained by distillation.</p>
+        </div>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="text-sm font-bold text-rose-900">Maximum-boiling azeotrope</p>
+          <p className="text-sm text-rose-800 mt-1">From large <strong>negative</strong> deviation. Boils above both components. <strong>Nitric acid–water at ≈ 68% HNO₃ by mass, bp 393.5 K</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Worked Check (NCERT Intext 1.8)</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm text-emerald-800">Pure A and B have p° = 450 and 700 mm Hg at 350 K. If p_total = 600 mm Hg, then <span className="font-mono">600 = 450·x_A + 700·(1−x_A)</span> ⇒ x_A = 0.4, x_B = 0.6. Vapour: y_B = (700×0.6)/600 = <strong>0.7</strong>, y_A = 0.3 — vapour is richer in the more volatile B.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'solution-colligative') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Solution Concentration &amp; Colligative Effect</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Some properties of a solution depend only on the <strong>number</strong> of dissolved solute particles, not on what they are. These are the colligative properties — and they let chemists weigh a molecule without a balance. <span className="text-sm text-slate-500">NCERT Class 12 · Ch 1 Solutions · §1.6</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Concentration — Molality is the Key Unit</h3>
+        <p>Colligative formulas use <strong>molality (m)</strong>, not molarity, because mass does not change with temperature while volume does.</p>
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="font-mono text-sm text-teal-800 text-center">molality (m) = moles of solute / mass of solvent (in kg)</p>
+          <p className="text-xs text-teal-700 mt-2 text-center">Mole fraction and mass % are also temperature-independent; molarity (mol/L) is not.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Four Colligative Properties</h3>
+
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">1 · Relative lowering of vapour pressure</p>
+          <p className="font-mono text-sm text-slate-700 text-center mt-2">(p°₁ − p₁) / p°₁ = i · n₂ / n₁</p>
+          <p className="text-xs text-slate-600 mt-2">A non-volatile solute lowers the solvent's vapour pressure; the relative lowering equals the mole fraction of solute (Raoult's law).</p>
+        </div>
+
+        <div className="my-4 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p className="text-sm font-bold text-red-900">2 · Elevation of boiling point (ΔT_b)</p>
+          <p className="font-mono text-sm text-red-800 text-center mt-2">ΔT_b = i · K_b · m</p>
+          <p className="text-xs text-red-700 mt-2">K_b = molal elevation (ebullioscopic) constant of the solvent. For water K_b = 0.52, benzene 2.53 K kg mol⁻¹ (Table 1.3).</p>
+        </div>
+
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm font-bold text-blue-900">3 · Depression of freezing point (ΔT_f)</p>
+          <p className="font-mono text-sm text-blue-800 text-center mt-2">ΔT_f = i · K_f · m</p>
+          <p className="text-xs text-blue-700 mt-2">K_f = molal depression (cryoscopic) constant. For water K_f = 1.86, benzene 5.12 K kg mol⁻¹. The solution freezes when its vapour pressure equals that of the pure solid solvent.</p>
+        </div>
+
+        <div className="my-4 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="text-sm font-bold text-violet-900">4 · Osmotic pressure (π)</p>
+          <p className="font-mono text-sm text-violet-800 text-center mt-2">π = i · C · R · T</p>
+          <p className="text-xs text-violet-700 mt-2">Solvent flows through a semipermeable membrane into the solution; π is the pressure needed to stop it. Best for macromolecules because it is measurable at room temperature.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. van't Hoff Factor (i)</h3>
+        <p>Colligative properties count <em>particles</em>. The van't Hoff factor corrects for solutes that split apart or clump together:</p>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="font-mono text-sm text-amber-800 text-center">i = (observed colligative effect) / (effect if no dissociation/association)</p>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-amber-900 mt-3">
+            <li><strong>i = 1</strong> — non-electrolytes (urea, glucose).</li>
+            <li><strong>i &gt; 1</strong> — dissociation: NaCl, KCl → i ≈ 2; K₂SO₄ → i ≈ 3 (Table 1.4).</li>
+            <li><strong>i &lt; 1</strong> — association: ethanoic acid in benzene → i ≈ 0.5 (dimerises).</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Finding Molar Mass</h3>
+        <div className="my-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="font-mono text-lg text-emerald-800 text-center"><strong>M₂ = (K_f · w₂ · 1000) / (ΔT_f · w₁)</strong></p>
+          <p className="text-sm text-emerald-700 text-center mt-2">w₂ = mass of solute, w₁ = mass of solvent (g). A matching form uses K_b and ΔT_b.</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm font-bold text-slate-800">Worked example (NCERT 1.8)</p>
+          <p className="text-sm text-slate-700 mt-2">1.80 g of a non-volatile solute in 90 g benzene raises the boiling point by 0.88 K (K_b = 2.53). <span className="font-mono">M₂ = (2.53 × 1.80 × 1000) / (0.88 × 90) = 58 g mol⁻¹</span>.</p>
+        </div>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="text-sm font-bold text-rose-900">Abnormal molar mass</p>
+          <p className="text-sm text-rose-800 mt-2"><strong>Dissociation</strong> ⇒ more particles ⇒ <em>lower</em> apparent molar mass. <strong>Association</strong> ⇒ fewer particles ⇒ <em>higher</em> apparent molar mass. The factor i corrects both.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">❄️ Salt on icy roads &amp; antifreeze</h4>
+          <p className="text-sm">NaCl depresses the freezing point of water (i ≈ 2), melting ice below 0 °C. Ethylene glycol in a car radiator both lowers the freezing point and raises the boiling point (NCERT Ex 1.9).</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">🩸 Osmosis in biology &amp; medicine</h4>
+          <p className="text-sm">Cells live in isotonic fluid; IV fluids must match blood's osmotic pressure. Reverse osmosis (pressure &gt; π) purifies sea water.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'periodic-trends-explorer') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Periodic Trends in Properties of Elements</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Four fundamental properties — <strong>atomic radius</strong>, <strong>ionisation enthalpy</strong>, <strong>electronegativity</strong>, and <strong>metallic character</strong> — all flow from one root cause: the trade-off between nuclear charge and shell number. <span className="text-sm text-slate-500">NCERT Class 11 · Ch 3 Classification of Elements &amp; Periodicity · §3.7 + Fig 3.7</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Atomic Radius</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm text-amber-900"><strong>Across a period (→):</strong> decreases. Effective nuclear charge rises while shell number stays constant — valence electrons are pulled in closer.</p>
+          <p className="text-sm text-amber-900 mt-2"><strong>Down a group (↓):</strong> increases. Each row adds a new shell; outer electrons move farther from the nucleus.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Ionisation Enthalpy</h3>
+        <p>The energy needed to remove the outermost electron from a gaseous atom: X(g) → X⁺(g) + e⁻.</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm text-emerald-900"><strong>Across (→):</strong> increases — smaller radius + larger Z<sub>eff</sub> ⇒ tighter grip on the outer electron.</p>
+          <p className="text-sm text-emerald-900 mt-2"><strong>Down (↓):</strong> decreases — outer electron is farther and more shielded.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Electronegativity (Pauling Scale)</h3>
+        <p>The tendency of an atom in a bond to attract shared electrons.</p>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm text-purple-900"><strong>Across (→):</strong> increases — same reason as IE.</p>
+          <p className="text-sm text-purple-900 mt-2"><strong>Down (↓):</strong> decreases — atomic radius grows.</p>
+        </div>
+        <p className="text-sm font-bold text-slate-800 mt-4">NCERT Table 3.8(a) — Period 2 Pauling values</p>
+        <div className="my-2 overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead className="bg-purple-50 text-purple-900">
+              <tr><th className="px-3 py-2">Li</th><th className="px-3 py-2">Be</th><th className="px-3 py-2">B</th><th className="px-3 py-2">C</th><th className="px-3 py-2">N</th><th className="px-3 py-2">O</th><th className="px-3 py-2">F</th></tr>
+            </thead>
+            <tbody className="text-slate-700 text-center font-mono">
+              <tr className="border-t border-slate-100"><td>1.0</td><td>1.5</td><td>2.0</td><td>2.5</td><td>3.0</td><td>3.5</td><td>4.0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm font-bold text-slate-800 mt-4">Group 17 — going down</p>
+        <div className="my-2 overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead className="bg-purple-50 text-purple-900">
+              <tr><th className="px-3 py-2">F</th><th className="px-3 py-2">Cl</th><th className="px-3 py-2">Br</th><th className="px-3 py-2">I</th><th className="px-3 py-2">At</th></tr>
+            </thead>
+            <tbody className="text-slate-700 text-center font-mono">
+              <tr className="border-t border-slate-100"><td>4.0</td><td>3.0</td><td>2.8</td><td>2.5</td><td>2.2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Metallic Character</h3>
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="text-sm text-teal-900"><strong>Inversely related to electronegativity.</strong> Across a period metallic character <em>decreases</em>; down a group it <em>increases</em>.</p>
+          <p className="text-sm text-teal-900 mt-2">Hence reactivity peaks at the <strong>two extremes</strong> (Group 1 metals by losing e⁻ ; Group 17 non-metals by gaining e⁻) and is lowest in the centre.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Oxide Character</h3>
+        <p className="text-sm">From NCERT summary: oxides of left-block elements are <strong>basic</strong>, right-block oxides are <strong>acidic</strong>, central elements give <strong>amphoteric or neutral</strong> oxides. Direct consequence of electronegativity trend.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Real-World Applications</h3>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">Alkali Metals in Sodium-Vapour Lamps</h4>
+          <p className="text-sm">Na's low IE (496 kJ mol⁻¹) is why the bulb glows yellow at modest voltage — outer electrons jump easily.</p>
+        </div>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">Why F₂ Bleaches and I₂ Barely Reacts</h4>
+          <p className="text-sm">F has the highest electronegativity (4.0) and smallest radius — it rips electrons off almost anything. I (2.5) is mild enough to colour starch but not strip pigments.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'hydrogen-bonding-molecular-interaction') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Hydrogen Bonding and Molecular Interaction</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When H is covalently bonded to F, O, or N, the electron pair shifts toward the electronegative atom. The hydrogen acquires δ⁺ and the other atom δ⁻ — and the resulting electrostatic attraction <strong>between</strong> molecules is the <strong>hydrogen bond</strong>. <span className="text-sm text-slate-500">NCERT Class 11 · Ch 4 Chemical Bonding &amp; Molecular Structure · §4.9</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. NCERT Definition</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="text-sm text-amber-900"><strong>Hydrogen bond:</strong> the attractive force that binds the hydrogen atom of one molecule with an electronegative atom (F, O or N) of another molecule. It is <strong>weaker than a covalent bond</strong> and is drawn as a <strong>dotted line</strong>; covalent bonds use a solid line.</p>
+        </div>
+        <p className="text-sm">Example chain in HF (NCERT):</p>
+        <div className="my-2 p-3 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-sm text-slate-800 text-center">H<sup>δ+</sup>—F<sup>δ−</sup> · · · H<sup>δ+</sup>—F<sup>δ−</sup> · · · H<sup>δ+</sup>—F<sup>δ−</sup></p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Cause of Formation (§4.9.1)</h3>
+        <p>When H is bonded to a strongly electronegative element X, the shared electron pair moves toward X. The hydrogen ends up <strong>electropositive (δ⁺)</strong>, X ends up <strong>electronegative (δ⁻)</strong>. The H<sup>δ+</sup> of one molecule electrostatically attracts the X<sup>δ−</sup> of a neighbour.</p>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm text-purple-900"><strong>State dependence:</strong> magnitude is <strong>maximum in the solid state</strong> and <strong>minimum in the gaseous state</strong> — H-bonding strongly influences both structure and properties of these compounds.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Two Types of H-Bonds (§4.9.2)</h3>
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="text-sm text-teal-900"><strong>1 · Intermolecular H-bond</strong> — between two different molecules of the same or different compounds. Examples: HF, alcohols, water.</p>
+        </div>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm text-emerald-900"><strong>2 · Intramolecular H-bond</strong> — H sits between two electronegative atoms in the <em>same</em> molecule. Canonical example: <strong>o-nitrophenol</strong> (NCERT Fig 4.22), where H sits between the phenol-O and the NO₂-O.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Why H-Bonding Matters</h3>
+        <ul className="list-disc pl-5 space-y-2 text-sm">
+          <li><strong>Anomalously high boiling points</strong> of H₂O, HF, NH₃ vs their heavier group-mates (H₂S, HCl, PH₃) — heavier molecules <em>without</em> H-bonding boil lower.</li>
+          <li><strong>Ice less dense than water</strong> — open H-bonded lattice in the solid state.</li>
+          <li><strong>Solubility</strong> of small alcohols and amines in water — they swap into the H-bond network.</li>
+          <li><strong>Lower b.p. of o-nitrophenol vs m- and p-nitrophenol</strong> — intramolecular H-bond "uses up" the H, so it cannot link to neighbours.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Applications</h3>
+        <div className="bg-sky-50 p-6 rounded-xl border border-sky-200 shadow-sm my-4">
+          <h4 className="font-bold text-sky-900 mb-2">Water of Life</h4>
+          <p className="text-sm">Water's huge specific heat, surface tension and unique density profile all trace back to H-bonding. Without it, oceans would freeze solid from the bottom up and life as we know it would not exist.</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">DNA Double Helix</h4>
+          <p className="text-sm">A–T pairs share <strong>2</strong> H-bonds; G–C pairs share <strong>3</strong>. The whole genetic code is held by H-bonds weak enough to be peeled apart by enzymes, strong enough to keep the strands together.</p>
+        </div>
+        <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">Cotton vs Silk</h4>
+          <p className="text-sm">Cellulose chains in cotton are stitched together by H-bonds between OH groups; silk proteins are stitched by H-bonds between N–H and C=O. Both fabrics get their strength from this tiny dotted line.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'weak-acid-base-ionization') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Ionization of Weak Acids/Bases and Equilibrium K</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Weak acids and bases do <strong>not</strong> ionize completely in water. They set up an <strong>equilibrium</strong> between the undissociated molecule and its ions, governed by the ionization constant K<sub>a</sub> (acids) or K<sub>b</sub> (bases). <span className="text-sm text-slate-500">NCERT Class 11 · Ch 6 Equilibrium · §6.11.3 – §6.11.5</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Ionization of a Weak Acid</h3>
+        <p>For a generic weak acid HX in water:</p>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="font-mono text-lg text-amber-800 text-center">HX(aq) + H<sub>2</sub>O(l) ⇌ H<sub>3</sub>O<sup>+</sup>(aq) + X<sup>−</sup>(aq)</p>
+        </div>
+        <p>If <em>c</em> is the initial concentration and <em>α</em> the degree (extent) of ionization, the equilibrium concentrations are HX = c(1−α), H<sub>3</sub>O<sup>+</sup> = cα, X<sup>−</sup> = cα. Substituting into the equilibrium expression:</p>
+        <div className="my-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="font-mono text-lg text-purple-700 text-center">K<sub>a</sub> = [H<sub>3</sub>O<sup>+</sup>][X<sup>−</sup>] / [HX] = cα² / (1 − α) &nbsp; <span className="text-sm">(Eqn 6.30)</span></p>
+          <p className="font-mono text-base text-purple-700 text-center mt-2">pK<sub>a</sub> = − log K<sub>a</sub> &nbsp; <span className="text-sm">(Eqn 6.31)</span></p>
+        </div>
+        <p className="text-sm">A <strong>larger K<sub>a</sub></strong> ⇒ stronger acid. K<sub>a</sub> is dimensionless (standard-state 1 M). Per-cent dissociation:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-base text-slate-700 text-center">% dissociation = [HA]<sub>dissociated</sub> / [HA]<sub>initial</sub> × 100% &nbsp; <span className="text-sm">(Eqn 6.32)</span></p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Selected K<sub>a</sub> Values (NCERT Table 6.6, 298 K)</h3>
+        <div className="my-4 overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead className="bg-amber-50 text-amber-900">
+              <tr><th className="px-3 py-2 text-left">Acid</th><th className="px-3 py-2 text-left">K<sub>a</sub></th><th className="px-3 py-2 text-left">pK<sub>a</sub></th></tr>
+            </thead>
+            <tbody className="text-slate-700">
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">HF</td><td className="font-mono">6.8 × 10⁻⁴</td><td className="font-mono">3.17</td></tr>
+              <tr className="border-t border-slate-100 bg-slate-50"><td className="px-3 py-1.5">HCOOH (formic)</td><td className="font-mono">1.8 × 10⁻⁴</td><td className="font-mono">3.74</td></tr>
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">HOCl</td><td className="font-mono">2.5 × 10⁻⁵</td><td className="font-mono">4.60</td></tr>
+              <tr className="border-t border-slate-100 bg-slate-50"><td className="px-3 py-1.5">CH<sub>3</sub>COOH (acetic)</td><td className="font-mono">1.8 × 10⁻⁵</td><td className="font-mono">4.74</td></tr>
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">HCN</td><td className="font-mono">4.9 × 10⁻¹⁰</td><td className="font-mono">9.31</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Ionization of a Weak Base</h3>
+        <p>For a weak base B (or MOH) in water:</p>
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="font-mono text-lg text-teal-800 text-center">B(aq) + H<sub>2</sub>O(l) ⇌ BH<sup>+</sup>(aq) + OH<sup>−</sup>(aq)</p>
+        </div>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="font-mono text-lg text-purple-700 text-center">K<sub>b</sub> = [BH<sup>+</sup>][OH<sup>−</sup>] / [B] = cα² / (1 − α) &nbsp; <span className="text-sm">(Eqn 6.33)</span></p>
+          <p className="font-mono text-base text-purple-700 text-center mt-2">pK<sub>b</sub> = − log K<sub>b</sub> &nbsp; <span className="text-sm">(Eqn 6.34)</span></p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Selected K<sub>b</sub> Values (NCERT Table 6.7, 298 K)</h3>
+        <div className="my-4 overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead className="bg-teal-50 text-teal-900">
+              <tr><th className="px-3 py-2 text-left">Base</th><th className="px-3 py-2 text-left">K<sub>b</sub></th></tr>
+            </thead>
+            <tbody className="text-slate-700">
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">(CH<sub>3</sub>)<sub>2</sub>NH (dimethylamine)</td><td className="font-mono">5.4 × 10⁻⁴</td></tr>
+              <tr className="border-t border-slate-100 bg-slate-50"><td className="px-3 py-1.5">(C<sub>2</sub>H<sub>5</sub>)<sub>3</sub>N (triethylamine)</td><td className="font-mono">6.45 × 10⁻⁵</td></tr>
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">NH<sub>3</sub> (ammonia)</td><td className="font-mono">1.77 × 10⁻⁵</td></tr>
+              <tr className="border-t border-slate-100 bg-slate-50"><td className="px-3 py-1.5">C<sub>5</sub>H<sub>5</sub>N (pyridine)</td><td className="font-mono">1.77 × 10⁻⁹</td></tr>
+              <tr className="border-t border-slate-100"><td className="px-3 py-1.5">C<sub>6</sub>H<sub>5</sub>NH<sub>2</sub> (aniline)</td><td className="font-mono">4.27 × 10⁻¹⁰</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Relation between K<sub>a</sub> and K<sub>b</sub> (§6.11.5)</h3>
+        <p>For a conjugate acid–base pair (e.g., NH<sub>4</sub><sup>+</sup> and NH<sub>3</sub>), the two ionization constants are not independent:</p>
+        <div className="my-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
+          <p className="font-mono text-xl text-violet-800 text-center"><strong>K<sub>a</sub> × K<sub>b</sub> = K<sub>w</sub> = 1.0 × 10⁻¹⁴</strong> at 298 K &nbsp; <span className="text-sm">(Eqn 6.36)</span></p>
+          <p className="font-mono text-base text-violet-700 text-center mt-2"><strong>pK<sub>a</sub> + pK<sub>b</sub> = pK<sub>w</sub> = 14</strong></p>
+        </div>
+        <p className="text-sm">Knowing one fixes the other. A <strong>strong acid has a weak conjugate base</strong>, and vice-versa.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Worked NCERT Example</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-700"><strong>Problem 6.20 (NCERT).</strong> 0.08 M HOCl, K<sub>a</sub> = 2.5 × 10⁻⁵. Find pH and % dissociation.</p>
+          <p className="text-sm text-slate-700 mt-2">Apply K<sub>a</sub> ≈ x²/0.08 ⇒ x = [H<sup>+</sup>] = 1.41 × 10⁻³ M. <strong>pH = 2.85</strong>. % dissociation = 1.41 × 10⁻³ / 0.08 × 100 = <strong>1.76 %</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Applications</h3>
+        <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm my-4">
+          <h4 className="font-bold text-red-900 mb-2">Blood pH</h4>
+          <p className="text-sm">Human blood is held at pH 7.4 by the H<sub>2</sub>CO<sub>3</sub>/HCO<sub>3</sub><sup>−</sup> weak-acid couple — K<sub>a</sub> × K<sub>b</sub> = K<sub>w</sub> governs how it absorbs metabolic H<sup>+</sup>.</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">Vinegar and Soft Drinks</h4>
+          <p className="text-sm">Acetic acid (K<sub>a</sub> = 1.8 × 10⁻⁵) only ~1 % ionizes — that's why vinegar tangs without burning. Carbonic and citric acids do the same in soft drinks; a strong acid at the same M would etch the can.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'redox-oxidation-number') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Redox Reactions and Oxidation Number</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A <strong>redox</strong> reaction is one where the oxidation number of at least one element changes. Oxidation and reduction always occur together. <span className="text-sm text-slate-500">NCERT Class 11 · Unit 7 Redox Reactions · §7.2 – §7.5</span>
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Three Layered Definitions</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="text-sm text-slate-700"><strong>1 · Classical (§7.1):</strong> oxidation = gain of O / loss of H / gain of electronegative element / loss of electropositive element. Reduction = the reverse.</p>
+          <p className="text-sm text-slate-700 mt-2"><strong>2 · Electron-transfer (§7.2):</strong> <span className="text-amber-700 font-bold">Oxidation = loss of electrons</span> · <span className="text-teal-700 font-bold">Reduction = gain of electrons</span>.</p>
+          <p className="text-sm text-slate-700 mt-2"><strong>3 · Oxidation-number (§7.3):</strong> assign each atom an ON; an <em>increase</em> = oxidation, a <em>decrease</em> = reduction.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The 7 Rules for Assigning Oxidation Number (§7.3)</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <ol className="list-decimal pl-5 space-y-2 text-sm text-amber-900">
+            <li><strong>Free element</strong> (H<sub>2</sub>, O<sub>2</sub>, Cl<sub>2</sub>, O<sub>3</sub>, P<sub>4</sub>, S<sub>8</sub>, Na, Mg, Al) ⇒ ON = <strong>0</strong>.</li>
+            <li><strong>Monoatomic ion</strong> ⇒ ON = charge (Na<sup>+</sup> = +1, Mg<sup>2+</sup> = +2, Cl<sup>−</sup> = −1, O<sup>2−</sup> = −2).</li>
+            <li><strong>Alkali</strong> = +1, <strong>alkaline earth</strong> = +2, <strong>Al</strong> = +3 in compounds.</li>
+            <li><strong>Oxygen</strong> = −2 normally; <strong>−1 in peroxides</strong> (H<sub>2</sub>O<sub>2</sub>, Na<sub>2</sub>O<sub>2</sub>); <strong>−½ in superoxides</strong> (KO<sub>2</sub>, RbO<sub>2</sub>); <strong>+2 in OF<sub>2</sub>, +1 in O<sub>2</sub>F<sub>2</sub></strong>.</li>
+            <li><strong>Hydrogen</strong> = +1 normally; <strong>−1 in metallic hydrides</strong> (LiH, NaH, CaH<sub>2</sub>).</li>
+            <li><strong>Fluorine always −1.</strong> Cl, Br, I = −1 as halides, but positive when bonded to O.</li>
+            <li><strong>Sum of ON</strong> = 0 for neutral compound; = charge for polyatomic ion.</li>
+          </ol>
+        </div>
+        <p className="text-sm">For molecules with two or more atoms of the same element (e.g., Na<sub>2</sub>S<sub>4</sub>O<sub>6</sub>) the calculated ON is the <strong>average</strong> — hence the "fractional ON paradox".</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Definitions (§7.3 boxed)</h3>
+        <div className="my-4 p-4 bg-purple-50 rounded-xl border border-purple-200">
+          <p className="text-sm text-purple-900"><strong>Oxidation:</strong> an <em>increase</em> in the ON of an element.</p>
+          <p className="text-sm text-purple-900 mt-1"><strong>Reduction:</strong> a <em>decrease</em> in the ON of an element.</p>
+          <p className="text-sm text-purple-900 mt-1"><strong>Oxidant (oxidising agent):</strong> a reagent that increases the ON of another element (itself reduced).</p>
+          <p className="text-sm text-purple-900 mt-1"><strong>Reductant (reducing agent):</strong> a reagent that lowers the ON of another element (itself oxidised).</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Classification of Redox Reactions (§7.4)</h3>
+        <div className="grid gap-3 my-4">
+          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200"><strong className="text-blue-900">Combination:</strong> <span className="font-mono text-sm">N<sub>2</sub> + O<sub>2</sub> → 2 NO</span></div>
+          <div className="p-3 bg-orange-50 rounded-xl border border-orange-200"><strong className="text-orange-900">Decomposition:</strong> <span className="font-mono text-sm">2 Pb(NO<sub>3</sub>)<sub>2</sub> → 2 PbO + 4 NO<sub>2</sub> + O<sub>2</sub></span></div>
+          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200"><strong className="text-emerald-900">Displacement:</strong> <span className="font-mono text-sm">NaH + H<sub>2</sub>O → NaOH + H<sub>2</sub></span></div>
+          <div className="p-3 bg-violet-50 rounded-xl border border-violet-200"><strong className="text-violet-900">Disproportionation:</strong> same element oxidised AND reduced. <span className="font-mono text-sm">2 H<sub>2</sub>O<sub>2</sub> → 2 H<sub>2</sub>O + O<sub>2</sub></span>; <span className="font-mono text-sm">Cl<sub>2</sub> + 2 OH<sup>−</sup> → ClO<sup>−</sup> + Cl<sup>−</sup> + H<sub>2</sub>O</span></div>
+        </div>
+        <p className="text-sm"><strong>Fluorine cannot disproportionate</strong> (no positive ON) and <strong>ClO<sub>4</sub><sup>−</sup> cannot</strong> (Cl already at +7).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Balancing Redox Equations (§7.5)</h3>
+        <p className="text-sm font-bold text-slate-800">Method A · Oxidation-Number method (5 steps)</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-700">
+            <li>Write the skeletal equation.</li>
+            <li>Assign ON to every atom; identify which change.</li>
+            <li>Multiply species so that <strong>total increase = total decrease</strong>.</li>
+            <li>Balance ionic charges by adding <strong>H<sup>+</sup></strong> (acidic) or <strong>OH<sup>−</sup></strong> (basic).</li>
+            <li>Balance H and O by adding <strong>H<sub>2</sub>O</strong>.</li>
+          </ol>
+        </div>
+        <p className="text-sm font-bold text-slate-800">Worked Problem 7.8 — Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> + SO<sub>3</sub><sup>2−</sup> in acidic medium</p>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <p className="font-mono text-sm text-amber-900">Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> + 3 SO<sub>3</sub><sup>2−</sup> + 8 H<sup>+</sup> → 2 Cr<sup>3+</sup> + 3 SO<sub>4</sub><sup>2−</sup> + 4 H<sub>2</sub>O</p>
+          <p className="text-xs text-amber-800 mt-2">Cr ↓ +6 → +3 (×2 = decrease 6) · S ↑ +4 → +6 (×3 = increase 6) · 8 H<sup>+</sup> balances charges · 4 H<sub>2</sub>O balances H and O.</p>
+        </div>
+        <p className="text-sm font-bold text-slate-800 mt-4">Method B · Half-Reaction (ion-electron) method (7 steps)</p>
+        <div className="my-4 p-4 bg-teal-50 rounded-xl border border-teal-200">
+          <p className="font-mono text-sm text-teal-900">6 Fe<sup>2+</sup> + Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> + 14 H<sup>+</sup> → 6 Fe<sup>3+</sup> + 2 Cr<sup>3+</sup> + 7 H<sub>2</sub>O</p>
+          <p className="text-xs text-teal-800 mt-2">OX half: Fe<sup>2+</sup> → Fe<sup>3+</sup> + e<sup>−</sup>. RED half: Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> + 14 H<sup>+</sup> + 6 e<sup>−</sup> → 2 Cr<sup>3+</sup> + 7 H<sub>2</sub>O. Multiply OX by 6 to equalise e<sup>−</sup>, add the halves.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Worked NCERT Example (Problem 7.4)</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-sm text-slate-800">2 Cu<sub>2</sub>O(s) + Cu<sub>2</sub>S(s) → 6 Cu(s) + SO<sub>2</sub>(g)</p>
+          <p className="text-sm text-slate-700 mt-2">Cu in Cu<sub>2</sub>O: +1 → 0 (reduction). S in Cu<sub>2</sub>S: −2 → +4 (oxidation). <strong>Cu<sub>2</sub>O is the oxidant</strong>, <strong>Cu<sub>2</sub>S is the reductant</strong>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Applications</h3>
+        <div className="bg-red-50 p-6 rounded-xl border border-red-200 shadow-sm my-4">
+          <h4 className="font-bold text-red-900 mb-2">Household Bleach</h4>
+          <p className="text-sm">Cl<sub>2</sub> + 2 OH<sup>−</sup> → ClO<sup>−</sup> + Cl<sup>−</sup> + H<sub>2</sub>O (Eqn 7.48). The same Cl atom disproportionates into +1 (the colour-killing hypochlorite) and −1 (harmless chloride).</p>
+        </div>
+        <div className="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm my-4">
+          <h4 className="font-bold text-amber-900 mb-2">Thermite Welding of Rails</h4>
+          <p className="text-sm">3 Fe<sub>3</sub>O<sub>4</sub> + 8 Al → 9 Fe + 4 Al<sub>2</sub>O<sub>3</sub>. Al is oxidised (0 → +3), Fe is reduced (+8/3 → 0). Used to weld railway tracks on site.</p>
+        </div>
+        <div className="bg-emerald-50 p-6 rounded-xl border border-emerald-200 shadow-sm my-4">
+          <h4 className="font-bold text-emerald-900 mb-2">Cellular Respiration</h4>
+          <p className="text-sm">A controlled redox cascade in every living cell — carbon in glucose is oxidised toward CO<sub>2</sub>, oxygen is reduced to H<sub>2</sub>O. All the energy that powers you flows through ON changes.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT VIII: ORGANIC CHEMISTRY ---
 
   if (topic?.id === 'qualitative-analysis-organic') {
@@ -1916,6 +3042,117 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           <h4 className="font-bold text-emerald-900 mb-2">ðŸŒ¾ Food &amp; Agriculture (Kjeldahl Method)</h4>
           <p className="text-sm">
             The Kjeldahl method is the global standard for determining protein content in food, grains, and fertilizers. Since proteins contain a specific percentage of nitrogen, finding %N directly reveals nutritional protein value.
+          </p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'purification-techniques') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Purification Techniques</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          After an organic compound is prepared or isolated, it must be purified before its properties or structure can be studied. NCERT groups the common methods by the physical property used for separation.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Sublimation</h3>
+        <p>
+          Sublimation separates a <strong>sublimable solid</strong> from non-sublimable impurities. On heating, the pure compound changes directly from solid to vapour and then deposits again on a cool surface.
+        </p>
+        <div className="my-6 rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-800"><strong>Use when:</strong> one component sublimes, while impurity does not. Example type: camphor or naphthalene mixed with sand.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Crystallisation</h3>
+        <p>
+          Crystallisation purifies solids using solubility differences. The compound should be sparingly soluble at room temperature but appreciably soluble at higher temperature. On cooling the nearly saturated hot solution, pure crystals separate.
+        </p>
+        <div className="my-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">The filtrate, or mother liquor, retains impurities and a small amount of the compound. Coloured impurities can be removed using activated charcoal.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Distillation</h3>
+        <p>
+          Distillation separates volatile liquids from non-volatile impurities, or liquids with sufficiently different boiling points. Vapour of the lower-boiling component forms first, condenses, and is collected separately.
+        </p>
+        <div className="my-6 rounded-xl border border-cyan-200 bg-cyan-50 p-4">
+          <p className="text-sm text-cyan-800"><strong>Fractional distillation:</strong> use a fractionating column when boiling points are close, so vapours become richer in the more volatile component as they rise.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Differential Extraction</h3>
+        <p>
+          Differential extraction is used when a compound is more soluble in an organic solvent than in water. The aqueous mixture is shaken with an immiscible organic solvent, and the compound transfers into the solvent layer.
+        </p>
+        <div className="my-6 rounded-xl border border-violet-200 bg-violet-50 p-4">
+          <p className="text-sm text-violet-800">Repeated extraction improves recovery. If solubility is low, continuous extraction uses the same solvent repeatedly.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Chromatography</h3>
+        <p>
+          Chromatography separates, purifies, and tests purity by distributing components between a stationary phase and a mobile phase. Components move at different rates because they interact differently with the two phases.
+        </p>
+        <div className="my-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-sm text-emerald-800"><strong>Two NCERT categories:</strong> adsorption chromatography, based on different adsorption on silica gel or alumina; and partition chromatography, based on partition between stationary and mobile phases.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Fast Selection Rule</h3>
+        <div className="my-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm text-slate-700"><strong>Sublimes?</strong> sublimation. <strong>Solid with solubility difference?</strong> crystallisation. <strong>Liquid b.p. difference?</strong> distillation. <strong>Different solubility in immiscible solvents?</strong> extraction. <strong>Mixture with different adsorption/partition?</strong> chromatography.</p>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'structural-isomerism-molecular-properties') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Structural Isomerism and Molecular Properties</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Isomerism is the existence of two or more compounds with the <strong>same molecular formula</strong> but different properties. In structural isomerism, the atoms are linked in different ways.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Chain Isomerism</h3>
+        <p>
+          Chain isomers have the same molecular formula but different carbon skeletons. For C<sub>5</sub>H<sub>12</sub>, NCERT lists pentane, 2-methylbutane, and 2,2-dimethylpropane.
+        </p>
+        <div className="my-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">Property clue: greater branching lowers surface area, weakens dispersion forces, and generally lowers boiling point.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Position Isomerism</h3>
+        <p>
+          Position isomers differ in the position of a substituent atom or functional group on the same carbon skeleton. C<sub>3</sub>H<sub>8</sub>O gives propan-1-ol and propan-2-ol.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Functional Group Isomerism</h3>
+        <p>
+          Functional group isomers have the same molecular formula but different functional groups. C<sub>3</sub>H<sub>6</sub>O can represent propanal, an aldehyde, and propanone, a ketone.
+        </p>
+        <div className="my-6 rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-800">Property clue: changing the functional group changes reactivity, polarity, intermolecular forces, and many physical properties.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Metamerism</h3>
+        <p>
+          Metamerism arises when different alkyl groups lie on either side of a polyvalent functional group. For C<sub>4</sub>H<sub>10</sub>O, NCERT gives methoxypropane and ethoxyethane.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Why Same Formula Gives Different Properties</h3>
+        <div className="my-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm text-slate-700">
+            Molecular formula tells only the number of atoms. Structure tells how atoms are connected. Changing connectivity changes molecular shape, surface area, polarity, functional group behaviour, and therefore melting point, boiling point, solubility, and reactivity.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Quick Classification Rule</h3>
+        <div className="my-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-sm text-emerald-800">
+            Different carbon skeleton: chain. Same skeleton, group moved: position. Different functional group: functional group isomerism. Different alkyl groups around a linking functional group: metamerism.
           </p>
         </div>
 
@@ -2777,6 +4014,91 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </p>
           </div>
         </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'nernst-cell-potential') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Cell Potential and the Nernst Equation</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A galvanic cell converts the chemical energy of a spontaneous redox reaction into electrical energy.
+          Its cell potential is the potential difference between the cathode and anode. The Nernst equation shows
+          how this potential changes when the reacting species are not under standard conditions.
+        </p>
+
+        <div className="my-6 rounded-xl border border-sky-200 bg-sky-50 p-5">
+          <h3 className="mt-0 text-xl font-bold text-sky-950">NCERT foundation</h3>
+          <ul className="mb-0 space-y-2 text-sm text-sky-900">
+            <li><strong>Standard conditions:</strong> solutes at 1 M, gases at 1 bar, and temperature 298 K.</li>
+            <li><strong>Standard cell potential:</strong> E<sup>0</sup><sub>cell</sub> = E<sup>0</sup><sub>cathode</sub> - E<sup>0</sup><sub>anode</sub>.</li>
+            <li><strong>Constants:</strong> R = 8.314 J K<sup>-1</sup> mol<sup>-1</sup> and F = 96487 C mol<sup>-1</sup>.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">1. Nernst equation</h3>
+        <p>For a general reaction aA + bB &rarr; cC + dD, the reaction quotient is:</p>
+        <div className="my-5 rounded-xl border border-slate-200 bg-slate-50 p-5 text-center">
+          <p className="m-0 font-mono text-lg font-bold text-slate-900">Q = [C]<sup>c</sup>[D]<sup>d</sup> / [A]<sup>a</sup>[B]<sup>b</sup></p>
+          <p className="mt-3 mb-0 font-mono text-lg font-bold text-brand-primary">E<sub>cell</sub> = E<sup>0</sup><sub>cell</sub> - (RT / nF) ln Q</p>
+          <p className="mt-2 mb-0 text-sm text-slate-600">NCERT Eq. 2.13</p>
+        </div>
+        <p>At 298 K, conversion from natural logarithm to base-10 logarithm gives:</p>
+        <div className="my-5 rounded-xl border border-blue-200 bg-blue-50 p-5 text-center">
+          <p className="m-0 font-mono text-xl font-bold text-blue-900">E<sub>cell</sub> = E<sup>0</sup><sub>cell</sub> - (0.059 / n) log Q</p>
+          <p className="mt-2 mb-0 text-sm text-blue-700">n is the number of electrons transferred in the balanced cell reaction.</p>
+        </div>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">2. Daniell cell</h3>
+        <p className="font-mono text-center">Zn(s) | Zn<sup>2+</sup>(aq) || Cu<sup>2+</sup>(aq) | Cu(s)</p>
+        <div className="grid gap-3 sm:grid-cols-2 my-5 not-prose">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div className="text-xs font-black uppercase tracking-wide text-amber-700">Anode: oxidation</div>
+            <div className="mt-2 font-mono font-bold text-slate-900">Zn &rarr; Zn<sup>2+</sup> + 2e<sup>-</sup></div>
+          </div>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="text-xs font-black uppercase tracking-wide text-emerald-700">Cathode: reduction</div>
+            <div className="mt-2 font-mono font-bold text-slate-900">Cu<sup>2+</sup> + 2e<sup>-</sup> &rarr; Cu</div>
+          </div>
+        </div>
+        <p>
+          E<sup>0</sup><sub>Zn2+/Zn</sub> = -0.76 V and E<sup>0</sup><sub>Cu2+/Cu</sub> = +0.34 V, so
+          E<sup>0</sup><sub>cell</sub> = 0.34 - (-0.76) = <strong>1.10 V</strong>. For this cell:
+        </p>
+        <div className="my-5 rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm">
+          <p className="m-0 font-mono text-lg font-bold text-slate-900">E<sub>cell</sub> = 1.10 - (0.059 / 2) log([Zn<sup>2+</sup>] / [Cu<sup>2+</sup>])</p>
+          <p className="mt-2 mb-0 text-sm text-slate-500">NCERT Eq. 2.12</p>
+        </div>
+        <p>
+          Increasing [Cu<sup>2+</sup>] or decreasing [Zn<sup>2+</sup>] increases E<sub>cell</sub>. As the cell operates,
+          [Zn<sup>2+</sup>] rises, [Cu<sup>2+</sup>] falls, and the voltmeter reading decreases.
+        </p>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">3. Equilibrium and Gibbs energy</h3>
+        <p>
+          At equilibrium, E<sub>cell</sub> = 0 and Q = K<sub>c</sub>. Therefore, at 298 K:
+        </p>
+        <div className="my-5 space-y-3 rounded-xl border border-violet-200 bg-violet-50 p-5 text-center">
+          <p className="m-0 font-mono text-lg font-bold text-violet-950">E<sup>0</sup><sub>cell</sub> = (0.059 / n) log K<sub>c</sub> <span className="text-sm font-normal">(Eq. 2.14)</span></p>
+          <p className="m-0 font-mono text-lg font-bold text-violet-950">&Delta;<sub>r</sub>G = -nFE<sub>cell</sub> <span className="text-sm font-normal">(Eq. 2.15)</span></p>
+          <p className="m-0 font-mono text-lg font-bold text-violet-950">&Delta;<sub>r</sub>G<sup>0</sup> = -nFE<sup>0</sup><sub>cell</sub> <span className="text-sm font-normal">(Eq. 2.16)</span></p>
+        </div>
+        <p>
+          E<sub>cell</sub> is intensive, while &Delta;<sub>r</sub>G is extensive and depends on n. A positive cell potential
+          corresponds to a negative Gibbs energy change for the forward reaction.
+        </p>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">4. Use the simulation</h3>
+        <ol className="space-y-3">
+          <li>Select the Daniell cell and confirm that 1 M solutions give E<sub>cell</sub> = 1.10 V.</li>
+          <li>Increase [Zn<sup>2+</sup>] and observe Q rise while E<sub>cell</sub> falls.</li>
+          <li>Increase [Cu<sup>2+</sup>] and observe Q fall while E<sub>cell</sub> rises.</li>
+          <li>Run the reaction to watch oxidation add anode ions, reduction remove cathode ions, and the voltage decrease.</li>
+          <li>Try the Mg-Ag preset from NCERT Example 2.1: 0.130 M Mg<sup>2+</sup> and 0.0001 M Ag<sup>+</sup> gives approximately 2.96 V.</li>
+        </ol>
 
         <VideoSection />
       </div>

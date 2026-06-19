@@ -289,8 +289,8 @@ function mbPath(width: number, height: number, temperature: number, maxE: number
 
 const CollisionTheoryLab: React.FC<CollisionTheoryLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const particlesRef = useRef<Particle[]>([]);
     const sparksRef = useRef<Spark[]>([]);

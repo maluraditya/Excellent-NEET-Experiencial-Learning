@@ -170,24 +170,162 @@ const FrogsLab: React.FC<FrogsLabProps> = ({ topic, onExit }) => {
             <div className="flex flex-col gap-2.5">
                 <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
                     <div className="text-base font-extrabold">NCERT Fig 7.1</div>
-                    <div className="text-xs font-semibold text-slate-500">external features of frog</div>
-                    <svg viewBox="0 0 300 170" className="mt-2 w-full">
-                        <ellipse cx="150" cy="60" rx="48" ry="34" fill="#84cc16" stroke="#365314" strokeWidth="2" />
-                        <ellipse cx="150" cy="110" rx="58" ry="48" fill="#84cc16" stroke="#365314" strokeWidth="2" />
-                        <circle cx="135" cy="50" r="6" fill="#fef9c3" stroke="#365314" />
-                        <circle cx="165" cy="50" r="6" fill="#fef9c3" stroke="#365314" />
-                        <circle cx="135" cy="50" r="3" fill="#0f172a" />
-                        <circle cx="165" cy="50" r="3" fill="#0f172a" />
-                        <path d="M90 130 q-20 14 -32 30" stroke="#365314" strokeWidth="3" fill="none" />
-                        <path d="M210 130 q20 14 32 30" stroke="#365314" strokeWidth="3" fill="none" />
-                        <path d="M104 90 q-18 -4 -32 -16" stroke="#365314" strokeWidth="2" fill="none" />
-                        <path d="M196 90 q18 -4 32 -16" stroke="#365314" strokeWidth="2" fill="none" />
-                        <text x="20" y="50" fontSize="9" fontWeight="700" fill="#475569">eye</text>
-                        <text x="20" y="92" fontSize="9" fontWeight="700" fill="#475569">forelimb</text>
-                        <text x="20" y="160" fontSize="9" fontWeight="700" fill="#475569">hind limb</text>
+                    <div className="text-xs font-semibold text-slate-500">External features of <i>Rana tigrina</i> · dorsal view</div>
+                    <img
+                        src="/images/11th-biology/frog-dissection.jpg"
+                        alt="NCERT Fig 7.1 — dissected frog (Rana tigrina) showing in-situ organs"
+                        className="mt-2 w-full rounded-lg border border-slate-200 bg-white object-contain"
+                    />
+                    <svg viewBox="0 0 320 360" className="mt-2 w-full" style={{ display: 'none' }}>
+                        {/* ── Body silhouette: head + trunk fused, no neck, no tail ── */}
+                        <defs>
+                            <radialGradient id="frogSkin" cx="50%" cy="35%" r="65%">
+                                <stop offset="0%" stopColor="#a3d650" />
+                                <stop offset="60%" stopColor="#7cba32" />
+                                <stop offset="100%" stopColor="#4d7c0f" />
+                            </radialGradient>
+                        </defs>
+                        <path
+                            d="M160 28
+                               C 128 28, 100 40, 88 64
+                               C 78 80, 76 96, 82 110
+                               C 70 130, 62 168, 80 206
+                               C 96 240, 128 252, 160 252
+                               C 192 252, 224 240, 240 206
+                               C 258 168, 250 130, 238 110
+                               C 244 96, 242 80, 232 64
+                               C 220 40, 192 28, 160 28 Z"
+                            fill="url(#frogSkin)"
+                            stroke="#365314"
+                            strokeWidth="2"
+                        />
+                        {/* dorsal spots */}
+                        {[
+                            [128, 138, 6], [186, 152, 5], [156, 178, 5],
+                            [110, 108, 4], [212, 116, 4], [142, 218, 4.5],
+                            [180, 226, 4], [122, 188, 4]
+                        ].map(([x, y, r], i) => (
+                            <circle key={i} cx={x} cy={y} r={r} fill="#3f6212" opacity="0.55" />
+                        ))}
+                        {/* mid-dorsal line (faint) */}
+                        <path d="M160 60 Q 158 140 160 240" stroke="#3f6212" strokeWidth="0.6" fill="none" opacity="0.4" />
+
+                        {/* ── Eye domes (bulging, dorsal) ── */}
+                        <ellipse cx="132" cy="60" rx="14" ry="11" fill="#7cba32" stroke="#365314" strokeWidth="1.5" />
+                        <ellipse cx="188" cy="60" rx="14" ry="11" fill="#7cba32" stroke="#365314" strokeWidth="1.5" />
+                        {/* sclera */}
+                        <ellipse cx="132" cy="58" rx="9" ry="7.5" fill="#fef3c7" stroke="#365314" strokeWidth="0.8" />
+                        <ellipse cx="188" cy="58" rx="9" ry="7.5" fill="#fef3c7" stroke="#365314" strokeWidth="0.8" />
+                        {/* iris */}
+                        <ellipse cx="132" cy="58" rx="6" ry="5.5" fill="#d97706" />
+                        <ellipse cx="188" cy="58" rx="6" ry="5.5" fill="#d97706" />
+                        {/* pupil */}
+                        <ellipse cx="132" cy="58" rx="2.5" ry="4.5" fill="#0f172a" />
+                        <ellipse cx="188" cy="58" rx="2.5" ry="4.5" fill="#0f172a" />
+                        {/* highlight */}
+                        <circle cx="130" cy="55" r="1.2" fill="white" />
+                        <circle cx="186" cy="55" r="1.2" fill="white" />
+                        {/* nictitating-membrane edge hint */}
+                        <path d="M124 58 Q132 64 140 58" stroke="#65a30d" strokeWidth="0.8" fill="none" opacity="0.6" />
+                        <path d="M180 58 Q188 64 196 58" stroke="#65a30d" strokeWidth="0.8" fill="none" opacity="0.6" />
+
+                        {/* ── External nostrils ── */}
+                        <ellipse cx="152" cy="44" rx="1.6" ry="2.2" fill="#0f172a" />
+                        <ellipse cx="168" cy="44" rx="1.6" ry="2.2" fill="#0f172a" />
+
+                        {/* ── Mouth: wide curve across the snout ── */}
+                        <path d="M112 74 Q 140 86 160 82 Q 180 86 208 74" stroke="#365314" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+
+                        {/* ── Tympanum (eardrum) behind each eye ── */}
+                        <circle cx="108" cy="78" r="7" fill="#7cba32" stroke="#365314" strokeWidth="1.5" />
+                        <circle cx="108" cy="78" r="4.5" fill="#78350f" />
+                        <circle cx="108" cy="78" r="2" fill="#451a03" />
+                        <circle cx="212" cy="78" r="7" fill="#7cba32" stroke="#365314" strokeWidth="1.5" />
+                        <circle cx="212" cy="78" r="4.5" fill="#78350f" />
+                        <circle cx="212" cy="78" r="2" fill="#451a03" />
+
+                        {/* ── Forelimbs (short, 4 digits, NOT webbed) ── */}
+                        <path d="M86 116 q -22 -4 -38 -18" stroke="#365314" strokeWidth="3" fill="none" strokeLinecap="round" />
+                        <path d="M234 116 q 22 -4 38 -18" stroke="#365314" strokeWidth="3" fill="none" strokeLinecap="round" />
+                        {/* digits on each forelimb — 4 each */}
+                        <g stroke="#365314" strokeWidth="1.4" fill="none" strokeLinecap="round">
+                            <path d="M48 98 l -5 -5" />
+                            <path d="M50 100 l -7 -3" />
+                            <path d="M52 102 l -7 0" />
+                            <path d="M54 104 l -6 3" />
+                            <path d="M272 98 l 5 -5" />
+                            <path d="M270 100 l 7 -3" />
+                            <path d="M268 102 l 7 0" />
+                            <path d="M266 104 l 6 3" />
+                        </g>
+
+                        {/* ── Hind limbs (long, 5 digits, fully webbed) ── */}
+                        <path d="M88 220 q -22 18 -42 46" stroke="#365314" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                        <path d="M232 220 q 22 18 42 46" stroke="#365314" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                        {/* webbing fan (translucent) */}
+                        <path d="M40 270 Q 50 286 78 286 Q 64 282 56 274 Z" fill="#84cc16" opacity="0.55" stroke="#365314" strokeWidth="0.8" />
+                        <path d="M280 270 Q 270 286 242 286 Q 256 282 264 274 Z" fill="#84cc16" opacity="0.55" stroke="#365314" strokeWidth="0.8" />
+                        {/* digit lines — 5 per foot */}
+                        <g stroke="#365314" strokeWidth="1.5" fill="none" strokeLinecap="round">
+                            <path d="M46 268 l -4 -12" />
+                            <path d="M50 272 l -2 -14" />
+                            <path d="M54 274 l 1 -14" />
+                            <path d="M58 274 l 4 -13" />
+                            <path d="M62 272 l 6 -12" />
+                            <path d="M274 268 l 4 -12" />
+                            <path d="M270 272 l 2 -14" />
+                            <path d="M266 274 l -1 -14" />
+                            <path d="M262 274 l -4 -13" />
+                            <path d="M258 272 l -6 -12" />
+                        </g>
+
+                        {/* ── Leader lines + labels (NCERT-style) ── */}
+                        <g fontFamily="ui-sans-serif, system-ui" fontSize="9" fontWeight="700" fill="#1e293b">
+                            {/* eye */}
+                            <line x1="118" y1="58" x2="60" y2="40" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="6" y="42">eye</text>
+                            {/* nostril */}
+                            <line x1="150" y1="44" x2="100" y2="20" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="60" y="18">external nostril</text>
+                            {/* tympanum */}
+                            <line x1="100" y1="78" x2="58" y2="86" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="6" y="88">tympanum</text>
+                            {/* mouth */}
+                            <line x1="120" y1="80" x2="60" y2="116" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="6" y="118">mouth</text>
+                            {/* forelimb (right side) */}
+                            <line x1="245" y1="108" x2="304" y2="80" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="240" y="76" textAnchor="start">forelimb · 4 digits</text>
+                            {/* trunk */}
+                            <line x1="232" y1="160" x2="306" y2="160" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="278" y="162">trunk</text>
+                            {/* head */}
+                            <line x1="124" y1="46" x2="40" y2="56" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="6" y="58" style={{ display: 'none' }}>head</text>
+                            {/* dorsal skin */}
+                            <line x1="186" y1="130" x2="298" y2="120" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="244" y="122">dorsal skin</text>
+                            {/* hind limb (right) */}
+                            <line x1="252" y1="244" x2="312" y2="232" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="232" y="234" textAnchor="start">hind limb</text>
+                            {/* webbed digits */}
+                            <line x1="270" y1="278" x2="312" y2="294" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="232" y="296" textAnchor="start">5 webbed digits</text>
+                            {/* cloacal aperture hint (rear) */}
+                            <line x1="160" y1="250" x2="60" y2="260" stroke="#94a3b8" strokeWidth="0.8" />
+                            <text x="6" y="262">cloacal aperture</text>
+                        </g>
+
+                        {/* scale bar */}
+                        <g transform="translate(120, 332)">
+                            <line x1="0" y1="0" x2="80" y2="0" stroke="#0f172a" strokeWidth="1.4" />
+                            <line x1="0" y1="-4" x2="0" y2="4" stroke="#0f172a" strokeWidth="1.4" />
+                            <line x1="80" y1="-4" x2="80" y2="4" stroke="#0f172a" strokeWidth="1.4" />
+                            <text x="40" y="18" textAnchor="middle" fontSize="9" fontWeight="700" fill="#475569">~ 5 cm</text>
+                        </g>
                     </svg>
                     <div className="mt-2 text-[11px] text-slate-600 leading-snug">
-                        Head + trunk. Forelimb 4 digits · hind limb 5 webbed digits.
+                        Body = <strong>head + trunk</strong> (no neck, no tail). Dorsal skin olive-green with dark spots; ventral skin pale yellow. <strong>Forelimbs:</strong> 4 unwebbed digits. <strong>Hind limbs:</strong> 5 fully webbed digits, longer and muscular for leaping/swimming.
                     </div>
                 </div>
 
@@ -850,116 +988,118 @@ const FrogBody: React.FC<{
 
     return (
         <g filter="url(#bodyShadow)">
-            {/* ─── Hind legs (sprawled outward) ─── */}
-            {/* left hind upper thigh */}
-            <path
-                d="M-80 80 C-180 120 -260 200 -300 290 C-310 320 -270 340 -240 320 C-180 280 -110 220 -60 170 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            {/* left hind lower (shin) */}
-            <path
-                d="M-300 290 C-330 320 -340 360 -330 400 C-322 430 -290 432 -276 408 C-260 380 -250 340 -240 320 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            {/* left webbed foot */}
-            <path
-                d="M-330 400 C-360 430 -370 460 -355 470 C-345 478 -332 472 -325 460 L-320 445 L-310 470 C-300 478 -287 472 -283 460 L-282 442 L-276 470 C-266 478 -253 472 -250 458 L-252 440 L-246 460 C-236 470 -226 462 -228 448 L-240 410 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="2.5"
-            />
-            {/* right hind */}
-            <path
-                d="M80 80 C180 120 260 200 300 290 C310 320 270 340 240 320 C180 280 110 220 60 170 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            <path
-                d="M300 290 C330 320 340 360 330 400 C322 430 290 432 276 408 C260 380 250 340 240 320 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            <path
-                d="M330 400 C360 430 370 460 355 470 C345 478 332 472 325 460 L320 445 L310 470 C300 478 287 472 283 460 L282 442 L276 470 C266 478 253 472 250 458 L252 440 L246 460 C236 470 226 462 228 448 L240 410 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="2.5"
-            />
+            {/*
+                ─── Limbs are drawn first so the body silhouette paints over the
+                inner ends, making the attachments look natural. ───
+                Each limb uses thick stroke + round linecap to form clean
+                capsules (upper arm / forearm / hand, thigh / shank / foot).
+            */}
 
-            {/* ─── Forelimbs (smaller, upper) ─── */}
-            <path
-                d="M-90 -160 C-160 -180 -220 -160 -250 -120 C-260 -100 -240 -88 -220 -94 C-180 -106 -130 -116 -80 -120 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            <path
-                d="M-250 -120 C-280 -100 -290 -78 -278 -64 C-268 -52 -252 -58 -244 -72 C-236 -86 -224 -100 -220 -106 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            {/* left forefoot (4 digits, NOT webbed) */}
-            <g stroke="#365314" strokeWidth="2.5" fill={skinFill} strokeLinecap="round">
-                <path d="M-282 -62 C-300 -50 -312 -32 -302 -22 C-294 -16 -286 -22 -282 -32 Z" />
-                <path d="M-278 -56 C-298 -38 -304 -18 -294 -10 C-286 -4 -278 -12 -274 -22 Z" />
-                <path d="M-272 -50 C-286 -28 -292 -8 -282 0 C-274 6 -266 -2 -262 -14 Z" />
-                <path d="M-266 -56 C-274 -38 -278 -18 -270 -10 C-262 -4 -254 -14 -252 -28 Z" />
-            </g>
+            {/* ════════════════════════════════════════════════════════════════
+                HIND LIMBS — classic sitting pose: thigh angles out to a wide
+                knee (the widest point of the frog), shank drops down, ending in
+                a long webbed foot with 5 splayed toes.
+               ════════════════════════════════════════════════════════════════ */}
+            {(['right', 'left'] as const).map((side) => (
+                <g key={`hind-${side}`} transform={side === 'left' ? 'scale(-1,1)' : undefined}>
+                    {/* ZIG-ZAG hind leg (right-side coords; left is the mirror):
+                        THIGH out + down to a wide knee, SHANK folds back in + down
+                        to the ankle, then a webbed foot with long toes. */}
+                    {/* THIGH */}
+                    <line x1="90" y1="60" x2="300" y2="160" stroke="#365314" strokeWidth="62" strokeLinecap="round" />
+                    <line x1="90" y1="60" x2="300" y2="160" stroke={skinFill} strokeWidth="54" strokeLinecap="round" />
+                    {/* SHANK — folds back (the zig-zag) */}
+                    <line x1="300" y1="160" x2="185" y2="272" stroke="#365314" strokeWidth="48" strokeLinecap="round" />
+                    <line x1="300" y1="160" x2="185" y2="272" stroke={skinFill} strokeWidth="40" strokeLinecap="round" />
+                    {/* WEBBED FOOT — membrane through the long splayed toe tips */}
+                    <path
+                        d="M185 272 L270 296 L282 328 L262 350 L230 356 L198 348 L170 328 Z"
+                        fill={skinFill}
+                        stroke="#365314"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                    />
+                    {/* 5 long toes radiating from the ankle */}
+                    <g stroke="#365314" strokeWidth="3.5" fill="none" strokeLinecap="round">
+                        <line x1="185" y1="272" x2="270" y2="296" />
+                        <line x1="185" y1="272" x2="282" y2="328" />
+                        <line x1="185" y1="272" x2="262" y2="350" />
+                        <line x1="185" y1="272" x2="230" y2="356" />
+                        <line x1="185" y1="272" x2="198" y2="348" />
+                    </g>
+                </g>
+            ))}
 
-            <path
-                d="M90 -160 C160 -180 220 -160 250 -120 C260 -100 240 -88 220 -94 C180 -106 130 -116 80 -120 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            <path
-                d="M250 -120 C280 -100 290 -78 278 -64 C268 -52 252 -58 244 -72 C236 -86 224 -100 220 -106 Z"
-                fill={skinFill}
-                stroke="#365314"
-                strokeWidth="3"
-            />
-            <g stroke="#365314" strokeWidth="2.5" fill={skinFill} strokeLinecap="round">
-                <path d="M282 -62 C300 -50 312 -32 302 -22 C294 -16 286 -22 282 -32 Z" />
-                <path d="M278 -56 C298 -38 304 -18 294 -10 C286 -4 278 -12 274 -22 Z" />
-                <path d="M272 -50 C286 -28 292 -8 282 0 C274 6 266 -2 262 -14 Z" />
-                <path d="M266 -56 C274 -38 278 -18 270 -10 C262 -4 254 -14 252 -28 Z" />
-            </g>
+            {/* ════════════════════════════════════════════════════════════════
+                FORELIMBS — angle out + up from the shoulders, bend at the elbow,
+                hand with 4 splayed fingers (NOT webbed).
+               ════════════════════════════════════════════════════════════════ */}
+            {(['right', 'left'] as const).map((side) => (
+                <g key={`fore-${side}`} transform={side === 'left' ? 'scale(-1,1)' : undefined}>
+                    {/* ZIG-ZAG foreleg (right-side coords; left is the mirror):
+                        UPPER ARM out + up to the elbow, FOREARM folds back up toward
+                        the hand, then 4 long fingers spread (NOT webbed). */}
+                    {/* UPPER ARM — reaches outward */}
+                    <line x1="95" y1="-150" x2="190" y2="-176" stroke="#365314" strokeWidth="32" strokeLinecap="round" />
+                    <line x1="95" y1="-150" x2="190" y2="-176" stroke={skinFill} strokeWidth="24" strokeLinecap="round" />
+                    {/* FOREARM — continues out + up (zig-zag bend at the elbow) */}
+                    <line x1="190" y1="-176" x2="245" y2="-202" stroke="#365314" strokeWidth="26" strokeLinecap="round" />
+                    <line x1="190" y1="-176" x2="245" y2="-202" stroke={skinFill} strokeWidth="18" strokeLinecap="round" />
+                    {/* 4 LONG fingers fanning out + up from the hand */}
+                    <g stroke="#365314" strokeWidth="11" strokeLinecap="round" fill="none">
+                        <line x1="245" y1="-202" x2="302" y2="-206" />
+                        <line x1="245" y1="-202" x2="298" y2="-232" />
+                        <line x1="245" y1="-202" x2="278" y2="-252" />
+                        <line x1="245" y1="-202" x2="252" y2="-258" />
+                    </g>
+                    <g stroke={skinFill} strokeWidth="6" strokeLinecap="round" fill="none">
+                        <line x1="245" y1="-202" x2="302" y2="-206" />
+                        <line x1="245" y1="-202" x2="298" y2="-232" />
+                        <line x1="245" y1="-202" x2="278" y2="-252" />
+                        <line x1="245" y1="-202" x2="252" y2="-258" />
+                    </g>
+                </g>
+            ))}
 
-            {/* ─── Main body silhouette ─── */}
+            {/* ════════════════════════════════════════════════════════════════
+                MAIN BODY SILHOUETTE — distinct rounded head that necks in, then
+                flares to a wide trunk and tapers to a narrow pelvic end.
+               ════════════════════════════════════════════════════════════════ */}
             <path
-                d="M0 -260
-                   C-90 -260 -150 -230 -170 -170
-                   C-185 -120 -185 -60 -170 0
-                   C-150 80 -120 150 -90 200
-                   C-60 240 -30 260 0 262
-                   C30 260 60 240 90 200
-                   C120 150 150 80 170 0
-                   C185 -60 185 -120 170 -170
-                   C150 -230 90 -260 0 -260Z"
+                d="M0 -272
+                   C36 -270 66 -256 88 -226
+                   C112 -192 134 -156 154 -116
+                   C174 -76 186 -34 190 14
+                   C192 64 184 112 166 154
+                   C146 192 116 222 80 242
+                   C54 253 26 257 0 257
+                   C-26 257 -54 253 -80 242
+                   C-116 222 -146 192 -166 154
+                   C-184 112 -192 64 -190 14
+                   C-186 -34 -174 -76 -154 -116
+                   C-134 -156 -112 -192 -88 -226
+                   C-66 -256 -36 -270 0 -272 Z"
                 fill={skinFill}
                 stroke={glow ? '#5eead4' : '#365314'}
                 strokeWidth={glow ? 8 : 4}
                 filter={glow ? 'url(#glow)' : undefined}
             />
 
-            {/* dorsal spots pattern overlay */}
+            {/* dorsal spots pattern overlay (must trace the same outline) */}
             <path
-                d="M0 -260
-                   C-90 -260 -150 -230 -170 -170
-                   C-185 -120 -185 -60 -170 0
-                   C-150 80 -120 150 -90 200
-                   C-60 240 -30 260 0 262
-                   C30 260 60 240 90 200
-                   C120 150 150 80 170 0
-                   C185 -60 185 -120 170 -170
-                   C150 -230 90 -260 0 -260Z"
+                d="M0 -272
+                   C36 -270 66 -256 88 -226
+                   C112 -192 134 -156 154 -116
+                   C174 -76 186 -34 190 14
+                   C192 64 184 112 166 154
+                   C146 192 116 222 80 242
+                   C54 253 26 257 0 257
+                   C-26 257 -54 253 -80 242
+                   C-116 222 -146 192 -166 154
+                   C-184 112 -192 64 -190 14
+                   C-186 -34 -174 -76 -154 -116
+                   C-134 -156 -112 -192 -88 -226
+                   C-66 -256 -36 -270 0 -272 Z"
                 fill="url(#dorsalSpots)"
                 opacity={environment === 'Water' ? 0.35 : 0.85}
             />
@@ -968,25 +1108,22 @@ const FrogBody: React.FC<{
             <path d="M0 -240 L0 250" stroke="#365314" strokeWidth="2" opacity="0.35" strokeDasharray="3 4" />
 
             {/* ─── Head detail (eyes, nostrils, tympanum) ─── */}
-            {/* eyes */}
-            <ellipse cx="-66" cy="-218" rx="34" ry="26" fill="#365314" />
-            <ellipse cx="66" cy="-218" rx="34" ry="26" fill="#365314" />
-            <ellipse cx="-66" cy="-220" rx="28" ry="22" fill="#fef9c3" />
-            <ellipse cx="66" cy="-220" rx="28" ry="22" fill="#fef9c3" />
-            <circle cx="-66" cy="-218" r="14" fill="#0f172a" />
-            <circle cx="66" cy="-218" r="14" fill="#0f172a" />
-            <circle cx="-72" cy="-224" r="5" fill="white" />
-            <circle cx="60" cy="-224" r="5" fill="white" />
-            {/* nostrils */}
-            <circle cx="-14" cy="-244" r="3" fill="#0f172a" />
-            <circle cx="14" cy="-244" r="3" fill="#0f172a" />
-            {/* mouth line */}
-            <path d="M-40 -198 Q0 -186 40 -198" stroke="#365314" strokeWidth="2.5" fill="none" />
-            {/* tympanum */}
-            <circle cx="-110" cy="-180" r="16" fill="#a3a3a3" stroke="#365314" strokeWidth="2.5" />
-            <circle cx="-110" cy="-180" r="9" fill="#525252" />
-            <circle cx="110" cy="-180" r="16" fill="#a3a3a3" stroke="#365314" strokeWidth="2.5" />
-            <circle cx="110" cy="-180" r="9" fill="#525252" />
+            {/* eyes — bulging at the top-side corners; pupils shifted OUTWARD so the
+                frog looks out to the sides, not toward the viewer */}
+            <ellipse cx="-80" cy="-212" rx="34" ry="32" fill={skinFill} stroke="#365314" strokeWidth="4" />
+            <ellipse cx="80" cy="-212" rx="34" ry="32" fill={skinFill} stroke="#365314" strokeWidth="4" />
+            {/* golden eyeball */}
+            <circle cx="-80" cy="-214" r="21" fill="#fbbf24" stroke="#365314" strokeWidth="2" />
+            <circle cx="80" cy="-214" r="21" fill="#fbbf24" stroke="#365314" strokeWidth="2" />
+            {/* dark pupil on the OUTER edge of each eye */}
+            <circle cx="-91" cy="-214" r="9" fill="#0f172a" />
+            <circle cx="91" cy="-214" r="9" fill="#0f172a" />
+            {/* highlight */}
+            <circle cx="-87" cy="-219" r="3.5" fill="white" />
+            <circle cx="87" cy="-219" r="3.5" fill="white" />
+            {/* nostrils near the snout (no mouth, no tympanum — matches reference) */}
+            <circle cx="-10" cy="-250" r="3" fill="#0f172a" />
+            <circle cx="10" cy="-250" r="3" fill="#0f172a" />
 
             {/* ─── BODY CAVITY (Internal view only) ─── */}
             {anatomy === 'Internal' && (

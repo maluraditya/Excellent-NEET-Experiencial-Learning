@@ -1,751 +1,1165 @@
-import React, { useMemo, useState } from 'react';
-import { Activity, Gauge, Leaf, RefreshCcw, Sprout, Thermometer, Zap } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+    Activity,
+    Gauge,
+    Info,
+    Leaf,
+    Pause,
+    Play,
+    RotateCcw,
+    Sparkles,
+    Thermometer,
+    Wind,
+    Zap,
+} from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
-
-type PlantPathway = 'C3' | 'C4';
-type TemperatureLevel = 25 | 35 | 40 | 45;
-type OxygenLevel = 'Low' | 'Normal' | 'High';
 
 interface CalvinCycleC3C4LabProps {
     topic: any;
     onExit: () => void;
 }
 
-const TEMP_OPTIONS: TemperatureLevel[] = [25, 35, 40, 45];
-const OXYGEN_OPTIONS: OxygenLevel[] = ['Low', 'Normal', 'High'];
+type PlantMode = 'C3' | 'C4';
+type OxygenLevel = 'Low' | 'Normal' | 'High';
+type Speed = 0.5 | 1 | 2;
+type ParticleKind = 'CO2' | 'O2' | 'RuBP' | 'PGA' | 'G3P' | 'PEP' | 'OAA' | 'MALATE' | 'C3RETURN' | 'PHOSPHOGLYCOLATE' | 'SUGAR';
+type PathKind = 'c3In' | 'o2In' | 'photoSink' | 'c4Fix' | 'c4Transport' | 'c4Return' | 'bundleCO2' | 'sugarOut';
 
-/* ─── derived simulation values ─── */
-function useSimValues(pathway: PlantPathway, temperature: TemperatureLevel, oxygen: OxygenLevel, co2Pulse: number) {
-    const heatStress = temperature >= 40;
-    const oxygenStress = oxygen === 'High';
-    const photorespirationRisk = pathway === 'C3' && (heatStress || oxygenStress);
-    const sugarRate = pathway === 'C4'
-        ? Math.min(10, co2Pulse + 4)
-        : photorespirationRisk ? Math.max(1, co2Pulse - 2) : Math.min(8, co2Pulse + 2);
-    const atpUse = pathway === 'C4' ? 7 : photorespirationRisk ? 6 : 5;
-    const wasteRate = photorespirationRisk ? (oxygen === 'High' ? 6 : 4) : pathway === 'C4' ? 0 : 1;
-    const yieldC3 = photorespirationRisk ? 42 : 76;
-    const yieldC4 = heatStress ? 92 : 82;
-    const yieldScore = pathway === 'C4' ? yieldC4 : yieldC3;
-    // particle motion speed: faster at high temperature
-    const particleDur = temperature === 45 ? 1.4 : temperature === 40 ? 1.9 : temperature === 35 ? 2.6 : 3.4;
-    const o2Count = oxygen === 'High' ? 7 : oxygen === 'Normal' ? 4 : 2;
-    return { heatStress, oxygenStress, photorespirationRisk, sugarRate, atpUse, wasteRate, yieldC3, yieldC4, yieldScore, particleDur, o2Count };
+interface Dot {
+    x: number;
+    y: number;
 }
 
+interface Particle {
+    id: number;
+    kind: ParticleKind;
+    path: PathKind;
+    progress: number;
+    life: number;
+    color: string;
+    ring: string;
+    label: string;
+    offset: number;
+    trail: Dot[];
+}
+
+interface Flash {
+    x: number;
+    y: number;
+    age: number;
+    life: number;
+    color: string;
+    maxRadius: number;
+}
+
+interface World {
+    time: number;
+    eventClock: number;
+    wheel: number;
+    turns: number;
+    glucose: number;
+    co2Pool: number;
+    sugar: number;
+    photoEvents: number;
+    atpConsumedWaste: number;
+    c4Cycles: number;
+    rubiscoPulse: number;
+    pepPulse: number;
+    decarbPulse: number;
+    calvinPulse: number;
+    particles: Particle[];
+    flashes: Flash[];
+    smoothPhoto: number;
+    smoothCo2AtRubisco: number;
+}
+
+interface Snapshot {
+    mode: PlantMode;
+    turns: number;
+    glucose: number;
+    sugar: number;
+    photoRate: number;
+    co2AtRubisco: number;
+    atpWaste: number;
+    activeStage: number;
+    c4Cycles: number;
+}
+
+interface Derived {
+    photoTarget: number;
+    co2AtRubisco: number;
+    cycleRate: number;
+    heatLabel: string;
+    observation: string;
+}
+
+const W = 1280;
+const H = 760;
+const DEFAULT_SNAPSHOT: Snapshot = {
+    mode: 'C3',
+    turns: 0,
+    glucose: 0,
+    sugar: 0,
+    photoRate: 0,
+    co2AtRubisco: 62,
+    atpWaste: 0,
+    activeStage: 1,
+    c4Cycles: 0,
+};
+
+const PARTICLES: Record<ParticleKind, { color: string; ring: string; label: string; shape: 'circle' | 'hex' | 'diamond' | 'square' }> = {
+    CO2: { color: '#22c55e', ring: '#15803d', label: 'CO2', shape: 'circle' },
+    O2: { color: '#fb7185', ring: '#dc2626', label: 'O2', shape: 'circle' },
+    RuBP: { color: '#2dd4bf', ring: '#0f766e', label: 'RuBP 5C', shape: 'hex' },
+    PGA: { color: '#60a5fa', ring: '#1d4ed8', label: '3-PGA', shape: 'square' },
+    G3P: { color: '#fbbf24', ring: '#d97706', label: 'G3P', shape: 'diamond' },
+    PEP: { color: '#c084fc', ring: '#7c3aed', label: 'PEP 3C', shape: 'hex' },
+    OAA: { color: '#86efac', ring: '#16a34a', label: 'OAA 4C', shape: 'diamond' },
+    MALATE: { color: '#4ade80', ring: '#15803d', label: 'C4 acid', shape: 'diamond' },
+    C3RETURN: { color: '#a7f3d0', ring: '#059669', label: '3C return', shape: 'hex' },
+    PHOSPHOGLYCOLATE: { color: '#fda4af', ring: '#be123c', label: '2C waste', shape: 'square' },
+    SUGAR: { color: '#fcd34d', ring: '#b45309', label: 'sugar', shape: 'circle' },
+};
+
+const STAGES = [
+    { name: 'Carboxylation', color: '#16a34a', detail: 'CO2 + RuBP -> 2 x 3-PGA' },
+    { name: 'Reduction', color: '#d97706', detail: '2 ATP + 2 NADPH' },
+    { name: 'Regeneration', color: '#0891b2', detail: '1 ATP reforms RuBP' },
+];
+
 const CalvinCycleC3C4Lab: React.FC<CalvinCycleC3C4LabProps> = ({ topic, onExit }) => {
-    const [pathway, setPathway] = useState<PlantPathway>('C3');
-    const [temperature, setTemperature] = useState<TemperatureLevel>(25);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const rafRef = useRef<number | null>(null);
+    const lastRef = useRef(0);
+    const idRef = useRef(1);
+    const snapshotClockRef = useRef(0);
+    const worldRef = useRef<World>(createWorld());
+
+    const [mode, setMode] = useState<PlantMode>('C3');
+    const [temperature, setTemperature] = useState(25);
     const [oxygen, setOxygen] = useState<OxygenLevel>('Normal');
-    const [co2Pulse, setCo2Pulse] = useState(3);
+    const [co2Pulse, setCo2Pulse] = useState(4);
+    const [showLabels, setShowLabels] = useState(true);
+    const [highlightStages, setHighlightStages] = useState(true);
+    const [speed, setSpeed] = useState<Speed>(1);
+    const [playing, setPlaying] = useState(true);
+    const [resetKey, setResetKey] = useState(0);
+    const [snapshot, setSnapshot] = useState<Snapshot>(DEFAULT_SNAPSHOT);
 
-    const sim = useSimValues(pathway, temperature, oxygen, co2Pulse);
+    const derived = useMemo(() => computeDerived(mode, temperature, oxygen, co2Pulse), [co2Pulse, mode, oxygen, temperature]);
 
-    const observation = useMemo(() => {
-        if (pathway === 'C3' && sim.photorespirationRisk) {
-            return 'C3 plant under heat/high O2: RuBisCO binds O2 instead of CO2. Photorespiration consumes ATP but produces no sugar — energy is wasted.';
-        }
-        if (pathway === 'C3') {
-            return 'C3 plant at mild conditions: CO2 enters Calvin cycle directly. RuBisCO fixes CO2 + RuBP → 3-PGA, and G3P (sugar) is produced steadily.';
-        }
-        if (pathway === 'C4' && sim.heatStress) {
-            return 'C4 plant in heat: PEPcase (mesophyll) captures CO2 first → C4 acid shuttled to bundle sheath → CO2 released near RuBisCO. No photorespiration!';
-        }
-        return 'C4 plant: CO2 fixed by PEPcase into C4 acid in mesophyll, then decarboxylated in bundle sheath. RuBisCO receives concentrated CO2 — efficient Calvin cycle.';
-    }, [sim.heatStress, pathway, sim.photorespirationRisk]);
+    const resetLab = useCallback(() => {
+        worldRef.current = createWorld();
+        idRef.current = 1;
+        snapshotClockRef.current = 0;
+        setMode('C3');
+        setTemperature(25);
+        setOxygen('Normal');
+        setCo2Pulse(4);
+        setShowLabels(true);
+        setHighlightStages(true);
+        setSpeed(1);
+        setPlaying(true);
+        setSnapshot(DEFAULT_SNAPSHOT);
+        setResetKey((key) => key + 1);
+    }, []);
 
-    const resetLab = () => { setPathway('C3'); setTemperature(25); setOxygen('Normal'); setCo2Pulse(3); };
-    const addCo2 = () => setCo2Pulse(v => Math.min(6, v + 1));
+    const addCo2 = useCallback(() => {
+        setCo2Pulse((value) => Math.min(10, value + 2));
+        worldRef.current.co2Pool = Math.min(14, worldRef.current.co2Pool + 3);
+    }, []);
+
+    useEffect(() => {
+        worldRef.current.co2Pool = Math.max(worldRef.current.co2Pool, co2Pulse);
+    }, [co2Pulse]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const tick = (now: number) => {
+            const last = lastRef.current || now;
+            let dt = (now - last) / 1000;
+            if (dt > 0.1) dt = 0.1;
+            lastRef.current = now;
+
+            if (playing) {
+                advanceWorld(worldRef.current, {
+                    dt: dt * speed,
+                    mode,
+                    temperature,
+                    oxygen,
+                    co2Pulse,
+                    derived,
+                    nextId: () => idRef.current++,
+                });
+            }
+
+            drawWorld(ctx, worldRef.current, {
+                mode,
+                temperature,
+                oxygen,
+                showLabels,
+                highlightStages,
+                derived,
+            });
+
+            snapshotClockRef.current += dt;
+            if (snapshotClockRef.current > 0.15) {
+                snapshotClockRef.current = 0;
+                const world = worldRef.current;
+                const activeStage = Math.floor(((world.wheel % 1) + 1) * 3) % 3 + 1;
+                setSnapshot({
+                    mode,
+                    turns: world.turns,
+                    glucose: world.glucose,
+                    sugar: world.sugar,
+                    photoRate: Math.round(world.smoothPhoto),
+                    co2AtRubisco: Math.round(world.smoothCo2AtRubisco),
+                    atpWaste: world.atpConsumedWaste,
+                    activeStage,
+                    c4Cycles: world.c4Cycles,
+                });
+            }
+
+            rafRef.current = requestAnimationFrame(tick);
+        };
+
+        rafRef.current = requestAnimationFrame(tick);
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            lastRef.current = 0;
+        };
+    }, [co2Pulse, derived, highlightStages, mode, oxygen, playing, resetKey, showLabels, speed, temperature]);
+
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] overflow-y-auto pr-1 min-[1800px]:block">
+            <div className="flex flex-col gap-2.5">
+                <CompareCard />
+                <EnergyCard snapshot={snapshot} />
+                <LegendCard />
+            </div>
+        </aside>
+    );
+
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[316px] overflow-y-auto pl-1 min-[1800px]:block">
+            <div className="flex flex-col gap-3 pr-16">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/95 p-4 shadow-xl backdrop-blur">
+                    <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-emerald-950">
+                        <Leaf size={16} />
+                        NCERT Ch 11.7-11.9
+                    </div>
+                    <div className="mb-3 text-xs font-semibold text-emerald-700">Calvin cycle, C4 pathway, photorespiration</div>
+                    <div className="rounded-lg border border-emerald-100 bg-white/90 px-3 py-2 text-sm font-bold leading-snug text-emerald-950">
+                        RuBP + CO2 --RuBisCO--&gt; 2 x 3-PGA
+                    </div>
+                    <div className="mt-2 rounded-lg border border-emerald-100 bg-white/90 px-3 py-2 text-sm font-bold leading-snug text-emerald-950">
+                        3 ATP + 2 NADPH per CO2; 6 turns make 1 glucose.
+                    </div>
+                    <div className="mt-3 space-y-2 text-xs font-semibold leading-snug text-emerald-900">
+                        <MiniFact color="#16a34a" text="Calvin cycle occurs in all photosynthetic plants." />
+                        <MiniFact color="#d97706" text="C3 plants run Calvin cycle in mesophyll cells." />
+                        <MiniFact color="#0891b2" text="C4 plants run Calvin cycle only in bundle sheath cells." />
+                        <MiniFact color="#dc2626" text="Photorespiration has no known biological function in NCERT." />
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-base font-extrabold text-slate-900">
+                            <Gauge size={16} className="text-emerald-700" />
+                            Real-time values
+                        </div>
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700">LIVE</span>
+                    </div>
+                    <div className="space-y-2">
+                        <ValueRow label="ATP / NADPH per CO2" value="3 ATP / 2 NADPH" tint="#ecfdf5" color="#047857" />
+                        <ValueRow label="Turns / glucose" value={`${snapshot.turns % 6} / 6`} tint="#fffbeb" color="#b45309" />
+                        <ValueRow label="Photorespiration rate" value={snapshot.mode === 'C4' ? '0' : `${snapshot.photoRate}%`} tint="#fff1f2" color="#be123c" />
+                        <ValueRow label="CO2 at RuBisCO" value={`${snapshot.co2AtRubisco}%`} tint="#ecfeff" color="#0891b2" />
+                        <ValueRow label="Glucose made" value={`${snapshot.glucose}`} tint="#fefce8" color="#a16207" />
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="mb-2 flex items-center gap-2 text-base font-extrabold text-slate-900">
+                        <Info size={16} className="text-sky-700" />
+                        Live observation
+                    </div>
+                    <div className="text-sm font-semibold leading-snug text-slate-700">{derived.observation}</div>
+                </div>
+            </div>
+        </aside>
+    );
 
     const simulationCombo = (
-        <div className="w-full h-full min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            {/* Thin header strip */}
-            <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1 shrink-0">
-                <div>
-                    <div className="text-sm font-bold text-slate-900">C3–C4 Photosynthesis Lab</div>
-                    <div className="text-[11px] text-slate-500">Calvin cycle · C4 CO₂ pump · Photorespiration</div>
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas
+                    ref={canvasRef}
+                    width={W}
+                    height={H}
+                    className="absolute inset-0 h-full w-full"
+                    aria-label="Animated Calvin cycle and C3 C4 pathway simulation"
+                />
+                <div className="pointer-events-auto absolute right-3 top-3 z-10 flex items-center gap-1.5">
+                    <button
+                        type="button"
+                        onClick={() => setPlaying((value) => !value)}
+                        className="rounded-lg border border-slate-200 bg-white/90 p-2 text-slate-700 shadow transition-colors hover:bg-slate-50"
+                        title={playing ? 'Pause' : 'Play'}
+                    >
+                        {playing ? <Pause size={15} /> : <Play size={15} />}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={resetLab}
+                        className="rounded-lg border border-slate-200 bg-white/90 p-2 text-slate-700 shadow transition-colors hover:bg-slate-50"
+                        title="Reset"
+                    >
+                        <RotateCcw size={15} />
+                    </button>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold text-white shrink-0 ${pathway === 'C4' ? 'bg-emerald-600' : 'bg-sky-600'}`}>
-                    {pathway} Plant
-                </span>
             </div>
-
-            {/* SVG takes all remaining height */}
-            <div className="flex-1 min-h-0 px-2 pb-1">
-                <C3C4SVG pathway={pathway} temperature={temperature} oxygen={oxygen} co2Pulse={co2Pulse} sim={sim} />
-            </div>
-
-            {/* Metric strip pinned at bottom */}
-            <div className="grid grid-cols-4 gap-2 px-3 pb-2 shrink-0">
-                <MetricCard label="Sugar Bin" value={`${sim.sugarRate}/10`} tone={sim.sugarRate >= 7 ? 'text-emerald-700' : 'text-amber-700'} />
-                <MetricCard label="ATP Use" value={`${sim.atpUse} units`} tone="text-indigo-700" />
-                <MetricCard label="Waste" value={`${sim.wasteRate}/6`} tone={sim.wasteRate > 3 ? 'text-red-700' : 'text-slate-700'} />
-                <MetricCard label="Yield" value={`${sim.yieldScore}%`} tone={sim.yieldScore >= 80 ? 'text-emerald-700' : 'text-rose-700'} />
-            </div>
+            {graphPanel}
+            {valuesPanel}
         </div>
     );
 
     const controlsCombo = (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm w-full overflow-y-auto max-h-[34vh]">
-            <div className="p-3 flex flex-col gap-3">
-                {/* Goal */}
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900">
-                    <strong>Goal:</strong> Discover why C4 plants outperform C3 in heat by comparing CO₂ fixation strategies.
-                </div>
-
-                {/* Controls row: pathway + temp + O2 + buttons in a compact grid */}
-                <div className="grid grid-cols-2 gap-2">
-                    <div>
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Plant</div>
-                        <div className="grid grid-cols-2 gap-1">
-                            {(['C3', 'C4'] as PlantPathway[]).map(item => (
-                                <button key={item} onClick={() => setPathway(item)}
-                                    className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all ${pathway === item ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-emerald-50'}`}>
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
+        <div className="flex h-full min-h-0 flex-col gap-2.5 overflow-hidden bg-white text-slate-900">
+            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-slate-800">
+                <Leaf size={16} className="text-emerald-700" />
+                Calvin Pathway Bench
+            </div>
+            <div className="grid flex-1 min-h-0 gap-2.5 md:grid-cols-2 xl:grid-cols-[1fr_1.2fr_1fr_.9fr_.95fr_.95fr]">
+                <ControlGroup icon={<Leaf size={14} className="text-emerald-700" />} label="Plant pathway">
+                    <div className="grid grid-cols-2 gap-1.5">
+                        <SegmentButton active={mode === 'C3'} color="#0284c7" onClick={() => setMode('C3')}>C3 plant</SegmentButton>
+                        <SegmentButton active={mode === 'C4'} color="#16a34a" onClick={() => setMode('C4')}>C4 plant</SegmentButton>
                     </div>
-                    <div>
-                        <div className="flex items-center justify-between mb-1">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Temp</span>
-                            <span className="text-[10px] font-bold text-orange-700">{temperature}°C</span>
-                        </div>
-                        <div className="grid grid-cols-4 gap-1">
-                            {TEMP_OPTIONS.map(item => (
-                                <button key={item} onClick={() => setTemperature(item)}
-                                    className={`rounded-lg border px-1 py-2 text-[10px] font-bold transition-all ${temperature === item ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-orange-50'}`}>
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
+                </ControlGroup>
+                <ControlGroup icon={<Thermometer size={14} className="text-orange-700" />} label="Temperature">
+                    <div className="grid grid-cols-5 gap-1.5">
+                        {[20, 25, 35, 40, 45].map((item) => (
+                            <SegmentButton key={item} active={temperature === item} color={item <= 25 ? '#0284c7' : '#f97316'} onClick={() => setTemperature(item)}>
+                                {item}C
+                            </SegmentButton>
+                        ))}
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                    <div>
-                        <div className="flex items-center justify-between mb-1">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">O₂</span>
-                            <span className="text-[10px] font-bold text-rose-700">{oxygen}</span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-1">
-                            {OXYGEN_OPTIONS.map(item => (
-                                <button key={item} onClick={() => setOxygen(item)}
-                                    className={`rounded-lg border px-1 py-2 text-[10px] font-bold transition-all ${oxygen === item ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-rose-50'}`}>
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
+                </ControlGroup>
+                <ControlGroup icon={<Wind size={14} className="text-rose-700" />} label="O2 level">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {(['Low', 'Normal', 'High'] as OxygenLevel[]).map((item) => (
+                            <SegmentButton key={item} active={oxygen === item} color={item === 'High' ? '#e11d48' : '#0ea5e9'} onClick={() => setOxygen(item)}>
+                                {item}
+                            </SegmentButton>
+                        ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-1 items-end">
-                        <button onClick={addCo2} className="rounded-lg border border-emerald-300 bg-emerald-50 px-2 py-2 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1">
-                            <Sprout size={13} /> CO₂+
+                </ControlGroup>
+                <ControlGroup icon={<Sparkles size={14} className="text-emerald-700" />} label="CO2 pulse">
+                    <div className="flex items-center gap-1.5">
+                        <button
+                            type="button"
+                            onClick={addCo2}
+                            className="min-h-[32px] flex-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-black text-emerald-800 transition-colors hover:bg-emerald-100"
+                        >
+                            Add CO2
                         </button>
-                        <button onClick={resetLab} className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors flex items-center justify-center gap-1">
-                            <RefreshCcw size={13} /> Reset
-                        </button>
+                        <span className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-black text-slate-700">{co2Pulse}</span>
                     </div>
-                </div>
-
-                {/* Live observation */}
-                <InfoCard title="Live Observation" icon={<Activity size={14} className="text-emerald-600" />}>
-                    <p className="text-xs">{observation}</p>
-                </InfoCard>
-
-                {/* Steps */}
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
-                    <div className="text-[10px] font-bold text-slate-700 mb-1 uppercase tracking-widest">Steps</div>
-                    <ol className="text-[10px] text-slate-600 space-y-0.5 list-decimal list-inside">
-                        <li><strong>C3</strong> at 25°C → CO₂ enters Calvin cycle → Sugar Bin fills.</li>
-                        <li>Raise to <strong>40°C</strong> → red O₂ invades RuBisCO → photorespiration flashes.</li>
-                        <li>Switch to <strong>C4</strong> at 40°C → PEPcase grabs CO₂ in mesophyll.</li>
-                        <li>Follow CO₂ shuttle → Bundle Sheath (no O₂!) → RuBisCO at peak.</li>
-                        <li>Compare <strong>Yield Meter</strong> — C4 wins in tropical heat.</li>
-                    </ol>
-                </div>
-
-                {/* Info cards */}
-                <InfoCard title="NCERT Key Points" icon={<Leaf size={14} className="text-lime-600" />}>
-                    <ul className="text-xs list-disc list-inside space-y-0.5">
-                        <li>C3: Calvin cycle in mesophyll. First product = 3-PGA.</li>
-                        <li>C4: PEPcase → C4 acid → bundle sheath → Calvin cycle.</li>
-                        <li>PEPcase has NO O₂ affinity — no photorespiration.</li>
-                    </ul>
-                </InfoCard>
-                <InfoCard title="Memory Anchor" icon={<Gauge size={14} className="text-amber-600" />}>
-                    <p className="text-xs">RuBisCO binds CO₂ or O₂. High temp → O₂ wins → photorespiration. C4 = CO₂ pump that keeps O₂ away from RuBisCO.</p>
-                </InfoCard>
-                <div className="grid grid-cols-2 gap-2">
-                    <FactTile icon={<Thermometer size={13} className="text-orange-600" />} title="Heat Effect">
-                        <span className="text-[10px]">Above 35°C O₂ beats CO₂ at RuBisCO → photorespiration in C3.</span>
-                    </FactTile>
-                    <FactTile icon={<Zap size={13} className="text-emerald-600" />} title="C4 Advantage">
-                        <span className="text-[10px]">Bundle sheath is O₂-free. RuBisCO at peak efficiency.</span>
-                    </FactTile>
-                </div>
+                </ControlGroup>
+                <ControlGroup icon={<Activity size={14} className="text-slate-700" />} label="Labels">
+                    <div className="grid grid-cols-1 gap-1.5">
+                        <ToggleButton active={showLabels} color="#0f766e" onClick={() => setShowLabels((value) => !value)}>Molecule labels</ToggleButton>
+                        <ToggleButton active={highlightStages} color="#d97706" onClick={() => setHighlightStages((value) => !value)}>Stage highlight</ToggleButton>
+                    </div>
+                </ControlGroup>
+                <ControlGroup icon={<Zap size={14} className="text-slate-700" />} label="Speed">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {([0.5, 1, 2] as Speed[]).map((item) => (
+                            <SegmentButton key={item} active={speed === item} color="#0f172a" onClick={() => setSpeed(item)}>
+                                {item}x
+                            </SegmentButton>
+                        ))}
+                    </div>
+                </ControlGroup>
             </div>
         </div>
     );
 
-    return <TopicLayoutContainer topic={topic} onExit={onExit} SimulationComponent={simulationCombo} ControlsComponent={controlsCombo} />;
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   MAIN SVG CANVAS  760 × 460
-   Band 1:  y  0– 44   Title + header
-   Band 2:  y 44– 80   Status bar (Temp label, O2 label, ATP battery, photorespiration flash)
-   Band 3:  y 80–118   Atmosphere: CO2 cloud (left) + O2 cloud (right)
-   Band 4:  y118–358   Cells
-   Band 5:  y366–458   Meters: Sugar Bin + Yield Meter
-═══════════════════════════════════════════════════════════════════════ */
-const C3C4SVG = ({
-    pathway, temperature, oxygen, co2Pulse, sim,
-}: {
-    pathway: PlantPathway;
-    temperature: TemperatureLevel;
-    oxygen: OxygenLevel;
-    co2Pulse: number;
-    sim: ReturnType<typeof useSimValues>;
-}) => {
-    const isC4 = pathway === 'C4';
-    const { photorespirationRisk, particleDur, o2Count, sugarRate, wasteRate, atpUse, yieldC3, yieldC4 } = sim;
-
-    // CO2 particle count
-    const co2Count = co2Pulse + 2; // 4–8
-
-    // ── ATP battery: height proportional to (10 - drain). Drain = atpUse scaled.
-    const batteryFill = Math.max(4, 38 - atpUse * 4); // 38px max, shrinks with use
-
     return (
-        <svg viewBox="0 0 760 460" className="w-full h-full" preserveAspectRatio="xMidYMid meet"
-            aria-label="Calvin Cycle C3 C4 Pathway Simulation">
-
-            {/* ── DEFS: arrows + gradients ── */}
-            <defs>
-                <marker id="arrG" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
-                    <path d="M0,0 L0,6 L8,3 z" fill="#15803d" />
-                </marker>
-                <marker id="arrB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
-                    <path d="M0,0 L0,6 L8,3 z" fill="#0369a1" />
-                </marker>
-                <marker id="arrR" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
-                    <path d="M0,0 L0,6 L8,3 z" fill="#dc2626" />
-                </marker>
-                <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f0fdf4" />
-                    <stop offset="100%" stopColor="#dcfce7" />
-                </linearGradient>
-                <linearGradient id="sugarGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#fbbf24" />
-                    <stop offset="100%" stopColor="#f59e0b" />
-                </linearGradient>
-                <linearGradient id="c4Grad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#34d399" />
-                    <stop offset="100%" stopColor="#059669" />
-                </linearGradient>
-                <linearGradient id="c3Grad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#7dd3fc" />
-                    <stop offset="100%" stopColor="#0ea5e9" />
-                </linearGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2.5" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-            </defs>
-
-            {/* ── BACKGROUND ── */}
-            <rect width="760" height="460" rx="16" fill="url(#bgGrad)" />
-
-            {/* ════════════════ BAND 1 – TITLE ════════════════ */}
-            <rect x="0" y="0" width="760" height="44" rx="16" fill="#166534" opacity="0.92" />
-            <rect x="0" y="28" width="760" height="16" fill="#166534" opacity="0.92" />
-            <text x="380" y="28" textAnchor="middle" fontSize="17" fontWeight="900" fill="#ffffff" letterSpacing="0.5">
-                Calvin Cycle &amp; {pathway} Pathway — Interactive Simulation
-            </text>
-
-            {/* ════════════════ BAND 2 – STATUS BAR ════════════════ */}
-            <rect x="8" y="48" width="744" height="30" rx="8" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1" />
-
-            {/* Temp label */}
-            <text x="18" y="68" fontSize="12" fontWeight="800" fill={temperature >= 40 ? '#dc2626' : '#475569'}>
-                🌡 Temp: {temperature}°C{temperature >= 40 ? '  ⚠ Heat Stress' : ''}
-            </text>
-
-            {/* O2 label */}
-            <text x="240" y="68" fontSize="12" fontWeight="800" fill={oxygen === 'High' ? '#dc2626' : '#475569'}>
-                O₂: {oxygen}{oxygen === 'High' ? '  ⚠ High O₂' : ''}
-            </text>
-
-            {/* ATP Battery (top-right of status bar) */}
-            <AtpBattery x={560} y={48} fillHeight={batteryFill} atpUse={atpUse} photorespirationRisk={photorespirationRisk} />
-
-            {/* ── Photorespiration flash banner (only when risk) ── */}
-            {photorespirationRisk && (
-                <g>
-                    <rect x="430" y="50" width="120" height="24" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5">
-                        <animate attributeName="opacity" values="1;0.3;1" dur="0.9s" repeatCount="indefinite" />
-                    </rect>
-                    <text x="490" y="66" textAnchor="middle" fontSize="10" fontWeight="900" fill="#991b1b">
-                        ⚡ PHOTORESPIRATION
-                        <animate attributeName="opacity" values="1;0.3;1" dur="0.9s" repeatCount="indefinite" />
-                    </text>
-                </g>
-            )}
-
-            {/* ════════════════ BAND 3 – ATMOSPHERE ════════════════ */}
-            {/* CO2 source cloud – left */}
-            <rect x="8" y="82" width="148" height="34" rx="10" fill="#bbf7d0" stroke="#16a34a" strokeWidth="1.5" />
-            <text x="82" y="101" textAnchor="middle" fontSize="11" fontWeight="800" fill="#14532d">☁ CO₂ Source (Atmosphere)</text>
-
-            {/* O2 source cloud – right */}
-            <rect x="604" y="82" width="148" height="34" rx="10" fill="#fecdd3" stroke="#dc2626" strokeWidth="1.5" />
-            <text x="678" y="101" textAnchor="middle" fontSize="11" fontWeight="800" fill="#991b1b">☁ O₂ Source (Atmosphere)</text>
-
-            {/* Pathway label – center */}
-            <text x="380" y="100" textAnchor="middle" fontSize="12" fontWeight="800" fill={isC4 ? '#065f46' : '#0c4a6e'}>
-                {isC4 ? '⟵ Mesophyll Cell ⟶   |   ⟵ Bundle Sheath Cell ⟶' : '⟵ Mesophyll Cell (C3) — Calvin Cycle runs here ⟶'}
-            </text>
-
-            {/* ════════════════ BAND 4 – CELLS ════════════════ */}
-            {!isC4 ? (
-                <C3Cell photorespirationRisk={photorespirationRisk} particleDur={particleDur} co2Count={co2Count} o2Count={o2Count} oxygen={oxygen} temperature={temperature} />
-            ) : (
-                <C4Cells particleDur={particleDur} co2Count={co2Count} o2Count={o2Count} />
-            )}
-
-            {/* ════════════════ BAND 5 – METERS ════════════════ */}
-            {/* Sugar Bin */}
-            <SugarBinMeter x={18} y={368} sugarRate={sugarRate} />
-
-            {/* Waste indicator */}
-            <WasteMeter x={18} y={418} wasteRate={wasteRate} />
-
-            {/* Yield Meter – always visible dual bar */}
-            <YieldMeter x={380} y={368} yieldC3={yieldC3} yieldC4={yieldC4} activePathway={pathway} />
-        </svg>
+        <TopicLayoutContainer
+            topic={topic}
+            onExit={onExit}
+            SimulationComponent={simulationCombo}
+            ControlsComponent={controlsCombo}
+            simulationStageWidth={W}
+            simulationStageHeight={H}
+            controlsAreaFlex="0 0 clamp(170px, 22%, 205px)"
+            controlsWrapperClassName="w-full h-full max-w-[min(100%,1320px)] overflow-hidden bg-white border border-slate-200 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-4"
+            contentToggleClassName="bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+        />
     );
 };
 
-/* ════════════════════════════════════════════════════════
-   C3 CELL  (x=18, y=118, w=724, h=238)
-════════════════════════════════════════════════════════ */
-const C3Cell = ({ photorespirationRisk, particleDur, co2Count, o2Count, oxygen, temperature }: {
-    photorespirationRisk: boolean;
-    particleDur: number;
-    co2Count: number;
-    o2Count: number;
-    oxygen: OxygenLevel;
-    temperature: TemperatureLevel;
-}) => {
-    // Calvin cycle center
-    const cx = 362, cy = 237;
-    // RuBisCO gear center (same as Calvin center)
-    const gearColor = photorespirationRisk ? '#ef4444' : '#16a34a';
-    const gearSpeed = photorespirationRisk ? `${particleDur * 1.8}s` : `${particleDur * 1.1}s`;
+const createWorld = (): World => ({
+    time: 0,
+    eventClock: 0,
+    wheel: 0,
+    turns: 0,
+    glucose: 0,
+    co2Pool: 4,
+    sugar: 0,
+    photoEvents: 0,
+    atpConsumedWaste: 0,
+    c4Cycles: 0,
+    rubiscoPulse: 0,
+    pepPulse: 0,
+    decarbPulse: 0,
+    calvinPulse: 0,
+    particles: [],
+    flashes: [],
+    smoothPhoto: 0,
+    smoothCo2AtRubisco: 62,
+});
 
-    return (
-        <g>
-            {/* Cell boundary */}
-            <rect x="18" y="118" width="724" height="238" rx="22" fill="#dcfce7" stroke="#16a34a" strokeWidth="3" />
-            <text x="362" y="140" textAnchor="middle" fontSize="14" fontWeight="900" fill="#166534">Mesophyll Cell</text>
+const computeDerived = (mode: PlantMode, temperature: number, oxygen: OxygenLevel, co2Pulse: number): Derived => {
+    const c3Heat = Math.max(0, temperature - 25) / 20;
+    const o2Factor = oxygen === 'High' ? 1 : oxygen === 'Normal' ? 0.5 : 0.15;
+    const co2Relief = clamp(co2Pulse / 10, 0, 0.65);
+    const photoTarget = mode === 'C4' ? 0 : clamp((c3Heat * 58 + o2Factor * 34) * (1 - co2Relief), 0, 82);
+    const co2AtRubisco = mode === 'C4'
+        ? clamp(86 + co2Pulse * 2, 84, 100)
+        : clamp(70 + co2Pulse * 3 - c3Heat * 30 - (oxygen === 'High' ? 12 : 0), 24, 92);
+    const optimumBoost = mode === 'C4'
+        ? temperature >= 30 && temperature <= 40 ? 1.25 : temperature > 40 ? 0.95 : 0.9
+        : temperature >= 20 && temperature <= 25 ? 1.2 : temperature >= 35 ? 0.72 : 0.95;
+    const cycleRate = clamp((0.55 + co2AtRubisco / 160) * optimumBoost * (1 - photoTarget / 140), 0.28, 1.45);
+    const heatLabel = mode === 'C4' ? 'C4 optimum 30-40C' : 'C3 optimum 20-25C';
+    const observation = mode === 'C4'
+        ? temperature >= 35
+            ? 'C4 in heat: PEPcase fixes CO2 in mesophyll, C4 acid releases concentrated CO2 in bundle sheath, so photorespiration is absent.'
+            : 'C4 pathway: Hatch and Slack shuttle separates initial fixation from the Calvin cycle; RuBisCO is in bundle sheath cells.'
+        : photoTarget >= 40
+            ? 'C3 photorespiring: O2 competes at RuBisCO, producing phosphoglycerate plus phosphoglycolate; sugar stalls and ATP is consumed.'
+            : 'C3 mild condition: RuBP accepts CO2 at RuBisCO, two 3-PGA form, and the Calvin cycle regenerates RuBP.';
+    return { photoTarget, co2AtRubisco, cycleRate, heatLabel, observation };
+};
 
-            {/* ── Calvin Cycle wheel ── */}
-            <CalvinCycleWheel cx={cx} cy={cy} r={76} risk={photorespirationRisk} gearColor={gearColor} gearSpeed={gearSpeed} />
+const advanceWorld = (
+    world: World,
+    config: {
+        dt: number;
+        mode: PlantMode;
+        temperature: number;
+        oxygen: OxygenLevel;
+        co2Pulse: number;
+        derived: Derived;
+        nextId: () => number;
+    },
+) => {
+    world.time += config.dt;
+    world.eventClock += config.dt * config.derived.cycleRate;
+    world.wheel = (world.wheel + config.dt * config.derived.cycleRate * 0.18) % 1;
+    world.rubiscoPulse = Math.max(0, world.rubiscoPulse - config.dt * 2.8);
+    world.pepPulse = Math.max(0, world.pepPulse - config.dt * 2.8);
+    world.decarbPulse = Math.max(0, world.decarbPulse - config.dt * 2.8);
+    world.calvinPulse = Math.max(0, world.calvinPulse - config.dt * 2.8);
+    world.smoothPhoto += (config.derived.photoTarget - world.smoothPhoto) * (1 - Math.exp(-config.dt * 3.5));
+    world.smoothCo2AtRubisco += (config.derived.co2AtRubisco - world.smoothCo2AtRubisco) * (1 - Math.exp(-config.dt * 3));
 
-            {/* RuBisCO label below cycle */}
-            <rect x={cx - 52} y={cy + 82} width="104" height="22" rx="8" fill={photorespirationRisk ? '#fee2e2' : '#dcfce7'} stroke={gearColor} strokeWidth="1.5" />
-            <text x={cx} y={cy + 97} textAnchor="middle" fontSize="11" fontWeight="900" fill={photorespirationRisk ? '#991b1b' : '#166534'}>
-                RuBisCO {photorespirationRisk ? '⚠ O₂ binding!' : '✓ fixing CO₂'}
-            </text>
+    while (world.eventClock >= 1) {
+        world.eventClock -= 1;
+        if (config.mode === 'C4') {
+            triggerC4Cycle(world, config.nextId);
+        } else {
+            const photoChance = config.derived.photoTarget / 100;
+            if (Math.random() < photoChance) triggerPhotorespiration(world, config.nextId);
+            else triggerC3Turn(world, config.nextId);
+        }
+    }
 
-            {/* ── CO2 animated particles → Calvin cycle ── */}
-            {Array.from({ length: co2Count }).map((_, i) => (
-                <React.Fragment key={`c3-co2-${i}`}>
-                    <AnimatedCO2
-                        path={`M ${72 + i * 14} 99 C ${72 + i * 14} 155 ${cx - 40 + i * 8} 185 ${cx - 20 + (i % 3) * 14} ${cy - 60}`}
-                        dur={particleDur + i * 0.22}
-                        begin={i * (particleDur / co2Count)}
-                    />
-                </React.Fragment>
+    world.particles.forEach((particle) => {
+        particle.progress += config.dt / particle.life;
+        const pos = particlePosition(particle);
+        particle.trail.push(pos);
+        if (particle.trail.length > 11) particle.trail.shift();
+    });
+    world.particles = world.particles.filter((particle) => particle.progress < 1);
+    world.flashes.forEach((flash) => { flash.age += config.dt; });
+    world.flashes = world.flashes.filter((flash) => flash.age < flash.life);
+};
+
+const triggerC3Turn = (world: World, nextId: () => number) => {
+    world.rubiscoPulse = 1;
+    world.calvinPulse = 1;
+    world.turns += 1;
+    world.sugar += 1;
+    world.co2Pool = Math.max(0, world.co2Pool - 1);
+    if (world.turns % 6 === 0) world.glucose += 1;
+    world.particles.push(makeParticle(nextId(), 'CO2', 'c3In', 1.5, Math.random()));
+    world.particles.push(makeParticle(nextId(), 'RuBP', 'c3In', 2.1, Math.random()));
+    world.particles.push(makeParticle(nextId(), 'PGA', 'sugarOut', 2.3, 0));
+    world.particles.push(makeParticle(nextId(), 'G3P', 'sugarOut', 2.1, 0.35));
+    world.flashes.push({ x: 660, y: 356, age: 0, life: 0.8, color: '#22c55e', maxRadius: 110 });
+};
+
+const triggerPhotorespiration = (world: World, nextId: () => number) => {
+    world.rubiscoPulse = 1;
+    world.photoEvents += 1;
+    world.atpConsumedWaste += 1;
+    world.particles.push(makeParticle(nextId(), 'O2', 'o2In', 1.45, Math.random()));
+    world.particles.push(makeParticle(nextId(), 'PGA', 'photoSink', 2, 0));
+    world.particles.push(makeParticle(nextId(), 'PHOSPHOGLYCOLATE', 'photoSink', 2.2, 0.5));
+    world.flashes.push({ x: 660, y: 356, age: 0, life: 0.9, color: '#fb7185', maxRadius: 135 });
+};
+
+const triggerC4Cycle = (world: World, nextId: () => number) => {
+    world.pepPulse = 1;
+    world.decarbPulse = 1;
+    world.calvinPulse = 1;
+    world.turns += 1;
+    world.sugar += 1;
+    world.c4Cycles += 1;
+    world.co2Pool = Math.max(0, world.co2Pool - 1);
+    if (world.turns % 6 === 0) world.glucose += 1;
+    world.particles.push(makeParticle(nextId(), 'CO2', 'c4Fix', 1.35, 0));
+    world.particles.push(makeParticle(nextId(), 'PEP', 'c4Fix', 1.55, 0.45));
+    world.particles.push(makeParticle(nextId(), 'OAA', 'c4Transport', 2.2, 0.1));
+    world.particles.push(makeParticle(nextId(), 'MALATE', 'c4Transport', 2.3, 0.5));
+    world.particles.push(makeParticle(nextId(), 'C3RETURN', 'c4Return', 2.35, 0.35));
+    world.particles.push(makeParticle(nextId(), 'CO2', 'bundleCO2', 1.8, 0.6));
+    world.particles.push(makeParticle(nextId(), 'SUGAR', 'sugarOut', 2.1, 0));
+    world.flashes.push({ x: 846, y: 362, age: 0, life: 0.9, color: '#22c55e', maxRadius: 128 });
+};
+
+const makeParticle = (id: number, kind: ParticleKind, path: PathKind, life: number, offset: number): Particle => ({
+    id,
+    kind,
+    path,
+    life,
+    offset,
+    progress: 0,
+    color: PARTICLES[kind].color,
+    ring: PARTICLES[kind].ring,
+    label: PARTICLES[kind].label,
+    trail: [],
+});
+
+const drawWorld = (
+    ctx: CanvasRenderingContext2D,
+    world: World,
+    config: { mode: PlantMode; temperature: number; oxygen: OxygenLevel; showLabels: boolean; highlightStages: boolean; derived: Derived },
+) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    drawGrid(ctx);
+    drawLeafHalo(ctx, config.mode);
+    if (config.mode === 'C3') drawC3Apparatus(ctx, world, config);
+    else drawC4Apparatus(ctx, world, config);
+    world.flashes.forEach((flash) => drawFlash(ctx, flash));
+    world.particles.forEach((particle) => drawParticle(ctx, particle, config.showLabels));
+    drawCanvasTitle(ctx, config);
+};
+
+const drawGrid = (ctx: CanvasRenderingContext2D) => {
+    ctx.save();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    for (let x = 44; x < W; x += 44) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+    for (let y = 44; y < H; y += 44) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+    ctx.restore();
+};
+
+const drawLeafHalo = (ctx: CanvasRenderingContext2D, mode: PlantMode) => {
+    ctx.save();
+    const gradient = ctx.createLinearGradient(190, 120, 1110, 648);
+    gradient.addColorStop(0, '#f0fdf4');
+    gradient.addColorStop(1, '#dcfce7');
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = mode === 'C4' ? '#16a34a' : '#0284c7';
+    ctx.lineWidth = 3;
+    roundRect(ctx, 116, 96, 1048, 564, 36);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+};
+
+const drawCanvasTitle = (
+    ctx: CanvasRenderingContext2D,
+    config: { mode: PlantMode; temperature: number; oxygen: OxygenLevel; derived: Derived },
+) => {
+    ctx.save();
+    ctx.fillStyle = '#166534';
+    ctx.font = '900 24px Inter, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(config.mode === 'C4' ? 'C4 Hatch-Slack pathway' : 'C3 Calvin cycle pathway', 148, 68);
+    ctx.fillStyle = '#475569';
+    ctx.font = '800 13px Inter, Arial, sans-serif';
+    ctx.fillText(`${config.temperature}C | O2 ${config.oxygen} | ${config.derived.heatLabel}`, 148, 90);
+    ctx.restore();
+};
+
+const drawC3Apparatus = (
+    ctx: CanvasRenderingContext2D,
+    world: World,
+    config: { highlightStages: boolean; derived: Derived },
+) => {
+    drawCell(ctx, 190, 138, 900, 460, '#e0f2fe', '#0284c7', 'Mesophyll cell', 'C3: Calvin cycle runs in mesophyll');
+    drawCalvinWheel(ctx, 650, 354, 168, world, config.highlightStages, false);
+    drawRubisco(ctx, 650, 354, world.rubiscoPulse, world.smoothPhoto > 35);
+    drawMoleculeCloud(ctx, 345, 280, 'CO2', 7, '#22c55e');
+    drawMoleculeCloud(ctx, 346, 438, 'O2', 4, '#fb7185');
+    drawArrow(ctx, 404, 282, 520, 320, '#16a34a', 'CO2');
+    drawArrow(ctx, 404, 438, 518, 388, '#e11d48', 'O2 competition');
+    drawWasteSink(ctx, 900, 416, world.smoothPhoto);
+    drawSugarJar(ctx, 914, 238, world.glucose, world.sugar);
+};
+
+const drawC4Apparatus = (
+    ctx: CanvasRenderingContext2D,
+    world: World,
+    config: { highlightStages: boolean; derived: Derived },
+) => {
+    drawCell(ctx, 156, 146, 424, 438, '#f0fdf4', '#16a34a', 'Mesophyll cell', 'PEPcase present; RuBisCO absent');
+    drawCell(ctx, 682, 126, 424, 478, '#ecfdf5', '#047857', 'Bundle sheath cell', 'RuBisCO rich; PEPcase absent');
+    drawThickWall(ctx, 682, 126, 424, 478);
+    drawPlasmodesmata(ctx, 582, 330, 682);
+    drawPepcase(ctx, 356, 344, world.pepPulse);
+    drawCalvinWheel(ctx, 896, 350, 126, world, config.highlightStages, true);
+    drawRubisco(ctx, 896, 350, world.calvinPulse, false);
+    drawBundleChloroplasts(ctx, 760, 188);
+    drawCo2Cloud(ctx, 966, 236, world.smoothCo2AtRubisco);
+    drawArrow(ctx, 460, 276, 734, 276, '#16a34a', 'C4 acid ->');
+    drawArrow(ctx, 736, 494, 460, 494, '#059669', '<- 3C return');
+    drawArrow(ctx, 356, 405, 356, 454, '#7c3aed', 'PEP regenerated');
+    drawO2Boundary(ctx, 1052, 188);
+    drawSugarJar(ctx, 1050, 444, world.glucose, world.sugar);
+};
+
+const drawCell = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, stroke: string, title: string, subtitle: string) => {
+    ctx.save();
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 4;
+    roundRect(ctx, x, y, w, h, 34);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = stroke;
+    ctx.font = '900 18px Inter, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(title, x + 24, y + 34);
+    ctx.fillStyle = '#475569';
+    ctx.font = '800 12px Inter, Arial, sans-serif';
+    ctx.fillText(subtitle, x + 24, y + 54);
+    ctx.restore();
+};
+
+const drawCalvinWheel = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, world: World, highlight: boolean, compact: boolean) => {
+    ctx.save();
+    const start = -Math.PI / 2;
+    STAGES.forEach((stage, index) => {
+        const a0 = start + index * Math.PI * 2 / 3;
+        const a1 = start + (index + 1) * Math.PI * 2 / 3 - 0.035;
+        const active = Math.floor(world.wheel * 3) === index;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, a0, a1);
+        ctx.arc(cx, cy, r - (compact ? 42 : 54), a1, a0, true);
+        ctx.closePath();
+        ctx.fillStyle = active && highlight ? stage.color : `${stage.color}55`;
+        ctx.strokeStyle = stage.color;
+        ctx.lineWidth = active && highlight ? 5 : 3;
+        ctx.shadowColor = active && highlight ? stage.color : 'transparent';
+        ctx.shadowBlur = active && highlight ? 18 : 0;
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        const mid = (a0 + a1) / 2;
+        ctx.fillStyle = '#0f172a';
+        ctx.font = `900 ${compact ? 10 : 13}px Inter, Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(stage.name, cx + Math.cos(mid) * (r - 27), cy + Math.sin(mid) * (r - 27));
+        if (!compact) {
+            ctx.font = '800 10px Inter, Arial, sans-serif';
+            ctx.fillStyle = '#334155';
+            ctx.fillText(stage.detail, cx + Math.cos(mid) * (r - 76), cy + Math.sin(mid) * (r - 76) + 16);
+        }
+    });
+    const marker = start + world.wheel * Math.PI * 2;
+    const mx = cx + Math.cos(marker) * (r - (compact ? 22 : 28));
+    const my = cy + Math.sin(marker) * (r - (compact ? 22 : 28));
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 22;
+    ctx.fillStyle = '#fbbf24';
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(mx, my, compact ? 11 : 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#166534';
+    ctx.font = `900 ${compact ? 16 : 22}px Inter, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Calvin', cx, cy - 4);
+    ctx.font = `800 ${compact ? 11 : 13}px Inter, Arial, sans-serif`;
+    ctx.fillStyle = '#475569';
+    ctx.fillText(`${world.turns % 6}/6 turns`, cx, cy + 22);
+    ctx.restore();
+};
+
+const drawRubisco = (ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number, danger: boolean) => {
+    ctx.save();
+    ctx.shadowColor = danger ? '#fb7185' : '#22c55e';
+    ctx.shadowBlur = 10 + pulse * 26;
+    ctx.fillStyle = danger ? '#ffe4e6' : '#dcfce7';
+    ctx.strokeStyle = danger ? '#e11d48' : '#16a34a';
+    ctx.lineWidth = 4;
+    roundRect(ctx, x - 56, y - 28, 112, 56, 18);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = danger ? '#be123c' : '#166534';
+    ctx.font = '900 15px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('RuBisCO', x, y - 4);
+    ctx.font = '800 10px Inter, Arial, sans-serif';
+    ctx.fillText(danger ? 'O2 bound' : 'CO2 bound', x, y + 13);
+    ctx.restore();
+};
+
+const drawPepcase = (ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number) => {
+    ctx.save();
+    ctx.shadowColor = '#7c3aed';
+    ctx.shadowBlur = 8 + pulse * 22;
+    ctx.fillStyle = '#f3e8ff';
+    ctx.strokeStyle = '#7c3aed';
+    ctx.lineWidth = 4;
+    roundRect(ctx, x - 70, y - 34, 140, 68, 20);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#581c87';
+    ctx.font = '900 16px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('PEPcase', x, y - 5);
+    ctx.font = '800 10px Inter, Arial, sans-serif';
+    ctx.fillText('PEP + CO2 -> OAA', x, y + 14);
+    ctx.restore();
+};
+
+const drawThickWall = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {
+    ctx.save();
+    ctx.strokeStyle = '#065f46';
+    ctx.lineWidth = 10;
+    roundRect(ctx, x + 8, y + 8, w - 16, h - 16, 28);
+    ctx.stroke();
+    ctx.fillStyle = '#065f46';
+    ctx.font = '900 12px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Kranz: thick wall, no intercellular spaces', x + w / 2, y + h - 28);
+    ctx.restore();
+};
+
+const drawPlasmodesmata = (ctx: CanvasRenderingContext2D, x1: number, y: number, x2: number) => {
+    ctx.save();
+    for (let i = -2; i <= 2; i += 1) {
+        ctx.strokeStyle = '#059669';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x1, y + i * 18);
+        ctx.lineTo(x2, y + i * 18);
+        ctx.stroke();
+    }
+    ctx.fillStyle = '#065f46';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('plasmodesmata', (x1 + x2) / 2, y - 58);
+    ctx.restore();
+};
+
+const drawBundleChloroplasts = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+    ctx.save();
+    ctx.fillStyle = '#bbf7d0';
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 7; i += 1) {
+        const px = x + (i % 4) * 54;
+        const py = y + Math.floor(i / 4) * 42;
+        ctx.beginPath();
+        ctx.ellipse(px, py, 25, 14, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    }
+    ctx.fillStyle = '#166534';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.fillText('many chloroplasts', x + 82, y + 86);
+    ctx.restore();
+};
+
+const drawCo2Cloud = (ctx: CanvasRenderingContext2D, x: number, y: number, amount: number) => {
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#bbf7d0';
+    for (let i = 0; i < 14; i += 1) {
+        const angle = i * 1.7;
+        const radius = 12 + amount * 0.55 + (i % 3) * 8;
+        ctx.beginPath();
+        ctx.arc(x + Math.cos(angle) * radius * 0.55, y + Math.sin(angle) * radius * 0.34, 10 + (i % 3) * 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#15803d';
+    ctx.font = '900 13px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('high CO2', x, y + 4);
+    ctx.restore();
+};
+
+const drawMoleculeCloud = (ctx: CanvasRenderingContext2D, x: number, y: number, label: string, count: number, color: string) => {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < count; i += 1) {
+        const px = x + Math.cos(i * 1.9) * (30 + (i % 3) * 8);
+        const py = y + Math.sin(i * 1.4) * (24 + (i % 2) * 8);
+        ctx.beginPath();
+        ctx.arc(px, py, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(label, px, py + 4);
+        ctx.fillStyle = color;
+    }
+    ctx.restore();
+};
+
+const drawWasteSink = (ctx: CanvasRenderingContext2D, x: number, y: number, photoRate: number) => {
+    ctx.save();
+    ctx.fillStyle = '#fff1f2';
+    ctx.strokeStyle = '#fb7185';
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 86, y - 58, 172, 116, 20);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#be123c';
+    ctx.font = '900 14px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Photorespiration sink', x, y - 24);
+    ctx.font = '800 11px Inter, Arial, sans-serif';
+    ctx.fillText('no sugar', x, y - 2);
+    ctx.fillText('ATP consumed', x, y + 17);
+    ctx.fillText(`rate ${Math.round(photoRate)}%`, x, y + 38);
+    ctx.restore();
+};
+
+const drawSugarJar = (ctx: CanvasRenderingContext2D, x: number, y: number, glucose: number, sugar: number) => {
+    ctx.save();
+    ctx.fillStyle = '#fffbeb';
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 56, y - 70, 112, 140, 22);
+    ctx.fill();
+    ctx.stroke();
+    const fillHeight = clamp((sugar % 12) / 12 * 98, 8, 98);
+    ctx.fillStyle = '#fcd34d';
+    roundRect(ctx, x - 42, y + 50 - fillHeight, 84, fillHeight, 14);
+    ctx.fill();
+    ctx.fillStyle = '#92400e';
+    ctx.font = '900 13px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sugar', x, y - 42);
+    ctx.font = '900 18px Inter, Arial, sans-serif';
+    ctx.fillText(`${glucose}`, x, y + 8);
+    ctx.font = '800 10px Inter, Arial, sans-serif';
+    ctx.fillText('glucose', x, y + 26);
+    ctx.restore();
+};
+
+const drawO2Boundary = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+    ctx.save();
+    ctx.strokeStyle = '#e11d48';
+    ctx.lineWidth = 5;
+    ctx.setLineDash([12, 10]);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + 290);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#be123c';
+    ctx.font = '900 13px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('O2 excluded', x, y - 14);
+    ctx.restore();
+};
+
+const drawArrow = (ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color: string, label: string) => {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - Math.cos(angle - 0.45) * 18, y2 - Math.sin(angle - 0.45) * 18);
+    ctx.lineTo(x2 - Math.cos(angle + 0.45) * 18, y2 - Math.sin(angle + 0.45) * 18);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '900 12px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, (x1 + x2) / 2, (y1 + y2) / 2 - 10);
+    ctx.restore();
+};
+
+const drawFlash = (ctx: CanvasRenderingContext2D, flash: Flash) => {
+    const t = flash.age / flash.life;
+    const radius = flash.maxRadius * t;
+    const gradient = ctx.createRadialGradient(flash.x, flash.y, 0, flash.x, flash.y, Math.max(1, radius));
+    gradient.addColorStop(0, `${flash.color}88`);
+    gradient.addColorStop(0.55, `${flash.color}22`);
+    gradient.addColorStop(1, `${flash.color}00`);
+    ctx.save();
+    ctx.globalAlpha = 1 - t;
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(flash.x, flash.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+};
+
+const drawParticle = (ctx: CanvasRenderingContext2D, particle: Particle, showLabel: boolean) => {
+    const pos = particlePosition(particle);
+    ctx.save();
+    particle.trail.forEach((point, index) => {
+        ctx.globalAlpha = (index + 1) / Math.max(1, particle.trail.length) * 0.22;
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    ctx.shadowColor = particle.color;
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = particle.color;
+    ctx.strokeStyle = particle.ring;
+    ctx.lineWidth = 3;
+    drawParticleShape(ctx, pos.x, pos.y, PARTICLES[particle.kind].shape, 17);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    if (showLabel) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 9px Inter, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(particle.label, pos.x, pos.y + 3);
+    }
+    ctx.restore();
+};
+
+const drawParticleShape = (ctx: CanvasRenderingContext2D, x: number, y: number, shape: 'circle' | 'hex' | 'diamond' | 'square', r: number) => {
+    ctx.beginPath();
+    if (shape === 'circle') {
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        return;
+    }
+    const points = shape === 'square' ? 4 : shape === 'diamond' ? 4 : 6;
+    const rotation = shape === 'diamond' ? Math.PI / 4 : -Math.PI / 2;
+    for (let i = 0; i < points; i += 1) {
+        const angle = rotation + i * Math.PI * 2 / points;
+        const px = x + Math.cos(angle) * r;
+        const py = y + Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+};
+
+const particlePosition = (particle: Particle): Dot => {
+    const t = easeInOut(clamp(particle.progress, 0, 1));
+    if (particle.path === 'c3In') return bezier(t, [{ x: 280, y: 260 + particle.offset * 90 }, { x: 430, y: 280 }, { x: 565, y: 330 }, { x: 650, y: 356 }]);
+    if (particle.path === 'o2In') return bezier(t, [{ x: 270, y: 450 }, { x: 410, y: 438 }, { x: 540, y: 395 }, { x: 650, y: 356 }]);
+    if (particle.path === 'photoSink') return bezier(t, [{ x: 650, y: 356 }, { x: 720, y: 404 }, { x: 800, y: 436 }, { x: 900 + particle.offset * 24, y: 430 + particle.offset * 42 }]);
+    if (particle.path === 'c4Fix') return bezier(t, [{ x: 214 + particle.offset * 40, y: 280 }, { x: 270, y: 320 }, { x: 322, y: 344 }, { x: 356, y: 344 }]);
+    if (particle.path === 'c4Transport') return bezier(t, [{ x: 356, y: 344 }, { x: 446, y: 246 }, { x: 658, y: 250 }, { x: 846, y: 310 + particle.offset * 48 }]);
+    if (particle.path === 'c4Return') return bezier(t, [{ x: 906, y: 418 }, { x: 748, y: 522 }, { x: 524, y: 520 }, { x: 356, y: 454 }]);
+    if (particle.path === 'bundleCO2') return bezier(t, [{ x: 846, y: 310 }, { x: 908, y: 280 }, { x: 958, y: 254 }, { x: 966, y: 236 }]);
+    return bezier(t, [{ x: 650, y: 356 }, { x: 760, y: 282 }, { x: 880, y: 250 }, { x: 930, y: 224 + particle.offset * 26 }]);
+};
+
+const bezier = (t: number, points: Dot[]) => {
+    let current = points.map((point) => ({ ...point }));
+    while (current.length > 1) {
+        current = current.slice(0, -1).map((point, index) => ({
+            x: point.x + (current[index + 1].x - point.x) * t,
+            y: point.y + (current[index + 1].y - point.y) * t,
+        }));
+    }
+    return current[0];
+};
+
+const CompareCard: React.FC = () => (
+    <AsideCard title="NCERT Table 11.1" subtitle="C3 vs C4 comparison" icon={<Activity size={15} className="text-emerald-700" />}>
+        <div className="grid grid-cols-[1fr_.8fr_.8fr] overflow-hidden rounded-xl border border-slate-200 text-[10px] font-bold text-slate-700">
+            {[
+                ['Feature', 'C3', 'C4'],
+                ['Calvin cycle', 'Mesophyll', 'Bundle sheath'],
+                ['Initial fixation', 'Mesophyll', 'Mesophyll'],
+                ['Cell types fixing CO2', 'One', 'Two'],
+                ['Primary acceptor', 'RuBP 5C', 'PEP 3C'],
+                ['First product', 'PGA 3C', 'OAA 4C'],
+                ['RuBisCO', 'Yes', 'BS only'],
+                ['PEPcase', 'No', 'Yes'],
+                ['Optimum temp.', '20-25C', '30-40C'],
+                ['Photorespiration', 'Present', 'Absent'],
+            ].map((row, index) => row.map((cell, col) => (
+                <div key={`${index}-${col}`} className={`${index === 0 ? 'bg-emerald-50 text-emerald-900' : 'bg-white'} border-b border-r border-slate-100 px-2 py-1.5`}>
+                    {cell}
+                </div>
+            )))}
+        </div>
+    </AsideCard>
+);
+
+const EnergyCard: React.FC<{ snapshot: Snapshot }> = ({ snapshot }) => (
+    <AsideCard title="NCERT Fig 11.8" subtitle="Calvin energy accounting" icon={<Zap size={15} className="text-amber-700" />}>
+        <div className="space-y-2">
+            <Meter label="Glucose progress" value={snapshot.turns % 6} max={6} color="#16a34a" />
+            <Meter label="Photorespiration" value={snapshot.photoRate} max={100} color="#e11d48" />
+            <div className="rounded-lg border border-slate-100 bg-amber-50 px-3 py-2 text-xs font-black text-amber-900">
+                1 CO2: 3 ATP + 2 NADPH
+            </div>
+            <div className="rounded-lg border border-slate-100 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-900">
+                1 glucose: 18 ATP + 12 NADPH
+            </div>
+        </div>
+    </AsideCard>
+);
+
+const LegendCard: React.FC = () => (
+    <AsideCard title="Molecule legend" subtitle="Token colors and labels" icon={<Sparkles size={15} className="text-teal-700" />}>
+        <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-700">
+            {(['CO2', 'O2', 'RuBP', 'PGA', 'G3P', 'PEP', 'OAA', 'MALATE'] as ParticleKind[]).map((kind) => (
+                <div key={kind} className="flex items-center gap-2 rounded-lg border border-slate-100 bg-white px-2 py-1.5">
+                    <span className="h-3 w-3 rounded-full" style={{ background: PARTICLES[kind].color, border: `2px solid ${PARTICLES[kind].ring}` }} />
+                    {PARTICLES[kind].label}
+                </div>
             ))}
-
-            {/* ── O2 animated particles – floating in cell; some redirected to RuBisCO on risk ── */}
-            {Array.from({ length: o2Count }).map((_, i) => {
-                const distracted = photorespirationRisk && i < Math.ceil(o2Count / 2);
-                const floatX1 = 580 + (i % 4) * 30;
-                const distractPath = `M ${floatX1} 99 C ${floatX1 - 20} 155 ${cx + 60} 200 ${cx + 30} ${cy - 30}`;
-                const floatPath = `M ${floatX1} 99 C ${floatX1} 160 ${floatX1 - 20} 220 ${floatX1 + 10} 290 C ${floatX1 + 20} 320 ${floatX1 - 30} 280 ${floatX1 - 10} 200 C ${floatX1 - 30} 150 ${floatX1} 120 ${floatX1} 99`;
-                return (
-                    <React.Fragment key={`c3-o2-${i}`}>
-                        <AnimatedO2
-                            path={distracted ? distractPath : floatPath}
-                            dur={particleDur * (distracted ? 0.9 : 1.6) + i * 0.18}
-                            begin={i * 0.4}
-                        />
-                    </React.Fragment>
-                );
-            })}
-
-            {/* Arrows: CO2 → cycle, Sugar → out */}
-            <path d={`M ${cx - 76} ${cy} L ${cx - 6} ${cy}`} fill="none" stroke="#15803d" strokeWidth="2.5" markerEnd="url(#arrG)" />
-            <text x={cx - 95} y={cy - 5} textAnchor="middle" fontSize="10" fontWeight="800" fill="#166534">CO₂</text>
-            <path d={`M ${cx} ${cy + 76} L ${cx} ${cy + 80}`} fill="none" stroke="#92400e" strokeWidth="2.5" markerEnd="url(#arrG)" strokeDasharray="4 2" />
-            <text x={cx + 18} y={cy + 90} fontSize="10" fontWeight="800" fill="#92400e">Sugar</text>
-
-            {/* RuBP regeneration label */}
-            <text x={cx - 85} y={cy - 55} fontSize="10" fontWeight="700" fill="#0f766e">RuBP ↻</text>
-            {/* 3-PGA label */}
-            <text x={cx + 62} y={cy - 18} fontSize="10" fontWeight="700" fill="#0f766e">3-PGA</text>
-            {/* G3P label */}
-            <text x={cx + 62} y={cy + 30} fontSize="10" fontWeight="700" fill="#92400e">G3P</text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   C4 CELLS  (Mesophyll x=18 w=330 + Bundle Sheath x=412 w=330)
-════════════════════════════════════════════════════════ */
-const C4Cells = ({ particleDur, co2Count, o2Count }: {
-    particleDur: number;
-    co2Count: number;
-    o2Count: number;
-}) => {
-    const mesoCx = 183, mesoCy = 237; // PEPcase center in mesophyll
-    const bsCx = 577, bsCy = 237;     // RuBisCO center in bundle sheath
-
-    return (
-        <g>
-            {/* ── Mesophyll Cell ── */}
-            <rect x="18" y="118" width="330" height="238" rx="22" fill="#dcfce7" stroke="#16a34a" strokeWidth="3" />
-            <text x="183" y="140" textAnchor="middle" fontSize="13" fontWeight="900" fill="#166534">Mesophyll Cell</text>
-            <text x="183" y="156" textAnchor="middle" fontSize="10" fontWeight="700" fill="#15803d">(CO₂ first fixed here)</text>
-
-            {/* PEPcase Vacuum in mesophyll */}
-            <PEPcaseVacuum cx={mesoCx} cy={mesoCy} />
-
-            {/* CO2 particles → PEPcase */}
-            {Array.from({ length: co2Count }).map((_, i) => (
-                <React.Fragment key={`c4-co2-meso-${i}`}>
-                    <AnimatedCO2
-                        path={`M ${58 + i * 12} 99 C ${58 + i * 12} 155 ${mesoCx - 30 + i * 6} 190 ${mesoCx - 10 + (i % 3) * 10} ${mesoCy - 48}`}
-                        dur={particleDur * 0.8 + i * 0.18}
-                        begin={i * (particleDur / co2Count) * 0.7}
-                    />
-                </React.Fragment>
-            ))}
-
-            {/* O2 floats in mesophyll – BLOCKED from bundle sheath */}
-            {Array.from({ length: o2Count }).map((_, i) => {
-                const floatX = 58 + (i % 3) * 38 + 580;
-                const startX = Math.min(floatX, 700);
-                const floatPath = `M ${startX} 99 C ${startX} 160 ${startX - 20} 230 ${startX + 15} 300 C ${startX + 20} 330 ${startX - 25} 270 ${startX - 5} 180 C ${startX - 15} 130 ${startX} 110 ${startX} 99`;
-                return (
-                    <React.Fragment key={`c4-o2-${i}`}>
-                        <AnimatedO2 path={floatPath} dur={particleDur * 1.5 + i * 0.2} begin={i * 0.5} />
-                    </React.Fragment>
-                );
-            })}
-
-            {/* C4 acid label: CO2 + PEP → OAA (C4) */}
-            <rect x="90" y={mesoCy + 60} width="186" height="34" rx="8" fill="#bbf7d0" stroke="#16a34a" strokeWidth="1.5" />
-            <text x="183" y={mesoCy + 75} textAnchor="middle" fontSize="10" fontWeight="800" fill="#14532d">CO₂ + PEP → OAA (C4 acid)</text>
-            <text x="183" y={mesoCy + 88} textAnchor="middle" fontSize="9" fontWeight="700" fill="#15803d">Enzyme: PEPcase (no O₂ affinity)</text>
-
-            {/* ── Shuttle arrow (C4 acid → Bundle Sheath) ── */}
-            <g>
-                {/* Animated shuttle arrow */}
-                <path d="M 352 237 C 368 220 388 220 412 237" fill="none" stroke="#0369a1" strokeWidth="3" strokeDasharray="6 3" markerEnd="url(#arrB)">
-                    <animate attributeName="stroke-dashoffset" values="18;0" dur="0.8s" repeatCount="indefinite" />
-                </path>
-                <text x="382" y="215" textAnchor="middle" fontSize="9" fontWeight="800" fill="#0369a1">C4 acid</text>
-                <text x="382" y="227" textAnchor="middle" fontSize="8" fontWeight="700" fill="#0369a1">shuttle</text>
-
-                {/* Animated CO2 molecule traveling shuttle */}
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <circle key={`shuttle-co2-${i}`} r="5" fill="#86efac" stroke="#15803d" strokeWidth="1.5">
-                        <animateMotion dur={`${particleDur * 0.5}s`} begin={`${i * particleDur * 0.17}s`} repeatCount="indefinite">
-                            <mpath href={`#shuttlePath`} />
-                        </animateMotion>
-                    </circle>
-                ))}
-                <path id="shuttlePath" d="M 352 237 C 368 220 388 220 412 237" fill="none" stroke="none" />
-            </g>
-
-            {/* ── Bundle Sheath Cell ── */}
-            <rect x="412" y="118" width="330" height="238" rx="22" fill="#ecfdf5" stroke="#047857" strokeWidth="3.5" />
-            <text x="577" y="140" textAnchor="middle" fontSize="13" fontWeight="900" fill="#065f46">Bundle Sheath Cell</text>
-            <text x="577" y="156" textAnchor="middle" fontSize="10" fontWeight="700" fill="#047857">🔒 Protected — O₂ excluded!</text>
-
-            {/* Calvin Cycle in bundle sheath */}
-            <CalvinCycleWheel cx={bsCx} cy={bsCy} r={72} risk={false} gearColor="#047857" gearSpeed={`${particleDur * 0.9}s`} />
-
-            {/* RuBisCO label */}
-            <rect x={bsCx - 52} y={bsCy + 78} width="104" height="22" rx="8" fill="#dcfce7" stroke="#047857" strokeWidth="1.5" />
-            <text x={bsCx} y={bsCy + 93} textAnchor="middle" fontSize="11" fontWeight="900" fill="#065f46">
-                RuBisCO ✓ peak speed
-            </text>
-
-            {/* CO2 particles → bundle sheath RuBisCO (from shuttle) */}
-            {Array.from({ length: Math.min(co2Count, 4) }).map((_, i) => (
-                <React.Fragment key={`c4-co2-bs-${i}`}>
-                    <AnimatedCO2
-                        path={`M 414 ${220 + i * 8} C 450 ${210 + i * 8} ${bsCx - 30} ${bsCy - 40 + i * 6} ${bsCx - 10 + (i % 3) * 8} ${bsCy - 55}`}
-                        dur={particleDur * 0.75 + i * 0.2}
-                        begin={particleDur * 0.38 + i * 0.22}
-                    />
-                </React.Fragment>
-            ))}
-
-            {/* Molecule labels in bundle sheath */}
-            <text x={bsCx - 80} y={bsCy - 52} fontSize="10" fontWeight="700" fill="#0f766e">RuBP ↻</text>
-            <text x={bsCx + 58} y={bsCy - 16} fontSize="10" fontWeight="700" fill="#0f766e">3-PGA</text>
-            <text x={bsCx + 58} y={bsCy + 28} fontSize="10" fontWeight="700" fill="#92400e">G3P</text>
-
-            {/* No-O2 barrier visual – dashed red line at left edge of bundle sheath */}
-            <line x1="412" y1="118" x2="412" y2="356" stroke="#dc2626" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
-            <text x="406" y="290" textAnchor="middle" fontSize="9" fontWeight="800" fill="#dc2626" transform="rotate(-90, 406, 290)">O₂ BLOCKED ✗</text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   CALVIN CYCLE WHEEL with rotating gear
-════════════════════════════════════════════════════════ */
-const CalvinCycleWheel = ({ cx, cy, r, risk, gearColor, gearSpeed }: {
-    cx: number; cy: number; r: number; risk: boolean; gearColor: string; gearSpeed: string;
-}) => {
-    const teeth = 10;
-    const innerR = r * 0.72;
-    const outerR = r;
-    const points = Array.from({ length: teeth * 2 }, (_, i) => {
-        const angle = (i * Math.PI) / teeth;
-        const radius = i % 2 === 0 ? outerR : innerR;
-        return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
-    }).join(' ');
-
-    return (
-        <g>
-            {/* Gear teeth */}
-            <polygon points={points} fill={risk ? '#fee2e2' : '#dcfce7'} stroke={gearColor} strokeWidth="2.5">
-                <animateTransform attributeName="transform" type="rotate"
-                    from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`}
-                    dur={gearSpeed} repeatCount="indefinite" />
-            </polygon>
-            {/* Inner hub */}
-            <circle cx={cx} cy={cy} r={r * 0.48} fill="white" stroke={gearColor} strokeWidth="2.5" />
-            {/* Cycle arrow path inside hub */}
-            <path d={`M ${cx} ${cy - r * 0.34} C ${cx + r * 0.28} ${cy - r * 0.34} ${cx + r * 0.34} ${cy} ${cx + r * 0.22} ${cy + r * 0.28} C ${cx + r * 0.1} ${cy + r * 0.4} ${cx - r * 0.28} ${cy + r * 0.36} ${cx - r * 0.32} ${cy + r * 0.1} C ${cx - r * 0.36} ${cy - r * 0.18} ${cx - r * 0.1} ${cy - r * 0.38} ${cx} ${cy - r * 0.34}`}
-                fill="none" stroke={gearColor} strokeWidth="2" markerEnd="url(#arrG)" strokeLinecap="round" />
-            {/* Labels inside hub */}
-            <text x={cx} y={cy - 8} textAnchor="middle" fontSize="12" fontWeight="900" fill={risk ? '#991b1b' : '#14532d'}>Calvin</text>
-            <text x={cx} y={cy + 8} textAnchor="middle" fontSize="12" fontWeight="900" fill={risk ? '#991b1b' : '#14532d'}>Cycle</text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   PEPcase VACUUM  (C4 mesophyll)
-════════════════════════════════════════════════════════ */
-const PEPcaseVacuum = ({ cx, cy }: { cx: number; cy: number }) => (
-    <g>
-        {/* Funnel body */}
-        <polygon points={`${cx - 42},${cy - 46} ${cx + 42},${cy - 46} ${cx + 18},${cy + 14} ${cx - 18},${cy + 14}`}
-            fill="#bbf7d0" stroke="#15803d" strokeWidth="2.5" />
-        {/* Funnel neck */}
-        <rect x={cx - 14} y={cy + 14} width="28" height="22" rx="4" fill="#86efac" stroke="#15803d" strokeWidth="2" />
-        {/* Label */}
-        <text x={cx} y={cy - 28} textAnchor="middle" fontSize="11" fontWeight="900" fill="#14532d">PEPcase</text>
-        <text x={cx} y={cy - 14} textAnchor="middle" fontSize="10" fontWeight="800" fill="#166534">Vacuum</text>
-        {/* Pulse scale animation on funnel */}
-        <ellipse cx={cx} cy={cy - 48} rx="46" ry="6" fill="none" stroke="#15803d" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.7">
-            <animate attributeName="rx" values="46;54;46" dur="1.1s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.1s" repeatCount="indefinite" />
-        </ellipse>
-        {/* Suction lines */}
-        {[-28, -10, 8, 26].map((dx, i) => (
-            <line key={i} x1={cx + dx} y1={cy - 80} x2={cx + dx * 0.5} y2={cy - 52}
-                stroke="#15803d" strokeWidth="1.5" strokeDasharray="4 3">
-                <animate attributeName="stroke-dashoffset" values="14;0" dur={`${0.7 + i * 0.12}s`} repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.9;0.3;0.9" dur={`${0.7 + i * 0.12}s`} repeatCount="indefinite" />
-            </line>
-        ))}
-        {/* "CO2 only" badge */}
-        <rect x={cx - 38} y={cy + 38} width="76" height="18" rx="6" fill="#15803d" />
-        <text x={cx} y={cy + 51} textAnchor="middle" fontSize="9" fontWeight="900" fill="white">CO₂ only — ignores O₂</text>
-    </g>
+        </div>
+    </AsideCard>
 );
 
-/* ════════════════════════════════════════════════════════
-   ANIMATED CO2 PARTICLE
-════════════════════════════════════════════════════════ */
-const AnimatedCO2 = ({ path, dur, begin }: { path: string; dur: number; begin: number }) => (
-    <g>
-        <circle r="10" fill="#86efac" stroke="#15803d" strokeWidth="2" opacity="0.95">
-            <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" path={path} />
-        </circle>
-        <text fontSize="7" fontWeight="900" fill="#14532d" textAnchor="middle" dy="2.5">
-            CO₂
-            <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" path={path} />
-        </text>
-    </g>
-);
-
-/* ════════════════════════════════════════════════════════
-   ANIMATED O2 PARTICLE (Brownian float)
-════════════════════════════════════════════════════════ */
-const AnimatedO2 = ({ path, dur, begin }: { path: string; dur: number; begin: number }) => (
-    <g>
-        <circle r="9" fill="#fecdd3" stroke="#dc2626" strokeWidth="2" opacity="0.9">
-            <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" path={path} />
-        </circle>
-        <text fontSize="7" fontWeight="900" fill="#991b1b" textAnchor="middle" dy="2.5">
-            O₂
-            <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite" path={path} />
-        </text>
-    </g>
-);
-
-/* ════════════════════════════════════════════════════════
-   ATP/NADPH BATTERY
-════════════════════════════════════════════════════════ */
-const AtpBattery = ({ x, y, fillHeight, atpUse, photorespirationRisk }: {
-    x: number; y: number; fillHeight: number; atpUse: number; photorespirationRisk: boolean;
-}) => {
-    const barColor = photorespirationRisk ? '#ef4444' : '#6366f1';
-    return (
-        <g transform={`translate(${x} ${y})`}>
-            <text x="0" y="12" fontSize="10" fontWeight="800" fill="#475569">ATP/NADPH:</text>
-            {/* Battery outline */}
-            <rect x="88" y="4" width="22" height="22" rx="3" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
-            {/* Battery tip */}
-            <rect x="93" y="2" width="12" height="3" rx="1" fill="#94a3b8" />
-            {/* Battery fill (draining) */}
-            <rect x="90" y={6 + (20 - fillHeight * 20 / 38)} width="18" height={fillHeight * 20 / 38} rx="2" fill={barColor}>
-                <animate attributeName="height" values={`${fillHeight * 20 / 38};${fillHeight * 20 / 38 * 0.7};${fillHeight * 20 / 38}`}
-                    dur={photorespirationRisk ? '1.2s' : '3s'} repeatCount="indefinite" />
-                <animate attributeName="y" values={`${6 + (20 - fillHeight * 20 / 38)};${6 + (20 - fillHeight * 20 / 38 * 0.7)};${6 + (20 - fillHeight * 20 / 38)}`}
-                    dur={photorespirationRisk ? '1.2s' : '3s'} repeatCount="indefinite" />
-            </rect>
-            <text x="116" y="18" fontSize="9" fontWeight="800" fill={barColor}>{atpUse}u</text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   SUGAR BIN METER
-════════════════════════════════════════════════════════ */
-const SugarBinMeter = ({ x, y, sugarRate }: { x: number; y: number; sugarRate: number }) => {
-    const maxW = 330;
-    const fillW = Math.max(14, (sugarRate / 10) * maxW);
-    return (
-        <g transform={`translate(${x} ${y})`}>
-            <text x="0" y="12" fontSize="11" fontWeight="900" fill="#92400e">🍬 Sugar Bin</text>
-            <rect x="0" y="16" width={maxW} height="22" rx="10" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
-            <rect x="3" y="19" width={fillW - 6} height="16" rx="8" fill="url(#sugarGrad)">
-                <animate attributeName="width" values={`${fillW - 6};${fillW - 2};${fillW - 6}`} dur="1.6s" repeatCount="indefinite" />
-            </rect>
-            <text x={maxW / 2} y="32" textAnchor="middle" fontSize="11" fontWeight="900" fill="#78350f">
-                {sugarRate}/10 units
-            </text>
-            {/* Dropping sugar icon */}
-            <circle r="4" fill="#fbbf24" stroke="#d97706" strokeWidth="1">
-                <animateMotion dur={`${2.2 - sugarRate * 0.15}s`} repeatCount="indefinite"
-                    path={`M ${fillW - 20} 0 C ${fillW - 20} 10 ${fillW - 15} 18 ${fillW - 18} 22`} />
-            </circle>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   WASTE METER
-════════════════════════════════════════════════════════ */
-const WasteMeter = ({ x, y, wasteRate }: { x: number; y: number; wasteRate: number }) => {
-    const maxW = 330;
-    const fillW = Math.max(6, (wasteRate / 6) * maxW);
-    const col = wasteRate > 3 ? '#ef4444' : wasteRate > 1 ? '#f59e0b' : '#94a3b8';
-    return (
-        <g transform={`translate(${x} ${y})`}>
-            <text x="0" y="12" fontSize="11" fontWeight="900" fill={wasteRate > 3 ? '#991b1b' : '#64748b'}>⚡ Energy Waste</text>
-            <rect x="0" y="16" width={maxW} height="18" rx="8" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1.5" />
-            <rect x="3" y="19" width={Math.max(0, fillW - 6)} height="12" rx="6" fill={col}>
-                {wasteRate > 2 && (
-                    <animate attributeName="opacity" values="1;0.5;1" dur="0.8s" repeatCount="indefinite" />
-                )}
-            </rect>
-            <text x={maxW / 2} y="30" textAnchor="middle" fontSize="10" fontWeight="900" fill={wasteRate > 3 ? '#991b1b' : '#475569'}>
-                {wasteRate}/6  {wasteRate > 3 ? '— Photorespiration wasting energy!' : wasteRate > 0 ? '— Low waste' : '— Zero waste (C4)'}
-            </text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   YIELD METER — always-visible dual bar (C3 vs C4)
-════════════════════════════════════════════════════════ */
-const YieldMeter = ({ x, y, yieldC3, yieldC4, activePathway }: {
-    x: number; y: number; yieldC3: number; yieldC4: number; activePathway: PlantPathway;
-}) => {
-    const maxW = 348;
-    const c3W = (yieldC3 / 100) * maxW;
-    const c4W = (yieldC4 / 100) * maxW;
-    return (
-        <g transform={`translate(${x} ${y})`}>
-            <text x={maxW / 2} y="10" textAnchor="middle" fontSize="11" fontWeight="900" fill="#1e293b">📊 Yield Meter — C3 vs C4</text>
-
-            {/* C3 bar */}
-            <rect x="0" y="16" width={maxW} height="20" rx="8" fill="#e0f2fe" stroke={activePathway === 'C3' ? '#0284c7' : '#94a3b8'} strokeWidth={activePathway === 'C3' ? 2.5 : 1.5} />
-            <rect x="2" y="18" width={c3W - 4} height="16" rx="7" fill="url(#c3Grad)">
-                <animate attributeName="width" values={`${c3W - 10};${c3W - 4};${c3W - 10}`} dur="2.2s" repeatCount="indefinite" />
-            </rect>
-            <text x="6" y="30" fontSize="9" fontWeight="900" fill="#075985">C3: {yieldC3}%</text>
-            <text x={maxW - 4} y="30" textAnchor="end" fontSize="9" fontWeight="700" fill="#0369a1">
-                {activePathway === 'C3' ? '◀ Active' : ''}
-            </text>
-
-            {/* C4 bar */}
-            <rect x="0" y="42" width={maxW} height="20" rx="8" fill="#d1fae5" stroke={activePathway === 'C4' ? '#047857' : '#94a3b8'} strokeWidth={activePathway === 'C4' ? 2.5 : 1.5} />
-            <rect x="2" y="44" width={c4W - 4} height="16" rx="7" fill="url(#c4Grad)">
-                <animate attributeName="width" values={`${c4W - 10};${c4W - 4};${c4W - 10}`} dur="1.8s" repeatCount="indefinite" />
-            </rect>
-            <text x="6" y="56" fontSize="9" fontWeight="900" fill="#065f46">C4: {yieldC4}%</text>
-            <text x={maxW - 4} y="56" textAnchor="end" fontSize="9" fontWeight="700" fill="#047857">
-                {activePathway === 'C4' ? '◀ Active' : ''}
-            </text>
-
-            {/* Winner badge */}
-            <rect x={maxW - 74} y="14" width="70" height="50" rx="8" fill={yieldC4 > yieldC3 ? '#d1fae5' : '#e0f2fe'}
-                stroke={yieldC4 > yieldC3 ? '#059669' : '#0284c7'} strokeWidth="2">
-                <animate attributeName="opacity" values="1;0.6;1" dur="1.4s" repeatCount="indefinite" />
-            </rect>
-            <text x={maxW - 39} y="32" textAnchor="middle" fontSize="9" fontWeight="900" fill="#065f46">C4 wins</text>
-            <text x={maxW - 39} y="44" textAnchor="middle" fontSize="14" fontWeight="900" fill="#059669">+{yieldC4 - yieldC3}%</text>
-            <text x={maxW - 39} y="57" textAnchor="middle" fontSize="8" fontWeight="700" fill="#047857">tropical</text>
-        </g>
-    );
-};
-
-/* ════════════════════════════════════════════════════════
-   UI HELPER COMPONENTS
-════════════════════════════════════════════════════════ */
-const MetricCard = ({ label, value, tone }: { label: string; value: string; tone: string }) => (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 min-w-0">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</div>
-        <div className={`mt-1 text-xs md:text-sm font-bold break-words ${tone}`}>{value}</div>
-    </div>
-);
-
-const InfoCard = ({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => (
-    <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm text-xs md:text-sm text-slate-600 leading-relaxed min-w-0">
-        <div className="flex items-center gap-2 text-slate-900 font-bold mb-2">{icon}{title}</div>
+const AsideCard: React.FC<{ title: string; subtitle: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, subtitle, icon, children }) => (
+    <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
+        <div className="mb-2 flex items-center gap-2">
+            {icon}
+            <div>
+                <div className="text-base font-extrabold text-slate-900">{title}</div>
+                <div className="text-xs font-semibold text-slate-500">{subtitle}</div>
+            </div>
+        </div>
         {children}
     </div>
 );
 
-const FactTile = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-        <div className="flex items-center gap-2 text-slate-900 font-bold mb-1">{icon}{title}</div>
+const Meter: React.FC<{ label: string; value: number; max: number; color: string }> = ({ label, value, max, color }) => (
+    <div>
+        <div className="mb-1 flex items-center justify-between text-xs font-black text-slate-600">
+            <span>{label}</span>
+            <span style={{ color }}>{Math.round(value)}</span>
+        </div>
+        <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, value / max * 100)}%`, background: color }} />
+        </div>
+    </div>
+);
+
+const ValueRow: React.FC<{ label: string; value: string; tint: string; color: string }> = ({ label, value, tint, color }) => (
+    <div className="rounded-lg border border-slate-100 px-3 py-2.5" style={{ background: tint }}>
+        <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</div>
+        <div className="mt-1 break-words font-mono text-sm font-extrabold" style={{ color }}>{value}</div>
+    </div>
+);
+
+const MiniFact: React.FC<{ color: string; text: string }> = ({ color, text }) => (
+    <div className="flex gap-2 rounded-lg border border-emerald-100 bg-white px-2.5 py-2">
+        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
+        <span>{text}</span>
+    </div>
+);
+
+const ControlGroup: React.FC<{ icon: React.ReactNode; label: string; children: React.ReactNode }> = ({ icon, label, children }) => (
+    <div className="min-h-0 rounded-xl border border-slate-200 bg-white p-2.5">
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-slate-600">
+            {icon}
+            {label}
+        </div>
         {children}
     </div>
 );
+
+const SegmentButton: React.FC<{ active: boolean; color: string; onClick: () => void; children: React.ReactNode }> = ({ active, color, onClick, children }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="min-h-[30px] rounded-lg border px-2 py-1 text-[11px] font-black leading-tight transition-colors"
+        style={{
+            background: active ? color : '#ffffff',
+            borderColor: active ? color : '#e2e8f0',
+            color: active ? '#ffffff' : '#334155',
+        }}
+    >
+        {children}
+    </button>
+);
+
+const ToggleButton: React.FC<{ active: boolean; color: string; onClick: () => void; children: React.ReactNode }> = ({ active, color, onClick, children }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="min-h-[30px] w-full rounded-lg border px-2 py-1 text-[11px] font-black leading-tight transition-colors"
+        style={{
+            background: active ? color : '#ffffff',
+            borderColor: active ? color : '#e2e8f0',
+            color: active ? '#ffffff' : '#334155',
+        }}
+    >
+        {children}
+    </button>
+);
+
+const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
+};
+
+const easeInOut = (t: number) => t * t * (3 - 2 * t);
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export default CalvinCycleC3C4Lab;

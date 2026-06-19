@@ -265,8 +265,8 @@ function unpairedFor(d: number, geometry: Geometry, strongField: boolean) {
 
 const DBlockLab: React.FC<DBlockLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const visualDeltaRef = useRef(9);
     const exciteRef = useRef(0);
@@ -919,125 +919,185 @@ const DBlockLab: React.FC<DBlockLabProps> = ({ topic, onExit }) => {
         </div>
     );
 
+    const geometryOptions: Array<{ id: Geometry; label: string }> = [
+        { id: 'oct', label: 'Octahedral' },
+        { id: 'tet', label: 'Tetrahedral' },
+        { id: 'square', label: 'Square planar' }
+    ];
+
     const controls = (
-        <div className="flex h-full flex-col gap-3 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-sm">
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                    <div className="rounded-lg bg-violet-100 p-2 text-violet-700">
-                        <Atom size={18} />
-                    </div>
-                    <div className="min-w-0">
-                        <div className="truncate text-sm font-black text-slate-900">d-Block Crystal Field Bench</div>
-                        <div className={`text-[11px] font-black ${isDiamagnetic ? 'text-slate-600' : 'text-red-700'}`}>{isDiamagnetic ? 'diamagnetic' : 'paramagnetic'}</div>
-                    </div>
+        <div className="grid h-full auto-rows-min grid-cols-12 gap-3 overflow-y-auto text-slate-900">
+            <div className="col-span-12 flex min-w-0 items-center gap-2 lg:col-span-3">
+                <div className="rounded-lg bg-violet-100 p-2 text-violet-700">
+                    <Atom size={18} />
                 </div>
-                <button
-                    onClick={triggerExcitation}
-                    className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-700 hover:bg-amber-100"
-                    title="Excite electron"
-                >
-                    <Sparkles size={16} />
-                </button>
+                <div className="min-w-0">
+                    <div className="truncate text-sm font-black text-slate-900">d-Block Crystal Field Bench</div>
+                    <div className="truncate text-[11px] font-black text-slate-500">contextual controls</div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-1.5">
-                {MODES.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setMode(item.id)}
-                        className={`flex min-h-[38px] flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] font-black transition ${
-                            mode === item.id ? 'border-violet-400 bg-violet-100 text-violet-900' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                        }`}
-                    >
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </button>
-                ))}
-            </div>
+            <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm lg:col-span-6">
+                <div className="grid grid-cols-5 gap-1.5">
+                    {MODES.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setMode(item.id)}
+                            className={`flex min-h-[44px] items-center justify-center gap-1 rounded-xl border px-2 text-[11px] font-black transition ${
+                                mode === item.id ? 'border-violet-500 bg-violet-600 text-white shadow-sm' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                            }`}
+                        >
+                            {item.icon}
+                            <span className="truncate">{item.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </section>
 
-            <div className="grid grid-cols-11 gap-1">
-                {ION_TABLE.map((ion) => (
-                    <button
-                        key={ion.id}
-                        onClick={() => setSelectedIon(ion.id)}
-                        className={`min-h-[30px] rounded-md border text-[10px] font-black ${selectedIon === ion.id ? 'border-violet-400 bg-violet-100 text-violet-900' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        {ion.label}
-                    </button>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-                <label className="space-y-1">
-                    <span className="text-xs font-black text-slate-700">Ligand</span>
-                    <select value={selectedLigand} onChange={(event) => setSelectedLigand(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-800">
-                        {LIGANDS.map((ligand) => <option key={ligand.label} value={ligand.label}>{ligand.label}</option>)}
-                    </select>
-                </label>
-                <label className="space-y-1">
-                    <span className="text-xs font-black text-slate-700">Colour</span>
-                    <select value={colourExampleId} onChange={(event) => setColourExampleId(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-800">
-                        {COLOUR_EXAMPLES.map((entry) => <option key={entry.id} value={entry.id}>{entry.complex}</option>)}
-                    </select>
-                </label>
-                <label className="space-y-1">
-                    <span className="text-xs font-black text-slate-700">Spin Pair</span>
-                    <select value={spinPairId} onChange={(event) => setSpinPairId(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-800">
-                        {SPIN_PAIRS.map((pair) => <option key={pair.id} value={pair.id}>{pair.left} / {pair.right}</option>)}
-                    </select>
-                </label>
-            </div>
-
-            <div className="grid grid-cols-3 gap-1.5">
-                {[
-                    { id: 'oct' as Geometry, label: 'Octahedral' },
-                    { id: 'tet' as Geometry, label: 'Tetrahedral' },
-                    { id: 'square' as Geometry, label: 'Square planar' }
-                ].map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setGeometry(item.id)}
-                        className={`rounded-lg border px-2 py-2 text-xs font-black ${geometry === item.id ? 'border-cyan-400 bg-cyan-50 text-cyan-900' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        {item.label}
-                    </button>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-                <label className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-black text-slate-700">
-                        <span>Speed</span>
+            <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-3">
+                <label className="block">
+                    <div className="mb-1.5 flex items-center justify-between text-xs font-black text-slate-700">
+                        <span>Animation speed</span>
                         <output>{speed.toFixed(1)}x</output>
                     </div>
                     <input className="w-full accent-violet-600" type="range" min={0.2} max={2.5} step={0.1} value={speed} onChange={(event) => setSpeed(Number(event.target.value))} />
                 </label>
-                <label className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-black text-slate-700">
-                        <span>Ni-en</span>
-                        <output>{niIndex + 1}/4</output>
-                    </div>
-                    <input className="w-full accent-blue-600" type="range" min={0} max={3} step={1} value={niIndex} onChange={(event) => setNiIndex(Number(event.target.value))} />
-                </label>
-            </div>
+            </section>
 
-            <div className="grid grid-cols-5 gap-2">
-                <button onClick={() => setShowOrbitals((value) => !value)} className={`rounded-lg border p-2 text-xs font-black ${showOrbitals ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show orbital lobes">
-                    {showOrbitals ? <Eye size={15} className="mx-auto" /> : <EyeOff size={15} className="mx-auto" />} Lobes
-                </button>
-                <button onClick={() => setShowPhoton((value) => !value)} className={`rounded-lg border p-2 text-xs font-black ${showPhoton ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show photon">
-                    {showPhoton ? <Eye size={15} className="mx-auto" /> : <EyeOff size={15} className="mx-auto" />} Photon
-                </button>
-                <button onClick={() => setShowCFSE((value) => !value)} className={`rounded-lg border p-2 text-xs font-black ${showCFSE ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show CFSE">
-                    <Activity size={15} className="mx-auto" /> CFSE
-                </button>
-                <button onClick={() => setShowTable((value) => !value)} className={`rounded-lg border p-2 text-xs font-black ${showTable ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show Table 4.7">
-                    <FlaskConical size={15} className="mx-auto" /> Table
-                </button>
-                <button onClick={() => setHydratedCopper((value) => !value)} className={`rounded-lg border p-2 text-xs font-black ${hydratedCopper ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-slate-200 bg-white text-slate-500'}`} title="CuSO4 hydration">
-                    <Palette size={15} className="mx-auto" /> CuSO₄
-                </button>
-            </div>
+            {(mode === 'splitting' || mode === 'magnetism') && (
+                <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-5">
+                    <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Ion</div>
+                    <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-11">
+                        {ION_TABLE.map((ion) => (
+                            <button
+                                key={ion.id}
+                                onClick={() => setSelectedIon(ion.id)}
+                                className={`min-h-[34px] rounded-lg border px-1 text-[11px] font-black ${selectedIon === ion.id ? 'border-violet-500 bg-violet-50 text-violet-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                            >
+                                {ion.label}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {mode === 'splitting' && (
+                <>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-3">
+                        <label className="block">
+                            <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">Ligand</span>
+                            <select value={selectedLigand} onChange={(event) => setSelectedLigand(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800">
+                                {LIGANDS.map((ligand) => <option key={ligand.label} value={ligand.label}>{ligand.label}</option>)}
+                            </select>
+                        </label>
+                    </section>
+
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                        <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Geometry</div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                            {geometryOptions.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setGeometry(item.id)}
+                                    className={`min-h-[38px] rounded-xl border px-2 text-xs font-black ${geometry === item.id ? 'border-cyan-500 bg-cyan-50 text-cyan-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-5">
+                        <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Display</div>
+                        <div className="grid grid-cols-4 gap-1.5">
+                            <button onClick={triggerExcitation} className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-2 text-xs font-black text-amber-800 hover:bg-amber-100" title="Excite electron">
+                                <Sparkles size={15} className="mx-auto" /> Excite
+                            </button>
+                            <button onClick={() => setShowOrbitals((value) => !value)} className={`rounded-xl border px-2 py-2 text-xs font-black ${showOrbitals ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show orbital lobes">
+                                {showOrbitals ? <Eye size={15} className="mx-auto" /> : <EyeOff size={15} className="mx-auto" />} Lobes
+                            </button>
+                            <button onClick={() => setShowPhoton((value) => !value)} className={`rounded-xl border px-2 py-2 text-xs font-black ${showPhoton ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show photon">
+                                {showPhoton ? <Eye size={15} className="mx-auto" /> : <EyeOff size={15} className="mx-auto" />} Photon
+                            </button>
+                            <button onClick={() => setShowCFSE((value) => !value)} className={`rounded-xl border px-2 py-2 text-xs font-black ${showCFSE ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show CFSE">
+                                <Activity size={15} className="mx-auto" /> CFSE
+                            </button>
+                        </div>
+                    </section>
+                </>
+            )}
+
+            {mode === 'magnetism' && (
+                <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                    <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Table overlay</div>
+                    <button onClick={() => setShowTable((value) => !value)} className={`w-full rounded-xl border px-3 py-2 text-xs font-black ${showTable ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-600'}`} title="Show Table 4.7">
+                        <FlaskConical size={15} className="mx-auto" /> NCERT Table 4.7
+                    </button>
+                </section>
+            )}
+
+            {mode === 'colour' && (
+                <>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-5">
+                        <label className="block">
+                            <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">Colour example</span>
+                            <select value={colourExampleId} onChange={(event) => setColourExampleId(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800">
+                                {COLOUR_EXAMPLES.map((entry) => <option key={entry.id} value={entry.id}>{entry.complex}</option>)}
+                            </select>
+                        </label>
+                    </section>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                        <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Colour motion</div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                            <button onClick={triggerExcitation} className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-2 text-xs font-black text-amber-800 hover:bg-amber-100" title="Excite electron">
+                                <Sparkles size={15} className="mx-auto" /> Excite
+                            </button>
+                            <button onClick={() => setShowPhoton((value) => !value)} className={`rounded-xl border px-2 py-2 text-xs font-black ${showPhoton ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-white text-slate-500'}`} title="Show photon">
+                                {showPhoton ? <Eye size={15} className="mx-auto" /> : <EyeOff size={15} className="mx-auto" />} Photon
+                            </button>
+                        </div>
+                    </section>
+                </>
+            )}
+
+            {mode === 'ligand' && (
+                <>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                        <label className="block">
+                            <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">Ligand marker</span>
+                            <select value={selectedLigand} onChange={(event) => setSelectedLigand(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800">
+                                {LIGANDS.map((ligand) => <option key={ligand.label} value={ligand.label}>{ligand.label}</option>)}
+                            </select>
+                        </label>
+                    </section>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                        <label className="block">
+                            <div className="mb-1.5 flex items-center justify-between text-xs font-black text-slate-700">
+                                <span>Ni-en progression</span>
+                                <output>{niIndex + 1}/4</output>
+                            </div>
+                            <input className="w-full accent-blue-600" type="range" min={0} max={3} step={1} value={niIndex} onChange={(event) => setNiIndex(Number(event.target.value))} />
+                        </label>
+                    </section>
+                    <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-4">
+                        <div className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">Hydration example</div>
+                        <button onClick={() => setHydratedCopper((value) => !value)} className={`w-full rounded-xl border px-3 py-2 text-xs font-black ${hydratedCopper ? 'border-blue-300 bg-blue-50 text-blue-800' : 'border-slate-200 bg-white text-slate-600'}`} title="CuSO4 hydration">
+                            <Palette size={15} className="mx-auto" /> CuSO4 state
+                        </button>
+                    </section>
+                </>
+            )}
+
+            {mode === 'spin' && (
+                <section className="col-span-12 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:col-span-5">
+                    <label className="block">
+                        <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500">High / low spin comparison</span>
+                        <select value={spinPairId} onChange={(event) => setSpinPairId(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800">
+                            {SPIN_PAIRS.map((pair) => <option key={pair.id} value={pair.id}>{pair.left} / {pair.right}</option>)}
+                        </select>
+                    </label>
+                </section>
+            )}
         </div>
     );
 
@@ -1047,7 +1107,7 @@ const DBlockLab: React.FC<DBlockLabProps> = ({ topic, onExit }) => {
             onExit={onExit}
             SimulationComponent={simulationCombo}
             ControlsComponent={controls}
-            controlsAreaFlex="0 0 240px"
+            controlsAreaFlex="0 0 220px"
             simulationStageWidth={W}
             simulationStageHeight={H}
             rootClassName="bg-white text-slate-900"

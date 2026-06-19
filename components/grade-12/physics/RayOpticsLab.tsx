@@ -220,7 +220,7 @@ function computeTir(materialKey: TirMaterialKey, customN: number, incidence: num
 
 const RayOpticsLab: React.FC<RayOpticsLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number | undefined>(undefined);
     const lastTimeRef = useRef<number>(performance.now());
     const dragRef = useRef(false);
 

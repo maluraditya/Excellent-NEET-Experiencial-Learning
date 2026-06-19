@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Conductance vs concentration thumbnail">
+  <rect width="640" height="360" rx="32" fill="#fffbeb"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#92400e">Conductance vs Concentration</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">Molar conductivity Λm vs √c</text>
+
+  <!-- plot -->
+  <g transform="translate(96 116)">
+    <rect x="0" y="0" width="340" height="200" rx="12" fill="#fff" stroke="#fde68a" stroke-width="4"/>
+    <line x1="44" y1="170" x2="320" y2="170" stroke="#334155" stroke-width="3"/>
+    <line x1="44" y1="20" x2="44" y2="170" stroke="#334155" stroke-width="3"/>
+    <text x="182" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#475569">√c</text>
+    <text x="22" y="100" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#475569" transform="rotate(-90 22 100)">Λm</text>
+    <!-- strong electrolyte: gentle linear -->
+    <line x1="44" y1="56" x2="320" y2="96" stroke="#2563eb" stroke-width="4"/>
+    <!-- weak electrolyte: steep curved drop -->
+    <path d="M44 40 Q70 150 320 165" fill="none" stroke="#ef4444" stroke-width="4"/>
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(456 140)" font-family="Arial, sans-serif" font-size="14" font-weight="800">
+    <line x1="0" y1="0" x2="26" y2="0" stroke="#2563eb" stroke-width="4"/>
+    <text x="34" y="5" fill="#2563eb">strong (KCl)</text>
+    <line x1="0" y1="34" x2="26" y2="34" stroke="#ef4444" stroke-width="4"/>
+    <text x="34" y="39" fill="#dc2626">weak (CH₃COOH)</text>
+    <text x="0" y="84" fill="#92400e" font-weight="900">Kohlrausch law</text>
+  </g>
+</svg>
