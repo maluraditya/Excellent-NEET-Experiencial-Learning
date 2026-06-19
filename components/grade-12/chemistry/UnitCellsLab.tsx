@@ -9,7 +9,7 @@ interface Props {
 
 const UnitCellsLab: React.FC<Props> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
 
     const [cellType, setCellType] = useState<string>('cubic-scc');
     const [showSlicer, setShowSlicer] = useState(false);

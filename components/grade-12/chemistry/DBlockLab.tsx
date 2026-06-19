@@ -265,8 +265,8 @@ function unpairedFor(d: number, geometry: Geometry, strongField: boolean) {
 
 const DBlockLab: React.FC<DBlockLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const visualDeltaRef = useRef(9);
     const exciteRef = useRef(0);

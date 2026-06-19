@@ -233,8 +233,8 @@ function dashWedge(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 
 const HaloalkaneLab: React.FC<HaloalkaneLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const watersRef = useRef<WaterIcon[]>([]);
 

@@ -117,7 +117,7 @@ const BANDS: Band[] = [
 
 const EMWavesLab: React.FC<EMWavesLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number | undefined>(undefined);
     const lastTimeRef = useRef(performance.now());
     const timeAccRef = useRef(0);
     const hoverXRef = useRef(640);

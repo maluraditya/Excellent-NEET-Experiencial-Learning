@@ -247,24 +247,24 @@ const AnimalTissuesLab: React.FC<AnimalTissuesLabProps> = ({ topic, onExit }) =>
 
             <div className="grid min-h-0 grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-12">
                 <ControlGroup className="xl:col-span-4" icon={<Layers size={15} />} label="View">
-                    <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={setMode} />
+                    <SegmentedControl options={MODE_OPTIONS} value={mode} onChange={(value: Mode) => setMode(value)} />
                 </ControlGroup>
 
                 {mode === 'epithelial' && (
                     <ControlGroup className="xl:col-span-3" icon={<Eye size={15} />} label="Layer model">
-                        <SegmentedControl options={EPITHELIUM_OPTIONS} value={epitheliumView} onChange={setEpitheliumView} />
+                        <SegmentedControl options={EPITHELIUM_OPTIONS} value={epitheliumView} onChange={(value: EpitheliumView) => setEpitheliumView(value)} />
                     </ControlGroup>
                 )}
 
                 {mode === 'connective' && (
                     <ControlGroup className="xl:col-span-3" icon={<Bone size={15} />} label="Matrix">
-                        <SegmentedControl options={CONNECTIVE_OPTIONS} value={connectiveView} onChange={setConnectiveView} />
+                        <SegmentedControl options={CONNECTIVE_OPTIONS} value={connectiveView} onChange={(value: ConnectiveView) => setConnectiveView(value)} />
                     </ControlGroup>
                 )}
 
                 {mode === 'muscle' && (
                     <ControlGroup className="xl:col-span-3" icon={<HeartPulse size={15} />} label="Muscle">
-                        <SegmentedControl options={MUSCLE_OPTIONS} value={muscleView} onChange={setMuscleView} />
+                        <SegmentedControl options={MUSCLE_OPTIONS} value={muscleView} onChange={(value: MuscleView) => setMuscleView(value)} />
                     </ControlGroup>
                 )}
 

@@ -184,7 +184,7 @@ function getRLCValues(
 
 const AlternatingCurrentLab: React.FC<ACLabProps> = ({ topic, onExit }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>();
+  const animRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(performance.now());
 
   const [mode, setMode] = useState<SimulationMode>('transformer');

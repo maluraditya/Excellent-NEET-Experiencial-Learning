@@ -465,7 +465,7 @@ function drawRoleBadges(ctx: CanvasRenderingContext2D, mode: CellMode) {
 
 const ElectrochemistryLab: React.FC<ElectrochemistryLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const lastRef = useRef<number | null>(null);
     const massRef = useRef({ zn: 50, cu: 50 });

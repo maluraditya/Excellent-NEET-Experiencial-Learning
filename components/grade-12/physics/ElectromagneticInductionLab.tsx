@@ -29,7 +29,7 @@ const FARADAY_MAGNET_END_X = 800;
 
 const ElectromagneticInductionLab: React.FC<EMILabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number | undefined>(undefined);
     const lastTimeRef = useRef<number>(performance.now());
 
     const [mode, setMode] = useState<SimulationMode>('faraday');

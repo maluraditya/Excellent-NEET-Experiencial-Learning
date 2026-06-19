@@ -9,7 +9,7 @@ interface Props {
 
 const PackingEfficiencyLab: React.FC<Props> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
 
     const [cellType, setCellType] = useState<'scc' | 'bcc' | 'fcc'>('scc');
     const [rotation, setRotation] = useState({ x: 0.5, y: 0.5 });

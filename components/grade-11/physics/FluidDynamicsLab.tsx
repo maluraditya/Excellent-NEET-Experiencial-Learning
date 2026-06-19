@@ -647,8 +647,8 @@ function drawTurbulent(ctx: CanvasRenderingContext2D, state: DrawState, t: numbe
 
 const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const rafRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const rafRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const particlesRef = useRef<FlowParticle[]>([]);
     const dropletsRef = useRef<SprayParticle[]>([]);
@@ -975,10 +975,14 @@ const FluidDynamicsLab: React.FC<FluidDynamicsLabProps> = ({ topic, onExit }) =>
             </div>
             {mode === 'continuity' && (
                 <div className="grid grid-cols-3 gap-2">
-                    {[['A_P', areaP, setAreaP], ['A_R', areaR, setAreaR], ['A_Q', areaQ, setAreaQ]].map(([name, value, setter]) => (
-                        <label key={String(name)} className="space-y-1.5">
+                    {[
+                        { name: 'A_P', value: areaP, setter: setAreaP },
+                        { name: 'A_R', value: areaR, setter: setAreaR },
+                        { name: 'A_Q', value: areaQ, setter: setAreaQ }
+                    ].map(({ name, value, setter }) => (
+                        <label key={name} className="space-y-1.5">
                             <div className="flex justify-between text-xs font-black text-slate-700"><span>{name}</span><output>{Number(value)}</output></div>
-                            <input type="range" min={20} max={120} step={5} value={Number(value)} onChange={(event) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(event.target.value))} className="w-full accent-sky-600" />
+                            <input type="range" min={20} max={120} step={5} value={value} onChange={(event) => setter(Number(event.target.value))} className="w-full accent-sky-600" />
                         </label>
                     ))}
                 </div>

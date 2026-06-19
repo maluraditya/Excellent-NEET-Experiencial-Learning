@@ -312,8 +312,8 @@ function disc(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, an
 
 const HydraulicBrakeLab: React.FC<HydraulicBrakeLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const rafRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const rafRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const liftRef = useRef({ left: 0, right: 0 });
     const brakeRef = useRef({ pressure: 0, discAngle: 0, discSpeed: 7, mercuryCm: 76, manoCm: 0, sparks: [] as SparkParticle[] });

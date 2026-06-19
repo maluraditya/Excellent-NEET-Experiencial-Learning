@@ -407,8 +407,8 @@ function drawMolecule(
 
 const StereochemistryLab: React.FC<StereochemistryLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const rotationRef = useRef({ x: -0.32, y: 0.36 });
     const draggingRef = useRef(false);

@@ -225,8 +225,8 @@ function spring(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: numbe
 
 const EquipartitionLab: React.FC<EquipartitionLabProps> = ({ topic, onExit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
-    const lastRef = useRef<number>();
+    const requestRef = useRef<number | undefined>(undefined);
+    const lastRef = useRef<number | undefined>(undefined);
     const timeRef = useRef(0);
     const displayRef = useRef({ u: 0, cv: 0, cp: 0, gamma: 1 });
 
