@@ -345,7 +345,7 @@ function MoleculeView({ isomer, color, paused }: { isomer: Isomer; color: string
     );
 }
 
-function PropBar({ name, value, max, display, color, active }: { name: string; value: number; max: number; display: string; color: string; active: boolean }) {
+const PropBar: React.FC<{ name: string; value: number; max: number; display: string; color: string; active: boolean }> = ({ name, value, max, display, color, active }) => {
     return (
         <div className="grid grid-cols-[120px_1fr_52px] items-center gap-2">
             <div className={`truncate text-xs font-bold ${active ? 'text-slate-900' : 'text-slate-500'}`}>{name}</div>
@@ -355,6 +355,6 @@ function PropBar({ name, value, max, display, color, active }: { name: string; v
             <div className="text-right font-mono text-[11px] font-black text-slate-700">{display}</div>
         </div>
     );
-}
+};
 
 export default StructuralIsomerismPropertiesLab;

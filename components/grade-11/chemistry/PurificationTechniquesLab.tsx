@@ -392,7 +392,7 @@ function OutcomeBar({ label, value, color }: { label: string; value: number; col
     );
 }
 
-function SliderBlock({ label, value, min, max, unit, color, onChange }: { label: string; value: number; min: number; max: number; unit: string; color: string; onChange: (value: number) => void }) {
+const SliderBlock: React.FC<{ label: string; value: number; min: number; max: number; unit: string; color: string; onChange: (value: number) => void }> = ({ label, value, min, max, unit, color, onChange }) => {
     return (
         <div>
             <div className="mb-1 flex items-center justify-between">
@@ -402,6 +402,6 @@ function SliderBlock({ label, value, min, max, unit, color, onChange }: { label:
             <input type="range" min={min} max={max} step={1} value={value} onChange={event => onChange(Number(event.target.value))} className={`h-1.5 w-full cursor-pointer ${color}`} />
         </div>
     );
-}
+};
 
 export default PurificationTechniquesLab;
