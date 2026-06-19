@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Purification techniques thumbnail">
+  <rect width="640" height="360" rx="32" fill="#f0fdf4"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#166534">Purification Techniques</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">Distillation · crystallisation · chromatography</text>
+
+  <!-- distillation apparatus -->
+  <g transform="translate(90 130)">
+    <!-- round-bottom flask -->
+    <circle cx="50" cy="140" r="44" fill="#fff" stroke="#15803d" stroke-width="5"/>
+    <path d="M50 96 V64 H38 V96" fill="none" stroke="#15803d" stroke-width="5"/>
+    <path d="M30 140 a20 20 0 0 0 40 0" fill="#bbf7d0"/>
+    <ellipse cx="50" cy="156" rx="30" ry="14" fill="#86efac"/>
+    <!-- heat -->
+    <path d="M34 198 q8 -14 16 0 q8 -14 16 0" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+    <!-- side condenser arm -->
+    <path d="M62 64 H150 L230 130" fill="none" stroke="#15803d" stroke-width="5" stroke-linecap="round"/>
+    <rect x="150" y="56" width="80" height="22" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="3" transform="rotate(30 190 70)"/>
+    <!-- droplet to collecting flask -->
+    <circle cx="244" cy="150" r="6" fill="#2563eb"/>
+    <circle cx="244" cy="172" r="5" fill="#2563eb"/>
+    <path d="M218 188 H274 L266 230 H226 Z" fill="#fff" stroke="#15803d" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M224 210 H268 L266 230 H226 Z" fill="#93c5fd"/>
+  </g>
+
+  <!-- thermometer -->
+  <g transform="translate(160 130)">
+    <rect x="0" y="-46" width="10" height="60" rx="5" fill="#fff" stroke="#64748b" stroke-width="3"/>
+    <circle cx="5" cy="18" r="9" fill="#ef4444"/>
+  </g>
+
+  <g transform="translate(404 300)">
+    <rect x="0" y="0" width="180" height="32" rx="16" fill="#fff" stroke="#86efac" stroke-width="3"/>
+    <text x="90" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#166534">separate by property</text>
+  </g>
+</svg>

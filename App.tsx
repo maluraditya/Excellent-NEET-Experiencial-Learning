@@ -30,14 +30,24 @@ import ZerothLawLab from './components/grade-11/physics/ZerothLawLab';
 // Grade 11 - Chemistry
 import HydrogenSpectrumLab from './components/grade-11/chemistry/HydrogenSpectrumLab';
 import AtomicOrbitalsLab from './components/grade-11/chemistry/AtomicOrbitalsLab';
+import ElectronicConfigurationLab from './components/grade-11/chemistry/ElectronicConfigurationLab';
 import VSEPRTheoryLab from './components/grade-11/chemistry/VSEPRTheoryLab';
 import SigmaPiBondsLab from './components/grade-11/chemistry/SigmaPiBondsLab';
 import IsothermalWorkLab from './components/grade-11/chemistry/IsothermalWorkLab';
+import HeatWorkEnergyChangesLab from './components/grade-11/chemistry/HeatWorkEnergyChangesLab';
 import ExtensiveIntensivePropertiesLab from './components/grade-11/chemistry/ExtensiveIntensivePropertiesLab';
+import MoleConceptLimitingReagentLab from './components/grade-11/chemistry/MoleConceptLimitingReagentLab';
+import SolutionConcentrationDilutionLab from './components/grade-11/chemistry/SolutionConcentrationDilutionLab';
+import PeriodicTrendsExplorerLab from './components/grade-11/chemistry/PeriodicTrendsExplorerLab';
+import HydrogenBondingLab from './components/grade-11/chemistry/HydrogenBondingLab';
+import WeakAcidBaseIonizationLab from './components/grade-11/chemistry/WeakAcidBaseIonizationLab';
+import RedoxOxidationNumberLab from './components/grade-11/chemistry/RedoxOxidationNumberLab';
 import BufferSolutionsLab from './components/grade-11/chemistry/BufferSolutionsLab';
 import LeChatelierLab from './components/grade-11/chemistry/LeChatelierLab';
 import QualitativeAnalysisCanvas from './components/grade-11/chemistry/QualitativeAnalysisCanvas';
 import QuantitativeAnalysisCanvas from './components/grade-11/chemistry/QuantitativeAnalysisCanvas';
+import PurificationTechniquesLab from './components/grade-11/chemistry/PurificationTechniquesLab';
+import StructuralIsomerismPropertiesLab from './components/grade-11/chemistry/StructuralIsomerismPropertiesLab';
 import EthaneConformationsCanvas from './components/grade-11/chemistry/EthaneConformationsCanvas';
 import GeometricalIsomerismCanvas from './components/grade-11/chemistry/GeometricalIsomerismCanvas';
 
@@ -78,6 +88,17 @@ import CollisionTheoryLab from './components/grade-12/chemistry/CollisionTheoryL
 import ElectrochemistryLab from './components/grade-12/chemistry/ElectrochemistryLab';
 import StereochemistryLab from './components/grade-12/chemistry/StereochemistryLab';
 import DBlockLab from './components/grade-12/chemistry/DBlockLab';
+import VariableOxidationStatesLab from './components/grade-12/chemistry/VariableOxidationStatesLab';
+import SolutionColligativeLab from './components/grade-12/chemistry/SolutionColligativeLab';
+import IdealVsNonIdealSolutionsLab from './components/grade-12/chemistry/IdealVsNonIdealSolutionsLab';
+import GlucoseConformationsLab from './components/grade-12/chemistry/GlucoseConformationsLab';
+import AlcoholReactivityLab from './components/grade-12/chemistry/AlcoholReactivityLab';
+import ConductanceConcentrationLab from './components/grade-12/chemistry/ConductanceConcentrationLab';
+import NernstCellPotentialLab from './components/grade-12/chemistry/NernstCellPotentialLab';
+import RateLawHalfLifeLab from './components/grade-12/chemistry/RateLawHalfLifeLab';
+import AldehydeKetoneReactivityLab from './components/grade-12/chemistry/AldehydeKetoneReactivityLab';
+import CarboxylicAcidsReactionsAcidityLab from './components/grade-12/chemistry/CarboxylicAcidsReactionsAcidityLab';
+import BasicityOfAminesLab from './components/grade-12/chemistry/BasicityOfAminesLab';
 import HaloalkaneLab from './components/grade-12/chemistry/HaloalkaneLab';
 
 
@@ -276,6 +297,72 @@ const App: React.FC = () => {
         Topic: Transition Metals (Crystal Field Theory)
         Concept: d-orbital splitting, d-d transition leads to color, unpaired electrons lead to paramagnetism.
       `;
+    } else if (activeTopicId === 'variable-oxidation-states-dblock') {
+      return `
+        Topic: Variable Oxidation States in d-block (NCERT Class 12 Chemistry, Unit 8, The d- and f-Block Elements, Sec. 4.3.4)
+        Concept: Transition elements show a great variety of oxidation states because incomplete d orbitals allow different numbers of (n-1)d and ns electrons to participate; these states often differ by unity. Elements near the middle of the 3d series show the greatest variety, with manganese showing +2 to +7, while Sc and Zn show limited states at the ends.
+        Simulation: The teacher scans Sc to Zn on a white smartboard canvas, watches oxidation-state ladders grow to a Mn peak and shrink toward Zn, then toggles oxygen stabilisation and carbonyl low-state examples to connect the visual pattern to NCERT species such as MnO4-, CrO4^2-, VO2+, Ni(CO)4, and Fe(CO)5.
+      `;
+    } else if (activeTopicId === 'alcohol-reactivity-hbonding') {
+      return `
+        Topic: Alcohol Reactivity and Hydrogen Bonding (NCERT Class 12 Chemistry, Unit 7 Alcohols/Phenols/Ethers, §7.4.3 + §7.4.4)
+        Concept: The -OH group dominates alcohol behaviour. Intermolecular H-bonding pushes boiling points well above same-mass ethers and hydrocarbons (ethanol 351 K vs methoxymethane 248 K vs propane 231 K; methanol 337 K), and small alcohols are miscible with water (solubility falls as the alkyl chain grows; branching reduces b.p.). Reactivity ranking flips by reaction type. C-O cleavage (Lucas: 3° turbidity immediately, 2° in 5-10 min, 1° none at RT; dehydration: 3° at 358 K, 2° at 440 K, 1° at 443 K) follows 3° > 2° > 1° via carbocation stability. Oxidation needs an alpha-H on the OH carbon: 1° -> aldehyde (PCC) -> carboxylic acid (KMnO4/H+), 2° -> ketone (CrO3), 3° resists; under Cu at 573 K, 1° dehydrogenates to aldehyde, 2° to ketone, 3° dehydrates to alkene.
+        Simulation: Two-mode bench. Properties mode shows a beaker with cyan H-bond dashes (live network for alcohols, sparse for ethers, none for alkanes) and a thermometer with the NCERT-stated b.p. marker. Reactivity mode shows three test tubes (1° ethanol, 2° propan-2-ol, 3° tert-butanol) and lets the teacher drop Lucas, conc H2SO4 at 443 K, PCC, KMnO4/H+ or hot Cu at 573 K; each tube shows REACTS / SLOW / NO REACTION / DEHYDRATES with the NCERT-listed product.
+      `;
+    } else if (activeTopicId === 'aldehyde-ketone-reactivity') {
+      return `
+        Topic: Aldehyde vs Ketone Reactivity (NCERT Class 12 Chemistry, Aldehydes, Ketones and Carboxylic Acids, Chemical Reactions)
+        Concept: Aldehydes and ketones both contain the carbonyl group and undergo nucleophilic addition. A nucleophile attacks the electrophilic carbonyl carbon approximately perpendicular to the sp2 plane, forming a tetrahedral alkoxide intermediate that captures a proton. Aldehydes are generally more reactive than ketones because ketones have two relatively large substituents that hinder attack and two alkyl groups that reduce carbonyl-carbon electrophilicity more effectively.
+        Simulation: The teacher compares aldehyde and ketone carbonyls side by side. A nucleophile attacks the carbonyl, the canvas pauses at sp2 to sp3 tetrahedral intermediate formation, then steric shields and electrophilicity meters show why aldehydes react faster. A bisulphite mode shows product-side preference for most aldehydes and reactant-side preference for most ketones.
+      `;
+    } else if (activeTopicId === 'carboxylic-acids-reactions-acidity') {
+      return `
+        Topic: Carboxylic Acids - Key Reactions and Acidity (NCERT Class 12 Chemistry, Aldehydes, Ketones and Carboxylic Acids, Sections 8.9.1-8.10)
+        Concept: Carboxylic acids contain the -COOH group. They dissociate in water to give resonance-stabilised carboxylate anions and hydronium ions, so acidity is explained through conjugate-base stability and pKa. Electron-withdrawing groups stabilise the carboxylate ion and strengthen the acid, while electron-donating groups weaken it. Key NCERT reactions include salt formation with NaHCO3, esterification, acid chloride formation with PCl5/PCl3/SOCl2, reduction to primary alcohols, and sodalime decarboxylation.
+        Simulation: The teacher begins with a large R-COOH hub, toggles substituents to move an acidity marker along the NCERT order, then switches reaction modes. The class sees CO2 bubbles for NaHCO3, ester formation with water loss, SOCl2 producing RCOCl while gaseous products escape, reduction to RCH2OH, and sodium-salt decarboxylation to RH.
+      `;
+    } else if (activeTopicId === 'basicity-of-amines') {
+      return `
+        Topic: Basicity of Amines (NCERT Class 12 Chemistry, Amines, Structure-basicity relationship and Table 9.3)
+        Concept: Amines behave as bases because nitrogen has an unshared electron pair and can accept a proton. Larger Kb or smaller pKb means a stronger base. In the gaseous phase, aliphatic amine basicity follows the +I effect order: tertiary > secondary > primary > NH3. In aqueous solution, solvation and steric hindrance compete with +I effect, giving methyl order (CH3)2NH > CH3NH2 > (CH3)3N > NH3 and ethyl order (C2H5)2NH > (C2H5)3N > C2H5NH2 > NH3. Aniline is weaker than ammonia because the nitrogen lone pair is conjugated with the benzene ring.
+        Simulation: The teacher switches between gas, aqueous and aromatic modes. Molecules race along a basicity track, water halos reveal solvation, orange shields show steric hindrance, pKb bars rank the aqueous series, and aniline mode shows lone-pair delocalisation into the benzene ring.
+      `;
+    } else if (activeTopicId === 'conductance-concentration') {
+      return `
+        Topic: Conductance vs Concentration (NCERT Class 12 Chemistry, Ch 2 Electrochemistry, §2.4 Conductance of Electrolytic Solutions)
+        Concept: Conductivity κ (S cm⁻¹) decreases with dilution. Molar conductivity Λm = κ/c (Eq 2.22) increases on dilution. Strong electrolytes: Λm = Λ°m − A√c (Eq 2.23) — nearly linear rise in Λm vs √c. Weak electrolytes (CH₃COOH): steep rise because α = Λm/Λ°m (Eq 2.26) approaches 1 at extreme dilution. Kohlrausch law: Λ°m = ν₊λ°₊ + ν₋λ°₋ (Eq 2.25). Ka = cΛm²/[Λ°m(Λ°m−Λm)] (Eq 2.27).
+        Simulation: Choose KCl/NaCl/HCl (strong) or CH₃COOH (weak). Drag concentration slider; watch the selected Λm vs √c curve trace NCERT Fig 2.6, ions in the cell speed up/slow down, and α/Ka update live for the weak acid.
+      `;
+    } else if (activeTopicId === 'nernst-cell-potential') {
+      return `
+        Topic: Cell Potential & Nernst Equation (NCERT Class 12 Chemistry, Ch 2 Electrochemistry, §2.3 Nernst Equation)
+        Concept: E_cell = E°_cell − (RT/nF)lnQ → at 298 K: E°_cell − (0.059/n)logQ (Eq 2.13). At equilibrium E_cell = 0, giving E°_cell = (0.059/n)logKc (Eq 2.14). ΔrG = −nFE_cell (Eq 2.15). ΔrG° = −nFE° (Eq 2.16). Daniell cell E° = 1.10 V; Cu-Ag E° = 0.46 V; Ni-Ag E° = 1.05 V; Mg-Ag E° = 3.17 V.
+        Simulation: Pick a cell preset, adjust anode and cathode ion concentrations; the 2-beaker animation shows dissolving/depositing metals, the voltmeter shows live E_cell, and the E vs logQ plot shows the current operating point on the Nernst line. "Run to Eq" animates concentrations drifting toward Kc.
+      `;
+    } else if (activeTopicId === 'rate-law-half-life') {
+      return `
+        Topic: Rate Laws & Half-life (NCERT Class 12 Chemistry, Ch 3 Chemical Kinetics, §3.3 Integrated Rate Equations)
+        Concept: Zero order (Eq 3.6): [R] = [R]₀ − kt; t½ = [R]₀/(2k) — successive half-lives shrink. First order (Eq 3.14): [R] = [R]₀e^(−kt); t½ = 0.693/k — constant half-life independent of [R]₀. NCERT Table 3.4 summarises differential rate law, integrated rate law, straight-line plot, half-life, and units of k for both orders.
+        Simulation: Toggle between zero and first order. Watch the [R] vs t curve animate, with dashed half-life markers showing equal spacing (1st) or shrinking gaps (0th). Toggle to ln[R] vs t to reveal the linear plot for first order. A particle reactor shows molecule count drop as time passes.
+      `;
+    } else if (activeTopicId === 'ideal-nonideal-solutions') {
+      return `
+        Topic: Ideal vs Non‑ideal Solutions (NCERT Class 12 Chemistry, Ch 1 Solutions, Sections 1.4 and 1.5)
+        Concept: For binary solutions of two volatile liquids, Raoult's law gives p₁ = p₁°·x₁, p₂ = p₂°·x₂ and p_total = x₁p₁° + x₂p₂° — a straight line in P vs x. Ideal solutions obey this over the whole composition range, with ΔmixH = 0 and ΔmixV = 0; A–A, B–B and A–B interactions are all comparable. Non-ideal solutions either bow above the Raoult line (positive deviation: A–B weaker than A–A/B–B, escape easier, ΔmixH > 0; e.g. ethanol+acetone, CS₂+acetone) or below it (negative deviation: A–B stronger, e.g. CHCl₃ H-bonding with acetone C=O; chloroform+acetone, phenol+aniline; ΔmixH < 0). Large positive deviation gives a minimum-boiling azeotrope (ethanol–water at ~95% v/v); large negative deviation gives a maximum-boiling azeotrope (HNO₃–water at ~68% w/w, bp 393.5 K). Vapour-phase mole fractions come from Dalton's law (y_i = p_i / p_total).
+        Simulation: Pick one of five NCERT systems (benzene+toluene ideal, ethanol+acetone +ve, chloroform+acetone −ve, ethanol+water +azeotrope, HNO₃+water −azeotrope). A large P–x plot shows the dashed Raoult ideal lines and the solid actual curves; a vertical cursor follows the x₂ slider with live dots on each curve. Live composition card bars show how y differs from x (and become equal at the azeotrope marker). A side flask shows molecules with A–B bond glows that intensify with deviation magnitude.
+      `;
+    } else if (activeTopicId === 'glucose-conformations') {
+      return `
+        Topic: Biomolecules – Glucose Conformations (NCERT Class 12 Chemistry, Unit 14 Biomolecules, §14.1 Carbohydrates / Structure of Glucose)
+        Concept: Glucose (C₆H₁₂O₆) is an aldohexose, D-(+)-glucose. Its open-chain (Fischer) structure has a –CHO at C1, four –CHOH groups (C2–C5) and a –CH₂OH at C6 (deduced from: HI/Δ → n-hexane; oxime & cyanohydrin → carbonyl; Br₂ water → gluconic acid → aldehyde; pentaacetate → five –OH; HNO₃ → saccharic acid → a 1° –OH). The open chain cannot explain why glucose fails Schiff's test, gives no NaHSO₃ adduct, its pentaacetate is unreactive to hydroxylamine, and it exists as two crystalline forms. So the C5–OH adds to the C1 –CHO forming a six-membered cyclic hemiacetal, the pyranose ring (analogy with pyran). C1 becomes the anomeric carbon; α-D-glucose has its C1–OH below the ring (opposite CH₂OH) and β-D-glucose above the ring (same side as CH₂OH) — these are anomers, shown as Haworth structures. In water the α and β forms interconvert through the open chain (mutarotation), the specific rotation settling to a constant value at an equilibrium of ~36% α and ~64% β.
+        Simulation: Three views — Open chain (animated Fischer projection highlighting the carbonyl, the five –OH and the primary –OH in turn), Cyclic (an animated Haworth pyranose with a pulsing anomeric C1 and an α/β toggle that flips only the C1–OH), and Mutarotation (α-pyranose ⇌ open chain ⇌ β-pyranose with flowing equilibrium arrows, a travelling token, and a 36% α / 64% β composition bar).
+      `;
+    } else if (activeTopicId === 'solution-colligative') {
+      return `
+        Topic: Solution Concentration & Colligative Effect (NCERT Class 12 Chemistry, Ch 1 Solutions, Sections 1.2 and 1.6)
+        Concept: Solutions are expressed in mass %, mole fraction, molarity (T-dependent) and molality (T-independent). Colligative properties depend on the number of solute particles, not their identity. Adding a non-volatile solute lowers vapour pressure, raising boiling point (ΔTb = i·Kb·m) and lowering freezing point (ΔTf = i·Kf·m). Kb and Kf are solvent properties; i is the van't Hoff factor for the solute.
+        Simulation: Choose a solvent (water, benzene, cyclohexane, ethanol, acetic acid — auto-loads Kb/Kf from Table 1.3) and a solute (urea/glucose/NaCl/K₂SO₄ — each with its i from Table 1.4). Drag the solute and solvent mass sliders to see the freezing-point marker slide down and the boiling-point marker slide up on a shared thermometer in real time, with live readouts of m, ΔTb, ΔTf, mass %, mole fraction, and molarity.
+      `;
     } else if (activeTopicId === 'haloalkanes') {
       return `
         Topic: Haloalkanes (SN1 vs SN2)
@@ -453,11 +540,53 @@ const App: React.FC = () => {
         Concept: For isothermal expansion of ideal gas: W_rev = -nRT ln(V2/V1) (max work); W_irr = -P_ext(V2-V1) (less work). First Law: dU=0 so q=-W. Area under PV curve = work done.
         Simulation: Piston-cylinder with real-time PV graph, reversible vs irreversible mode, gas molecule animation.
       `;
+    } else if (activeTopicId === 'heat-work-energy-changes') {
+      return `
+        Topic: Heat, Work, and Energy Changes (NCERT Class 11 Chemistry, Thermodynamics)
+        Concept: Internal energy is a state function, while heat q and work w are path functions. Chemistry follows the IUPAC sign convention: q is positive when heat enters the system, w is positive when work is done on the system, and dU = q + w. For pressure-volume work, w = -Pext dV, so expansion gives negative work and compression gives positive work.
+        Simulation: A piston-cylinder energy ledger lets students adjust heat, external pressure, and volume change. Live arrows, molecule motion, bar charts, and the equation strip show how q and w combine to produce dU.
+      `;
     } else if (activeTopicId === 'extensive-intensive-properties') {
       return `
         Topic: Extensive and Intensive Properties (NCERT Class 11, Unit 5 Thermodynamics)
         Concept: Extensive properties (V, m, U, H) depend on amount of matter. Intensive properties (T, P, d) do not. Molar properties (χm=χ/n) convert extensive to intensive. Partition test: divide system in half - extensive halves, intensive stays same.
         Simulation: Property Lab with gas container, partition toggle, gas pump slider, and molar property derivation.
+      `;
+    } else if (activeTopicId === 'mole-concept-limiting-reagent') {
+      return `
+        Topic: Mole Concept and Limiting Reagent (NCERT Class 11 Chemistry, Some Basic Concepts of Chemistry)
+        Concept: One mole contains 6.022 x 10^23 entities, and molar mass converts grams to moles. Balanced equation coefficients represent mole ratios. When reactants are not present in stoichiometric amounts, the reactant consumed first is the limiting reagent and fixes maximum product formed.
+        Simulation: Reactants can be entered as moles or mass for methane combustion or ammonia synthesis. Mole-ratio packets feed a reaction machine, the limiting reagent is highlighted, product bins fill from the limiting reagent, and excess reactant remains visible.
+      `;
+    } else if (activeTopicId === 'solution-concentration-dilution') {
+      return `
+        Topic: Solution Concentration and Dilution (NCERT Class 11 Chemistry, Ch 1 Some Basic Concepts of Chemistry §1.10.2)
+        Concept: Four NCERT-defined ways to express concentration — mass % (mass solute / mass solution × 100), mole fraction x_A = n_A/(n_A + n_B), molarity M = n_solute/V_solution(L) (temperature-dependent), molality m = n_solute/mass_solvent(kg) (temperature-independent). Dilution conserves moles of solute: M₁V₁ = M₂V₂.
+        Simulation: Two modes — Prepare (volumetric flask with solute scoop, particle density scales with M, side panel shows all four units as bars) and Dilute (stock flask, pipette, target flask, water inflow, on-canvas conservation check). NCERT Problems 1.6/1.7/1.8 + the dilution example are preset chips in the left aside.
+      `;
+    } else if (activeTopicId === 'redox-oxidation-number') {
+      return `
+        Topic: Redox and Oxidation Number Visualiser (NCERT Class 11 Chemistry, Ch 7 Redox Reactions, §7.2 electron-transfer, §7.3 oxidation number rules 1-7, §7.4 classification incl. disproportionation, §7.5 balancing)
+        Concept: A redox reaction is one in which oxidation numbers change. Oxidation = loss of electrons = ON ↑. Reduction = gain of electrons = ON ↓. Oxidation numbers are assigned with the 7 NCERT rules: (1) free element = 0, (2) monoatomic ion = charge, (3) alkali +1 / alkaline earth +2 / Al +3, (4) O = −2 normally (peroxides −1, superoxides −½, +2/+1 with F), (5) H = +1 (−1 in metallic hydrides), (6) F always −1, halogens −1 except with O, (7) sum = 0 for compound, = charge for ion. Disproportionation: one element is simultaneously oxidised and reduced (H₂O₂, Cl₂/OH⁻). Balanced via the 5-step oxidation-number method or 7-step half-reaction (ion-electron) method.
+        Simulation: Four-mode visualiser on a white smartboard. RULES — pick a compound (H₂O, H₂O₂, KO₂, OF₂, NaH, NH₃, CO₂, MnO₄⁻, Cr₂O₇²⁻, SO₄²⁻, CO₃²⁻, Na₂S₂O₃, Na₂S₄O₆) and see each atom's ON badge with the firing rule called out. CLASSIFY — drop in an NCERT-canon reaction (2 Na + Cl₂; H₂S + Cl₂; Fe₃O₄ + Al; 2 Cu₂O + Cu₂S; N₂ + O₂; NaH + H₂O; Pb(NO₃)₂ decomposition) and the ON axis under the equation slides each changing element's dot from reactant ON to product ON. DISPROPORTIONATION — same axis, but the same element splits into two destinations (H₂O₂, Cl₂ + OH⁻ → bleach, P₄ in alkali). BALANCER — step ▶ through NCERT's exact 5 / 7 steps for Problem 7.8 (Cr₂O₇²⁻ + SO₃²⁻ acidic), Problem 7.9 (MnO₄⁻ + Br⁻ basic), and §7.5(b) (Fe²⁺ + Cr₂O₇²⁻ half-reaction). Left aside: rule cheat sheet + period-3 highest-ON strip. Right aside: theory + live oxidant/reductant/Δ ON values.
+      `;
+    } else if (activeTopicId === 'weak-acid-base-ionization') {
+      return `
+        Topic: Ionization of Weak Acids/Bases and Equilibrium K (NCERT Class 11 Chemistry, Ch 6 Equilibrium §6.11.3 Ionization Constants of Weak Acids, §6.11.4 Ionization of Weak Bases, §6.11.5 Relation between Ka and Kb)
+        Concept: A weak acid HX establishes the equilibrium HX + H₂O ⇌ H₃O⁺ + X⁻ with Ka = [H₃O⁺][X⁻]/[HX] = cα²/(1−α). A weak base B sets up B + H₂O ⇌ BH⁺ + OH⁻ with Kb = cα²/(1−α). pKa = −log Ka, pKb = −log Kb. For a conjugate acid–base pair the constants are locked by Ka × Kb = Kw = 1.0 × 10⁻¹⁴ at 298 K, equivalently pKa + pKb = 14. A larger Ka (or Kb) means a stronger acid (or base); a strong acid has a weak conjugate base and vice versa.
+        Simulation: Two beakers side-by-side — left amber "weak acid HA", right teal "weak base B" — with deterministic particle pools sized by the live α from cα²/(1−α). Acid dropdown (HF, HCOOH, HOCl, CH₃COOH, HCN — NCERT Table 6.6) and base dropdown (dimethylamine, triethylamine, NH₃, pyridine, aniline — NCERT Table 6.7). Log-scale concentration slider (0.001–1.0 M). Three modes: Side-by-side, Conjugate pair (locks to NH₄⁺ Ka 5.6×10⁻¹⁰ / NH₃ Kb 1.77×10⁻⁵ and shows Ka × Kb chip turning green at Kw), Dilution sweep (auto-animates c down to show α grow). Left aside: Ka/Kb log-scale strip + α-vs-c curve + pKa+pKb quick-read. Right aside: NCERT theory card + live values (Ka, α, [H⁺], pH, Kb, [OH⁻], pH, Ka·Kb).
+      `;
+    } else if (activeTopicId === 'hydrogen-bonding-molecular-interaction') {
+      return `
+        Topic: Hydrogen Bonding and Molecular Interaction (NCERT Class 11 Chemistry, Ch 4 Chemical Bonding and Molecular Structure §4.9)
+        Concept: When H is covalently bonded to a highly electronegative atom (F, O, or N), the shared electrons shift toward the electronegative atom, leaving H with δ+ and the other atom with δ−. The resulting electrostatic attraction between molecules is called a hydrogen bond. It is weaker than a covalent bond and is represented by a dotted line. NCERT identifies two types: intermolecular (HF, alcohols, water) and intramolecular (o-nitrophenol). Magnitude of H-bonding is maximum in the solid state and minimum in the gaseous state.
+        Simulation: Two-pane intermolecular comparison (H₂O vs H₂S, HF vs HCl, ethanol vs dimethyl ether, NH₃ vs PH₃) with live dotted-line H-bond detection and partial-charge labels, temperature slider that drives bond density and phase chip, qualitative boiling-point comparison band, plus an intramolecular view of o-nitrophenol reproducing NCERT Fig 4.22.
+      `;
+    } else if (activeTopicId === 'periodic-trends-explorer') {
+      return `
+        Topic: Periodic Trends Explorer (NCERT Class 11 Chemistry, Ch 3 Classification of Elements and Periodicity in Properties §3.7)
+        Concept: Atomic radius decreases across a period (nuclear charge ↑, same shell) and increases down a group (new shells). Ionic radius: cation < parent atom, anion > parent atom; isoelectronic species shrink with increasing nuclear charge (O²⁻ 140, F⁻ 136, Na⁺ 95, Mg²⁺ 65 pm). Ionisation enthalpy ↑ across, ↓ down. Electronegativity (Pauling) ↑ across, ↓ down. Metallic character is inverse to electronegativity.
+        Simulation: Interactive periodic table where a lens selector recolours and resizes element tiles by NCERT data (Tables 3.6 and 3.8). Selecting a tile updates period and group trend graphs and exposes the NCERT data table for the selected period. Includes an isoelectronic-species view for O²⁻/F⁻/Na⁺/Mg²⁺.
       `;
     } else if (activeTopicId === 'buffer-solutions') {
       return `
@@ -482,6 +611,18 @@ const App: React.FC = () => {
         Topic: Quantitative Analysis of Organic Compounds (NCERT Class 11, Unit 8 Organic Chemistry)
         Concept: Liebig's Combustion Method — burn organic compound with CuO/O2. All C→CO2, all H→H2O. Pass through CaCl2 (absorbs H2O only), then KOH (absorbs CO2). Mass increases give %H = (2/18)(Δm1/m)×100 and %C = (12/44)(Δm2/m)×100. Order matters: CaCl2 MUST come before KOH. Dumas and Kjeldahl methods for Nitrogen. Carius method for Halogens+Sulphur.
         Simulation: 4-phase interactive combustion lab with tube ordering trap, animated particle combustion, post-combustion weighing, and step-by-step empirical formula deduction.
+      `;
+    } else if (activeTopicId === 'purification-techniques') {
+      return `
+        Topic: Purification Techniques (NCERT Class 11 Chemistry, Organic Chemistry: Some Basic Principles and Techniques)
+        Concept: Organic compounds are purified by selecting a method based on physical-property differences. Sublimation separates sublimable solids from non-sublimable impurities. Crystallisation uses solubility differences in hot and cold solvent. Distillation separates volatile liquids or liquids with sufficiently different boiling points; fractional distillation handles closer boiling points. Differential extraction uses unequal solubility in immiscible solvents. Chromatography separates components by different adsorption or partition between stationary and mobile phases.
+        Simulation: A five-station purification bench lets students switch methods, tune heat, solvent selectivity, extraction cycles, and sample load, then watch purity, recovery, and apparatus behaviour update live.
+      `;
+    } else if (activeTopicId === 'structural-isomerism-molecular-properties') {
+      return `
+        Topic: Structural Isomerism and Molecular Properties (NCERT Class 11 Chemistry, Organic Chemistry: Some Basic Principles and Techniques)
+        Concept: Structural isomers have the same molecular formula but different structures, meaning atoms are linked in different ways. NCERT examples include chain isomerism (C5H12: pentane, 2-methylbutane, 2,2-dimethylpropane), position isomerism (C3H8O: propan-1-ol and propan-2-ol), functional group isomerism (C3H6O: propanal and propanone), and metamerism (C4H10O: methoxypropane and ethoxyethane). Different connectivity changes molecular properties such as boiling point, polarity, and intermolecular forces.
+        Simulation: Students switch between isomerism types, compare same-formula structures, and use property lenses for boiling point, polarity, branching, and classification clues.
       `;
     } else if (activeTopicId === 'ethane-conformations') {
       return `
@@ -889,9 +1030,65 @@ const App: React.FC = () => {
           />
         )}
 
+        {/* ================== HEAT, WORK, AND ENERGY CHANGES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'heat-work-energy-changes' && (
+          <HeatWorkEnergyChangesLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
         {/* ================== EXTENSIVE & INTENSIVE PROPERTIES ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'extensive-intensive-properties' && (
           <ExtensiveIntensivePropertiesLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== MOLE CONCEPT & LIMITING REAGENT ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'mole-concept-limiting-reagent' && (
+          <MoleConceptLimitingReagentLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== HYDROGEN BONDING ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'hydrogen-bonding-molecular-interaction' && (
+          <HydrogenBondingLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== REDOX & OXIDATION NUMBER ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'redox-oxidation-number' && (
+          <RedoxOxidationNumberLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== WEAK ACID/BASE IONIZATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'weak-acid-base-ionization' && (
+          <WeakAcidBaseIonizationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PERIODIC TRENDS EXPLORER ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'periodic-trends-explorer' && (
+          <PeriodicTrendsExplorerLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== SOLUTION CONCENTRATION & DILUTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'solution-concentration-dilution' && (
+          <SolutionConcentrationDilutionLab
             topic={currentTopics.find(t => t.id === activeTopicId)!}
             onExit={goHome}
           />
@@ -924,6 +1121,22 @@ const App: React.FC = () => {
         {/* ================== QUANTITATIVE ANALYSIS OF ORGANIC COMPOUNDS ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'quantitative-analysis-organic' && (
           <QuantitativeAnalysisCanvas
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PURIFICATION TECHNIQUES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'purification-techniques' && (
+          <PurificationTechniquesLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== STRUCTURAL ISOMERISM AND MOLECULAR PROPERTIES ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'structural-isomerism-molecular-properties' && (
+          <StructuralIsomerismPropertiesLab
             topic={currentTopics.find(t => t.id === activeTopicId)!}
             onExit={goHome}
           />
@@ -1112,10 +1325,42 @@ const App: React.FC = () => {
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'dblock' && (
           <DBlockLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'variable-oxidation-states-dblock' && (
+          <VariableOxidationStatesLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'solution-colligative' && (
+          <SolutionColligativeLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'ideal-nonideal-solutions' && (
+          <IdealVsNonIdealSolutionsLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'alcohol-reactivity-hbonding' && (
+          <AlcoholReactivityLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'aldehyde-ketone-reactivity' && (
+          <AldehydeKetoneReactivityLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'glucose-conformations' && (
+          <GlucoseConformationsLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'carboxylic-acids-reactions-acidity' && (
+          <CarboxylicAcidsReactionsAcidityLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'basicity-of-amines' && (
+          <BasicityOfAminesLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'haloalkanes' && (
           <HaloalkaneLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
         )}
-
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'conductance-concentration' && (
+          <ConductanceConcentrationLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'nernst-cell-potential' && (
+          <NernstCellPotentialLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'rate-law-half-life' && (
+          <RateLawHalfLifeLab topic={currentTopics.find(t => t.id === activeTopicId)!} onExit={goHome} />
+        )}
 
         {/* ================== ANGIOSPERMS DOUBLE FERTILISATION ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'angiosperms-double-fertilisation-seed-development' && (
@@ -1256,6 +1501,16 @@ const App: React.FC = () => {
         {
           currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atomic-orbitals' && (
             <AtomicOrbitalsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* 12. ELECTRONIC CONFIGURATION AND EXCHANGE ENERGY (CLASS 11) */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'electronic-configuration-exchange-energy' && (
+            <ElectronicConfigurationLab
               topic={currentTopics.find(t => t.id === activeTopicId)!}
               onExit={goHome}
             />

@@ -1,914 +1,1112 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, Droplets, Gauge, Leaf, RefreshCcw, Sun, Zap } from 'lucide-react';
+import {
+    Sun,
+    Droplets,
+    Zap,
+    Leaf,
+    Activity,
+    Gauge,
+    Play,
+    Pause,
+    RotateCcw,
+    ChevronRight,
+    Info,
+} from 'lucide-react';
 import TopicLayoutContainer from '../../TopicLayoutContainer';
 
-/* ─────────────────────────────────────────────────────────────
-   TYPES
-───────────────────────────────────────────────────────────── */
-type Wavelength = 680 | 700 | 'both';
-
 interface PhotosynthesisLightReactionLabProps {
-  topic: any;
-  onExit: () => void;
+    topic: any;
+    onExit: () => void;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ROOT COMPONENT
-───────────────────────────────────────────────────────────── */
+type WavelengthMode = 'blue450' | 'red680' | 'red700' | 'farRed';
+type FlowMode = 'noncyclic' | 'cyclic';
+type Speed = 0.5 | 1 | 2;
+
+interface MovingDot {
+    id: number;
+    progress: number;
+    life: number;
+    path: 'noncyclic' | 'cyclic' | 'proton' | 'oxygen' | 'atp' | 'nadph' | 'photon';
+    color: string;
+    label: string;
+    offset: number;
+    trail: Array<{ x: number; y: number }>;
+}
+
+interface World {
+    time: number;
+    eventClock: number;
+    waterElectrons: number;
+    lumenH: number;
+    stromaH: number;
+    oxygen: number;
+    nadph: number;
+    atp: number;
+    adp: number;
+    rotor: number;
+    protonRotor: number;
+    activeStep: number;
+    particles: MovingDot[];
+    pulsePS2: number;
+    pulsePS1: number;
+    pulseOEC: number;
+    pulseFNR: number;
+    pulseATP: number;
+}
+
+interface Snapshot {
+    lumenH: number;
+    stromaH: number;
+    pH: number;
+    oxygen: number;
+    nadph: number;
+    atp: number;
+    adp: number;
+    activeStep: number;
+    mode: FlowMode;
+}
+
+const W = 1280;
+const H = 760;
+const MAIN_APPARATUS_SCALE = 1.16;
+const EMPTY_SNAPSHOT: Snapshot = {
+    lumenH: 0,
+    stromaH: 12,
+    pH: 7,
+    oxygen: 0,
+    nadph: 0,
+    atp: 0,
+    adp: 3,
+    activeStep: 1,
+    mode: 'noncyclic',
+};
+
+const WAVELENGTHS: Record<WavelengthMode, { label: string; nm: number; color: string; note: string }> = {
+    blue450: { label: 'Blue 450', nm: 450, color: '#2563eb', note: 'chl b / carotenoid antenna' },
+    red680: { label: 'Red 680', nm: 680, color: '#f97316', note: 'PS II P680 plus PS I chain' },
+    red700: { label: 'Red 700', nm: 700, color: '#dc2626', note: 'PS I P700 dominant' },
+    farRed: { label: 'Far-red >680', nm: 710, color: '#991b1b', note: 'PS I only, cyclic' },
+};
+
 const PhotosynthesisLightReactionLab: React.FC<PhotosynthesisLightReactionLabProps> = ({ topic, onExit }) => {
-  const [wavelength, setWavelength] = useState<Wavelength>(680);
-  const [intensity, setIntensity] = useState(60);
-  const [cf0Open, setCf0Open] = useState(false);
-  const [adpQueue, setAdpQueue] = useState(3);          // how many ADP+Pi units available
-  const [lumenProtons, setLumenProtons] = useState(0);  // 0–20
-  const [atpCount, setAtpCount] = useState(0);
-  const [nadphCount, setNadphCount] = useState(0);
-  const [oxygenCount, setOxygenCount] = useState(0);
-  const [cyclicMode, setCyclicMode] = useState(false);
-  const [makeAttempted, setMakeAttempted] = useState(false); // gate-closed failure flash
-  const [lightOn, setLightOn] = useState(false);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const rafRef = useRef<number | null>(null);
+    const lastRef = useRef(0);
+    const worldRef = useRef<World>(createWorld());
+    const idRef = useRef(1);
 
-  const ps2Active = wavelength === 680 || wavelength === 'both';
-  const ps1Active = wavelength === 700 || wavelength === 'both' || cyclicMode;
-  const pH = Math.max(4.0, 7.0 - lumenProtons * 0.15);
+    const [playing, setPlaying] = useState(true);
+    const [wavelength, setWavelength] = useState<WavelengthMode>('red680');
+    const [flowMode, setFlowMode] = useState<FlowMode>('noncyclic');
+    const [intensity, setIntensity] = useState(60);
+    const [adpSupply, setAdpSupply] = useState(3);
+    const [cf0Open, setCf0Open] = useState(true);
+    const [speed, setSpeed] = useState<Speed>(1);
+    const [resetKey, setResetKey] = useState(0);
+    const [snapshot, setSnapshot] = useState<Snapshot>(EMPTY_SNAPSHOT);
 
-  // ── Auto-accumulate H+ while light is on ──────────────────
-  const accumIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  useEffect(() => {
-    if (lightOn) {
-      accumIntervalRef.current = setInterval(() => {
-        const rate = Math.round(intensity / 25) + (ps2Active ? 1 : 0);
-        setLumenProtons(p => Math.min(20, p + rate));
-        if (ps2Active) {
-          setOxygenCount(o => Math.min(8, o + 1));
-          if (!cyclicMode) setNadphCount(n => Math.min(8, n + (ps1Active ? 1 : 0)));
-        }
-      }, 900);
-    } else {
-      if (accumIntervalRef.current) clearInterval(accumIntervalRef.current);
-    }
-    return () => { if (accumIntervalRef.current) clearInterval(accumIntervalRef.current); };
-  }, [lightOn, intensity, ps2Active, ps1Active, cyclicMode]);
+    const effectiveMode: FlowMode = wavelength === 'farRed' ? 'cyclic' : flowMode;
+    const canRunNoncyclic = effectiveMode === 'noncyclic' && (wavelength === 'red680' || wavelength === 'blue450');
+    const canRunCyclic = effectiveMode === 'cyclic' || wavelength === 'red700' || wavelength === 'farRed';
 
-  // ── Progressive ATP production when gate open ────────────
-  const atpIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  useEffect(() => {
-    if (cf0Open && lumenProtons > 0 && adpQueue > 0) {
-      atpIntervalRef.current = setInterval(() => {
-        setLumenProtons(p => {
-          if (p <= 0) return 0;
-          return p - 1;
+    useEffect(() => {
+        setFlowMode((mode) => wavelength === 'farRed' ? 'cyclic' : mode);
+    }, [wavelength]);
+
+    useEffect(() => {
+        worldRef.current.adp = adpSupply;
+    }, [adpSupply]);
+
+    const resetLab = useCallback(() => {
+        worldRef.current = createWorld();
+        idRef.current = 1;
+        setPlaying(true);
+        setWavelength('red680');
+        setFlowMode('noncyclic');
+        setIntensity(60);
+        setAdpSupply(3);
+        setCf0Open(true);
+        setSpeed(1);
+        setSnapshot(EMPTY_SNAPSHOT);
+        setResetKey((key) => key + 1);
+    }, []);
+
+    const addAdp = useCallback(() => {
+        setAdpSupply((value) => {
+            const next = Math.min(10, value + 3);
+            worldRef.current.adp = next;
+            return next;
         });
-        setAtpCount(a => a + 1);
-        setAdpQueue(q => Math.max(0, q - 1));
-      }, 600);
-    } else {
-      if (atpIntervalRef.current) clearInterval(atpIntervalRef.current);
-    }
-    return () => { if (atpIntervalRef.current) clearInterval(atpIntervalRef.current); };
-  }, [cf0Open, lumenProtons, adpQueue]);
+    }, []);
 
-  // Flash for 1.5s then clear
-  useEffect(() => {
-    if (makeAttempted) {
-      const t = setTimeout(() => setMakeAttempted(false), 1500);
-      return () => clearTimeout(t);
-    }
-  }, [makeAttempted]);
+    const pulseChloroplastInset = useCallback((event: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) * W / rect.width;
+        const y = (event.clientY - rect.top) * H / rect.height;
+        if (x < 72 || x > 242 || y < 98 || y > 200) return;
 
-  const handleMakeAtp = useCallback(() => {
-    if (!cf0Open) { setMakeAttempted(true); return; }
-    // gate already open — synthesis handled by interval
-  }, [cf0Open]);
+        const world = worldRef.current;
+        world.activeStep = effectiveMode === 'cyclic' ? 3 : 1;
+        world.pulsePS1 = 1;
+        world.pulsePS2 = effectiveMode === 'noncyclic' ? 1 : world.pulsePS2;
+        world.pulseOEC = effectiveMode === 'noncyclic' ? 1 : world.pulseOEC;
+        setSnapshot({
+            lumenH: Math.round(world.lumenH),
+            stromaH: Math.round(world.stromaH),
+            pH: lumenPH(world.lumenH),
+            oxygen: world.oxygen,
+            nadph: world.nadph,
+            atp: world.atp,
+            adp: world.adp,
+            activeStep: world.activeStep,
+            mode: effectiveMode,
+        });
+    }, [effectiveMode]);
 
-  const resetLab = useCallback(() => {
-    setWavelength(680); setIntensity(60); setCf0Open(false);
-    setAdpQueue(3); setLumenProtons(0); setAtpCount(0);
-    setNadphCount(0); setOxygenCount(0); setCyclicMode(false);
-    setMakeAttempted(false); setLightOn(false);
-  }, []);
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-  const observation = useMemo(() => {
-    if (makeAttempted) return '❌ Gate closed — protons cannot flow. No ATP without gradient breakdown. Open the CF₀ gate first!';
-    if (cf0Open && lumenProtons === 0) return 'Gate is open but lumen is empty. Shine light first to build up the H⁺ gradient.';
-    if (cf0Open && adpQueue === 0) return 'Protons are flowing but ADP + Pᵢ has run out. Add more ADP + Pᵢ to continue ATP synthesis.';
-    if (cf0Open && lumenProtons > 0) return `✅ CF₀ open! H⁺ flows down gradient → CF₁ rotates → ATP forms. Lumen pH rising back toward neutral. (${atpCount} ATP made so far)`;
-    if (ps2Active && !lightOn) return 'Wavelength 680 nm selected (P680, PS II). Press "Shine Light" to start water splitting and electron flow.';
-    if (ps2Active && lightOn) return `P680 excited! Water splits at OEC: 2H₂O → 4H⁺ + O₂ + 4e⁻. Electrons travel Z-scheme: PS II → PQ → Cyt b₆f → PC → PS I. H⁺ pumped into lumen by Cyt b₆f. Lumen pH: ${pH.toFixed(1)}`;
-    if (cyclicMode) return 'Cyclic electron flow: PS I → Fd → PQ → Cyt b₆f → PC → PS I. H⁺ pumped, ATP made. No O₂ or NADPH produced.';
-    if (ps1Active && !ps2Active) return 'P700 (PS I) active. Needs electrons supplied from PS II first (non-cyclic). Switch to 680 nm or enable Cyclic mode.';
-    return 'Select wavelength and shine light to begin. 680 nm activates PS II; 700 nm activates PS I.';
-  }, [makeAttempted, cf0Open, lumenProtons, adpQueue, atpCount, ps2Active, ps1Active, lightOn, cyclicMode, pH]);
+        const tick = (now: number) => {
+            const last = lastRef.current || now;
+            let dt = (now - last) / 1000;
+            if (dt > 0.1) dt = 0.1;
+            lastRef.current = now;
+            if (playing) {
+                advanceWorld(worldRef.current, {
+                    dt: dt * speed,
+                    wavelength,
+                    mode: effectiveMode,
+                    intensity,
+                    cf0Open,
+                    canRunNoncyclic,
+                    canRunCyclic,
+                    nextId: () => idRef.current++,
+                });
+            }
+            drawWorld(ctx, worldRef.current, {
+                wavelength,
+                mode: effectiveMode,
+                intensity,
+                cf0Open,
+                canRunNoncyclic,
+                canRunCyclic,
+            });
+            const world = worldRef.current;
+            if (Math.floor(world.time * 5) !== Math.floor((world.time - dt) * 5)) {
+                setSnapshot({
+                    lumenH: Math.round(world.lumenH),
+                    stromaH: Math.round(world.stromaH),
+                    pH: lumenPH(world.lumenH),
+                    oxygen: world.oxygen,
+                    nadph: world.nadph,
+                    atp: world.atp,
+                    adp: world.adp,
+                    activeStep: world.activeStep,
+                    mode: effectiveMode,
+                });
+                setAdpSupply(world.adp);
+            }
+            rafRef.current = requestAnimationFrame(tick);
+        };
 
-  /* ── SIMULATION PANEL — full canvas, no scroll, no side cards ── */
-  const simulationCombo = (
-    <div className="w-full h-full min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-      {/* Thin header strip */}
-      <div className="flex items-center justify-between gap-3 px-3 pt-2 pb-1 shrink-0">
-        <div>
-          <div className="text-sm font-bold text-slate-900">Thylakoid Membrane — Light Reactions</div>
-          <div className="text-[11px] text-slate-500">PS II · Z-scheme · Chemiosmosis · ATP Synthase</div>
+        rafRef.current = requestAnimationFrame(tick);
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            lastRef.current = 0;
+        };
+    }, [canRunCyclic, canRunNoncyclic, cf0Open, effectiveMode, intensity, playing, resetKey, speed, wavelength]);
+
+    const graphPanel = (
+        <aside className="pointer-events-auto absolute right-[calc(100%+14px)] top-0 bottom-0 z-20 hidden w-[340px] overflow-y-auto pr-1 min-[1800px]:block">
+            <div className="flex flex-col gap-2.5 pt-9">
+                <AbsorptionCard wavelength={wavelength} />
+                <ZSchemeCard mode={effectiveMode} activeStep={snapshot.activeStep} />
+                <ProductMeterCard snapshot={snapshot} />
+            </div>
+        </aside>
+    );
+
+    const valuesPanel = (
+        <aside className="pointer-events-auto absolute left-[calc(100%+18px)] top-0 bottom-0 z-20 hidden w-[310px] overflow-y-auto pl-1 min-[1800px]:block">
+            <div className="flex flex-col gap-3 pr-16">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/95 p-4 shadow-xl backdrop-blur">
+                    <div className="mb-1 flex items-center gap-2 text-base font-extrabold text-amber-900">
+                        <Info size={16} />
+                        NCERT Ch 11.5-11.7
+                    </div>
+                    <div className="mb-3 text-xs font-semibold text-amber-700">Light reaction and photophosphorylation</div>
+                    <div className="rounded-lg border border-amber-100 bg-white/85 px-3 py-2 text-sm font-bold leading-snug text-amber-950">
+                        Photophosphorylation is the synthesis of ATP from ADP and inorganic phosphate in the presence of light.
+                    </div>
+                    <div className="mt-3 space-y-1.5">
+                        {[
+                            'Photon energy reaches P680 / P700 via antenna pigments.',
+                            'P680 loses e-; water splitting replenishes PS II.',
+                            'e- flows PQ -> Cyt b6f -> PC; H+ enters lumen.',
+                            'PS I reduces NADP+ to NADPH + H+ in non-cyclic flow.',
+                            'Lumen gains H+; stroma loses H+; pH drops.',
+                            'H+ returns through CF0; CF1 changes shape and makes ATP.',
+                        ].map((text, index) => (
+                            <div
+                                key={text}
+                                className={`flex gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-bold leading-snug ${
+                                    snapshot.activeStep === index + 1
+                                        ? 'border-amber-300 bg-white text-amber-950 shadow-sm'
+                                        : 'border-white/70 bg-white/55 text-amber-900'
+                                }`}
+                            >
+                                <ChevronRight size={13} className="mt-0.5 shrink-0" />
+                                <span>{index + 1}. {text}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                        <div className="text-base font-extrabold text-slate-900">Real-time values</div>
+                        <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black text-emerald-700">LIVE</span>
+                    </div>
+                    <div className="grid gap-2">
+                        <ValueRow label="Mode" value={snapshot.mode === 'cyclic' ? 'Cyclic PS I' : 'Non-cyclic Z-scheme'} tint="#f8fafc" color="#334155" />
+                        <ValueRow label="Wavelength" value={`${WAVELENGTHS[wavelength].nm} nm`} tint="#eef2ff" color="#4f46e5" />
+                        <ValueRow label="Lumen pH" value={snapshot.pH.toFixed(1)} tint={snapshot.pH <= 5.5 ? '#fff7ed' : '#ecfdf5'} color={snapshot.pH <= 5.5 ? '#c2410c' : '#059669'} />
+                        <ValueRow label="H+ in lumen" value={`${snapshot.lumenH}`} tint="#fffbeb" color="#b45309" />
+                        <ValueRow label="Stromal H+ pool" value={`${snapshot.stromaH}`} tint="#ecfeff" color="#0891b2" />
+                        <ValueRow label="O2 released" value={`${snapshot.oxygen}`} tint="#eff6ff" color="#1d4ed8" />
+                        <ValueRow label="NADPH made" value={`${snapshot.nadph}`} tint="#ecfdf5" color="#047857" />
+                        <ValueRow label="ATP made" value={`${snapshot.atp}`} tint="#f5f3ff" color="#7c3aed" />
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div className="mb-2 flex items-center gap-2 text-base font-extrabold text-slate-900">
+                        <Leaf size={16} className="text-emerald-700" />
+                        NCERT notes
+                    </div>
+                    <div className="space-y-2 text-xs font-semibold leading-snug text-slate-700">
+                        <MiniFact color="#16a34a" text="Membranes trap light energy and synthesize ATP and NADPH; stroma carries carbon-fixation reactions." />
+                        <MiniFact color="#d97706" text="Accessory pigments broaden light absorption and protect chlorophyll a from photo-oxidation." />
+                        <MiniFact color="#dc2626" text="PS I and PS II are named by discovery order, not functional order. Function order is PS II then PS I." />
+                        <MiniFact color="#7c3aed" text="Cyclic flow occurs with PS I only in stroma lamellae or when wavelengths beyond 680 nm are available." />
+                        <MiniFact color="#0891b2" text="Chemiosmosis needs a membrane, proton pump, proton gradient, and ATP synthase." />
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+
+    const simulationCombo = (
+        <div className="relative h-full w-full overflow-visible rounded-2xl bg-white shadow-inner">
+            <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+                <canvas
+                    ref={canvasRef}
+                    width={W}
+                    height={H}
+                    onClick={pulseChloroplastInset}
+                    className="absolute inset-0 h-full w-full"
+                    aria-label="Canvas animation of light reaction and photophosphorylation"
+                />
+                <div className="pointer-events-auto absolute right-3 top-3 z-10 flex items-center gap-1.5">
+                    <button
+                        type="button"
+                        onClick={() => setPlaying((value) => !value)}
+                        className="rounded-lg border border-slate-200 bg-white/90 p-2 text-slate-700 shadow transition-colors hover:bg-slate-50"
+                        title={playing ? 'Pause' : 'Play'}
+                    >
+                        {playing ? <Pause size={15} /> : <Play size={15} />}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={resetLab}
+                        className="rounded-lg border border-slate-200 bg-white/90 p-2 text-slate-700 shadow transition-colors hover:bg-slate-50"
+                        title="Reset"
+                    >
+                        <RotateCcw size={15} />
+                    </button>
+                </div>
+            </div>
+            {graphPanel}
+            {valuesPanel}
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-bold text-white shrink-0 ${lightOn ? 'bg-amber-500' : 'bg-slate-400'}`}>
-          {lightOn ? `Light ON · ${wavelength === 'both' ? '680+700' : wavelength} nm` : 'Light OFF'}
-        </span>
-      </div>
+    );
 
-      {/* SVG takes all remaining height */}
-      <div className="flex-1 min-h-0 px-2 pb-1">
-        <LightReactionSVG
-          wavelength={wavelength}
-          intensity={intensity}
-          cf0Open={cf0Open}
-          lumenProtons={lumenProtons}
-          atpCount={atpCount}
-          oxygenCount={oxygenCount}
-          nadphCount={nadphCount}
-          cyclicMode={cyclicMode}
-          lightOn={lightOn}
-          makeAttempted={makeAttempted}
-          ps2Active={ps2Active}
-          ps1Active={ps1Active}
-          pH={pH}
+    const controlsCombo = (
+        <div className="flex h-full min-h-0 flex-col gap-2.5 overflow-hidden bg-white text-slate-900">
+            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-slate-800">
+                <Sun size={16} className="text-amber-600" />
+                Light Reaction Bench
+            </div>
+            <div className="grid flex-1 min-h-0 gap-2.5 md:grid-cols-2 lg:grid-cols-[1.35fr_1.35fr_1fr_1.2fr_.9fr_.9fr]">
+                <ControlGroup icon={<Sun size={14} className="text-amber-700" />} label="Wavelength">
+                    <div className="grid grid-cols-2 gap-1.5">
+                        {(Object.keys(WAVELENGTHS) as WavelengthMode[]).map((item) => (
+                            <SegmentButton
+                                key={item}
+                                active={wavelength === item}
+                                color={WAVELENGTHS[item].color}
+                                onClick={() => setWavelength(item)}
+                            >
+                                {WAVELENGTHS[item].label}
+                            </SegmentButton>
+                        ))}
+                    </div>
+                </ControlGroup>
+                <ControlGroup icon={<Activity size={14} className="text-amber-700" />} label="Light intensity">
+                    <SliderControl label="Intensity" value={intensity} min={0} max={100} step={1} suffix="%" onChange={setIntensity} />
+                </ControlGroup>
+                <ControlGroup icon={<Zap size={14} className="text-violet-700" />} label="Flow mode">
+                    <div className="grid grid-cols-2 gap-1.5">
+                        <SegmentButton active={effectiveMode === 'noncyclic'} color="#16a34a" onClick={() => setFlowMode('noncyclic')}>Non-cyclic</SegmentButton>
+                        <SegmentButton active={effectiveMode === 'cyclic'} color="#7c3aed" onClick={() => setFlowMode('cyclic')}>Cyclic</SegmentButton>
+                    </div>
+                </ControlGroup>
+                <ControlGroup icon={<Droplets size={14} className="text-cyan-700" />} label="CF0 gate">
+                    <ToggleButton active={cf0Open} color="#0891b2" onClick={() => setCf0Open((value) => !value)}>
+                        {cf0Open ? 'CF0 open: H+ flows' : 'CF0 closed: H+ accumulates'}
+                    </ToggleButton>
+                </ControlGroup>
+                <ControlGroup icon={<Leaf size={14} className="text-emerald-700" />} label="ADP + Pi supply">
+                    <div className="flex items-center gap-2">
+                        <div className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-sm font-black text-slate-800">
+                            {adpSupply}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addAdp}
+                            className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 transition-colors hover:bg-emerald-100"
+                        >
+                            +3
+                        </button>
+                    </div>
+                </ControlGroup>
+                <ControlGroup icon={<Gauge size={14} className="text-slate-700" />} label="Animation speed">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {([0.5, 1, 2] as Speed[]).map((item) => (
+                            <SegmentButton key={item} active={speed === item} color="#0f172a" onClick={() => setSpeed(item)}>
+                                {item}x
+                            </SegmentButton>
+                        ))}
+                    </div>
+                </ControlGroup>
+            </div>
+        </div>
+    );
+
+    return (
+        <TopicLayoutContainer
+            topic={topic}
+            onExit={onExit}
+            SimulationComponent={simulationCombo}
+            ControlsComponent={controlsCombo}
+            simulationStageWidth={W}
+            simulationStageHeight={H}
+            controlsAreaFlex="0 0 clamp(170px, 22%, 205px)"
+            controlsWrapperClassName="w-full h-full max-w-[min(100%,1320px)] overflow-hidden bg-white border border-slate-200 shadow-2xl rounded-2xl md:rounded-3xl p-3 md:p-4"
+            contentToggleClassName="bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
         />
-      </div>
+    );
+};
 
-      {/* Metric strip pinned at bottom */}
-      <div className="grid grid-cols-4 gap-2 px-3 pb-2 shrink-0">
-        <MetricCard label="Lumen pH" value={pH.toFixed(1)} tone={pH <= 5 ? 'text-red-700' : 'text-emerald-700'} />
-        <MetricCard label="H⁺ in Lumen" value={`${lumenProtons}/20`} tone="text-amber-700" />
-        <MetricCard label="ATP Made" value={`${atpCount}`} tone="text-indigo-700" />
-        <MetricCard label="NADPH" value={`${cyclicMode ? 0 : nadphCount}`} tone="text-sky-700" />
-      </div>
+const createWorld = (): World => ({
+    time: 0,
+    eventClock: 0,
+    waterElectrons: 0,
+    lumenH: 0,
+    stromaH: 12,
+    oxygen: 0,
+    nadph: 0,
+    atp: 0,
+    adp: 3,
+    rotor: 0,
+    protonRotor: 0,
+    activeStep: 1,
+    particles: [],
+    pulsePS2: 0,
+    pulsePS1: 0,
+    pulseOEC: 0,
+    pulseFNR: 0,
+    pulseATP: 0,
+});
+
+const advanceWorld = (
+    world: World,
+    config: {
+        dt: number;
+        wavelength: WavelengthMode;
+        mode: FlowMode;
+        intensity: number;
+        cf0Open: boolean;
+        canRunNoncyclic: boolean;
+        canRunCyclic: boolean;
+        nextId: () => number;
+    },
+) => {
+    world.time += config.dt;
+    world.eventClock += config.dt * Math.max(0.15, config.intensity / 60);
+    world.pulsePS2 = Math.max(0, world.pulsePS2 - config.dt * 3);
+    world.pulsePS1 = Math.max(0, world.pulsePS1 - config.dt * 3);
+    world.pulseOEC = Math.max(0, world.pulseOEC - config.dt * 3);
+    world.pulseFNR = Math.max(0, world.pulseFNR - config.dt * 3);
+    world.pulseATP = Math.max(0, world.pulseATP - config.dt * 3);
+
+    const eventGap = 1.2;
+    while (world.eventClock > eventGap && config.intensity > 0) {
+        world.eventClock -= eventGap;
+        spawnPhoton(world, config);
+        if (config.mode === 'noncyclic' && config.canRunNoncyclic) triggerNoncyclicEvent(world, config.nextId);
+        if (config.mode === 'cyclic' && config.canRunCyclic) triggerCyclicEvent(world, config.nextId);
+    }
+
+    if (config.cf0Open && world.lumenH >= 1 && world.adp > 0) {
+        const flow = Math.min(world.lumenH, config.dt * (1.5 + world.lumenH * 0.11));
+        world.lumenH -= flow;
+        world.stromaH += flow * 0.65;
+        world.rotor += flow * 1.85;
+        world.protonRotor += flow;
+        if (world.protonRotor >= 3) {
+            world.protonRotor -= 3;
+            world.atp += 1;
+            world.adp = Math.max(0, world.adp - 1);
+            world.pulseATP = 1;
+            world.activeStep = 6;
+            world.particles.push(makeParticle(config.nextId(), 'atp', '#10b981', 'ATP', 0));
+        }
+        if (flow > 0.05) {
+            world.particles.push(makeParticle(config.nextId(), 'proton', '#fbbf24', 'H+', Math.random()));
+        }
+    }
+
+    world.particles = world.particles
+        .map((particle) => {
+            const next = { ...particle, progress: particle.progress + config.dt / particle.life };
+            const position = particlePosition(next);
+            next.trail = [...next.trail.slice(-5), position];
+            return next;
+        })
+        .filter((particle) => particle.progress < 1.05);
+};
+
+const spawnPhoton = (world: World, config: { wavelength: WavelengthMode; mode: FlowMode; nextId: () => number }) => {
+    const meta = WAVELENGTHS[config.wavelength];
+    world.particles.push(makeParticle(config.nextId(), 'photon', meta.color, `${meta.nm}`, Math.random()));
+};
+
+const triggerNoncyclicEvent = (world: World, nextId: () => number) => {
+    world.pulsePS2 = 1;
+    world.pulsePS1 = 1;
+    world.pulseOEC = 1;
+    world.activeStep = (world.activeStep % 5) + 1;
+    world.waterElectrons += 1;
+    world.lumenH += 1;
+    world.stromaH = Math.max(0, world.stromaH - 0.35);
+    world.particles.push(makeParticle(nextId(), 'noncyclic', '#38bdf8', 'e-', 0));
+    world.particles.push(makeParticle(nextId(), 'oxygen', '#93c5fd', 'O2', Math.random()));
+    if (world.waterElectrons >= 4) {
+        world.waterElectrons = 0;
+        world.oxygen += 1;
+        world.lumenH += 3;
+    }
+    world.lumenH += 1;
+    if (world.stromaH > 0) {
+        world.stromaH -= 1;
+        world.nadph += 1;
+        world.pulseFNR = 1;
+        world.particles.push(makeParticle(nextId(), 'nadph', '#22c55e', 'NADPH', 0));
+    }
+};
+
+const triggerCyclicEvent = (world: World, nextId: () => number) => {
+    world.pulsePS1 = 1;
+    world.activeStep = world.activeStep === 6 ? 3 : Math.min(6, world.activeStep + 1);
+    world.lumenH += 1.4;
+    world.stromaH = Math.max(0, world.stromaH - 0.45);
+    world.particles.push(makeParticle(nextId(), 'cyclic', '#38bdf8', 'e-', 0));
+};
+
+const makeParticle = (id: number, path: MovingDot['path'], color: string, label: string, offset: number): MovingDot => ({
+    id,
+    path,
+    color,
+    label,
+    offset,
+    progress: 0,
+    life: path === 'photon' ? 0.8 : path === 'proton' ? 0.9 : path === 'atp' || path === 'nadph' ? 1.3 : 2.6,
+    trail: [],
+});
+
+const drawWorld = (
+    ctx: CanvasRenderingContext2D,
+    world: World,
+    config: { wavelength: WavelengthMode; mode: FlowMode; intensity: number; cf0Open: boolean; canRunNoncyclic: boolean; canRunCyclic: boolean },
+) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    drawGrid(ctx);
+    drawChloroplastInset(ctx, config.mode);
+    ctx.save();
+    ctx.translate(W / 2, H / 2 + 4);
+    ctx.scale(MAIN_APPARATUS_SCALE, MAIN_APPARATUS_SCALE);
+    ctx.translate(-W / 2, -H / 2 - 4);
+    drawThylakoid(ctx, world, config);
+    world.particles.forEach((particle) => drawMovingParticle(ctx, particle));
+    drawLabels(ctx, config, world);
+    ctx.restore();
+};
+
+const drawGrid = (ctx: CanvasRenderingContext2D) => {
+    ctx.save();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    for (let x = 40; x < W; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+    for (let y = 40; y < H; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+    ctx.restore();
+};
+
+const drawChloroplastInset = (ctx: CanvasRenderingContext2D, mode: FlowMode) => {
+    ctx.save();
+    ctx.fillStyle = '#f0fdf4';
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2;
+    roundRect(ctx, 72, 98, 170, 102, 24);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#dcfce7';
+    ctx.beginPath();
+    ctx.ellipse(157, 149, 70, 32, -0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    for (let i = 0; i < 4; i += 1) {
+        const x = 112 + i * 26;
+        ctx.fillStyle = mode === 'noncyclic' ? '#86efac' : '#bbf7d0';
+        roundRect(ctx, x, 128, 18, 42, 6);
+        ctx.fill();
+        ctx.stroke();
+    }
+    ctx.strokeStyle = mode === 'cyclic' ? '#7c3aed' : '#16a34a';
+    ctx.lineWidth = mode === 'cyclic' ? 4 : 2;
+    ctx.beginPath();
+    ctx.moveTo(110, 174);
+    ctx.bezierCurveTo(148, 188, 170, 112, 210, 128);
+    ctx.stroke();
+    ctx.fillStyle = '#166534';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(mode === 'cyclic' ? 'Stroma lamellae active' : 'Grana thylakoids active', 157, 191);
+    ctx.restore();
+};
+
+const drawThylakoid = (
+    ctx: CanvasRenderingContext2D,
+    world: World,
+    config: { wavelength: WavelengthMode; mode: FlowMode; intensity: number; cf0Open: boolean },
+) => {
+    ctx.save();
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 3;
+    roundRect(ctx, 290, 94, 850, 560, 32);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(219, 234, 254, 0.72)';
+    roundRect(ctx, 324, 126, 782, 172, 24);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(254, 243, 199, 0.72)';
+    roundRect(ctx, 324, 428, 782, 172, 24);
+    ctx.fill();
+
+    const y = 342;
+    const gradient = ctx.createLinearGradient(330, y - 46, 1110, y + 46);
+    gradient.addColorStop(0, '#bbf7d0');
+    gradient.addColorStop(0.5, '#86efac');
+    gradient.addColorStop(1, '#bbf7d0');
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = '#15803d';
+    ctx.lineWidth = 3;
+    roundRect(ctx, 330, y - 48, 780, 96, 42);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(21, 128, 61, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(350, y - 18);
+    ctx.lineTo(1088, y - 18);
+    ctx.moveTo(350, y + 18);
+    ctx.lineTo(1088, y + 18);
+    ctx.stroke();
+
+    drawPhotosystem(ctx, 458, y, 'PS II', 'P680', '#f97316', world.pulsePS2, true);
+    drawCarrier(ctx, 580, y + Math.sin(world.time * 2.2) * 9, 'PQ', '#f59e0b');
+    drawComplex(ctx, 688, y, 'Cyt b6f', '#0ea5e9', world.pulsePS2 + world.pulsePS1);
+    drawCarrier(ctx, 792, y - 32 + Math.cos(world.time * 2.2) * 8, 'PC', '#38bdf8');
+    drawPhotosystem(ctx, 898, y, 'PS I', 'P700', '#dc2626', world.pulsePS1, false);
+    drawFNR(ctx, 990, 218, world.pulseFNR);
+    drawATPSynthase(ctx, 1046, y, config.cf0Open, world);
+    drawOEC(ctx, 430, 426, world.pulseOEC);
+    drawSun(ctx, 1050, 134, config.wavelength, config.intensity);
+
+    ctx.restore();
+};
+
+const drawPhotosystem = (ctx: CanvasRenderingContext2D, x: number, y: number, name: string, center: string, color: string, pulse: number, hasOec: boolean) => {
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8 + pulse * 24;
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(x, y, 56 + pulse * 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    for (let i = 0; i < 12; i += 1) {
+        const angle = i / 12 * Math.PI * 2 + (pulse * 0.15);
+        const px = x + Math.cos(angle) * 43;
+        const py = y + Math.sin(angle) * 43;
+        ctx.fillStyle = ['#16a34a', '#84cc16', '#facc15', '#fb923c'][i % 4];
+        ctx.beginPath();
+        ctx.arc(px, py, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = color;
+    ctx.font = '900 16px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, x, y - 4);
+    ctx.font = '900 13px Inter, Arial, sans-serif';
+    ctx.fillText(center, x, y + 16);
+    if (hasOec) {
+        ctx.fillStyle = '#eff6ff';
+        ctx.strokeStyle = '#2563eb';
+        roundRect(ctx, x - 38, y + 58, 76, 30, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#1d4ed8';
+        ctx.font = '900 10px Inter, Arial, sans-serif';
+        ctx.fillText('OEC', x, y + 78);
+    }
+    ctx.restore();
+};
+
+const drawCarrier = (ctx: CanvasRenderingContext2D, x: number, y: number, label: string, color: string) => {
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 30, 19, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = '900 14px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 5);
+    ctx.restore();
+};
+
+const drawComplex = (ctx: CanvasRenderingContext2D, x: number, y: number, label: string, color: string, pulse: number) => {
+    ctx.save();
+    ctx.fillStyle = '#ecfeff';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 42, y - 52, 84, 104, 18);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = '900 13px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 4);
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x, y - 34);
+    ctx.lineTo(x, y + 34 + pulse * 5);
+    ctx.stroke();
+    ctx.fillStyle = '#d97706';
+    ctx.fillText('H+', x + 24, y + 38);
+    ctx.restore();
+};
+
+const drawFNR = (ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number) => {
+    ctx.save();
+    ctx.shadowColor = '#22c55e';
+    ctx.shadowBlur = pulse * 20;
+    ctx.fillStyle = '#dcfce7';
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 48, y - 24, 96, 48, 14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#166534';
+    ctx.font = '900 12px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('FNR', x, y - 2);
+    ctx.font = '800 10px Inter, Arial, sans-serif';
+    ctx.fillText('NADP+ -> NADPH', x, y + 14);
+    ctx.restore();
+};
+
+const drawATPSynthase = (ctx: CanvasRenderingContext2D, x: number, y: number, open: boolean, world: World) => {
+    ctx.save();
+    ctx.fillStyle = open ? '#ddd6fe' : '#f1f5f9';
+    ctx.strokeStyle = '#7c3aed';
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 18, y - 56, 36, 112, 14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#7c3aed';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CF0', x, y + 6);
+    ctx.fillText(open ? 'open' : 'closed', x, y + 24);
+
+    ctx.translate(x, y - 92);
+    ctx.rotate(world.rotor);
+    ctx.shadowColor = '#7c3aed';
+    ctx.shadowBlur = world.pulseATP * 22;
+    for (let i = 0; i < 3; i += 1) {
+        const angle = i * Math.PI * 2 / 3;
+        ctx.fillStyle = ['#fbbf24', '#34d399', '#f87171'][i];
+        ctx.beginPath();
+        ctx.arc(Math.cos(angle) * 23, Math.sin(angle) * 23, 19, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#4c1d95';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CF1', 0, 4);
+    ctx.restore();
+};
+
+const drawOEC = (ctx: CanvasRenderingContext2D, x: number, y: number, pulse: number) => {
+    ctx.save();
+    ctx.shadowColor = '#2563eb';
+    ctx.shadowBlur = pulse * 18;
+    ctx.fillStyle = '#dbeafe';
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    roundRect(ctx, x - 84, y, 168, 46, 14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#1e3a8a';
+    ctx.font = '900 11px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('OEC: water splitting', x, y + 17);
+    ctx.fillText('2H2O -> 4H+ + O2 + 4e-', x, y + 33);
+    ctx.restore();
+};
+
+const drawSun = (ctx: CanvasRenderingContext2D, x: number, y: number, wavelength: WavelengthMode, intensity: number) => {
+    const meta = WAVELENGTHS[wavelength];
+    ctx.save();
+    ctx.shadowColor = meta.color;
+    ctx.shadowBlur = 14 + intensity * 0.08;
+    ctx.fillStyle = '#fef3c7';
+    ctx.strokeStyle = meta.color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x, y, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#92400e';
+    ctx.font = '900 12px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${meta.nm} nm`, x, y + 46);
+    ctx.restore();
+};
+
+const drawLabels = (
+    ctx: CanvasRenderingContext2D,
+    config: { wavelength: WavelengthMode; mode: FlowMode; intensity: number; cf0Open: boolean },
+    world: World,
+) => {
+    ctx.save();
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '900 18px Inter, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Thylakoid membrane light reaction', 310, 72);
+    ctx.font = '700 12px Inter, Arial, sans-serif';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(`${WAVELENGTHS[config.wavelength].label} nm - ${config.mode === 'cyclic' ? 'cyclic PS I flow' : 'non-cyclic PS II -> PS I flow'}`, 310, 94);
+    ctx.font = '900 15px Inter, Arial, sans-serif';
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillText('STROMA: Fd, FNR, CF1, NADP+ reduction, Calvin cycle uses ATP + NADPH', 352, 152);
+    ctx.fillStyle = '#166534';
+    ctx.fillText('THYLAKOID MEMBRANE: PS II -> PQ -> Cyt b6f -> PC -> PS I -> Fd', 352, 282);
+    ctx.fillStyle = '#92400e';
+    ctx.fillText('LUMEN: H+ accumulates; proton gradient lowers pH', 352, 512);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '900 12px Inter, Arial, sans-serif';
+    ctx.fillText('O2 diffuses out; ATP + NADPH move to the stroma for carbon fixation.', 392, 630);
+    ctx.fillStyle = world.lumenH >= 8 ? '#c2410c' : '#059669';
+    ctx.font = '900 22px Inter, Arial, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`lumen pH ${lumenPH(world.lumenH).toFixed(1)}`, 1080, 546);
+    ctx.restore();
+};
+
+const drawMovingParticle = (ctx: CanvasRenderingContext2D, particle: MovingDot) => {
+    const pos = particlePosition(particle);
+    ctx.save();
+    particle.trail.forEach((point, index) => {
+        ctx.globalAlpha = (index + 1) / Math.max(1, particle.trail.length) * 0.22;
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    ctx.shadowColor = particle.color;
+    ctx.shadowBlur = particle.path === 'photon' ? 14 : 8;
+    ctx.fillStyle = particle.color;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, particle.path === 'photon' ? 5 : 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = particle.path === 'photon' ? particle.color : '#ffffff';
+    ctx.font = '900 7px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    if (particle.path !== 'photon') ctx.fillText(particle.label, pos.x, pos.y + 2.5);
+    ctx.restore();
+};
+
+const particlePosition = (particle: MovingDot) => {
+    const t = clamp(particle.progress, 0, 1);
+    if (particle.path === 'noncyclic') {
+        return bezierPath(t, [
+            { x: 458, y: 342 },
+            { x: 458, y: 250 },
+            { x: 580, y: 322 },
+            { x: 688, y: 340 },
+            { x: 792, y: 310 },
+            { x: 898, y: 342 },
+            { x: 898, y: 244 },
+            { x: 990, y: 218 },
+        ]);
+    }
+    if (particle.path === 'cyclic') {
+        const a = t * Math.PI * 2 + particle.offset;
+        return { x: 898 + Math.cos(a) * 112, y: 290 + Math.sin(a) * 58 };
+    }
+    if (particle.path === 'proton') return { x: 1046 + Math.sin(t * Math.PI) * 16, y: 510 - t * 150 };
+    if (particle.path === 'oxygen') return { x: 410 + particle.offset * 90, y: 514 - t * 80 };
+    if (particle.path === 'nadph') return { x: 990 + t * 72, y: 208 - t * 34 };
+    if (particle.path === 'atp') return { x: 1046 + t * 70, y: 252 - t * 58 };
+    return { x: 1080 - t * 250, y: 134 + particle.offset * 44 };
+};
+
+const bezierPath = (t: number, points: Array<{ x: number; y: number }>) => {
+    const scaled = t * (points.length - 1);
+    const index = Math.min(points.length - 2, Math.floor(scaled));
+    const local = scaled - index;
+    const start = points[index];
+    const end = points[index + 1];
+    return {
+        x: start.x + (end.x - start.x) * local,
+        y: start.y + (end.y - start.y) * local,
+    };
+};
+
+const lumenPH = (lumenH: number) => clamp(7 - lumenH * 0.16, 4.2, 7);
+
+const AbsorptionCard: React.FC<{ wavelength: WavelengthMode }> = ({ wavelength }) => {
+    const nm = WAVELENGTHS[wavelength].nm;
+    const x = 34 + ((nm - 400) / 320) * 220;
+    return (
+        <AsideCard title="NCERT Fig 11.3(a-c)" subtitle="Pigment absorption and action" icon={<Sun size={15} className="text-amber-700" />}>
+            <svg viewBox="0 0 282 176" className="h-[176px] w-full">
+                <line x1="34" y1="142" x2="258" y2="142" stroke="#475569" strokeWidth="2" />
+                <line x1="34" y1="142" x2="34" y2="24" stroke="#475569" strokeWidth="2" />
+                <path d="M34 128 C58 42 82 34 112 120 C148 150 200 50 258 72" fill="none" stroke="#16a34a" strokeWidth="3" />
+                <path d="M34 136 C72 54 104 64 126 110 C158 130 204 82 236 118" fill="none" stroke="#84cc16" strokeWidth="3" />
+                <path d="M44 118 C82 72 120 68 160 118" fill="none" stroke="#f59e0b" strokeWidth="3" />
+                <path d="M34 126 C62 50 100 42 124 110 C166 150 210 62 252 86" fill="none" stroke="#dc2626" strokeWidth="2" strokeDasharray="5 5" />
+                <line x1={x} y1="24" x2={x} y2="142" stroke={WAVELENGTHS[wavelength].color} strokeWidth="3" strokeDasharray="6 5" />
+                <circle cx={x} cy="34" r="6" fill={WAVELENGTHS[wavelength].color} />
+                <text x="35" y="160" fontSize="10" fontWeight="900" fill="#475569">400</text>
+                <text x="138" y="160" fontSize="10" fontWeight="900" fill="#475569">550</text>
+                <text x="238" y="160" fontSize="10" fontWeight="900" fill="#475569">700 nm</text>
+                <text x="54" y="34" fontSize="9" fontWeight="900" fill="#16a34a">chl a</text>
+                <text x="86" y="55" fontSize="9" fontWeight="900" fill="#84cc16">chl b</text>
+                <text x="120" y="86" fontSize="9" fontWeight="900" fill="#f59e0b">carot.</text>
+                <text x="176" y="34" fontSize="9" fontWeight="900" fill="#dc2626">action</text>
+            </svg>
+        </AsideCard>
+    );
+};
+
+const ZSchemeCard: React.FC<{ mode: FlowMode; activeStep: number }> = ({ mode, activeStep }) => {
+    const dotX = activeStep <= 2 ? 66 : activeStep === 3 ? 130 : activeStep === 4 ? 196 : 234;
+    const dotY = activeStep <= 2 ? 48 : activeStep === 3 ? 104 : activeStep === 4 ? 54 : 92;
+    return (
+        <AsideCard title="NCERT Fig 11.5" subtitle="Z-scheme redox path" icon={<Zap size={15} className="text-cyan-700" />}>
+            <svg viewBox="0 0 282 166" className="h-[166px] w-full">
+                <line x1="34" y1="136" x2="258" y2="136" stroke="#475569" strokeWidth="2" />
+                <line x1="34" y1="136" x2="34" y2="22" stroke="#475569" strokeWidth="2" />
+                <text x="10" y="54" fontSize="9" fontWeight="900" fill="#475569" transform="rotate(-90 10 54)">redox potential</text>
+                {mode === 'noncyclic' ? (
+                    <polyline points="52,120 68,44 120,108 176,108 196,48 238,96" fill="none" stroke="#0891b2" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+                ) : (
+                    <path d="M174 112 C224 84 226 40 186 42 C142 46 134 92 174 112" fill="none" stroke="#7c3aed" strokeWidth="4" />
+                )}
+                <circle cx={dotX} cy={dotY} r="7" fill={mode === 'noncyclic' ? '#0891b2' : '#7c3aed'} stroke="#ffffff" strokeWidth="3" />
+                <text x="46" y="150" fontSize="9" fontWeight="900" fill="#475569">H2O</text>
+                <text x="56" y="38" fontSize="9" fontWeight="900" fill="#f97316">P680*</text>
+                <text x="108" y="124" fontSize="9" fontWeight="900" fill="#475569">PQ/Cyt</text>
+                <text x="176" y="38" fontSize="9" fontWeight="900" fill="#dc2626">P700*</text>
+                <text x="224" y="112" fontSize="9" fontWeight="900" fill="#16a34a">NADP+</text>
+                <text x="50" y="18" fontSize="10" fontWeight="900" fill="#64748b">negative up</text>
+            </svg>
+        </AsideCard>
+    );
+};
+
+const ProductMeterCard: React.FC<{ snapshot: Snapshot }> = ({ snapshot }) => {
+    return (
+        <AsideCard title="Products" subtitle="Light reaction output" icon={<Gauge size={15} className="text-violet-700" />}>
+            <div className="space-y-2">
+                <Meter label="ATP" value={snapshot.atp} max={12} color="#7c3aed" />
+                <Meter label="NADPH" value={snapshot.nadph} max={12} color="#16a34a" />
+                <Meter label="O2" value={snapshot.oxygen} max={8} color="#2563eb" />
+                <div className="rounded-lg border border-slate-100 bg-white px-2 py-1.5 text-xs font-bold text-slate-700">
+                    {snapshot.mode === 'cyclic' ? 'Cyclic: ATP only, no O2/NADPH.' : 'Non-cyclic: ATP + NADPH + O2.'}
+                </div>
+            </div>
+        </AsideCard>
+    );
+};
+
+const Meter: React.FC<{ label: string; value: number; max: number; color: string }> = ({ label, value, max, color }) => (
+    <div>
+        <div className="mb-1 flex items-center justify-between text-xs font-black text-slate-600">
+            <span>{label}</span>
+            <span style={{ color }}>{value}</span>
+        </div>
+        <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full" style={{ width: `${Math.min(100, value / max * 100)}%`, background: color }} />
+        </div>
     </div>
-  );
+);
 
-  /* ── CONTROLS PANEL — compact with scroll ── */
-  const controlsCombo = (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm w-full overflow-y-auto max-h-[34vh]">
-      <div className="p-3 flex flex-col gap-3">
-
-        {/* Goal banner */}
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
-          <strong>Goal:</strong> Build a proton gradient by shining light → open CF₀ gate → watch CF₁ spin and make ATP.
-        </div>
-
-        {/* Controls row 1: wavelength + intensity */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Wavelength</div>
-            <div className="grid grid-cols-3 gap-1">
-              {([680, 700, 'both'] as Wavelength[]).map(w => (
-                <button key={String(w)} onClick={() => setWavelength(w)}
-                  className={`rounded-lg border px-1 py-2 text-[10px] font-bold transition-all ${wavelength === w
-                    ? (w === 680 ? 'bg-orange-500 text-white border-orange-500' : w === 700 ? 'bg-red-700 text-white border-red-700' : 'bg-purple-600 text-white border-purple-600')
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}>
-                  {w === 680 ? 'P680' : w === 700 ? 'P700' : 'Both'}
-                </button>
-              ))}
+const AsideCard: React.FC<{ title: string; subtitle: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, subtitle, icon, children }) => (
+    <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
+        <div className="mb-2 flex items-center gap-2">
+            {icon}
+            <div>
+                <div className="text-base font-extrabold text-slate-900">{title}</div>
+                <div className="text-xs font-semibold text-slate-500">{subtitle}</div>
             </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Intensity</span>
-              <span className="text-[10px] font-bold text-amber-700">{intensity}%</span>
-            </div>
-            <input type="range" min="10" max="100" value={intensity}
-              onChange={e => setIntensity(parseInt(e.target.value, 10))}
-              className="w-full accent-amber-500" />
-            <div className="flex justify-between text-[9px] font-bold text-slate-400">
-              <span>Dim</span><span>Bright</span>
-            </div>
-          </div>
         </div>
-
-        {/* Controls row 2: action buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => setLightOn(v => !v)}
-            className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all flex items-center justify-center gap-1 ${lightOn ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-slate-700 border-amber-300 hover:bg-amber-50'}`}>
-            <Sun size={13} /> {lightOn ? 'ON' : 'Light'}
-          </button>
-          <button onClick={() => setCf0Open(v => !v)}
-            className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all flex items-center justify-center gap-1 ${cf0Open ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300'}`}>
-            <Droplets size={13} /> CF₀ {cf0Open ? '✓' : '✗'}
-          </button>
-          <button onClick={handleMakeAtp}
-            className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all flex items-center justify-center gap-1 ${makeAttempted ? 'bg-red-100 text-red-700 border-red-400' : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100'}`}>
-            <Zap size={13} /> ATP
-          </button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => setAdpQueue(q => Math.min(10, q + 3))}
-            className="rounded-lg border border-sky-300 bg-sky-50 px-2 py-2 text-xs font-bold text-sky-900 hover:bg-sky-100 transition-colors flex items-center justify-center gap-1">
-            <Leaf size={13} /> ADP ({adpQueue})
-          </button>
-          <button onClick={() => setCyclicMode(v => !v)}
-            className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all flex items-center justify-center gap-1 ${cyclicMode ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-slate-700 border-slate-200 hover:border-purple-300'}`}>
-            ↻ Cyclic {cyclicMode ? 'ON' : 'OFF'}
-          </button>
-          <button onClick={resetLab}
-            className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors flex items-center justify-center gap-1">
-            <RefreshCcw size={13} /> Reset
-          </button>
-        </div>
-
-        {/* Live observation */}
-        <InfoCard title="Live Observation" icon={<Activity size={14} className="text-emerald-600" />}>
-          <p className={`text-xs ${makeAttempted ? 'text-red-700 font-bold' : ''}`}>{observation}</p>
-        </InfoCard>
-
-        {/* Step guide */}
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
-          <div className="text-[10px] font-bold text-slate-700 mb-1 uppercase tracking-widest">Steps</div>
-          <ol className="text-[10px] text-slate-600 space-y-0.5 list-decimal list-inside">
-            <li>Select <strong>P680</strong> and press <strong>Light</strong>. Watch H₂O split, H⁺ fill lumen.</li>
-            <li>Watch <strong>pH meter</strong> drop from 7.0 → 4.0.</li>
-            <li>Click <strong>ATP</strong> with CF₀ closed — see failure message!</li>
-            <li>Open <strong>CF₀</strong> — protons rush through, CF₁ spins, ATP forms.</li>
-            <li>Add <strong>ADP</strong> — watch pH recover toward 7.</li>
-            <li>Try <strong>Cyclic</strong> flow — ATP without O₂ or NADPH.</li>
-          </ol>
-        </div>
-
-        {/* Info cards */}
-        <InfoCard title="NCERT Key Principle" icon={<Zap size={14} className="text-amber-600" />}>
-          <p className="text-xs">Light drives electron flow → H⁺ gradient in lumen → CF₁ rotation → ATP. Light does NOT make ATP directly.</p>
-        </InfoCard>
-        <InfoCard title="Dam Analogy" icon={<Gauge size={14} className="text-sky-600" />}>
-          <p className="text-xs">Lumen = dam. H⁺ = stored water. CF₀ = gate. CF₁ = turbine → ATP.</p>
-        </InfoCard>
-        <InfoCard title="Products Summary" icon={<Leaf size={14} className="text-lime-600" />}>
-          <ul className="text-xs list-disc list-inside space-y-0.5">
-            <li><strong>O₂</strong> — H₂O photolysis at OEC (PS II)</li>
-            <li><strong>ATP</strong> — chemiosmosis via CF₁</li>
-            <li><strong>NADPH</strong> — non-cyclic only (PS I → Fd → reductase)</li>
-          </ul>
-        </InfoCard>
-      </div>
+        {children}
     </div>
-  );
+);
 
-  return <TopicLayoutContainer topic={topic} onExit={onExit} SimulationComponent={simulationCombo} ControlsComponent={controlsCombo} />;
+const ValueRow: React.FC<{ label: string; value: string; tint: string; color: string }> = ({ label, value, tint, color }) => (
+    <div className="rounded-lg border border-slate-100 px-3 py-2.5" style={{ background: tint }}>
+        <div className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</div>
+        <div className="mt-1 break-words font-mono text-sm font-extrabold" style={{ color }}>{value}</div>
+    </div>
+);
+
+const MiniFact: React.FC<{ color: string; text: string }> = ({ color, text }) => (
+    <div className="flex gap-2 rounded-lg border border-slate-100 bg-white px-2.5 py-2">
+        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
+        <span>{text}</span>
+    </div>
+);
+
+const ControlGroup: React.FC<{ icon: React.ReactNode; label: string; children: React.ReactNode }> = ({ icon, label, children }) => (
+    <div className="min-h-0 rounded-xl border border-slate-200 bg-white p-2.5">
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide text-slate-600">
+            {icon}
+            {label}
+        </div>
+        {children}
+    </div>
+);
+
+const SliderControl: React.FC<{ label: string; value: number; min: number; max: number; step: number; suffix?: string; onChange: (value: number) => void }> = ({ label, value, min, max, step, suffix = '', onChange }) => (
+    <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-black text-slate-600">{label}</span>
+            <span className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs font-black text-slate-700">{value}{suffix}</span>
+        </div>
+        <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(event) => onChange(Number(event.target.value))}
+            className="w-full accent-amber-600"
+        />
+    </div>
+);
+
+const SegmentButton: React.FC<{ active: boolean; color: string; onClick: () => void; children: React.ReactNode }> = ({ active, color, onClick, children }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="min-h-[30px] rounded-lg border px-2 py-1 text-[11px] font-black leading-tight transition-colors"
+        style={{
+            background: active ? color : '#ffffff',
+            borderColor: active ? color : '#e2e8f0',
+            color: active ? '#ffffff' : '#334155',
+        }}
+    >
+        {children}
+    </button>
+);
+
+const ToggleButton: React.FC<{ active: boolean; color: string; onClick: () => void; children: React.ReactNode }> = ({ active, color, onClick, children }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="min-h-[32px] w-full rounded-lg border px-2.5 py-1.5 text-xs font-black transition-colors"
+        style={{
+            background: active ? color : '#ffffff',
+            borderColor: active ? color : '#e2e8f0',
+            color: active ? '#ffffff' : '#334155',
+        }}
+    >
+        {children}
+    </button>
+);
+
+const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
 };
 
-/* ═══════════════════════════════════════════════════════════════════════
-   MAIN SVG   880 × 500
-   Band 1:  y   0– 42   Dark header
-   Band 2:  y  42– 98   Sun + photon sources (stroma top)
-   Band 3:  y  98– 198  Stroma compartment (light blue)
-   Band 4:  y 198– 282  Thylakoid membrane (lipid bilayer with complexes)
-   Band 5:  y 282– 430  Lumen compartment (amber)
-   Band 6:  y 430– 500  Output meters
-═══════════════════════════════════════════════════════════════════════ */
-const LightReactionSVG = ({
-  wavelength, intensity, cf0Open, lumenProtons, atpCount,
-  oxygenCount, nadphCount, cyclicMode, lightOn, makeAttempted,
-  ps2Active, ps1Active, pH,
-}: {
-  wavelength: Wavelength; intensity: number; cf0Open: boolean;
-  lumenProtons: number; atpCount: number; oxygenCount: number;
-  nadphCount: number; cyclicMode: boolean; lightOn: boolean;
-  makeAttempted: boolean; ps2Active: boolean; ps1Active: boolean; pH: number;
-}) => {
-  const photonCount = Math.max(2, Math.round(intensity / 18));
-  const protonCount = Math.min(lumenProtons, 18);
-  const flowing = cf0Open && lumenProtons > 0;
-  // Speeds (lower = faster animation)
-  const photonDur = intensity > 70 ? 0.9 : intensity > 40 ? 1.4 : 2.0;
-  const electronDur = 2.2;
-  const cf1SpinDur = flowing ? Math.max(0.8, 3 - lumenProtons * 0.1) : 999;
-
-  return (
-    <svg viewBox="0 0 880 500" className="w-full h-full" preserveAspectRatio="xMidYMid meet"
-      aria-label="Thylakoid light reaction simulation">
-
-      {/* ── DEFS ── */}
-      <defs>
-        <marker id="lrArrG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L7,3 z" fill="#15803d" />
-        </marker>
-        <marker id="lrArrB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L7,3 z" fill="#2563eb" />
-        </marker>
-        <marker id="lrArrO" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L7,3 z" fill="#d97706" />
-        </marker>
-        <filter id="lrGlow">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        <filter id="lrSoftGlow">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-        {/* Z-scheme master path: H2O(OEC) → PS II → PQ → Cyt b6f → PC → PS I → Fd → NADP-R */}
-        <path id="zSchemePath"
-          d="M 178 270 L 178 240 L 178 210 C 178 195 210 188 248 188 C 286 188 310 178 348 170 C 386 162 420 158 450 158 C 480 158 520 168 548 178 C 576 188 600 196 628 196 C 656 196 680 188 710 168 C 740 148 760 138 790 130 C 810 125 830 122 850 118"
-          fill="none" stroke="none" />
-        {/* Cyclic path: PS I → Fd → PQ → Cyt b6f → PC → PS I */}
-        <path id="cyclicPath"
-          d="M 790 130 C 810 115 830 108 845 105 C 860 102 865 110 855 130 C 840 158 800 170 750 175 C 700 180 640 185 600 192 C 560 200 530 208 500 215 C 470 222 448 228 440 240 C 432 252 445 265 465 268 C 490 272 530 265 570 255 C 610 245 660 230 710 215 C 740 205 770 195 790 185 C 810 175 820 160 810 148 C 800 136 790 130 790 130"
-          fill="none" stroke="none" />
-      </defs>
-
-      {/* ════════ BAND 1 – HEADER ════════ */}
-      <rect width="880" height="42" rx="14" fill="#0f4c2a" />
-      <rect y="28" width="880" height="14" fill="#0f4c2a" />
-      <text x="440" y="27" textAnchor="middle" fontSize="16" fontWeight="900" fill="#ffffff" letterSpacing="0.4">
-        Light Reactions in Thylakoid Membrane — Z-Scheme &amp; Chemiosmosis
-      </text>
-
-      {/* ════════ BAND 3 – STROMA (y 42–198) ════════ */}
-      <rect x="0" y="42" width="880" height="156" fill="#dbeafe" opacity="0.55" />
-      <rect x="0" y="42" width="880" height="156" fill="none" />
-      <text x="12" y="62" fontSize="13" fontWeight="900" fill="#1e3a8a">STROMA</text>
-      <text x="12" y="76" fontSize="9" fontWeight="700" fill="#3b82f6">(low H⁺ · high pH)</text>
-
-      {/* ════════ BAND 4 – THYLAKOID MEMBRANE (y 198–282) ════════ */}
-      {/* Lipid bilayer */}
-      <rect x="0" y="198" width="880" height="84" fill="#86efac" stroke="#15803d" strokeWidth="2" />
-      {/* Outer leaflet */}
-      <rect x="0" y="198" width="880" height="16" fill="#bbf7d0" opacity="0.9" />
-      {/* Inner leaflet */}
-      <rect x="0" y="268" width="880" height="14" fill="#bbf7d0" opacity="0.9" />
-      <text x="12" y="243" fontSize="11" fontWeight="900" fill="#166534">THYLAKOID MEMBRANE</text>
-
-      {/* ════════ BAND 5 – LUMEN (y 282–430) ════════ */}
-      <rect x="0" y="282" width="880" height="148" fill="#fef3c7" opacity="0.85" />
-      <text x="12" y="302" fontSize="13" fontWeight="900" fill="#92400e">LUMEN</text>
-      <text x="12" y="316" fontSize="9" fontWeight="700" fill="#b45309">(high H⁺ · low pH)</text>
-
-      {/* ════════ EMBEDDED COMPLEXES IN MEMBRANE ════════ */}
-      {/* --- PS II (x=120-220) --- */}
-      <PSIIComplex x={120} y={198} ps2Active={ps2Active} lightOn={lightOn} />
-
-      {/* --- PQ mobile carrier (x=248 in membrane) --- */}
-      <PQCarrier x={295} y={222} active={ps2Active && lightOn} electronDur={electronDur} />
-
-      {/* --- Cyt b6f (x=360-440) --- */}
-      <CytB6fComplex x={368} y={198} active={ps2Active && lightOn} electronDur={electronDur} />
-
-      {/* --- PC mobile carrier --- */}
-      <PCCarrier x={488} y={268} active={(ps2Active || cyclicMode) && lightOn} electronDur={electronDur} />
-
-      {/* --- PS I (x=540-640) --- */}
-      <PSIComplex x={548} y={198} ps1Active={ps1Active} lightOn={lightOn} />
-
-      {/* --- Fd in stroma --- */}
-      <FerredoxinNode x={670} y={148} active={ps1Active && lightOn && !cyclicMode} />
-
-      {/* --- NADP+ reductase --- */}
-      {!cyclicMode && <NadpReductase x={740} y={100} active={ps1Active && lightOn} nadphCount={nadphCount} />}
-
-      {/* --- ATP Synthase (CF0+CF1) --- */}
-      <AtpSynthaseComplex x={818} y={198} cf0Open={cf0Open} flowing={flowing} cf1SpinDur={cf1SpinDur} atpCount={atpCount} adpPresent={true} />
-
-      {/* ════════ Z-SCHEME ELECTRON PATH ════════ */}
-      {/* Base path line (always visible as guide) */}
-      <path d="M 178 255 C 178 230 200 210 248 205 C 310 198 360 178 420 165 C 480 152 520 158 560 168 C 600 178 640 192 680 170 C 720 148 760 134 800 122"
-        fill="none" stroke="#2563eb" strokeWidth="2.5" strokeDasharray="6 4" opacity="0.35" markerEnd="url(#lrArrB)" />
-
-      {/* Electron sparks along the Z-path */}
-      {(ps2Active && lightOn) && Array.from({ length: Math.min(photonCount + 1, 5) }).map((_, i) => (
-        <React.Fragment key={`e-${i}`}>
-          <circle r="7" fill="#93c5fd" stroke="#2563eb" strokeWidth="2" filter="url(#lrGlow)" opacity="0.95">
-            <animateMotion dur={`${electronDur + i * 0.35}s`} begin={`${i * 0.55}s`} repeatCount="indefinite">
-              <mpath href="#zSchemePath" />
-            </animateMotion>
-          </circle>
-          <text fontSize="7" fontWeight="900" fill="#1e3a8a" textAnchor="middle" dy="2.5">
-            e⁻
-            <animateMotion dur={`${electronDur + i * 0.35}s`} begin={`${i * 0.55}s`} repeatCount="indefinite">
-              <mpath href="#zSchemePath" />
-            </animateMotion>
-          </text>
-        </React.Fragment>
-      ))}
-
-      {/* Cyclic electron loop */}
-      {cyclicMode && lightOn && Array.from({ length: 3 }).map((_, i) => (
-        <React.Fragment key={`ce-${i}`}>
-          <circle r="6" fill="#c084fc" stroke="#7c3aed" strokeWidth="2" filter="url(#lrGlow)" opacity="0.9">
-            <animateMotion dur={`${3.2 + i * 0.4}s`} begin={`${i * 0.9}s`} repeatCount="indefinite">
-              <mpath href="#cyclicPath" />
-            </animateMotion>
-          </circle>
-        </React.Fragment>
-      ))}
-
-      {/* ════════ PHOTON BEAMS ════════ */}
-      {/* Sun */}
-      <SunIcon x={28} y={52} lightOn={lightOn} />
-
-      {/* PS II photon beams */}
-      {(ps2Active && lightOn) && Array.from({ length: photonCount }).map((_, i) => (
-        <React.Fragment key={`ph2-${i}`}>
-          <PhotonBeam
-            x1={80 + i * 22} y1={58}
-            x2={145 + (i % 3) * 18} y2={198}
-            color={wavelength === 680 ? '#f97316' : '#fb923c'}
-            dur={photonDur + i * 0.18}
-            begin={i * (photonDur / photonCount)}
-          />
-        </React.Fragment>
-      ))}
-
-      {/* PS I photon beams */}
-      {(ps1Active && lightOn) && Array.from({ length: Math.max(1, photonCount - 1) }).map((_, i) => (
-        <React.Fragment key={`ph1-${i}`}>
-          <PhotonBeam
-            x1={560 + i * 22} y1={58}
-            x2={575 + (i % 3) * 18} y2={198}
-            color="#dc2626"
-            dur={photonDur + i * 0.2}
-            begin={i * (photonDur / photonCount) + 0.3}
-          />
-        </React.Fragment>
-      ))}
-
-      {/* ════════ WATER SPLITTING / O2 BUBBLES ════════ */}
-      {ps2Active && lightOn && (
-        <WaterSplitter x={168} y={335} oxygenCount={oxygenCount} />
-      )}
-
-      {/* ════════ H+ PROTON POOL IN LUMEN ════════ */}
-      <ProtonPool lumenProtons={protonCount} flowing={flowing} />
-
-      {/* ════════ PROTON FLOW THROUGH CF0 ════════ */}
-      {flowing && Array.from({ length: 4 }).map((_, i) => (
-        <React.Fragment key={`pf-${i}`}>
-          <circle r="7" fill="#fbbf24" stroke="#92400e" strokeWidth="2" filter="url(#lrGlow)">
-            <animateMotion dur={`${0.9 + i * 0.2}s`} begin={`${i * 0.22}s`} repeatCount="indefinite"
-              path="M 826 380 C 826 350 826 320 826 290 C 826 270 826 250 826 230" />
-          </circle>
-          <text fontSize="6" fontWeight="900" fill="#92400e" textAnchor="middle" dy="2.5">
-            H⁺
-            <animateMotion dur={`${0.9 + i * 0.2}s`} begin={`${i * 0.22}s`} repeatCount="indefinite"
-              path="M 826 380 C 826 350 826 320 826 290 C 826 270 826 250 826 230" />
-          </text>
-        </React.Fragment>
-      ))}
-
-      {/* ════════ BAND 2 – LABELS IN STROMA ════════ */}
-      {/* Light wavelength chip */}
-      <rect x="220" y="48" width="130" height="22" rx="8" fill="white" stroke="#d97706" strokeWidth="1.5" />
-      <text x="285" y="63" textAnchor="middle" fontSize="10" fontWeight="800" fill="#92400e">
-        {wavelength === 'both' ? '680 + 700 nm' : `${wavelength} nm light`}
-      </text>
-
-      {/* Cyclic mode label */}
-      {cyclicMode && (
-        <g>
-          <rect x="370" y="48" width="130" height="22" rx="8" fill="#f3e8ff" stroke="#7c3aed" strokeWidth="1.5" />
-          <text x="435" y="63" textAnchor="middle" fontSize="10" fontWeight="800" fill="#7c3aed">↻ Cyclic Flow ON</text>
-        </g>
-      )}
-
-      {/* ════════ pH METER (embedded in lumen) ════════ */}
-      <EmbeddedPHMeter x={14} y={370} pH={pH} />
-
-      {/* ════════ MAKE ATP FAILURE FLASH ════════ */}
-      {makeAttempted && (
-        <g>
-          <rect x="220" y="148" width="300" height="36" rx="12" fill="#fee2e2" stroke="#ef4444" strokeWidth="2.5">
-            <animate attributeName="opacity" values="1;0.3;1" dur="0.5s" repeatCount="3" />
-          </rect>
-          <text x="370" y="170" textAnchor="middle" fontSize="12" fontWeight="900" fill="#991b1b">
-            ❌ Gate closed — no H⁺ flow — no ATP!
-            <animate attributeName="opacity" values="1;0.3;1" dur="0.5s" repeatCount="3" />
-          </text>
-        </g>
-      )}
-
-      {/* ════════ BAND 6 – OUTPUT METERS (y 430–500) ════════ */}
-      <rect x="0" y="430" width="880" height="70" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
-
-      {/* O2 meter */}
-      <text x="20" y="450" fontSize="10" fontWeight="900" fill="#0369a1">O₂ released</text>
-      <rect x="20" y="454" width="160" height="14" rx="6" fill="#dbeafe" stroke="#93c5fd" strokeWidth="1.5" />
-      <rect x="22" y="456" width={Math.max(0, (oxygenCount / 8) * 156)} height="10" rx="5" fill="#38bdf8">
-        <animate attributeName="width" values={`${Math.max(0, (oxygenCount / 8) * 156)};${Math.max(4, (oxygenCount / 8) * 156 + 4)};${Math.max(0, (oxygenCount / 8) * 156)}`} dur="1.6s" repeatCount="indefinite" />
-      </rect>
-      <text x="185" y="464" fontSize="9" fontWeight="800" fill="#0369a1">{oxygenCount} O₂</text>
-
-      {/* H+ meter */}
-      <text x="220" y="450" fontSize="10" fontWeight="900" fill="#b45309">H⁺ in Lumen</text>
-      <rect x="220" y="454" width="160" height="14" rx="6" fill="#fef3c7" stroke="#fbbf24" strokeWidth="1.5" />
-      <rect x="222" y="456" width={Math.max(0, (lumenProtons / 20) * 156)} height="10" rx="5" fill="#f59e0b">
-        <animate attributeName="opacity" values="1;0.7;1" dur="1.2s" repeatCount="indefinite" />
-      </rect>
-      <text x="385" y="464" fontSize="9" fontWeight="800" fill="#b45309">{lumenProtons}/20</text>
-
-      {/* ATP meter */}
-      <text x="420" y="450" fontSize="10" fontWeight="900" fill="#4c1d95">ATP synthesized</text>
-      <rect x="420" y="454" width="160" height="14" rx="6" fill="#ede9fe" stroke="#a78bfa" strokeWidth="1.5" />
-      <rect x="422" y="456" width={Math.min(156, atpCount * 14)} height="10" rx="5" fill="#8b5cf6">
-        <animate attributeName="width" values={`${Math.min(156, atpCount * 14)};${Math.min(160, atpCount * 14 + 4)};${Math.min(156, atpCount * 14)}`} dur="1.8s" repeatCount="indefinite" />
-      </rect>
-      <text x="585" y="464" fontSize="9" fontWeight="800" fill="#4c1d95">{atpCount} ATP</text>
-
-      {/* NADPH meter */}
-      <text x="620" y="450" fontSize="10" fontWeight="900" fill="#0369a1">NADPH</text>
-      <rect x="620" y="454" width="160" height="14" rx="6" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
-      <rect x="622" y="456" width={Math.min(156, (cyclicMode ? 0 : nadphCount) * 18)} height="10" rx="5" fill="#3b82f6">
-        <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite" />
-      </rect>
-      <text x="785" y="464" fontSize="9" fontWeight="800" fill="#0369a1">{cyclicMode ? 0 : nadphCount} NADPH</text>
-
-      {/* pH readout */}
-      <text x="20" y="488" fontSize="10" fontWeight="900" fill={pH <= 5 ? '#dc2626' : '#166534'}>
-        Lumen pH: {pH.toFixed(1)}  {pH <= 5 ? '⚠ Very acidic — gradient built!' : pH >= 6.5 ? '✓ Neutral — gradient discharged' : 'pH dropping...'}
-      </text>
-      <text x="440" y="488" fontSize="10" fontWeight="900" fill="#64748b">
-        {cf0Open ? '✓ CF₀ open — H⁺ flowing through ATP synthase' : '✗ CF₀ closed — H⁺ cannot flow'}
-      </text>
-    </svg>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   PS II COMPLEX  (embedded in membrane, with OEC below)
-══════════════════════════════════════════════════════ */
-const PSIIComplex = ({ x, y, ps2Active, lightOn }: { x: number; y: number; ps2Active: boolean; lightOn: boolean }) => {
-  const active = ps2Active && lightOn;
-  return (
-    <g>
-      {/* Main body in membrane */}
-      <rect x={x} y={y} width="100" height="84" rx="14" fill={active ? '#fef3c7' : '#dcfce7'} stroke={active ? '#f59e0b' : '#16a34a'} strokeWidth="2.5" />
-      <text x={x + 50} y={y + 20} textAnchor="middle" fontSize="11" fontWeight="900" fill="#166534">PS II</text>
-      {/* P680 reaction center */}
-      <circle cx={x + 50} cy={y + 44} r="18" fill={active ? '#fde68a' : '#bbf7d0'} stroke={active ? '#f59e0b' : '#22c55e'} strokeWidth="2">
-        {active && <animate attributeName="r" values="18;21;18" dur="0.8s" repeatCount="indefinite" />}
-      </circle>
-      <text x={x + 50} y={y + 48} textAnchor="middle" fontSize="10" fontWeight="900" fill="#14532d">P680</text>
-      {/* Glow when active */}
-      {active && <circle cx={x + 50} cy={y + 44} r="22" fill="none" stroke="#f59e0b" strokeWidth="3" opacity="0.4">
-        <animate attributeName="r" values="22;28;22" dur="0.8s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="0.8s" repeatCount="indefinite" />
-      </circle>}
-      {/* OEC on lumen side */}
-      <rect x={x + 20} y={y + 84} width="60" height="28" rx="8" fill="#dbeafe" stroke="#2563eb" strokeWidth="1.5" />
-      <text x={x + 50} y={y + 97} textAnchor="middle" fontSize="9" fontWeight="900" fill="#1e3a8a">OEC</text>
-      <text x={x + 50} y={y + 108} textAnchor="middle" fontSize="7" fontWeight="700" fill="#2563eb">(Mn cluster)</text>
-      {/* Label below */}
-      <text x={x + 50} y={y + 75} textAnchor="middle" fontSize="8" fontWeight="800" fill="#166534">P680→e⁻+H⁺</text>
-    </g>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   PQ MOBILE CARRIER
-══════════════════════════════════════════════════════ */
-const PQCarrier = ({ x, y, active, electronDur }: { x: number; y: number; active: boolean; electronDur: number }) => (
-  <g>
-    <ellipse cx={x} cy={y} rx="22" ry="14" fill={active ? '#fef08a' : '#e2e8f0'} stroke={active ? '#ca8a04' : '#94a3b8'} strokeWidth="2">
-      {active && <animate attributeName="cx" values={`${x};${x + 30};${x}`} dur={`${electronDur * 0.9}s`} repeatCount="indefinite" />}
-    </ellipse>
-    <text x={x} y={y + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#78350f">PQ</text>
-    {active && <text x={x} y={y + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#78350f">
-      <animate attributeName="x" values={`${x};${x + 30};${x}`} dur={`${electronDur * 0.9}s`} repeatCount="indefinite" />
-      PQ
-    </text>}
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   CYT B6F COMPLEX  (the H+ pump)
-══════════════════════════════════════════════════════ */
-const CytB6fComplex = ({ x, y, active, electronDur }: { x: number; y: number; active: boolean; electronDur: number }) => (
-  <g>
-    <rect x={x} y={y} width="90" height="84" rx="12" fill={active ? '#fef9c3' : '#dcfce7'} stroke={active ? '#ca8a04' : '#16a34a'} strokeWidth="2.5" />
-    <text x={x + 45} y={y + 18} textAnchor="middle" fontSize="10" fontWeight="900" fill="#166534">Cyt b₆f</text>
-    <text x={x + 45} y={y + 32} textAnchor="middle" fontSize="8" fontWeight="800" fill="#b45309">H⁺ PUMP</text>
-    {/* pump arrow */}
-    <path d={`M ${x + 45} ${y + 78} L ${x + 45} ${y + 50}`} fill="none" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#lrArrO)" />
-    {/* animated H+ being pumped */}
-    {active && (
-      <circle r="6" fill="#fbbf24" stroke="#92400e" strokeWidth="1.5">
-        <animateMotion dur={`${electronDur * 0.7}s`} begin="0s" repeatCount="indefinite"
-          path={`M ${x + 45} ${y + 78} C ${x + 45} ${y + 60} ${x + 45} ${y + 48} ${x + 45} ${y + 40}`} />
-      </circle>
-    )}
-    <text x={x + 45} y={y + 75} textAnchor="middle" fontSize="8" fontWeight="700" fill="#1a7a3a">stroma→lumen</text>
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   PC MOBILE CARRIER
-══════════════════════════════════════════════════════ */
-const PCCarrier = ({ x, y, active, electronDur }: { x: number; y: number; active: boolean; electronDur: number }) => (
-  <g>
-    <ellipse cx={x} cy={y} rx="20" ry="12" fill={active ? '#bfdbfe' : '#e2e8f0'} stroke={active ? '#2563eb' : '#94a3b8'} strokeWidth="1.5">
-      {active && <animate attributeName="cx" values={`${x};${x + 40};${x}`} dur={`${electronDur * 0.8}s`} repeatCount="indefinite" />}
-    </ellipse>
-    <text x={x} y={y + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#1e3a8a">PC</text>
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   PS I COMPLEX
-══════════════════════════════════════════════════════ */
-const PSIComplex = ({ x, y, ps1Active, lightOn }: { x: number; y: number; ps1Active: boolean; lightOn: boolean }) => {
-  const active = ps1Active && lightOn;
-  return (
-    <g>
-      <rect x={x} y={y} width="100" height="84" rx="14" fill={active ? '#fdf4ff' : '#dcfce7'} stroke={active ? '#a855f7' : '#16a34a'} strokeWidth="2.5" />
-      <text x={x + 50} y={y + 20} textAnchor="middle" fontSize="11" fontWeight="900" fill="#166534">PS I</text>
-      <circle cx={x + 50} cy={y + 44} r="18" fill={active ? '#e9d5ff' : '#bbf7d0'} stroke={active ? '#a855f7' : '#22c55e'} strokeWidth="2">
-        {active && <animate attributeName="r" values="18;21;18" dur="1.0s" repeatCount="indefinite" />}
-      </circle>
-      <text x={x + 50} y={y + 48} textAnchor="middle" fontSize="10" fontWeight="900" fill="#14532d">P700</text>
-      {active && <circle cx={x + 50} cy={y + 44} r="22" fill="none" stroke="#a855f7" strokeWidth="3" opacity="0.4">
-        <animate attributeName="r" values="22;28;22" dur="1.0s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="1.0s" repeatCount="indefinite" />
-      </circle>}
-      <text x={x + 50} y={y + 75} textAnchor="middle" fontSize="8" fontWeight="800" fill="#166534">P700→Fd</text>
-    </g>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   FERREDOXIN
-══════════════════════════════════════════════════════ */
-const FerredoxinNode = ({ x, y, active }: { x: number; y: number; active: boolean }) => (
-  <g>
-    <ellipse cx={x} cy={y} rx="26" ry="18" fill={active ? '#dbeafe' : '#f1f5f9'} stroke={active ? '#2563eb' : '#94a3b8'} strokeWidth="2">
-      {active && <animate attributeName="ry" values="18;22;18" dur="1.3s" repeatCount="indefinite" />}
-    </ellipse>
-    <text x={x} y={y - 4} textAnchor="middle" fontSize="9" fontWeight="900" fill="#1e3a8a">Fd</text>
-    <text x={x} y={y + 8} textAnchor="middle" fontSize="7" fontWeight="700" fill="#2563eb">(Ferredoxin)</text>
-    {active && <line x1={x} y1={y + 18} x2={x + 44} y2={y + 10} stroke="#2563eb" strokeWidth="2" strokeDasharray="3 2" markerEnd="url(#lrArrB)" />}
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   NADP+ REDUCTASE
-══════════════════════════════════════════════════════ */
-const NadpReductase = ({ x, y, active, nadphCount }: { x: number; y: number; active: boolean; nadphCount: number }) => (
-  <g>
-    <rect x={x} y={y} width="90" height="50" rx="10" fill={active ? '#d1fae5' : '#f1f5f9'} stroke={active ? '#059669' : '#94a3b8'} strokeWidth="2" />
-    <text x={x + 45} y={y + 16} textAnchor="middle" fontSize="9" fontWeight="900" fill="#065f46">NADP⁺</text>
-    <text x={x + 45} y={y + 28} textAnchor="middle" fontSize="9" fontWeight="900" fill="#065f46">reductase</text>
-    {/* NADP+ → NADPH conversion indicator */}
-    <rect x={x} y={y + 36} width={Math.min(88, nadphCount * 11)} height="10" rx="4" fill="#34d399">
-      {active && <animate attributeName="width" values={`${Math.min(88, nadphCount * 11)};${Math.min(88, nadphCount * 11 + 6)};${Math.min(88, nadphCount * 11)}`} dur="1.8s" repeatCount="indefinite" />}
-    </rect>
-    <text x={x + 45} y={y + 44} textAnchor="middle" fontSize="7" fontWeight="800" fill="#065f46">{nadphCount} NADPH</text>
-    {/* NADPH product label */}
-    {active && <text x={x + 45} y={y - 6} textAnchor="middle" fontSize="8" fontWeight="800" fill="#059669">NADP⁺→NADPH+H⁺</text>}
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   ATP SYNTHASE  (CF0 in membrane + CF1 head in stroma)
-══════════════════════════════════════════════════════ */
-const AtpSynthaseComplex = ({ x, y, cf0Open, flowing, cf1SpinDur, atpCount, adpPresent }: {
-  x: number; y: number; cf0Open: boolean; flowing: boolean; cf1SpinDur: number; atpCount: number; adpPresent: boolean;
-}) => {
-  const cx = x + 16; // center x of stalk
-  // CF1 head center
-  const cf1X = x + 16, cf1Y = y - 52;
-  return (
-    <g>
-      {/* CF0 channel (in membrane) */}
-      <rect x={x} y={y} width="32" height="84" rx="12" fill={cf0Open ? '#c4b5fd' : '#ddd6fe'} stroke="#6d28d9" strokeWidth="2.5" />
-      <text x={cx} y={y + 28} textAnchor="middle" fontSize="9" fontWeight="900" fill="#4c1d95">CF₀</text>
-      <text x={cx} y={y + 42} textAnchor="middle" fontSize="7" fontWeight="800" fill={cf0Open ? '#5b21b6' : '#7c3aed'}>{cf0Open ? 'OPEN' : 'closed'}</text>
-      {/* Gate door visual */}
-      <rect x={x + 4} y={y + 52} width="24" height="6" rx="2" fill={cf0Open ? '#a78bfa' : '#7c3aed'}>
-        {cf0Open && <animate attributeName="y" values={`${y + 52};${y + 58};${y + 52}`} dur="1s" repeatCount="1" />}
-      </rect>
-      <text x={cx} y={y + 70} textAnchor="middle" fontSize="7" fontWeight="800" fill="#6d28d9">H⁺ channel</text>
-
-      {/* CF0 label below */}
-      <text x={cx} y={y + 94} textAnchor="middle" fontSize="9" fontWeight="900" fill="#4c1d95">ATP synthase</text>
-
-      {/* Stalk */}
-      <rect x={cx - 4} y={y - 36} width="8" height="36" rx="3" fill="#8b5cf6" />
-
-      {/* CF1 head — rotating gear when flowing */}
-      <g transform={`translate(${cf1X} ${cf1Y})`}>
-        {/* Gear body */}
-        <polygon
-          points="-30,0 -24,-15 -10,-28 10,-28 24,-15 30,0 24,15 10,28 -10,28 -24,15"
-          fill={flowing ? '#ede9fe' : '#f5f3ff'}
-          stroke="#6d28d9" strokeWidth="2.5">
-          {flowing && (
-            <animateTransform attributeName="transform" type="rotate"
-              from="0 0 0" to="360 0 0"
-              dur={`${cf1SpinDur}s`} repeatCount="indefinite" />
-          )}
-        </polygon>
-        {/* Inner hub */}
-        <circle cx="0" cy="0" r="16" fill="white" stroke="#6d28d9" strokeWidth="2" />
-        {/* Three beta subunit sites (T→L→O conformational change) */}
-        {[0, 120, 240].map((angle, i) => {
-          const rad = (angle * Math.PI) / 180;
-          const bx = Math.cos(rad) * 10;
-          const by = Math.sin(rad) * 10;
-          const colors = ['#fbbf24', '#34d399', '#f87171'];
-          const labels = ['T', 'L', 'O'];
-          return (
-            <g key={i}>
-              <circle cx={bx} cy={by} r="5" fill={flowing ? colors[i] : '#e2e8f0'} stroke="#6d28d9" strokeWidth="1">
-                {flowing && <animate attributeName="fill" values={`${colors[i]};${colors[(i + 1) % 3]};${colors[(i + 2) % 3]};${colors[i]}`}
-                  dur={`${cf1SpinDur * 1}s`} repeatCount="indefinite" />}
-              </circle>
-              <text x={bx} y={by + 3} textAnchor="middle" fontSize="4" fontWeight="900" fill="#4c1d95">{labels[i]}</text>
-            </g>
-          );
-        })}
-        {/* CF1 label */}
-        <text x="0" y="0" textAnchor="middle" fontSize="8" fontWeight="900" fill="#4c1d95" dy="3">CF₁</text>
-      </g>
-
-      {/* ADP + Pi token near CF1 head */}
-      {adpPresent && (
-        <g>
-          <rect x={x + 36} y={cf1Y - 14} width="52" height="20" rx="8" fill="#ecfeff" stroke="#0891b2" strokeWidth="1.5" />
-          <text x={x + 62} y={cf1Y - 1} textAnchor="middle" fontSize="8" fontWeight="900" fill="#155e75">ADP + Pᵢ</text>
-        </g>
-      )}
-
-      {/* ATP product bubble */}
-      {atpCount > 0 && (
-        <g>
-          <circle cx={x + 70} cy={cf1Y - 26} r="14" fill="#a7f3d0" stroke="#047857" strokeWidth="2">
-            <animate attributeName="r" values="14;17;14" dur="1.4s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="1;0.7;1" dur="1.4s" repeatCount="indefinite" />
-          </circle>
-          <text x={x + 70} y={cf1Y - 22} textAnchor="middle" fontSize="9" fontWeight="900" fill="#064e3b">ATP</text>
-          <text x={x + 70} y={cf1Y - 12} textAnchor="middle" fontSize="8" fontWeight="700" fill="#065f46">×{Math.min(atpCount, 99)}</text>
-        </g>
-      )}
-    </g>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   PHOTON BEAM  (animated streak)
-══════════════════════════════════════════════════════ */
-const PhotonBeam = ({ x1, y1, x2, y2, color, dur, begin }: {
-  x1: number; y1: number; x2: number; y2: number; color: string; dur: number; begin: number;
-}) => (
-  <g>
-    <circle r="5" fill={color} opacity="0.95" filter="url(#lrSoftGlow)">
-      <animateMotion dur={`${dur}s`} begin={`${begin}s`} repeatCount="indefinite"
-        path={`M ${x1} ${y1} L ${x2} ${y2}`} />
-    </circle>
-    {/* Trail */}
-    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="1.5" opacity="0.15" strokeDasharray="4 4" />
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   SUN ICON
-══════════════════════════════════════════════════════ */
-const SunIcon = ({ x, y, lightOn }: { x: number; y: number; lightOn: boolean }) => (
-  <g transform={`translate(${x} ${y})`}>
-    <circle cx="0" cy="0" r="22" fill={lightOn ? '#fde68a' : '#e2e8f0'} stroke={lightOn ? '#f59e0b' : '#94a3b8'} strokeWidth="2.5">
-      {lightOn && <animate attributeName="r" values="22;26;22" dur="1.2s" repeatCount="indefinite" />}
-    </circle>
-    {lightOn && [0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
-      const rad = (angle * Math.PI) / 180;
-      return (
-        <line key={i}
-          x1={Math.cos(rad) * 24} y1={Math.sin(rad) * 24}
-          x2={Math.cos(rad) * 32} y2={Math.sin(rad) * 32}
-          stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round">
-          <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
-        </line>
-      );
-    })}
-    <text x="0" y="5" textAnchor="middle" fontSize="10" fontWeight="900" fill={lightOn ? '#92400e' : '#64748b'}>☀</text>
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   WATER SPLITTER / OEC
-══════════════════════════════════════════════════════ */
-const WaterSplitter = ({ x, y, oxygenCount }: { x: number; y: number; oxygenCount: number }) => (
-  <g>
-    {/* H2O molecules */}
-    {[0, 1].map(i => (
-      <g key={i}>
-        <circle cx={x + i * 30} cy={y} r="14" fill="#bfdbfe" stroke="#2563eb" strokeWidth="2">
-          <animate attributeName="r" values="14;11;14" dur={`${1.2 + i * 0.3}s`} begin={`${i * 0.5}s`} repeatCount="indefinite" />
-          <animate attributeName="opacity" values="1;0.6;1" dur={`${1.2 + i * 0.3}s`} begin={`${i * 0.5}s`} repeatCount="indefinite" />
-        </circle>
-        <text x={x + i * 30} y={y + 4} textAnchor="middle" fontSize="9" fontWeight="900" fill="#1e3a8a">H₂O</text>
-      </g>
-    ))}
-    {/* Splitting arrow */}
-    <text x={x + 70} y={y + 5} fontSize="14" fontWeight="900" fill="#2563eb">→</text>
-    <text x={x + 90} y={y - 6} fontSize="9" fontWeight="800" fill="#b45309">4H⁺</text>
-    <text x={x + 90} y={y + 6} fontSize="9" fontWeight="800" fill="#0369a1">+ O₂</text>
-    <text x={x + 90} y={y + 16} fontSize="9" fontWeight="800" fill="#2563eb">+ 4e⁻</text>
-    {/* O2 bubbles */}
-    {Array.from({ length: Math.min(oxygenCount, 5) }).map((_, i) => (
-      <React.Fragment key={`o2-${i}`}>
-        <circle r="8" fill="#bfdbfe" stroke="#0369a1" strokeWidth="1.5" opacity="0.85">
-          <animateMotion dur={`${1.4 + i * 0.2}s`} begin={`${i * 0.35}s`} repeatCount="indefinite"
-            path={`M ${x + 152 + i * 16} ${y} C ${x + 148 + i * 16} ${y - 30} ${x + 145 + i * 16} ${y - 55} ${x + 142 + i * 16} ${y - 80}`} />
-        </circle>
-        <text fontSize="7" fontWeight="900" fill="#0369a1" textAnchor="middle" dy="2.5">
-          O₂
-          <animateMotion dur={`${1.4 + i * 0.2}s`} begin={`${i * 0.35}s`} repeatCount="indefinite"
-            path={`M ${x + 152 + i * 16} ${y} C ${x + 148 + i * 16} ${y - 30} ${x + 145 + i * 16} ${y - 55} ${x + 142 + i * 16} ${y - 80}`} />
-        </text>
-      </React.Fragment>
-    ))}
-    {/* H+ ions moving toward lumen */}
-    {[0, 1, 2].map(i => (
-      <React.Fragment key={`wh-${i}`}>
-        <circle r="6" fill="#fbbf24" stroke="#92400e" strokeWidth="1.5">
-          <animateMotion dur={`${0.9 + i * 0.25}s`} begin={`${i * 0.3}s`} repeatCount="indefinite"
-            path={`M ${x + i * 22} ${y + 14} L ${x + i * 22 + 10} ${y + 50}`} />
-        </circle>
-        <text fontSize="6" fontWeight="900" fill="#92400e" textAnchor="middle" dy="2.5">
-          H⁺
-          <animateMotion dur={`${0.9 + i * 0.25}s`} begin={`${i * 0.3}s`} repeatCount="indefinite"
-            path={`M ${x + i * 22} ${y + 14} L ${x + i * 22 + 10} ${y + 50}`} />
-        </text>
-      </React.Fragment>
-    ))}
-  </g>
-);
-
-/* ══════════════════════════════════════════════════════
-   PROTON POOL  (Brownian H+ in lumen)
-══════════════════════════════════════════════════════ */
-const ProtonPool = ({ lumenProtons, flowing }: { lumenProtons: number; flowing: boolean }) => {
-  const positions = useMemo(() => Array.from({ length: lumenProtons }, (_, i) => ({
-    x: 350 + (i % 9) * 52,
-    y: 318 + Math.floor(i / 9) * 36,
-    dx: (Math.random() - 0.5) * 18,
-    dy: (Math.random() - 0.5) * 12,
-    dur: 0.8 + (i % 5) * 0.22,
-  })), [lumenProtons]);
-
-  return (
-    <g>
-      {positions.map((p, i) => (
-        <React.Fragment key={`h-${i}`}>
-          <circle cx={p.x} cy={p.y} r="10" fill="#fbbf24" stroke="#92400e" strokeWidth="1.5" filter="url(#lrGlow)" opacity="0.9">
-            <animate attributeName="cx" values={`${p.x};${p.x + p.dx};${p.x - p.dx * 0.5};${p.x}`} dur={`${p.dur}s`} repeatCount="indefinite" />
-            <animate attributeName="cy" values={`${p.y};${p.y + p.dy};${p.y - p.dy * 0.5};${p.y}`} dur={`${p.dur}s`} repeatCount="indefinite" />
-            {flowing && <animate attributeName="opacity" values="0.9;0.5;0.9" dur="0.6s" repeatCount="indefinite" />}
-          </circle>
-          <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize="8" fontWeight="900" fill="#78350f">
-            H⁺
-            <animate attributeName="x" values={`${p.x};${p.x + p.dx};${p.x - p.dx * 0.5};${p.x}`} dur={`${p.dur}s`} repeatCount="indefinite" />
-            <animate attributeName="y" values={`${p.y + 4};${p.y + p.dy + 4};${p.y - p.dy * 0.5 + 4};${p.y + 4}`} dur={`${p.dur}s`} repeatCount="indefinite" />
-          </text>
-        </React.Fragment>
-      ))}
-    </g>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   EMBEDDED pH METER  (digital LCD in lumen)
-══════════════════════════════════════════════════════ */
-const EmbeddedPHMeter = ({ x, y, pH }: { x: number; y: number; pH: number }) => {
-  const critical = pH <= 5;
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      {/* LCD screen */}
-      <rect x="0" y="0" width="120" height="52" rx="8" fill={critical ? '#1a0000' : '#001a00'} stroke={critical ? '#ef4444' : '#22c55e'} strokeWidth="2">
-        {critical && <animate attributeName="stroke" values="#ef4444;#fca5a5;#ef4444" dur="0.8s" repeatCount="indefinite" />}
-      </rect>
-      <text x="8" y="14" fontSize="9" fontWeight="900" fill="#6ee7b7">pH METER (Lumen)</text>
-      {/* Digital readout */}
-      <text x="60" y="38" textAnchor="middle" fontSize="22" fontWeight="900"
-        fill={critical ? '#ef4444' : '#4ade80'} fontFamily="monospace">
-        {pH.toFixed(1)}
-        {critical && <animate attributeName="fill" values="#ef4444;#fca5a5;#ef4444" dur="0.8s" repeatCount="indefinite" />}
-      </text>
-      {/* Status text */}
-      <text x="60" y="50" textAnchor="middle" fontSize="7" fontWeight="800" fill={critical ? '#fca5a5' : '#86efac'}>
-        {critical ? '▼ ACIDIC — gradient built!' : '● normal'}
-      </text>
-    </g>
-  );
-};
-
-/* ══════════════════════════════════════════════════════
-   UI HELPERS
-══════════════════════════════════════════════════════ */
-const MetricCard = ({ label, value, tone }: { label: string; value: string; tone: string }) => (
-  <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 min-w-0">
-    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</div>
-    <div className={`mt-1 text-xs md:text-sm font-bold break-words ${tone}`}>{value}</div>
-  </div>
-);
-
-const InfoCard = ({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm text-xs md:text-sm text-slate-600 leading-relaxed">
-    <div className="flex items-center gap-2 text-slate-900 font-bold mb-2">{icon}{title}</div>
-    {children}
-  </div>
-);
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 export default PhotosynthesisLightReactionLab;

@@ -10,7 +10,6 @@ import {
     Microscope,
     Pause,
     Play,
-    PieChart,
     RotateCcw,
     ScanEye,
     Shuffle,
@@ -416,15 +415,28 @@ const BiomoleculesLab: React.FC<BiomoleculesLabProps> = ({ topic, onExit }) => {
         </div>
     );
 
+    const showActionControls = mode !== 'composition';
+    const showSliderControls = mode !== 'composition';
+    const showDisplayControls = mode !== 'composition';
+    const controlGridClass = mode === 'composition'
+        ? 'grid gap-3 md:grid-cols-2'
+        : 'grid gap-3 md:grid-cols-2 xl:grid-cols-4';
+    const modeButtonGridClass = mode === 'composition'
+        ? 'grid grid-cols-2 gap-1.5 lg:grid-cols-5'
+        : 'grid grid-cols-2 gap-1.5';
+    const subButtonGridClass = mode === 'composition'
+        ? 'grid grid-cols-3 gap-1.5 lg:grid-cols-6'
+        : 'grid grid-cols-2 gap-1.5';
+
     const controlsCombo = (
         <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain bg-white text-slate-900">
             <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-slate-800">
                 <Beaker size={16} className="text-indigo-700" />
                 Biomolecules Bench
             </div>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+            <div className={controlGridClass}>
                 <ControlGroup icon={<Atom size={14} className="text-slate-700" />} label="Topic mode">
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className={modeButtonGridClass}>
                         {(Object.keys(MODE_META) as Mode[]).map((item) => (
                             <SegmentButton key={item} active={mode === item} color={MODE_META[item].color} onClick={() => handleMode(item)}>
                                 {MODE_META[item].label}
@@ -433,7 +445,7 @@ const BiomoleculesLab: React.FC<BiomoleculesLabProps> = ({ topic, onExit }) => {
                     </div>
                 </ControlGroup>
                 <ControlGroup icon={<Tag size={14} className="text-slate-700" />} label="Sub-molecule">
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className={subButtonGridClass}>
                         {subOptions(mode).map((item) => (
                             <SegmentButton key={item.id} active={activeSubId(mode, carbSub, lipidSub, aminoSub, baseSub, compositionSub) === item.id} color={MODE_META[mode].color} onClick={() => setSubByMode(item.id)}>
                                 {item.label}
@@ -453,59 +465,61 @@ const BiomoleculesLab: React.FC<BiomoleculesLabProps> = ({ topic, onExit }) => {
                         </div>
                     )}
                 </ControlGroup>
-                <ControlGroup icon={<Zap size={14} className="text-slate-700" />} label="Action">
-                    <div className="grid gap-1.5">
-                        {mode === 'carbs' && (
-                            <>
-                                <ActionButton icon={<Sprout size={13} />} onClick={() => handleAction('polymerise')}>Polymerise</ActionButton>
-                                <ActionButton icon={<FlaskConical size={13} />} onClick={() => handleAction('iodine')}>Add I2</ActionButton>
-                                <ActionButton icon={<Droplets size={13} />} onClick={() => handleAction('hydrolyse')}>Hydrolyse</ActionButton>
-                            </>
+                {showActionControls && (
+                    <ControlGroup icon={<Zap size={14} className="text-slate-700" />} label="Action">
+                        <div className="grid gap-1.5">
+                            {mode === 'carbs' && (
+                                <>
+                                    <ActionButton icon={<Sprout size={13} />} onClick={() => handleAction('polymerise')}>Polymerise</ActionButton>
+                                    <ActionButton icon={<FlaskConical size={13} />} onClick={() => handleAction('iodine')}>Add I2</ActionButton>
+                                    <ActionButton icon={<Droplets size={13} />} onClick={() => handleAction('hydrolyse')}>Hydrolyse</ActionButton>
+                                </>
+                            )}
+                            {mode === 'lipids' && (
+                                <>
+                                    <ActionButton icon={<Shuffle size={13} />} onClick={() => handleAction('esterify')}>Esterify</ActionButton>
+                                    <ActionButton icon={<Droplets size={13} />} onClick={() => handleAction('hydrolyse')}>Hydrolyse</ActionButton>
+                                </>
+                            )}
+                            {mode === 'proteins' && (
+                                <>
+                                    <ActionButton icon={<Zap size={13} />} onClick={() => handleAction('peptide')}>Peptide bond</ActionButton>
+                                    <div className="grid grid-cols-2 gap-1.5">
+                                        {PROTEIN_LEVELS.map((item) => (
+                                            <SegmentButton key={item} active={proteinLevel === item} color="#4f46e5" onClick={() => setProteinLevel(item)}>
+                                                {item.slice(0, 4)}
+                                            </SegmentButton>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                            {mode === 'nucleic' && (
+                                <>
+                                    <ActionButton icon={<Dna size={13} />} onClick={() => handleAction('assemble')}>Assemble</ActionButton>
+                                    <ActionButton icon={<Zap size={13} />} onClick={() => handleAction('nucleotide-poly')}>Polymerise</ActionButton>
+                                    <ActionButton icon={<Shuffle size={13} />} onClick={() => handleAction('rna-dna')}>RNA / DNA</ActionButton>
+                                </>
+                            )}
+                        </div>
+                    </ControlGroup>
+                )}
+                {showSliderControls && (
+                    <ControlGroup icon={<Waves size={14} className="text-slate-700" />} label={mode === 'proteins' ? 'pH' : 'Animation'}>
+                        {mode === 'proteins' ? (
+                            <SliderControl label="pH" value={pH.toString()} min="1" max="14" step="1" onChange={(value) => setPH(Number(value))} />
+                        ) : (
+                            <SliderControl label="Speed" value={speed.toFixed(2)} min="0.25" max="2" step="0.05" onChange={(value) => setSpeed(Number(value))} />
                         )}
-                        {mode === 'lipids' && (
-                            <>
-                                <ActionButton icon={<Shuffle size={13} />} onClick={() => handleAction('esterify')}>Esterify</ActionButton>
-                                <ActionButton icon={<Droplets size={13} />} onClick={() => handleAction('hydrolyse')}>Hydrolyse</ActionButton>
-                            </>
-                        )}
-                        {mode === 'proteins' && (
-                            <>
-                                <ActionButton icon={<Zap size={13} />} onClick={() => handleAction('peptide')}>Peptide bond</ActionButton>
-                                <div className="grid grid-cols-2 gap-1.5">
-                                    {PROTEIN_LEVELS.map((item) => (
-                                        <SegmentButton key={item} active={proteinLevel === item} color="#4f46e5" onClick={() => setProteinLevel(item)}>
-                                            {item.slice(0, 4)}
-                                        </SegmentButton>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                        {mode === 'nucleic' && (
-                            <>
-                                <ActionButton icon={<Dna size={13} />} onClick={() => handleAction('assemble')}>Assemble</ActionButton>
-                                <ActionButton icon={<Zap size={13} />} onClick={() => handleAction('nucleotide-poly')}>Polymerise</ActionButton>
-                                <ActionButton icon={<Shuffle size={13} />} onClick={() => handleAction('rna-dna')}>RNA / DNA</ActionButton>
-                            </>
-                        )}
-                        {mode === 'composition' && (
-                            <ActionButton icon={<PieChart size={13} />} onClick={() => handleMode('carbs')}>Explore molecules</ActionButton>
-                        )}
-                    </div>
-                </ControlGroup>
-                <ControlGroup icon={<Waves size={14} className="text-slate-700" />} label="Slider">
-                    {mode === 'proteins' ? (
-                        <SliderControl label="pH" value={pH.toString()} min="1" max="14" step="1" onChange={(value) => setPH(Number(value))} />
-                    ) : (
-                        <SliderControl label="Speed" value={speed.toFixed(2)} min="0.25" max="2" step="0.05" onChange={(value) => setSpeed(Number(value))} />
-                    )}
-                </ControlGroup>
-                <ControlGroup icon={<ScanEye size={14} className="text-slate-700" />} label="Display">
-                    <div className="grid gap-1.5">
-                        <SegmentButton active={labels} color="#0f766e" onClick={() => setLabels((s) => !s)}>Labels</SegmentButton>
-                        <SegmentButton active={callouts} color="#475569" onClick={() => setCallouts((s) => !s)}>NCERT callout</SegmentButton>
-                        <SegmentButton active={mode === 'composition'} color="#64748b" onClick={() => handleMode('composition')}>Composition</SegmentButton>
-                    </div>
-                </ControlGroup>
+                    </ControlGroup>
+                )}
+                {showDisplayControls && (
+                    <ControlGroup icon={<ScanEye size={14} className="text-slate-700" />} label="Display">
+                        <div className="grid gap-1.5">
+                            <SegmentButton active={labels} color="#0f766e" onClick={() => setLabels((s) => !s)}>Labels</SegmentButton>
+                            <SegmentButton active={callouts} color="#475569" onClick={() => setCallouts((s) => !s)}>NCERT callout</SegmentButton>
+                        </div>
+                    </ControlGroup>
+                )}
             </div>
             <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-600">
                 Ref: Ch 9 - Fig 9.1 / 9.2 / 9.3 - Table 9.4

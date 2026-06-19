@@ -222,6 +222,38 @@ const SigmaPiBondsLab: React.FC<Props> = ({ topic, onExit }) => {
             ctx.restore();
         };
 
+        // Foreshortened lobe used for the 2py orbital (axis into the page).
+        // near = true draws the lobe coming toward the viewer (larger), false = receding.
+        const drawLobeDepth = (lobeAng: number, color: string, sign: '+' | '-', near: boolean) => {
+            const lobeR = near ? 56 : 44;   // depth foreshortening
+            const lobeW = near ? 40 : 32;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(lobeAng);
+            ctx.translate(lobeR * 0.55, 0);
+
+            const grad = ctx.createRadialGradient(0, 0, 4, 0, 0, lobeR);
+            grad.addColorStop(0, color + (near ? 'EE' : 'B0'));
+            grad.addColorStop(0.55, color + (near ? '90' : '60'));
+            grad.addColorStop(1, color + '00');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, lobeR, lobeW, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.setLineDash(near ? [] : [4, 3]);   // dashed edge = behind the plane
+            ctx.strokeStyle = color + '70';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.font      = 'bold 14px sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(sign, 0, 5);
+            ctx.textAlign = 'left';
+            ctx.restore();
+        };
+
         if (type === '2pz') {
             drawLobe(0,        posColor, '+');
             drawLobe(Math.PI,  negColor, '-');
@@ -229,21 +261,17 @@ const SigmaPiBondsLab: React.FC<Props> = ({ topic, onExit }) => {
             drawLobe(-Math.PI / 2, posColor, '+');
             drawLobe( Math.PI / 2, negColor, '-');
         } else {
+            // 2py points into the page (depth). It is still a two-lobed dumbbell
+            // like every p orbital — render it foreshortened along a diagonal so it
+            // reads as depth, NOT as a sphere/s-orbital.
+            drawLobeDepth(-Math.PI / 4, posColor, '+', true);   // lobe coming toward viewer
+            drawLobeDepth(3 * Math.PI / 4, negColor, '-', false); // lobe receding into page
             ctx.save();
             ctx.translate(x, y);
-            ctx.globalAlpha = 0.55;
-            const grad = ctx.createRadialGradient(0, 0, 4, 0, 0, 38);
-            grad.addColorStop(0, posColor + 'CC');
-            grad.addColorStop(1, posColor + '00');
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(0, 0, 38, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
             ctx.font      = 'bold 11px monospace';
             ctx.fillStyle = '#475569';
             ctx.textAlign = 'center';
-            ctx.fillText('2py (depth)', 0, 55);
+            ctx.fillText('2py (depth)', 0, 70);
             ctx.textAlign = 'left';
             ctx.restore();
         }

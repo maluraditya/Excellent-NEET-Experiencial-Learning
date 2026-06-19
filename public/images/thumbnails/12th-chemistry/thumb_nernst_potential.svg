@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Nernst cell potential thumbnail">
+  <rect width="640" height="360" rx="32" fill="#ecfdf5"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#065f46">Cell Potential &amp; Nernst</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">E = E° − (0.059/n) log Q</text>
+
+  <!-- two half cells -->
+  <g transform="translate(80 140)">
+    <!-- left beaker Zn -->
+    <path d="M0 30 H110 L98 170 H12 Z" fill="#fff" stroke="#047857" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M6 80 H104 L98 170 H12 Z" fill="#bbf7d0" opacity="0.7"/>
+    <rect x="44" y="-10" width="22" height="120" fill="#94a3b8"/>
+    <text x="55" y="196" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#065f46">Zn</text>
+
+    <!-- right beaker Cu -->
+    <g transform="translate(220 0)">
+      <path d="M0 30 H110 L98 170 H12 Z" fill="#fff" stroke="#047857" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M6 80 H104 L98 170 H12 Z" fill="#bfdbfe" opacity="0.7"/>
+      <rect x="44" y="-10" width="22" height="120" fill="#f97316"/>
+      <text x="55" y="196" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#065f46">Cu</text>
+    </g>
+
+    <!-- salt bridge -->
+    <path d="M55 -6 q110 -54 220 0" fill="none" stroke="#a16207" stroke-width="10" stroke-linecap="round"/>
+    <!-- wire + voltmeter -->
+    <circle cx="165" cy="-86" r="28" fill="#fff" stroke="#065f46" stroke-width="4"/>
+    <text x="165" y="-80" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="900" fill="#065f46">V</text>
+    <path d="M55 -10 V-86 H137" fill="none" stroke="#334155" stroke-width="3"/>
+    <path d="M275 -10 V-86 H193" fill="none" stroke="#334155" stroke-width="3"/>
+  </g>
+
+  <g transform="translate(420 300)">
+    <rect x="0" y="0" width="170" height="34" rx="17" fill="#fff" stroke="#6ee7b7" stroke-width="3"/>
+    <text x="85" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#065f46">ΔrG = −nFE</text>
+  </g>
+</svg>

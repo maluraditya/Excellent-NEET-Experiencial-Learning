@@ -32,6 +32,7 @@ const CARD_SUMMARIES: Record<string, string> = {
   'standing-waves': 'Drive waves to form nodes, antinodes, harmonics, and resonance patterns.',
   'hydrogen-spectrum': 'Fire photons at hydrogen and connect electron transitions with spectral lines.',
   'atomic-orbitals': 'Visualize orbital shapes, probability clouds, and radial and angular nodes.',
+  'electronic-configuration-exchange-energy': 'Fill orbitals step by step and see why half-filled and fully-filled subshells gain extra stability.',
   'vsepr-theory': 'Build molecules and see how electron-pair repulsion decides molecular geometry.',
   'sigma-pi-bonds': 'Compare head-on and sideways orbital overlap to understand sigma and pi bonds.',
   'isothermal-work': 'Compare reversible and irreversible isothermal expansion using piston and PV graphs.',

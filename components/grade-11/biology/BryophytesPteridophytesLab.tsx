@@ -165,6 +165,9 @@ const BryophytesPteridophytesLab: React.FC<BryophytesPteridophytesLabProps> = ({
 
     const activeFacts = modeFacts[mode];
     const waterReady = soilMoisture >= 45;
+    const usesTimeline = mode !== 'compare';
+    const usesSpecimens = mode === 'overview' || mode === 'bryophyteLab' || mode === 'pteridophyteLab';
+    const usesConditions = mode === 'overview' || mode === 'pteridophyteLab';
 
     const resetSimulation = () => {
         setMode('overview');
@@ -251,34 +254,6 @@ const BryophytesPteridophytesLab: React.FC<BryophytesPteridophytesLabProps> = ({
                         <RefreshCcw size={15} />
                     </button>
                 </div>
-                <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-2xl border border-slate-200 bg-white/95 px-2 py-2 shadow-lg backdrop-blur pointer-events-auto">
-                    <button
-                        onClick={rewindStep}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50"
-                        title="Previous stage"
-                    >
-                        <ArrowRight size={14} className="rotate-180" />
-                    </button>
-                    {STAGE_STEPS.map((item, index) => (
-                        <button
-                            key={item.label}
-                            onClick={() => setManualStep(index)}
-                            className={`h-8 rounded-lg border px-2 text-[11px] font-black transition-colors ${
-                                step === index ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300'
-                            }`}
-                            title={item.detail}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                    <button
-                        onClick={advanceStep}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-300 hover:bg-emerald-50"
-                        title="Next stage"
-                    >
-                        <ArrowRight size={14} />
-                    </button>
-                </div>
             </div>
             <LeftAside mode={mode} focusPlant={focusPlant} />
             <RightAside facts={activeFacts} mode={mode} focusPlant={focusPlant} soilMoisture={soilMoisture} waterReady={waterReady} />
@@ -287,7 +262,15 @@ const BryophytesPteridophytesLab: React.FC<BryophytesPteridophytesLabProps> = ({
 
     const controlsCombo = (
         <div className="h-full w-full bg-white">
-            <div className="grid h-full grid-cols-1 gap-3 md:grid-cols-[1.15fr_1.25fr_1fr_1fr]">
+            <div className={`grid h-full grid-cols-1 gap-3 ${
+                usesTimeline && usesSpecimens && usesConditions
+                    ? 'md:grid-cols-[1.1fr_1.2fr_1fr_1fr]'
+                    : usesTimeline && usesSpecimens
+                        ? 'md:grid-cols-[1.1fr_1.25fr_1fr]'
+                        : usesTimeline
+                            ? 'md:grid-cols-[1fr_1.2fr]'
+                            : 'md:grid-cols-[1fr]'
+            }`}>
                 <ControlGroup title="Scene" icon={<Trees size={15} className="text-emerald-700" />}>
                     <div className="grid grid-cols-3 gap-1.5">
                         {MODES.map((item) => (
@@ -310,88 +293,99 @@ const BryophytesPteridophytesLab: React.FC<BryophytesPteridophytesLabProps> = ({
                     </div>
                 </ControlGroup>
 
-                <ControlGroup title="Timeline" icon={<Activity size={15} className="text-violet-700" />}>
-                    <div className="grid grid-cols-[34px_34px_1fr_34px_34px] gap-1.5">
-                        <button onClick={rewindStep} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title="Previous stage">
-                            <ArrowRight size={14} className="rotate-180" />
-                        </button>
-                        <button onClick={() => setPaused((prev) => !prev)} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title={paused ? 'Play' : 'Pause'}>
-                            {paused ? <Play size={14} /> : <Pause size={14} />}
-                        </button>
-                        <div className="flex items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-2 text-center text-[11px] font-black text-violet-900">
-                            {STAGE_STEPS[step].label}
-                        </div>
-                        <button onClick={advanceStep} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title="Next stage">
-                            <ArrowRight size={14} />
-                        </button>
-                        <button onClick={resetSimulation} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title="Reset">
-                            <RefreshCcw size={14} />
-                        </button>
-                    </div>
-                    <div className="mt-2 grid grid-cols-4 gap-1.5">
-                        {STAGE_STEPS.map((item, index) => (
-                            <button
-                                key={item.label}
-                                onClick={() => setManualStep(index)}
-                                className={`min-h-[30px] rounded-lg border px-1 text-[10px] font-black transition-colors ${
-                                    step === index ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300'
-                                }`}
-                            >
-                                {item.label}
+                {usesTimeline && (
+                    <ControlGroup title="Timeline" icon={<Activity size={15} className="text-violet-700" />}>
+                        <div className="grid grid-cols-[34px_1fr_34px] gap-1.5">
+                            <button onClick={rewindStep} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title="Previous stage">
+                                <ArrowRight size={14} className="rotate-180" />
                             </button>
-                        ))}
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[10px] font-black uppercase text-slate-500">Speed</span>
-                        <input
-                            type="range"
-                            min="1"
-                            max="3"
-                            step="1"
-                            value={playSpeed}
-                            onChange={(event) => setPlaySpeed(parseInt(event.target.value, 10))}
-                            className="w-full accent-violet-600"
-                            aria-label="Playback speed"
-                        />
-                        <span className="w-8 rounded-md border border-slate-200 bg-slate-50 text-center text-[10px] font-black text-slate-700">{playSpeed}x</span>
-                    </div>
-                </ControlGroup>
+                            <div className="flex items-center justify-center rounded-lg border border-violet-200 bg-violet-50 px-2 text-center text-[11px] font-black text-violet-900">
+                                {STAGE_STEPS[step].label}
+                            </div>
+                            <button onClick={advanceStep} className="flex min-h-[34px] items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50" title="Next stage">
+                                <ArrowRight size={14} />
+                            </button>
+                        </div>
+                        <div className="mt-2 grid grid-cols-4 gap-1.5">
+                            {STAGE_STEPS.map((item, index) => (
+                                <button
+                                    key={item.label}
+                                    onClick={() => setManualStep(index)}
+                                    className={`min-h-[30px] rounded-lg border px-1 text-[10px] font-black transition-colors ${
+                                        step === index ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300'
+                                    }`}
+                                    title={item.detail}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase text-slate-500">Speed</span>
+                            <input
+                                type="range"
+                                min="1"
+                                max="3"
+                                step="1"
+                                value={playSpeed}
+                                onChange={(event) => setPlaySpeed(parseInt(event.target.value, 10))}
+                                className="w-full accent-violet-600"
+                                aria-label="Playback speed"
+                            />
+                            <span className="w-8 rounded-md border border-slate-200 bg-slate-50 text-center text-[10px] font-black text-slate-700">{playSpeed}x</span>
+                        </div>
+                    </ControlGroup>
+                )}
 
-                <ControlGroup title="Specimen" icon={<Microscope size={15} className="text-sky-700" />}>
-                    <div className="grid grid-cols-2 gap-2">
-                        <SelectBlock label="Bryophyte" value={bryophyteSpecimen} onChange={(value) => setBryophyteSpecimen(value as BryophyteSpecimen)} options={['Marchantia', 'Funaria', 'Sphagnum']} />
-                        <SelectBlock label="Pteridophyte" value={pteridophyteSpecimen} onChange={(value) => setPteridophyteSpecimen(value as PteridophyteSpecimen)} options={['Fern', 'Selaginella', 'Equisetum']} />
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                        <ToggleButton active={focusPlant === 'Bryophyte'} onClick={() => setFocusPlant('Bryophyte')} icon={<Leaf size={14} />} label="Bryo" />
-                        <ToggleButton active={focusPlant === 'Pteridophyte'} onClick={() => setFocusPlant('Pteridophyte')} icon={<Sprout size={14} />} label="Pterido" />
-                    </div>
-                </ControlGroup>
+                {usesSpecimens && (
+                    <ControlGroup title="Specimen" icon={<Microscope size={15} className="text-sky-700" />}>
+                        <div className="grid grid-cols-2 gap-2">
+                            {(mode === 'overview' || mode === 'bryophyteLab') && (
+                                <SelectBlock label="Bryophyte" value={bryophyteSpecimen} onChange={(value) => setBryophyteSpecimen(value as BryophyteSpecimen)} options={['Marchantia', 'Funaria', 'Sphagnum']} />
+                            )}
+                            {(mode === 'overview' || mode === 'pteridophyteLab') && (
+                                <SelectBlock label="Pteridophyte" value={pteridophyteSpecimen} onChange={(value) => setPteridophyteSpecimen(value as PteridophyteSpecimen)} options={['Fern', 'Selaginella', 'Equisetum']} />
+                            )}
+                        </div>
+                        {mode === 'overview' && (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                                <ToggleButton active={focusPlant === 'Bryophyte'} onClick={() => setFocusPlant('Bryophyte')} icon={<Leaf size={14} />} label="Bryo" />
+                                <ToggleButton active={focusPlant === 'Pteridophyte'} onClick={() => setFocusPlant('Pteridophyte')} icon={<Sprout size={14} />} label="Pterido" />
+                            </div>
+                        )}
+                    </ControlGroup>
+                )}
 
-                <ControlGroup title="Conditions" icon={<Droplets size={15} className="text-cyan-700" />}>
-                    <div className="flex items-center gap-3">
-                        <input
-                            type="range"
-                            min="20"
-                            max="100"
-                            step="1"
-                            value={soilMoisture}
-                            onChange={(event) => setSoilMoisture(parseInt(event.target.value, 10))}
-                            className="w-full accent-cyan-600"
-                            aria-label="Soil moisture"
-                        />
-                        <span className="w-12 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-mono font-bold text-slate-700">{soilMoisture}%</span>
-                    </div>
-                    <div className="mt-2 grid grid-cols-3 gap-1.5">
-                        <PresetButton label="Dry" onClick={() => setSoilMoisture(30)} active={!waterReady} />
-                        <PresetButton label="Damp" onClick={() => setSoilMoisture(68)} active={soilMoisture >= 45 && soilMoisture < 80} />
-                        <PresetButton label="Wet" onClick={() => setSoilMoisture(92)} active={soilMoisture >= 80} />
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                        <ToggleButton active={showVascular} onClick={() => setShowVascular((prev) => !prev)} icon={<Shield size={14} />} label="Vascular" />
-                        <ToggleButton active={showLabels} onClick={() => setShowLabels((prev) => !prev)} icon={showLabels ? <Eye size={14} /> : <EyeOff size={14} />} label="Labels" />
-                    </div>
-                </ControlGroup>
+                {usesConditions && (
+                    <ControlGroup title="Conditions" icon={<Droplets size={15} className="text-cyan-700" />}>
+                        {mode === 'overview' && (
+                            <>
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="range"
+                                        min="20"
+                                        max="100"
+                                        step="1"
+                                        value={soilMoisture}
+                                        onChange={(event) => setSoilMoisture(parseInt(event.target.value, 10))}
+                                        className="w-full accent-cyan-600"
+                                        aria-label="Soil moisture"
+                                    />
+                                    <span className="w-12 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-mono font-bold text-slate-700">{soilMoisture}%</span>
+                                </div>
+                                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                                    <PresetButton label="Dry" onClick={() => setSoilMoisture(30)} active={!waterReady} />
+                                    <PresetButton label="Damp" onClick={() => setSoilMoisture(68)} active={soilMoisture >= 45 && soilMoisture < 80} />
+                                    <PresetButton label="Wet" onClick={() => setSoilMoisture(92)} active={soilMoisture >= 80} />
+                                </div>
+                            </>
+                        )}
+                        <div className={`grid grid-cols-2 gap-2 ${mode === 'overview' ? 'mt-2' : ''}`}>
+                            <ToggleButton active={showVascular} onClick={() => setShowVascular((prev) => !prev)} icon={<Shield size={14} />} label="Vascular" />
+                            <ToggleButton active={showLabels} onClick={() => setShowLabels((prev) => !prev)} icon={showLabels ? <Eye size={14} /> : <EyeOff size={14} />} label="Labels" />
+                        </div>
+                    </ControlGroup>
+                )}
             </div>
         </div>
     );

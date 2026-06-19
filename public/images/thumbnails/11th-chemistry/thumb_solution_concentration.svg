@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Solution concentration and dilution thumbnail">
+  <rect width="640" height="360" rx="32" fill="#eff6ff"/>
+  <text x="52" y="58" font-family="Arial, sans-serif" font-size="29" font-weight="800" fill="#1e3a8a">Concentration &amp; Dilution</text>
+  <text x="52" y="88" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#475569">Molarity · molality · M₁V₁ = M₂V₂</text>
+
+  <!-- concentrated beaker -->
+  <g transform="translate(96 122)">
+    <path d="M0 0 H110 L96 170 H14 Z" fill="#fff" stroke="#1d4ed8" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M9 60 H101 L96 170 H14 Z" fill="#1d4ed8" opacity="0.85"/>
+    <g fill="#ffffff">
+      <circle cx="30" cy="90" r="5"/><circle cx="58" cy="78" r="5"/><circle cx="84" cy="100" r="5"/>
+      <circle cx="44" cy="120" r="5"/><circle cx="72" cy="134" r="5"/><circle cx="34" cy="150" r="5"/>
+      <circle cx="66" cy="100" r="5"/><circle cx="86" cy="140" r="5"/>
+    </g>
+    <text x="55" y="196" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#1e3a8a">concentrated</text>
+  </g>
+
+  <!-- arrow + water -->
+  <g transform="translate(240 200)">
+    <path d="M0 0 H92" stroke="#0ea5e9" stroke-width="6" stroke-linecap="round"/>
+    <polygon points="92,-10 112,0 92,10" fill="#0ea5e9"/>
+    <text x="6" y="-14" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#0ea5e9">+ water</text>
+  </g>
+
+  <!-- dilute beaker -->
+  <g transform="translate(388 122)">
+    <path d="M0 0 H110 L96 170 H14 Z" fill="#fff" stroke="#1d4ed8" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M9 60 H101 L96 170 H14 Z" fill="#93c5fd" opacity="0.85"/>
+    <g fill="#ffffff">
+      <circle cx="40" cy="110" r="5"/><circle cx="74" cy="96" r="5"/><circle cx="58" cy="146" r="5"/>
+    </g>
+    <text x="55" y="196" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#1e3a8a">dilute</text>
+  </g>
+</svg>

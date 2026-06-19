@@ -250,6 +250,19 @@ export const TOPICS_11TH: Topic[] = [
         youtubeVideoIds: ['nNkw_0c8vY0']
     },
     {
+        id: 'electronic-configuration-exchange-energy',
+        title: 'Electronic Configuration and Exchange Energy',
+        subject: 'Chemistry',
+        unit: 'Unit 2',
+        chapter: 'Structure of Atom',
+        description: 'Build electronic configurations using Aufbau principle, Pauli exclusion principle, and Hund rule, then compare exchange energy and the stability of half-filled and fully-filled subshells.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_electronic_configuration.svg',
+        youtubeVideoIds: []
+    },
+    {
         id: 'vsepr-theory',
         title: 'Molecular Geometry and Lone Pair Effects (VSEPR)',
         subject: 'Chemistry',
@@ -289,6 +302,19 @@ export const TOPICS_11TH: Topic[] = [
         youtubeVideoIds: ['S4wX2RA9Iw0']
     },
     {
+        id: 'heat-work-energy-changes',
+        title: 'Heat, Work, and Energy Changes',
+        subject: 'Chemistry',
+        unit: 'Unit 5',
+        chapter: 'Thermodynamics',
+        description: 'Track heat, pressure-volume work, and internal energy using the chemistry sign convention. Adjust q, external pressure, and volume change to verify dU = q + w in real time.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_heat_work_energy.svg',
+        youtubeVideoIds: ['S4wX2RA9Iw0']
+    },
+    {
         id: 'extensive-intensive-properties',
         title: 'Intensive and Extensive Properties',
         subject: 'Chemistry',
@@ -300,6 +326,84 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_extensive_intensive_generated.png',
         youtubeVideoIds: ['hsUeKdjdl1g']
+    },
+    {
+        id: 'mole-concept-limiting-reagent',
+        title: 'Mole Concept and Limiting Reagent',
+        subject: 'Chemistry',
+        unit: 'Unit 1',
+        chapter: 'Some Basic Concepts of Chemistry',
+        description: 'Mix reactants as moles or mass, watch balanced-equation mole packets react, and identify the limiting reagent, product formed, and excess left behind.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_mole_concept.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'solution-concentration-dilution',
+        title: 'Solution Concentration and Dilution',
+        subject: 'Chemistry',
+        unit: 'Unit 1',
+        chapter: 'Some Basic Concepts of Chemistry',
+        description: 'Prepare solutions and watch mass %, mole fraction, molarity and molality update together. Switch to dilution mode and verify M₁V₁ = M₂V₂ live.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_solution_concentration.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'periodic-trends-explorer',
+        title: 'Periodic Trends Explorer',
+        subject: 'Chemistry',
+        unit: 'Unit 3',
+        chapter: 'Classification of Elements and Periodicity in Properties',
+        description: 'Switch lenses on the periodic table — atomic radius, ionisation enthalpy, electronegativity, metallic character — and watch tiles recolour and resize by NCERT data, with live period and group trend graphs.',
+        thumbnailIcon: 'Activity',
+        branch: 'Inorganic Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_periodic_trends.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'redox-oxidation-number',
+        title: 'Redox and Oxidation Number Visualiser',
+        subject: 'Chemistry',
+        unit: 'Unit 7',
+        chapter: 'Redox Reactions',
+        description: 'Assign oxidation numbers using the 7 NCERT rules, classify reactions as combination / decomposition / displacement / disproportionation, and step through the oxidation-number and half-reaction balancing methods on NCERT worked examples (Cr₂O₇²⁻ + SO₃²⁻, MnO₄⁻ + Br⁻, Fe²⁺ + Cr₂O₇²⁻).',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_redox.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'weak-acid-base-ionization',
+        title: 'Ionization of Weak Acids/Bases and Equilibrium K',
+        subject: 'Chemistry',
+        unit: 'Unit 6',
+        chapter: 'Equilibrium',
+        description: 'Two beakers ionize side-by-side — pick the acid (HF, HCN, CH₃COOH…) and base (NH₃, pyridine, aniline…), drag concentration on a log scale, and watch α, [H⁺], [OH⁻] and pH update live. Switch to conjugate-pair mode for NH₄⁺/NH₃ and confirm Ka × Kb = Kw.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_weak_acid_base.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'hydrogen-bonding-molecular-interaction',
+        title: 'Hydrogen Bonding and Molecular Interaction',
+        subject: 'Chemistry',
+        unit: 'Unit 4',
+        chapter: 'Chemical Bonding and Molecular Structure',
+        description: 'Compare molecules with and without H-bonding side-by-side. Watch δ+/δ− partial charges line up into dotted bridges, slide temperature from solid to gas to see bond strength change, and switch to intramolecular mode for o-nitrophenol.',
+        thumbnailIcon: 'Activity',
+        branch: 'Physical Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_hydrogen_bonding.svg',
+        youtubeVideoIds: []
     },
     {
         id: 'buffer-solutions',
@@ -352,6 +456,32 @@ export const TOPICS_11TH: Topic[] = [
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_quantitative_analysis_generated.png',
         youtubeVideoIds: ['4t0J4GhiDlw']
+    },
+    {
+        id: 'purification-techniques',
+        title: 'Purification Techniques',
+        subject: 'Chemistry',
+        unit: 'Unit 8',
+        chapter: 'Organic Chemistry: Some Basic Principles and Techniques',
+        description: 'Choose the right purification method for an organic mixture. Compare sublimation, crystallisation, distillation, differential extraction, and chromatography using physical-property clues.',
+        thumbnailIcon: 'Activity',
+        branch: 'Organic Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_purification.svg',
+        youtubeVideoIds: []
+    },
+    {
+        id: 'structural-isomerism-molecular-properties',
+        title: 'Structural Isomerism and Molecular Properties',
+        subject: 'Chemistry',
+        unit: 'Unit 8',
+        chapter: 'Organic Chemistry: Some Basic Principles and Techniques',
+        description: 'Compare chain, position, functional group isomerism, and metamerism. See how the same molecular formula can produce different connectivity, boiling points, polarity, and molecular properties.',
+        thumbnailIcon: 'Activity',
+        branch: 'Organic Chemistry',
+        grade: '11th',
+        thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_structural_isomerism.svg',
+        youtubeVideoIds: []
     },
     {
         id: 'ethane-conformations',
@@ -515,7 +645,7 @@ export const TOPICS_11TH: Topic[] = [
         subject: 'Biology',
         unit: 'Unit 7',
         chapter: 'Structural Organisation in Animals',
-        description: 'Explore frog anatomy through simple organ-system overlays. Switch between land and water respiration, trace insect digestion, inspect the three-chambered heart, and compare male and female reproductive systems.',
+        description: 'Explore frog anatomy on a real dissection photograph. Select any organ-system — digestive, circulatory, respiratory, excretory, nervous or reproductive — to spotlight its organs and watch them work with live animated overlays.',
         thumbnailIcon: 'Activity',
         branch: 'Zoology',
         grade: '11th',
