@@ -1,0 +1,25 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="200" y="42" text-anchor="middle" font-size="16" font-weight="800" fill="#0f172a">x–t · v–t · a–t</text>
+  <!-- three mini graphs -->
+  <g>
+    <rect x="36" y="70" width="100" height="150" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+    <path d="M48 206 L122 206 M48 206 L48 84" stroke="#475569" stroke-width="1.5"/>
+    <path d="M48 200 Q92 196 122 96" fill="none" stroke="#1d4ed8" stroke-width="3.5"/>
+    <text x="86" y="236" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">x–t</text>
+  </g>
+  <g>
+    <rect x="150" y="70" width="100" height="150" rx="8" fill="#ecfdf5" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M162 206 L236 206 M162 206 L162 84" stroke="#475569" stroke-width="1.5"/>
+    <path d="M162 198 L232 110" fill="none" stroke="#16a34a" stroke-width="3.5"/>
+    <text x="200" y="236" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">v–t</text>
+  </g>
+  <g>
+    <rect x="264" y="70" width="100" height="150" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+    <path d="M276 206 L350 206 M276 206 L276 84" stroke="#475569" stroke-width="1.5"/>
+    <line x1="276" y1="130" x2="350" y2="130" stroke="#d97706" stroke-width="3.5"/>
+    <text x="314" y="236" text-anchor="middle" font-size="12" font-weight="700" fill="#d97706">a–t</text>
+  </g>
+  <text x="200" y="266" text-anchor="middle" font-size="12.5" font-weight="700" fill="#64748b">slope links the graphs</text>
+</svg>

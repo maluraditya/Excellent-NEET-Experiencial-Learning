@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Polarisation of light</title>
+  <desc id="desc">A light beam passing through two rotated polaroids</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fde68a" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#67e8f9" stop-opacity=".45"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="640" height="360" rx="28" fill="url(#bg)"/>
+  <g opacity=".12" stroke="#94a3b8">
+    <path d="M0 60h640M0 120h640M0 180h640M0 240h640M0 300h640"/>
+    <path d="M80 0v360M160 0v360M240 0v360M320 0v360M400 0v360M480 0v360M560 0v360"/>
+  </g>
+  <circle cx="92" cy="180" r="32" fill="#fbbf24" filter="url(#glow)"/>
+  <circle cx="92" cy="180" r="14" fill="#fff7ed"/>
+  <path d="M126 155h390v50H126z" fill="url(#beam)"/>
+  <g fill="#0f172a" stroke-width="7">
+    <rect x="245" y="78" width="54" height="204" rx="14" stroke="#22d3ee"/>
+    <rect x="420" y="78" width="54" height="204" rx="14" stroke="#818cf8"/>
+  </g>
+  <path d="M272 102v156" stroke="#22d3ee" stroke-width="8" stroke-linecap="round"/>
+  <path d="M407 238l80-116" stroke="#818cf8" stroke-width="8" stroke-linecap="round"/>
+  <g stroke="#fef3c7" stroke-width="4" stroke-linecap="round">
+    <path d="M150 150l30 60M160 210l32-60M196 142v76M215 154l-28 52"/>
+  </g>
+  <path d="M322 180c22-56 44-56 66 0s44 56 66 0" fill="none" stroke="#67e8f9" stroke-width="6" filter="url(#glow)"/>
+  <circle cx="548" cy="180" r="35" fill="#fde68a" fill-opacity=".28" stroke="#fde68a" stroke-width="5" filter="url(#glow)"/>
+  <text x="320" y="326" fill="#f8fafc" font-family="Arial, sans-serif" font-size="25" font-weight="700" text-anchor="middle">POLARISATION</text>
+</svg>

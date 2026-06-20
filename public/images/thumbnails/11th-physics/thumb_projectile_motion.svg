@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- ground -->
+  <line x1="40" y1="240" x2="364" y2="240" stroke="#94a3b8" stroke-width="2.5"/>
+  <!-- parabola -->
+  <path d="M60 240 Q200 40 340 240" fill="none" stroke="#1d4ed8" stroke-width="3.5" stroke-dasharray="2 0"/>
+  <!-- launch velocity components -->
+  <line x1="60" y1="240" x2="108" y2="200" stroke="#1d4ed8" stroke-width="4" marker-end="url(#pmb)"/>
+  <line x1="60" y1="240" x2="108" y2="240" stroke="#16a34a" stroke-width="3" stroke-dasharray="5 3"/>
+  <line x1="108" y1="240" x2="108" y2="200" stroke="#d97706" stroke-width="3" stroke-dasharray="5 3"/>
+  <!-- apex + projectile -->
+  <circle cx="200" cy="92" r="9" fill="#0ea5e9" stroke="#0369a1" stroke-width="2"/>
+  <!-- range marker -->
+  <circle cx="340" cy="240" r="5" fill="#dc2626"/>
+  <text x="200" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="#1d4ed8">parabolic path</text>
+  <text x="75" y="270" font-size="12.5" font-weight="700" fill="#16a34a">v₀cosθ</text>
+  <text x="300" y="270" font-size="12.5" font-weight="700" fill="#dc2626">R = v₀²sin2θ/g</text>
+  <text x="84" y="232" font-size="12" font-weight="700" fill="#475569">θ</text>
+  <defs><marker id="pmb" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1d4ed8"/></marker></defs>
+</svg>

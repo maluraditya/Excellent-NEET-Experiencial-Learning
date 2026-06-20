@@ -27,6 +27,11 @@ dist-ssr
 dev-dist
 dev-dist/
 
+# Build cache and local agent/tooling directories (not project code)
+.next/
+.claude/
+.codex/
+
 # Project specific temporary files
 original_textbook.txt
 temp_diff.txt

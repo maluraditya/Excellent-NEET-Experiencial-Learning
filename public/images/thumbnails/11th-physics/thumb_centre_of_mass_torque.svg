@@ -1,0 +1,21 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="200" y="46" text-anchor="middle" font-size="17" font-weight="800" fill="#1d4ed8">τ = r × F</text>
+  <!-- pivot -->
+  <polygon points="160,210 146,238 174,238" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+  <!-- beam -->
+  <rect x="70" y="150" width="270" height="16" rx="6" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+  <circle cx="160" cy="158" r="6" fill="#475569"/>
+  <!-- lever arm bracket -->
+  <line x1="160" y1="138" x2="320" y2="138" stroke="#64748b" stroke-width="1.5"/>
+  <text x="240" y="130" text-anchor="middle" font-size="12.5" font-weight="700" fill="#64748b">r (lever arm)</text>
+  <!-- force down at end -->
+  <line x1="320" y1="158" x2="320" y2="222" stroke="#dc2626" stroke-width="6" marker-end="url(#tr)"/>
+  <text x="332" y="200" font-size="14" font-weight="800" fill="#dc2626">F</text>
+  <!-- COM marker -->
+  <circle cx="160" cy="158" r="11" fill="none" stroke="#16a34a" stroke-width="2.5"/>
+  <path d="M160 147 v22 M149 158 h22" stroke="#16a34a" stroke-width="2"/>
+  <text x="200" y="270" text-anchor="middle" font-size="12.5" font-weight="700" fill="#64748b">centre of mass &amp; turning effect</text>
+  <defs><marker id="tr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#dc2626"/></marker></defs>
+</svg>

@@ -1,0 +1,22 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="200" y="46" text-anchor="middle" font-size="17" font-weight="800" fill="#1d4ed8">F = m a</text>
+  <!-- ground -->
+  <line x1="40" y1="206" x2="360" y2="206" stroke="#94a3b8" stroke-width="2.5"/>
+  <!-- block -->
+  <rect x="120" y="130" width="92" height="76" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+  <text x="166" y="176" text-anchor="middle" font-size="20" font-weight="800" fill="#0c4a6e">m</text>
+  <!-- applied force -->
+  <line x1="212" y1="168" x2="312" y2="168" stroke="#1d4ed8" stroke-width="7" marker-end="url(#nb)"/>
+  <text x="270" y="156" font-size="15" font-weight="800" fill="#1d4ed8">F</text>
+  <!-- acceleration -->
+  <line x1="166" y1="106" x2="246" y2="106" stroke="#7c3aed" stroke-width="4" marker-end="url(#np)"/>
+  <text x="252" y="110" font-size="14" font-weight="800" fill="#7c3aed">a</text>
+  <!-- three laws labels -->
+  <text x="200" y="252" text-anchor="middle" font-size="12.5" font-weight="700" fill="#64748b">1 · inertia   2 · F = ma   3 · action = reaction</text>
+  <defs>
+    <marker id="nb" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1d4ed8"/></marker>
+    <marker id="np" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c3aed"/></marker>
+  </defs>
+</svg>

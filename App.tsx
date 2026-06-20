@@ -16,6 +16,18 @@ import ThermalExpansionCalorimetryLab from './components/grade-11/physics/Therma
 import KineticTheoryLab from './components/grade-11/physics/KineticTheoryLab';
 import MeanFreePathLab from './components/grade-11/physics/MeanFreePathLab';
 import EquipartitionLab from './components/grade-11/physics/EquipartitionLab';
+import KinematicsGraphsLab from './components/grade-11/physics/KinematicsGraphsLab';
+import DimensionalAnalysisLab from './components/grade-11/physics/DimensionalAnalysisLab';
+import ProjectileMotionLab from './components/grade-11/physics/ProjectileMotionLab';
+import FrictionLab from './components/grade-11/physics/FrictionLab';
+import NewtonsLawsLab from './components/grade-11/physics/NewtonsLawsLab';
+import MomentumConservationLab from './components/grade-11/physics/MomentumConservationLab';
+import WorkEnergyTheoremLab from './components/grade-11/physics/WorkEnergyTheoremLab';
+import AngularMomentumLab from './components/grade-11/physics/AngularMomentumLab';
+import CentreOfMassTorqueLab from './components/grade-11/physics/CentreOfMassTorqueLab';
+import MomentOfInertiaLab from './components/grade-11/physics/MomentOfInertiaLab';
+import KeplersLawsLab from './components/grade-11/physics/KeplersLawsLab';
+import MechanicalEnergyLab from './components/grade-11/physics/MechanicalEnergyLab';
 
 import SHMLab from './components/grade-11/physics/SHMLab';
 import SimplePendulumLab from './components/grade-11/physics/SimplePendulumLab';
@@ -79,6 +91,7 @@ import AlternatingCurrentLab from './components/grade-12/physics/AlternatingCurr
 import EMWavesLab from './components/grade-12/physics/EMWavesLab';
 import RayOpticsLab from './components/grade-12/physics/RayOpticsLab';
 import WaveOpticsLab from './components/grade-12/physics/WaveOpticsLab';
+import PolarisationLab from './components/grade-12/physics/PolarisationLab';
 import PhotoelectricLab from './components/grade-12/physics/PhotoelectricLab';
 import AtomsLab from './components/grade-12/physics/AtomsLab';
 import SemiconductorLab from './components/grade-12/physics/SemiconductorLab';
@@ -277,7 +290,64 @@ const App: React.FC = () => {
 
   // --- AI CONTEXT GENERATION ---
   const aiContext = useMemo(() => {
-    if (activeTopicId === 'kinetics') {
+    if (activeTopicId === 'conservation-of-angular-momentum') {
+      return `
+        Topic: Conservation of Angular Momentum (NCERT Class 11 Physics, Unit 6, Chapter 6 System of Particles and Rotational Motion, Sections 6.12–6.12.1)
+        Angular momentum: for rotation about a fixed axis, L = Iω (moment of inertia × angular velocity); for symmetric bodies L = L_z = Iω.
+        Torque relation: dL/dt = τ_ext, the rotational analogue of Newton's second law dP/dt = F_ext. If the moment of inertia is constant this gives τ = Iα.
+        Conservation: if total external torque about the fixed axis is zero, then L_z = Iω = constant. For this symmetric model L = L_z. If moment of inertia changes, angular speed changes so I₁ω₁ = I₂ω₂.
+        Skater example: a spinning skater with arms outstretched has a large moment of inertia; pulling the arms in reduces I, so ω increases to conserve L (and stretching them out slows the spin). Acrobats, divers and dancers use this. Note: L is conserved but rotational kinetic energy ½Iω² is not — the skater does work pulling the arms in.
+        Simulation: A symmetric spinning figure carries two point arm-masses on massless rods. With τ_ext,z = 0, L_z = Iω and I = I_core + 2mr². Reach changes smoothly within an experiment; changing mass or initial spin resets the reference state at r = 2 m. Fixed-scale bars show I and ω moving inversely, L_z constant and rotational KE changing.
+      `;
+    } else if (activeTopicId === 'work-energy-theorem') {
+      return `
+        Topic: Work-Energy Theorem (NCERT Class 11 Physics, Unit 5, Chapter 5 Work, Energy and Power, Sections 5.2–5.3)
+        Work: the work done by a constant force is the product of the component of the force along the displacement and the magnitude of the displacement: W = (F cosθ)d = F·d, where θ is the angle between the force and displacement. Work is a scalar (joules) and can be positive, negative or zero — a force perpendicular to motion (θ = 90°) does no work, and friction does negative work.
+        Kinetic energy: K = ½mv², a positive scalar.
+        Theorem: the change in kinetic energy of a particle equals the work done on it by the net force, K_f − K_i = W_net. Derivation (constant force, rectilinear): from v² − u² = 2as, multiply by m/2 to get ½mv² − ½mu² = mas = Fs, i.e. K_f − K_i = W; generalised by vectors to ½mv² − ½mu² = F·d, and for a variable force K_f − K_i = ∫F dx.
+        Simulation: A block on a track is pushed by an adjustable force F at angle θ against friction (μ). As it moves, the applied force does positive work F cosθ·d, friction does negative work −f·d, and the net-work bar rises in lock-step with the change-in-KE bar (W_net = ΔKE). Sliders for F, θ, mass, μ and initial KE; raising θ toward 90° drives the work to zero, and friction can make the net work negative so the block slows.
+      `;
+    } else if (activeTopicId === 'conservation-of-momentum') {
+      return `
+        Topic: Conservation of Momentum (NCERT Class 11 Physics, Unit 4, Chapter 4 Laws of Motion, Section 4.7)
+        Statement: The total momentum of an isolated system of interacting particles is conserved. An isolated system has no external force; internal mutual forces are equal and opposite (third law) so the momentum changes cancel in pairs and the total stays constant.
+        Derivation (from 2nd + 3rd laws): for two bodies over a common contact time Δt, F(AB)Δt = p'A − pA and F(BA)Δt = p'B − pB; since F(AB) = −F(BA), ΔpA = −ΔpB, so p'A + p'B = pA + pB. Generally dP/dt = F_ext; if F_ext = 0 then P = constant. Key relation m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂ (momentum is a vector).
+        Examples: recoil of a gun (total p starts at 0 so p_gun = −p_bullet); collision of two bodies — total final momentum equals total initial momentum whether the collision is elastic or inelastic. In an elastic collision kinetic energy is also conserved; in an inelastic collision some KE is lost (to heat/sound), and in a completely inelastic collision the bodies move together afterwards.
+        Simulation: Two pucks (masses m₁, m₂) on a 1-D track. The teacher sets masses and initial velocities and picks Elastic, Inelastic (stick), or Recoil (fired apart from rest). The pucks collide and move off with velocities computed from conservation of momentum (and additionally conservation of KE for the elastic case; common velocity (m₁u₁+m₂u₂)/(m₁+m₂) for the inelastic case). Before-vs-after bars show that total momentum is always equal, while the kinetic-energy bar stays equal only for an elastic collision.
+      `;
+    } else if (activeTopicId === 'newtons-laws-of-motion') {
+      return `
+        Topic: Newton's Laws of Motion (NCERT Class 11 Physics, Unit 4, Chapter 4 Laws of Motion, Sections 4.4–4.7)
+        First law (inertia): A body continues at rest or in uniform motion in a straight line unless acted on by an external force; if net external force = 0 then acceleration = 0. Inertia is the resistance to a change of state of motion (Galileo's inclined-plane observations; Aristotle's view that force is needed to keep uniform motion is wrong — force only counters friction).
+        Second law: The rate of change of momentum is proportional to the applied force and in its direction. Momentum p = mv; F = k·dp/dt with k = 1 in SI, so F = dp/dt = ma. SI unit 1 N = 1 kg·m·s⁻². It is a vector law, consistent with the first law (F = 0 ⇒ a = 0). Impulse J = F·Δt = Δp.
+        Third law: To every action there is an equal and opposite reaction; the pair acts on two different bodies (so it cannot cancel) and is simultaneous. Conservation of momentum (isolated system) follows from the second and third laws: m₁v₁ = −m₂v₂.
+        Simulation: A three-mode bench. First-law mode glides a frictionless puck at constant velocity and lets the teacher toggle friction (an external force) to make it slow down. Second-law mode pushes a mass with an adjustable force F and mass m, showing a = F/m on an a-vs-F line and a-vs-m curve plus live momentum p = mv. Third-law mode releases a compressed spring between two carts (masses m₁, m₂) so they recoil with equal and opposite forces and conserved momentum (|p₁| = |p₂|).
+      `;
+    } else if (activeTopicId === 'static-kinetic-friction') {
+      return `
+        Topic: Static & Kinetic Friction (NCERT Class 11 Physics, Unit 4, Chapter 4 Laws of Motion, Section 4.9.1)
+        Concept: Friction is the force parallel to the surfaces in contact that opposes an applied force or relative motion. Static friction is self-adjusting — it stays equal and opposite to the applied force, keeping the body at rest, up to a maximum (limiting) value. Once the body slides, kinetic (sliding) friction acts, which is smaller and roughly constant.
+        Laws (empirical, only approximately true): static friction fs ≤ μsN; limiting friction (fs)max = μsN; kinetic friction fk = μkN, with μk < μs. The coefficients depend only on the nature of the surfaces and are independent of contact area; kinetic friction is nearly independent of velocity. Normal force on a flat surface N = mg.
+        Dynamics: while at rest fs = applied force F; the block breaks free when F exceeds μsN, after which acceleration a = (F − fk)/m, and constant velocity needs F = fk. On an incline the block slips at the angle of repose where tanθmax = μs, independent of mass (mg sinθ = fs, mg cosθ = N).
+        Simulation: In Flat-push mode the teacher raises the applied force and watches the red friction arrow grow to match the blue applied-force arrow (block at rest), peak at the limiting value, then drop to the constant kinetic value as the block breaks free and accelerates — shown on a friction-vs-applied-force graph with a static ramp, a peak μsN, and a kinetic plateau μkN. In Incline mode the teacher tilts the surface until the block slips at tanθmax = μs.
+      `;
+    } else if (activeTopicId === 'projectile-motion') {
+      return `
+        Topic: Projectile Motion & Vector Resolution (NCERT Class 11 Physics, Unit 3, Chapter 3 Motion in a Plane, Sections 3.4 and 3.8)
+        Vector resolution: A vector resolves into rectangular components A = Aₓî + Aᵧĵ, with Aₓ = A cosθ, Aᵧ = A sinθ, magnitude A = √(Aₓ²+Aᵧ²) and direction θ = tan⁻¹(Aᵧ/Aₓ). Unit vectors î, ĵ have magnitude 1 and only specify direction.
+        Projectile concept: An object launched with velocity v₀ at angle θ₀ moves under gravity alone (air resistance neglected). Galileo first stated the independence of the horizontal and vertical motions. The launch velocity resolves into v₀ₓ = v₀cosθ₀ (constant, since aₓ = 0) and v₀ᵧ = v₀sinθ₀ (changes under aᵧ = −g).
+        Formulas: x = (v₀cosθ₀)t; y = (v₀sinθ₀)t − ½gt²; vₓ = v₀cosθ₀; vᵧ = v₀sinθ₀ − gt. Path is a parabola y = (tanθ₀)x − g x²/2(v₀cosθ₀)². Time to apex tₘ = v₀sinθ₀/g; time of flight T_f = 2tₘ; max height hₘ = (v₀sinθ₀)²/2g; range R = v₀²sin2θ₀/g, maximum at θ₀ = 45° where R_m = v₀²/g. Complementary angles give equal range (Galileo).
+        Simulation: The teacher sets launch speed, angle and g and plays the launch. The velocity vector resolves into green horizontal and amber vertical components; two shadow dots (one sliding at constant speed along the ground, one bobbing on a vertical rail) prove the motions are independent. Apex height, range and time of flight update live, a Range-vs-angle graph shows the 45° peak, and a complementary-angle ghost lands at the same range.
+      `;
+    } else if (activeTopicId === 'dimensional-analysis') {
+      return `
+        Topic: Dimensional Analysis and Consistency (NCERT Class 11 Physics, Unit 1, Chapter 1 Units and Measurement, Sections 1.5–1.6)
+        Concept: The dimensions of a physical quantity are the powers of the base quantities mass [M], length [L] and time [T] used to express it. The dimensional formula shows how the base quantities represent the quantity, e.g. velocity [M⁰LT⁻¹], force [MLT⁻²], energy [ML²T⁻²].
+        Principle of homogeneity: only quantities with the same dimensions can be added or subtracted, so every term on both sides of a correct equation must have identical dimensions. If the dimensions of all terms are not the same, the equation is wrong. Consistency is necessary but NOT sufficient (it cannot fix dimensionless constants like ½ or 2π, and cannot distinguish quantities of the same dimensions).
+        Applications: (1) checking consistency — e.g. x = x₀ + v₀t + ½at² is consistent because every term is [L]; ½mv² = mgh is consistent at [ML²T⁻²] (Example 1.3); K = m³v³ and K = ma are ruled out (Example 1.4). (2) deducing relations — assuming T = k lˣgʸmᶻ for a simple pendulum gives x+y=0, −2y=1, z=0, so T = k√(l/g) with k=2π supplied externally (Example 1.5).
+        Simulation: A dimensional balance scale. In Check mode the teacher picks an equation and the beam stays level and glows emerald when consistent, or tilts and glows red when terms differ; a Tamper toggle breaks a correct term to show homogeneity fail. In Derive mode the teacher drags x, y, z exponents until the M, L, T bars balance, resolving to T = k√(l/g).
+      `;
+    } else if (activeTopicId === 'kinetics') {
       return `
         Topic: Chemical Kinetics (Collision Theory)
         Concept: Molecules need Threshold Energy and Correct Orientation.
@@ -464,6 +534,47 @@ const App: React.FC = () => {
         Simulation: 4 gas types with animated molecules, energy bar graphs, vibration toggle.
       `;
 
+    } else if (activeTopicId === 'conservation-mechanical-energy') {
+      return `
+        Topic: Conservation of Mechanical Energy (NCERT Class 11, Chapter 5)
+        Principle: total mechanical energy K + V remains constant when only conservative forces do work. Delta K + Delta V = 0 and Ki + Vi = Kf + Vf.
+        Gravity: V=mgh. For a ball released from height H, EH=mgH, Eh=mgh+1/2 mv^2, E0=1/2 mvf^2 and vf=sqrt(2gH).
+        Spring: V=1/2 kx^2. For amplitude A, 1/2 kA^2 = 1/2 kx^2 + 1/2 mv^2.
+        Non-conservative comparison: Ef-Ei=Wnc. Friction or resistance reduces K+V, while total energy remains accounted for as transferred internal energy.
+        Simulation: Toggle between NCERT ideal and real-loss comparisons for free fall and spring-block motion, with synchronized K, V, transferred energy and balance readouts.
+      `;
+    } else if (activeTopicId === 'keplers-laws-planetary-motion') {
+      return `
+        Topic: Kepler's Laws of Planetary Motion (NCERT Class 11, Chapter 7)
+        First law: planets move in elliptical orbits with the Sun at one focus. The nearest and farthest points are perihelion and aphelion.
+        Second law: the Sun-planet line sweeps equal areas in equal times. Delta A / Delta t = L/(2m) is constant because gravitation is a central force and angular momentum is conserved; planets move faster near perihelion.
+        Third law: T^2 is proportional to a^3. For the Sun, T^2 = 4 pi^2 a^3/(G M_s), with a the semi-major axis.
+        Simulation: Three views show ellipse geometry, equal-time swept sectors, and an Earth-versus-test-planet period comparison using exact Kepler-equation timing.
+      `;
+    } else if (activeTopicId === 'moment-of-inertia') {
+      return `
+        Topic: Moment of Inertia (NCERT Class 11, Chapter 6)
+        Definition: I = sum(mi ri^2), where ri is each mass element's perpendicular distance from the chosen axis. I depends on the mass distribution and the position and orientation of the axis.
+        Relations: K = 1/2 I omega^2, I = M k^2, and for fixed-axis rotation tau = I alpha.
+        NCERT Table 6.1: ring MR^2, disc MR^2/2, midpoint rod ML^2/12, solid sphere 2MR^2/5 for the stated symmetry axes.
+        Simulation: Apply the same torque to selectable regular bodies and compare angular acceleration, angular speed, radius of gyration and rotational kinetic energy.
+      `;
+    } else if (activeTopicId === 'centre-of-mass-torque') {
+      return `
+        Topic: Centre of Mass and Torque (NCERT Class 11, Chapter 6)
+        Centre of mass: X = (sum mi xi)/M. For two particles, X = (m1 x1 + m2 x2)/(m1 + m2); equal masses have their CM at the midpoint.
+        Torque: tau = r cross F, with magnitude r F sin(theta) = r_perpendicular F. It is zero when the line of action passes through the pivot and maximum at 90 degrees for fixed r and F.
+        Dynamics: dl/dt = tau. Mechanical equilibrium requires both sum F = 0 and sum tau = 0.
+        Simulation: Two modes - unequal masses orbit their common CM, and a uniform pivoted beam turns under adjustable force, radius, force angle and direction.
+      `;
+    } else if (activeTopicId === 'position-velocity-acceleration-graphs') {
+      return `
+        Topic: Position, Velocity and Acceleration Graphs (NCERT Class 11, Chapter 2)
+        Sign convention: right is positive and left is negative. Velocity is the slope of the position-time graph; acceleration is the slope of the velocity-time graph; signed area under velocity-time gives displacement.
+        Constant-acceleration equations: v = v0 + at, x = x0 + v0t + 1/2 at^2, v^2 = v0^2 + 2a(x-x0).
+        Graph shapes: uniform motion gives a straight x-t line, horizontal v-t line and a = 0. Constant acceleration gives a parabolic x-t graph, straight inclined v-t graph and horizontal a-t graph.
+        Simulation: One moving object and three synchronized graphs with a shared time cursor, live tangent, signed area and adjustable x0, v0 and a.
+      `;
     } else if (activeTopicId === 'shm-spring') {
       return `
         Topic: Spring-Mass System and Simple Harmonic Motion (NCERT Class 11, Chapter 13)
@@ -973,6 +1084,102 @@ const App: React.FC = () => {
         )}
 
 
+        {/* ================== DIMENSIONAL ANALYSIS & CONSISTENCY ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'dimensional-analysis' && (
+          <DimensionalAnalysisLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PROJECTILE MOTION & VECTOR RESOLUTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'projectile-motion' && (
+          <ProjectileMotionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== STATIC & KINETIC FRICTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'static-kinetic-friction' && (
+          <FrictionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== NEWTON'S LAWS OF MOTION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'newtons-laws-of-motion' && (
+          <NewtonsLawsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CONSERVATION OF MOMENTUM ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'conservation-of-momentum' && (
+          <MomentumConservationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== WORK-ENERGY THEOREM ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'work-energy-theorem' && (
+          <WorkEnergyTheoremLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CONSERVATION OF ANGULAR MOMENTUM ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'conservation-of-angular-momentum' && (
+          <AngularMomentumLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CONSERVATION OF MECHANICAL ENERGY ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'conservation-mechanical-energy' && (
+          <MechanicalEnergyLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== KEPLER'S LAWS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'keplers-laws-planetary-motion' && (
+          <KeplersLawsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== MOMENT OF INERTIA ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'moment-of-inertia' && (
+          <MomentOfInertiaLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CENTRE OF MASS & TORQUE ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'centre-of-mass-torque' && (
+          <CentreOfMassTorqueLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== POSITION, VELOCITY & ACCELERATION GRAPHS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'position-velocity-acceleration-graphs' && (
+          <KinematicsGraphsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
         {/* ================== SHM SPRING-MASS ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'shm-spring' && (
           <SHMLab
@@ -1430,6 +1637,16 @@ const App: React.FC = () => {
         {
           currentScreen === 'TOPIC_VIEW' && activeTopicId === 'wave_optics' && (
             <WaveOpticsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* POLARISATION */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'polarisation' && (
+            <PolarisationLab
               topic={currentTopics.find(t => t.id === activeTopicId)!}
               onExit={goHome}
             />

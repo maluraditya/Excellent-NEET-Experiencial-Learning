@@ -1,0 +1,18 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="200" y="46" text-anchor="middle" font-size="17" font-weight="800" fill="#1d4ed8">I = Σ m r²</text>
+  <!-- ring -->
+  <circle cx="92" cy="150" r="38" fill="none" stroke="#1d4ed8" stroke-width="9"/>
+  <text x="92" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">ring</text>
+  <!-- disc -->
+  <circle cx="188" cy="150" r="38" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="188" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">disc</text>
+  <!-- rod -->
+  <rect x="250" y="144" width="76" height="12" rx="5" fill="#1d4ed8"/>
+  <text x="288" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">rod</text>
+  <!-- sphere -->
+  <circle cx="336" cy="150" r="22" fill="#93c5fd" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="336" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">sphere</text>
+  <text x="200" y="268" text-anchor="middle" font-size="12.5" font-weight="700" fill="#64748b">mass distribution sets resistance to spin</text>
+</svg>

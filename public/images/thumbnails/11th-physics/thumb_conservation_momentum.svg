@@ -1,0 +1,22 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <rect width="400" height="300" rx="16" fill="#f8fafc"/>
+  <rect x="8" y="8" width="384" height="284" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="200" y="48" text-anchor="middle" font-size="15.5" font-weight="800" fill="#0f172a">m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂</text>
+  <!-- track -->
+  <line x1="40" y1="186" x2="360" y2="186" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+  <!-- two carts approaching -->
+  <circle cx="138" cy="150" r="30" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+  <text x="138" y="156" text-anchor="middle" font-size="16" font-weight="800" fill="#0c4a6e">m₁</text>
+  <circle cx="262" cy="150" r="30" fill="#ffe4e6" stroke="#be123c" stroke-width="2.5"/>
+  <text x="262" y="156" text-anchor="middle" font-size="16" font-weight="800" fill="#881337">m₂</text>
+  <!-- arrows toward each other -->
+  <line x1="172" y1="150" x2="206" y2="150" stroke="#1d4ed8" stroke-width="5" marker-end="url(#cb)"/>
+  <line x1="228" y1="150" x2="194" y2="150" stroke="#dc2626" stroke-width="5" marker-end="url(#cr)"/>
+  <!-- collision burst -->
+  <circle cx="200" cy="150" r="7" fill="#fde047"/>
+  <text x="200" y="238" text-anchor="middle" font-size="13" font-weight="800" fill="#16a34a">total momentum conserved</text>
+  <defs>
+    <marker id="cb" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1d4ed8"/></marker>
+    <marker id="cr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#dc2626"/></marker>
+  </defs>
+</svg>

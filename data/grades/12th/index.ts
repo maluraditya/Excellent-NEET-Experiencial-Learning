@@ -74,6 +74,20 @@ export const TOPICS: Topic[] = [
     coverImage: ''
   },
   {
+    id: 'polarisation',
+    subject: 'Physics',
+    chapter: 'Wave Optics',
+    branch: 'Optics',
+    grade: '12th',
+    unit: 'Unit 10',
+    title: 'Polarisation of Light',
+    description: 'Rotate polaroids to reveal the transverse nature of light. Test Malus\' law, crossed axes, and the surprising transmission through a third middle polaroid.',
+    thumbnailIcon: 'sun',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_polarisation.svg',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  {
     id: 'dual_nature',
     subject: 'Physics',
     chapter: 'Dual Nature of Radiation',

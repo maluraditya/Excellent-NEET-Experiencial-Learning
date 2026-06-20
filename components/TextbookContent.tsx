@@ -1078,6 +1078,218 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'position-velocity-acceleration-graphs') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Position, Velocity and Acceleration Graphs</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A single motion can be read in three connected ways. Choose an origin and a positive direction first; in this simulation, positions to the right are positive and positions to the left are negative.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Slope Connects the Graphs</h3>
+        <div className="my-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center"><strong className="text-blue-800">v = dx/dt</strong><br /><span className="text-sm text-slate-600">Velocity is the slope of the tangent to the x-t graph.</span></div>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center"><strong className="text-emerald-800">a = dv/dt</strong><br /><span className="text-sm text-slate-600">Acceleration is the slope of the tangent to the v-t graph.</span></div>
+        </div>
+        <p className="text-sm">A positive slope means a positive velocity or acceleration; a negative slope means a negative value. A horizontal graph has zero slope.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Area Under the Velocity-Time Graph</h3>
+        <p>The <strong>signed area</strong> between the v-t curve and the time axis from t<sub>1</sub> to t<sub>2</sub> equals displacement during that interval. Area below the time axis is negative. Distance travelled is not generally the same as displacement when velocity changes sign.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Uniformly Accelerated Motion</h3>
+        <div className="my-5 rounded-xl border border-violet-200 bg-violet-50 p-5 text-center font-mono text-base text-violet-900">
+          <p>v = v<sub>0</sub> + at</p>
+          <p>x = x<sub>0</sub> + v<sub>0</sub>t + ½at²</p>
+          <p>v² = v<sub>0</sub>² + 2a(x - x<sub>0</sub>)</p>
+        </div>
+        <p className="text-sm">These kinematic equations apply to rectilinear motion with <strong>constant acceleration</strong>. Then the x-t graph is a parabola, the v-t graph is a straight inclined line, and the a-t graph is horizontal.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Read Motion Without Guessing</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li>Velocity and acceleration with the same sign mean the object speeds up.</li>
+          <li>Velocity and acceleration with opposite signs mean the object slows down.</li>
+          <li>At v = 0, the object may be momentarily at rest and reverse direction; acceleration need not be zero.</li>
+          <li>For uniform motion, x-t is a straight line, v-t is horizontal, and acceleration is zero.</li>
+        </ul>
+        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"><strong>NCERT graph caution:</strong> Real changes in velocity and acceleration are continuous. Sharp kinks used in idealised graphs imply a non-differentiable instant and are approximations.</div>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'centre-of-mass-torque') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Centre of Mass and Torque</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A system of particles can translate as though all its mass were concentrated at one mass-weighted point. Torque describes how a force changes rotational motion about a chosen origin.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Centre of Mass</h3>
+        <p>For two particles on the x-axis, NCERT defines the centre-of-mass coordinate as the mass-weighted mean:</p>
+        <div className="my-5 rounded-xl border border-cyan-200 bg-cyan-50 p-5 text-center font-mono text-lg font-bold text-cyan-900">
+          X = (m<sub>1</sub>x<sub>1</sub> + m<sub>2</sub>x<sub>2</sub>) / (m<sub>1</sub> + m<sub>2</sub>)
+        </div>
+        <p className="text-sm">For n particles, X = sum(m<sub>i</sub>x<sub>i</sub>)/M, with analogous expressions for Y and Z and total mass M = sum(m<sub>i</sub>). Equal masses place the centre exactly midway; unequal masses place it nearer the heavier particle.</p>
+        <p className="text-sm">In the simulation the origin is chosen at the centre of mass, so x<sub>1</sub> = -d<sub>1</sub> and x<sub>2</sub> = d<sub>2</sub>. The condition m<sub>1</sub>d<sub>1</sub> = m<sub>2</sub>d<sub>2</sub> keeps X = 0 while both particles move internally.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Torque: The Moment of a Force</h3>
+        <div className="my-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center"><strong className="font-mono text-amber-900">tau = r x F</strong><br /><span className="text-sm text-slate-600">NCERT Eq. 6.23; direction follows the right-hand screw rule.</span></div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-center"><strong className="font-mono text-rose-900">|tau| = rF sin(theta) = r<sub>perp</sub>F</strong><br /><span className="text-sm text-slate-600">NCERT Eqs. 6.24a-b.</span></div>
+        </div>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li>Torque is a vector; its SI unit is newton metre (N m). It is not work, even though the units have the same dimensions.</li>
+          <li>Torque vanishes when r = 0, F = 0, or theta is 0 degrees or 180 degrees.</li>
+          <li>For fixed r and F, torque magnitude is greatest at theta = 90 degrees.</li>
+          <li>Reversing the force reverses the direction of torque.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Rotation and Equilibrium</h3>
+        <p className="text-sm">The time rate of change of angular momentum equals torque: <strong>dl/dt = tau</strong> (NCERT Eq. 6.27), the rotational analogue of F = dp/dt.</p>
+        <div className="my-5 rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950">
+          <p><strong>Translational equilibrium:</strong> sum F = 0</p>
+          <p><strong>Rotational equilibrium:</strong> sum tau = 0</p>
+          <p className="mt-2">Mechanical equilibrium requires both conditions, so the body has neither linear nor angular acceleration.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Using the Simulation</h3>
+        <ol className="list-decimal pl-6 space-y-2 text-sm">
+          <li>In Centre of Mass mode, compare equal and unequal masses and watch the orbital radii adjust automatically.</li>
+          <li>In Torque mode, set theta to 0, 90 and 180 degrees to test the sine dependence.</li>
+          <li>Change r or F independently and observe that torque changes in direct proportion.</li>
+          <li>Reverse the direction to compare clockwise and anticlockwise turning effects.</li>
+        </ol>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'moment-of-inertia') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Moment of Inertia</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Moment of inertia is the rotational analogue of mass. It measures how strongly a rigid body resists a change in rotational motion about a specified fixed axis.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Definition</h3>
+        <div className="my-5 rounded-xl border border-violet-200 bg-violet-50 p-5 text-center font-mono text-xl font-bold text-violet-900">I = sum(m<sub>i</sub>r<sub>i</sub>²)</div>
+        <p className="text-sm">Here r<sub>i</sub> is the perpendicular distance of the i-th mass element from the axis. Moment of inertia depends on mass, shape, size, mass distribution, and the position and orientation of the axis. It does not depend on angular velocity. Its SI unit is kg m² and its dimensions are [ML²].</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">NCERT Table 6.1</h3>
+        <div className="overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-100"><tr><th className="p-3 text-left">Body</th><th className="p-3 text-left">Specified axis</th><th className="p-3 text-left">I</th></tr></thead>
+            <tbody>
+              <tr className="border-t"><td className="p-3">Thin circular ring</td><td className="p-3">Perpendicular to plane at centre</td><td className="p-3 font-mono">MR²</td></tr>
+              <tr className="border-t"><td className="p-3">Circular disc</td><td className="p-3">Perpendicular to disc at centre</td><td className="p-3 font-mono">MR²/2</td></tr>
+              <tr className="border-t"><td className="p-3">Thin rod</td><td className="p-3">Perpendicular at midpoint</td><td className="p-3 font-mono">ML²/12</td></tr>
+              <tr className="border-t"><td className="p-3">Solid sphere</td><td className="p-3">About a diameter</td><td className="p-3 font-mono">2MR²/5</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Rotational Dynamics</h3>
+        <div className="my-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center"><strong className="font-mono text-amber-900">tau = I alpha</strong><br /><span className="text-sm text-slate-600">For the same torque, larger I means smaller angular acceleration.</span></div>
+          <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-center"><strong className="font-mono text-cyan-900">K = ½I omega²</strong><br /><span className="text-sm text-slate-600">Rotational kinetic energy for fixed-axis rotation.</span></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Radius of Gyration</h3>
+        <p className="text-sm">NCERT writes <strong>I = Mk²</strong>. The radius of gyration k is the distance from the axis at which a single point mass equal to the whole body's mass would have the same moment of inertia.</p>
+
+        <div className="my-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950"><strong>Practical connection:</strong> A flywheel deliberately has a large moment of inertia. It resists sudden speed changes and helps engines deliver smoother motion.</div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Using the Simulation</h3>
+        <ol className="list-decimal pl-6 space-y-2 text-sm">
+          <li>Keep M, size and torque fixed while switching shapes; compare their spin-up rates.</li>
+          <li>Double the size parameter and observe the square dependence of I.</li>
+          <li>Increase mass and note that both I and resistance to angular acceleration increase.</li>
+          <li>Reverse torque to verify the change in angular-acceleration direction.</li>
+        </ol>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'keplers-laws-planetary-motion') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Kepler&apos;s Laws of Planetary Motion</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Johannes Kepler extracted three laws from Tycho Brahe&apos;s observations. These empirical laws later helped Newton formulate universal gravitation.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">1. Law of Orbits</h3>
+        <div className="my-5 rounded-xl border border-cyan-200 bg-cyan-50 p-5 text-center font-semibold text-cyan-950">All planets move in elliptical orbits with the Sun situated at one focus.</div>
+        <p className="text-sm">For every point on an ellipse, the sum of its distances from the two foci is constant. Half the longest diameter is the semi-major axis a. A circle is the special case in which both foci merge and a becomes the radius.</p>
+        <ul className="list-disc pl-6 space-y-2 text-sm"><li><strong>Perihelion P:</strong> closest orbital point to the Sun.</li><li><strong>Aphelion A:</strong> farthest orbital point from the Sun.</li></ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">2. Law of Areas</h3>
+        <div className="my-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-center font-semibold text-amber-950">The line joining a planet to the Sun sweeps equal areas in equal intervals of time.</div>
+        <p className="text-sm">For a short time interval, NCERT gives ΔA = ½(r × vΔt), and therefore:</p>
+        <div className="my-4 rounded-xl border border-violet-200 bg-violet-50 p-4 text-center font-mono text-lg font-bold text-violet-900">ΔA / Δt = L / (2m) = constant</div>
+        <p className="text-sm">Gravitation acts along the Sun-planet radius and is therefore a central force. Its torque about the Sun is zero, so angular momentum L is conserved. Consequently, the planet moves faster near perihelion and slower near aphelion. At the two ends, r<sub>P</sub>v<sub>P</sub> = r<sub>A</sub>v<sub>A</sub>.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">3. Law of Periods</h3>
+        <div className="my-5 rounded-xl border border-indigo-200 bg-indigo-50 p-5 text-center font-mono text-lg font-bold text-indigo-900">T² ∝ a³</div>
+        <p className="text-sm">The square of a planet&apos;s orbital period is proportional to the cube of the semi-major axis. For planets around the Sun:</p>
+        <div className="my-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-center font-mono text-lg font-bold text-blue-900">T² = 4π²a³ / (GM<sub>S</sub>)</div>
+        <p className="text-sm">Thus every planet orbiting the same central mass has the same value of T²/a³. More distant planets take longer to complete an orbit.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Using the Simulation</h3>
+        <ol className="list-decimal pl-6 space-y-2 text-sm">
+          <li>In Orbits mode, increase eccentricity and observe the Sun remain at one focus rather than the ellipse centre.</li>
+          <li>In Areas mode, compare equal-time coloured sectors and the changing velocity arrow.</li>
+          <li>Set eccentricity to zero to recover a circular orbit with constant orbital speed.</li>
+          <li>In Periods mode, vary the test planet&apos;s semi-major axis and compare its revolution with Earth&apos;s one-year orbit.</li>
+        </ol>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'conservation-mechanical-energy') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conservation of Mechanical Energy</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Kinetic and potential energies may change from point to point, but their sum remains constant when the forces doing work are conservative.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">The Conservation Principle</h3>
+        <div className="my-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center"><strong className="font-mono text-emerald-900">ΔK + ΔV = 0</strong><br /><span className="text-sm text-slate-600">Any gain in one form equals the loss in the other.</span></div>
+          <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-center"><strong className="font-mono text-violet-900">K + V = constant</strong><br /><span className="text-sm text-slate-600">Total mechanical energy E is conserved.</span></div>
+        </div>
+        <p className="text-sm">Over a complete motion from x<sub>i</sub> to x<sub>f</sub>, NCERT Eq. 5.11 gives K<sub>i</sub> + V(x<sub>i</sub>) = K<sub>f</sub> + V(x<sub>f</sub>).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Conservative Forces</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li>A one-dimensional conservative force can be written F(x) = -dV/dx.</li>
+          <li>Its work depends only on the initial and final positions, not the path.</li>
+          <li>Its work over a closed path is zero.</li>
+          <li>Gravity and the ideal spring force are conservative.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Free Fall Near Earth</h3>
+        <p className="text-sm">For constant g and gravitational potential V(h) = mgh, a ball released from rest at height H passes through these energy states:</p>
+        <div className="my-5 overflow-hidden rounded-xl border border-slate-200">
+          <table className="w-full text-sm"><thead className="bg-slate-100"><tr><th className="p-3 text-left">Position</th><th className="p-3 text-left">Mechanical energy</th></tr></thead><tbody><tr className="border-t"><td className="p-3">Release height H</td><td className="p-3 font-mono">E<sub>H</sub> = mgH</td></tr><tr className="border-t"><td className="p-3">Intermediate height h</td><td className="p-3 font-mono">E<sub>h</sub> = mgh + ½mv<sub>h</sub>²</td></tr><tr className="border-t"><td className="p-3">Ground level</td><td className="p-3 font-mono">E<sub>0</sub> = ½mv<sub>f</sub>²</td></tr></tbody></table>
+        </div>
+        <p className="text-sm">Since E<sub>H</sub> = E<sub>0</sub>, mgH = ½mv<sub>f</sub>² and therefore v<sub>f</sub> = √(2gH). At height h, v<sub>h</sub>² = 2g(H-h).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Ideal Spring-Block System</h3>
+        <div className="my-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-center font-mono text-lg font-bold text-amber-900">½kA² = ½kx² + ½mv²</div>
+        <p className="text-sm">The spring potential energy V(x) = ½kx² is maximum at x = ±A, where the block stops momentarily. Kinetic energy is maximum at equilibrium x = 0. The two curves are complementary and total E = ½kA² remains constant.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">When Mechanical Energy Is Not Conserved</h3>
+        <div className="my-5 rounded-xl border border-red-200 bg-red-50 p-5 text-center font-mono text-lg font-bold text-red-900">E<sub>f</sub> - E<sub>i</sub> = W<sub>nc</sub></div>
+        <p className="text-sm">NCERT notes that friction and viscous resistance are non-conservative. Their work depends on the path, so K + V decreases. Energy itself is not destroyed: the simulation&apos;s red loss curve accounts for mechanical energy transferred to internal energy. The real-loss mode is a comparison model; use NCERT ideal mode for Fig. 5.5 and Fig. 5.7.</p>
+        <p className="text-sm">The zero of potential energy is a choice, but it must remain fixed throughout a calculation. This lab uses V = 0 at ground level for free fall and at x = 0 for the spring.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Using the Simulation</h3>
+        <ol className="list-decimal pl-6 space-y-2 text-sm"><li>Choose NCERT ideal, then compare energy at release height H, H/2 and ground level.</li><li>Change mass or height and verify K + V remains mgH until the instant just before impact.</li><li>In Spring-block mode, watch K peak at x = 0 and V peak at x = ±A.</li><li>Choose Real losses and observe K + V fall while K + V + transferred energy remains equal to the initial energy.</li></ol>
+        <VideoSection />
+      </div>
+    );
+  }
+
   if (topic?.id === 'shm-spring') {
     return (
       <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
@@ -3526,6 +3738,41 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
           </p>
         </div>
 
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'polarisation') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Polarisation of Light</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Polarisation demonstrates that light is a transverse wave: its electric field oscillates perpendicular to the direction in which the light travels.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">Unpolarised and plane-polarised light</h3>
+        <p>
+          In natural light, the electric vector rapidly takes every possible direction in the transverse plane. A polaroid transmits only the component parallel to its pass axis, producing linearly or plane-polarised light. The intensity after this first polaroid is half the incident intensity.
+        </p>
+
+        <div className="my-6 rounded-xl border border-indigo-200 bg-indigo-50 p-5">
+          <p className="text-center font-mono text-xl font-bold text-indigo-950">I = I<sub>0</sub> cos<sup>2</sup> theta</p>
+          <p className="mt-2 text-center text-sm text-indigo-800">Malus' law, NCERT Eq. 10.18. Here I<sub>0</sub> is the polarised intensity incident on the analyser.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">What rotation reveals</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Parallel pass axes transmit the full intensity emerging from the first polaroid.</li>
+          <li>Perpendicular pass axes are crossed and transmit nearly zero intensity.</li>
+          <li>Over a full rotation of the analyser, two maxima and two minima are observed.</li>
+          <li>A middle sheet between crossed polaroids restores light: I = (I<sub>0</sub>/4) sin<sup>2</sup>(2 theta), with maximum transmission at 45 degrees.</li>
+        </ul>
+
+        <div className="mt-8 rounded-xl border border-cyan-200 bg-cyan-50 p-5">
+          <h4 className="font-bold text-cyan-950">NCERT applications</h4>
+          <p className="mt-2 text-sm text-cyan-900">Polaroids control light intensity in sunglasses and windowpanes, and are used in photographic and 3D movie cameras.</p>
+        </div>
         <VideoSection />
       </div>
     );
@@ -6853,6 +7100,441 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             <li>Move the age slider to see the stem become thicker with secondary growth.</li>
             <li>Increase cambium activity and compare secondary xylem and secondary phloem production.</li>
             <li>Use the differentiation strip to understand how meristematic cells become permanent tissues.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'dimensional-analysis') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Dimensional Analysis and Consistency</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Every physical quantity can be expressed in terms of the base quantities — mass <strong>[M]</strong>, length <strong>[L]</strong> and time <strong>[T]</strong>. The <strong>dimensions</strong> of a quantity are the powers to which these base quantities are raised to represent it. Comparing dimensions lets us test whether an equation can possibly be correct.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Dimensional Formula &amp; Dimensional Equation</h3>
+        <p className="text-sm">
+          The <strong>dimensional formula</strong> shows how and which of the base quantities represent a physical quantity. A <strong>dimensional equation</strong> equates a quantity with its dimensional formula.
+        </p>
+        <div className="my-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center"><strong className="text-blue-800">[V] = [M⁰L³T⁰]</strong><br /><span className="text-sm text-slate-600">Volume</span></div>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center"><strong className="text-emerald-800">[F] = [M L T⁻²]</strong><br /><span className="text-sm text-slate-600">Force</span></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Dimensional Formula Key (NCERT)</h3>
+        <div className="overflow-x-auto my-4">
+          <table className="w-full text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-100">
+              <tr><th className="p-2 text-left">Quantity</th><th className="p-2 text-left">Dimensional formula</th></tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-slate-100"><td className="p-2">Length / distance</td><td className="p-2 font-mono">[M⁰ L¹ T⁰]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Mass</td><td className="p-2 font-mono">[M¹ L⁰ T⁰]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Time</td><td className="p-2 font-mono">[M⁰ L⁰ T¹]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Velocity, speed</td><td className="p-2 font-mono">[M⁰ L¹ T⁻¹]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Acceleration</td><td className="p-2 font-mono">[M⁰ L¹ T⁻²]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Force</td><td className="p-2 font-mono">[M¹ L¹ T⁻²]</td></tr>
+              <tr className="border-t border-slate-100"><td className="p-2">Work, energy</td><td className="p-2 font-mono">[M¹ L² T⁻²]</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Principle of Homogeneity</h3>
+        <div className="my-5 rounded-xl border border-violet-200 bg-violet-50 p-5 text-violet-900">
+          <p className="text-sm">
+            Only physical quantities with the <strong>same dimensions</strong> can be added or subtracted. Therefore, in any correct physical equation, the dimensions of <strong>all terms on both sides must be identical</strong>. This is the <strong>principle of homogeneity of dimensions</strong>.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Application 1 — Checking Consistency</h3>
+        <p className="text-sm">For the kinematic equation <span className="font-mono">x = x<sub>0</sub> + v<sub>0</sub>t + ½at²</span>, each term reduces to length <span className="font-mono">[L]</span>:</p>
+        <ul className="list-disc pl-6 space-y-1 text-sm">
+          <li><span className="font-mono">[x] = [x<sub>0</sub>] = [L]</span></li>
+          <li><span className="font-mono">[v<sub>0</sub>t] = [L T⁻¹][T] = [L]</span></li>
+          <li><span className="font-mono">[½at²] = [L T⁻²][T²] = [L]</span></li>
+        </ul>
+        <p className="text-sm">All terms match, so the equation is <strong>dimensionally correct</strong>. Similarly <span className="font-mono">½mv² = mgh</span> is consistent (both sides <span className="font-mono">[M L² T⁻²]</span>, <em>Example 1.3</em>), while <span className="font-mono">K = m³v³</span> and <span className="font-mono">K = ma</span> are ruled out because their dimensions are not those of energy <span className="font-mono">[M L² T⁻²]</span> (<em>Example 1.4</em>).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Application 2 — Deducing a Relation</h3>
+        <p className="text-sm">Assume the time period of a simple pendulum depends on length <span className="font-mono">l</span>, gravity <span className="font-mono">g</span> and mass <span className="font-mono">m</span>: <span className="font-mono">T = k l<sup>x</sup> g<sup>y</sup> m<sup>z</sup></span>. Equating dimensions:</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center font-mono text-sm text-emerald-900">
+          <p>[M⁰L⁰T¹] = [L]<sup>x</sup> [L T⁻²]<sup>y</sup> [M]<sup>z</sup></p>
+          <p>x + y = 0 ; −2y = 1 ; z = 0 → x = ½, y = −½, z = 0</p>
+          <p className="text-base mt-2">T = 2π √(l / g)</p>
+        </div>
+        <p className="text-sm">The dimensionless constant <span className="font-mono">k = 2π</span> cannot be found from dimensions — it comes from experiment or full theory.</p>
+
+        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <strong>NCERT caution — necessary, not sufficient:</strong> If an equation fails the consistency test it is proved wrong, but if it passes it is <em>not</em> proved right. Dimensional analysis cannot fix dimensionless constants (the ½, the 2π) and cannot distinguish two quantities that share the same dimensions.
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">You cannot add &ldquo;3 hours + 5 kilometres&rdquo; — quantities must share dimensions to be added, exactly like terms in an equation.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A swinging pendulum or pendulum-like motion has its period form fixed entirely by what <span className="font-mono">T</span> must equal dimensionally: <span className="font-mono">√(l/g)</span>.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Industry &amp; technology</h4><p className="text-sm text-rose-900">Engineers dimensionally sanity-check rocket, bridge and circuit equations before trusting a derivation — a dimension mismatch flags a wrong formula instantly.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Load each equation and watch the balance sit level and glow emerald when consistent.</li>
+            <li>Use <strong>Tamper</strong> to break a correct term and see the beam tilt to red, with the offending M, L or T exponent flagged.</li>
+            <li>Pick the ruled-out formulas (<span className="font-mono">K = m³v³</span>, <span className="font-mono">K = ma</span>) to see inconsistency directly.</li>
+            <li>Switch to <strong>Derive a Relation</strong> and balance the M, L, T bars to recover <span className="font-mono">T = k√(l/g)</span>.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'projectile-motion') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Projectile Motion &amp; Vector Resolution</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A projectile is an object thrown into the air that then moves under gravity alone. Its motion looks complicated — a curving arc — but it is simply two <strong>independent</strong> straight-line motions happening at once: a steady horizontal motion and a gravity-driven vertical motion.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Resolving the Launch Velocity</h3>
+        <p className="text-sm">A vector can be split into rectangular components along the x- and y-axes:</p>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center font-mono text-base text-blue-900">
+          <p>A = Aₓ î + Aᵧ ĵ</p>
+          <p>Aₓ = A cos θ &nbsp;·&nbsp; Aᵧ = A sin θ</p>
+          <p>A = √(Aₓ² + Aᵧ²) &nbsp;·&nbsp; θ = tan⁻¹(Aᵧ / Aₓ)</p>
+        </div>
+        <p className="text-sm">For a projectile launched with speed <strong>v₀</strong> at angle <strong>θ₀</strong>, this gives a horizontal part <strong>v₀ₓ = v₀cosθ₀</strong> and a vertical part <strong>v₀ᵧ = v₀sinθ₀</strong>. The unit vectors î, ĵ have magnitude 1 and only point a direction.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Independence of the Two Motions</h3>
+        <div className="my-5 rounded-xl border border-violet-200 bg-violet-50 p-5 text-violet-900">
+          <p className="text-sm">
+            After launch, the only acceleration is gravity, directed downward: <strong>aₓ = 0, aᵧ = −g</strong>. So the horizontal velocity never changes while the vertical velocity steadily decreases, stops at the top, then reverses. <strong>Galileo</strong> first stated this independence of horizontal and vertical motion.
+          </p>
+        </div>
+        <div className="my-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center"><strong className="text-emerald-800">vₓ = v₀cosθ₀</strong><br /><span className="text-sm text-slate-600">constant — uniform horizontal motion</span></div>
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center"><strong className="text-amber-800">vᵧ = v₀sinθ₀ − gt</strong><br /><span className="text-sm text-slate-600">changes — free-fall-like vertical motion</span></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Path is a Parabola</h3>
+        <p className="text-sm">Combining x = (v₀cosθ₀)t and y = (v₀sinθ₀)t − ½gt² and eliminating t:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
+          <p className="font-mono text-lg text-brand-primary">y = (tan θ₀)x − [ g / 2(v₀cosθ₀)² ] x²</p>
+          <p className="text-sm text-slate-600 mt-1">This has the form y = ax + bx² — the equation of a parabola.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Key Results</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center font-mono text-base text-emerald-900">
+          <p>Time to apex: tₘ = v₀sinθ₀ / g</p>
+          <p>Time of flight: T_f = 2v₀sinθ₀ / g = 2tₘ</p>
+          <p>Max height: hₘ = (v₀sinθ₀)² / 2g</p>
+          <p>Range: R = v₀²sin2θ₀ / g</p>
+        </div>
+        <p className="text-sm">At the apex the vertical velocity is zero (vᵧ = 0). The range is greatest when sin2θ₀ = 1, i.e. at <strong>θ₀ = 45°</strong>, giving R_m = v₀²/g. Because sin2θ₀ is symmetric about 45°, complementary angles such as 30° and 60° give the <strong>same range</strong> (Galileo).</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">A thrown ball or a basketball shot follows a parabola; for maximum distance on level ground you launch near 45°.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A water-fountain jet and a leaping dolphin both trace parabolic arcs for the same reason.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Technology &amp; sport</h4><p className="text-sm text-rose-900">Sports analytics, fountains and sprinkler design all use the range and maximum-height formulas.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Watch the velocity vector split into its green (horizontal) and amber (vertical) components.</li>
+            <li>Follow the two shadow dots — the ground dot moves at constant speed while the vertical dot slows to a stop at the apex.</li>
+            <li>Sweep the launch angle and watch the range graph peak exactly at 45°.</li>
+            <li>Turn on the complementary-angle ghost to see 30° and 60° land at the same range.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'static-kinetic-friction') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Static &amp; Kinetic Friction</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Friction is the force, parallel to the surfaces in contact, that opposes an applied force — or opposes relative motion once a body is already sliding. It is why a heavy box resists your push, and why it suddenly becomes easier to move once it breaks free.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Static Friction Self-Adjusts</h3>
+        <p className="text-sm">
+          When you push a resting body with a force <strong>F</strong> that is too small to move it, a frictional force <strong>fₛ</strong> appears that is exactly equal and opposite to <strong>F</strong>, keeping the body at rest. As you push harder, fₛ grows to match — it is <strong>self-adjusting</strong>. It opposes <em>impending motion</em> (the motion that would happen if friction were absent).
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Limiting Value</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+          <p className="font-mono text-lg text-amber-900">(fₛ)ₘₐₓ = μₛN &nbsp;·&nbsp; fₛ ≤ μₛN</p>
+          <p className="text-sm text-slate-600 mt-1">Static friction can only grow up to the limiting value (fₛ)ₘₐₓ = μₛN.</p>
+        </div>
+        <p className="text-sm">The constant <strong>μₛ</strong> is the <strong>coefficient of static friction</strong>. It depends only on the nature of the two surfaces and is independent of the area of contact.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Kinetic (Sliding) Friction</h3>
+        <p className="text-sm">The instant the applied force exceeds the limiting value, the body slides and the friction <strong>drops</strong> to the kinetic value:</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
+          <p className="font-mono text-lg text-emerald-900">fₖ = μₖN &nbsp;·&nbsp; μₖ &lt; μₛ</p>
+        </div>
+        <p className="text-sm">Kinetic friction is also independent of contact area and nearly independent of velocity. Once moving, Newton's second law gives the acceleration <strong>a = (F − fₖ)/m</strong>; the body moves at constant velocity when <strong>F = fₖ</strong>.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Angle of Repose (Incline)</h3>
+        <p className="text-sm">On a plane tilted by angle θ, resolving the weight gives mg sinθ = fₛ and mg cosθ = N. The block slips when fₛ reaches its limit, i.e. at the angle of repose:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
+          <p className="font-mono text-lg text-brand-primary">tan θₘₐₓ = μₛ</p>
+          <p className="text-sm text-slate-600 mt-1">This angle depends only on μₛ — it is independent of the mass of the block.</p>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <strong>NCERT caution:</strong> The laws of friction (fₛ ≤ μₛN, fₖ = μₖN) are <em>empirical</em> relations that are only approximately true — they are not fundamental laws like gravitation. Yet they are very useful in practical calculations.
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">A heavy box won't budge until you push hard enough, then suddenly slides more easily — because μₛ &gt; μₖ.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A book on a slowly tilting plank stays put until the tilt reaches the angle of repose, then it slips.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Technology</h4><p className="text-sm text-rose-900">Anti-lock brakes and tyre grip rely on static (gripping) friction being larger than kinetic (skidding) friction.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>In Flat-push mode, raise the applied force and watch the red friction arrow grow to match it while the block stays at rest.</li>
+            <li>Cross the limiting value and see the friction drop to the constant kinetic plateau as the block breaks free and accelerates.</li>
+            <li>Change μₛ and μₖ independently and watch the peak and plateau of the friction graph move.</li>
+            <li>Switch to Incline mode and tilt until the block slips — confirm tanθₘₐₓ = μₛ and that it doesn't change with mass.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'newtons-laws-of-motion') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Newton's Laws of Motion</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Three laws answer the question: what governs the motion of bodies? Together they are the foundation of classical mechanics — connecting force, mass, momentum and acceleration.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. First Law — Inertia</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+          <p className="text-sm text-emerald-900">"Everybody continues to be in its state of rest or of uniform motion in a straight line, unless compelled by some external force to act otherwise." In short: <strong>if the net external force is zero, the acceleration is zero.</strong></p>
+        </div>
+        <p className="text-sm"><strong>Inertia</strong> is the inherent property of a body to resist changes in its state of motion. Galileo's inclined-plane observations led to this law; Aristotle's idea that a force is needed to keep a body moving is wrong — that force is only needed in practice to counter friction.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Second Law — F = ma</h3>
+        <p className="text-sm">"The rate of change of momentum of a body is proportional to the applied force and takes place in the direction in which the force acts." With momentum <strong>p = mv</strong>:</p>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center font-mono text-base text-blue-900">
+          <p>F = k · dp/dt &nbsp;(k = 1 in SI)&nbsp; → &nbsp;F = dp/dt = ma</p>
+          <p>1 N = 1 kg·m·s⁻²</p>
+        </div>
+        <p className="text-sm">It is a <strong>vector</strong> law and is consistent with the first law (F = 0 ⇒ a = 0). The related quantity <strong>impulse</strong> is J = F·Δt = Δp — useful when a large force acts for a very short time.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Third Law — Action &amp; Reaction</h3>
+        <div className="my-4 p-4 bg-rose-50 rounded-xl border border-rose-200">
+          <p className="text-sm text-rose-900">"To every action there is always an equal and opposite reaction." The force on body A by body B is equal and opposite to the force on B by A.</p>
+        </div>
+        <p className="text-sm">Action and reaction are <strong>simultaneous</strong>, occur between <strong>pairs of bodies</strong>, and act on <strong>different bodies</strong> — which is why they never cancel each other.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Conservation of Momentum</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
+          <p className="font-mono text-lg text-brand-primary">total momentum of an isolated system = constant</p>
+          <p className="text-sm text-slate-600 mt-1">It follows from the second and third laws; for two bodies, m₁v₁ = −m₂v₂.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">A seat belt restrains you when a car suddenly stops (inertia); a loaded trolley needs more force than an empty one for the same acceleration (F = ma).</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A swimmer pushes water backward; the water pushes the swimmer forward (third law).</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Technology</h4><p className="text-sm text-rose-900">A rocket expels gas backward and is thrust forward — third law plus conservation of momentum.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>First-law mode: let the puck glide, then toggle friction to see what actually changes its motion.</li>
+            <li>Second-law mode: raise the force (a doubles) and the mass (a halves) — watch the a-vs-F line and live a = F/m.</li>
+            <li>Third-law mode: release the spring between two carts and see equal-opposite forces send the lighter cart off faster.</li>
+            <li>Compare the momentum bars — they stay equal and opposite, so total momentum is conserved.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'conservation-of-momentum') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conservation of Momentum</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When bodies interact, their individual momenta can change — but the <strong>total</strong> momentum of an isolated system never does. This single idea explains collisions, recoil and rocket propulsion.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Law</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <p className="text-sm text-blue-900">"The total momentum of an <strong>isolated system</strong> of interacting particles is conserved." An isolated system has no external force, so internal equal-and-opposite forces (third law) make the momentum changes cancel in pairs.</p>
+        </div>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center">
+          <p className="font-mono text-lg text-brand-primary">m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂</p>
+          <p className="text-sm text-slate-600 mt-1">Momentum p = mv is a vector — direction matters.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Why It Holds (2nd + 3rd Laws)</h3>
+        <p className="text-sm">For two bodies in contact for a common time Δt: F₍AB₎Δt = p′₍A₎ − p₍A₎ and F₍BA₎Δt = p′₍B₎ − p₍B₎. Since F₍AB₎ = −F₍BA₎, the changes are equal and opposite:</p>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center font-mono text-base text-emerald-900">
+          <p>Δp₍A₎ = −Δp₍B₎ → p′₍A₎ + p′₍B₎ = p₍A₎ + p₍B₎</p>
+          <p>In general dP/dt = F₍ext₎; if F₍ext₎ = 0 then P = constant.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Recoil of a Gun</h3>
+        <p className="text-sm">Before firing, the gun and bullet are at rest, so total momentum is zero. After firing, p₍bullet₎ + p₍gun₎ = 0, i.e. <strong>p₍gun₎ = −p₍bullet₎</strong> — the gun recoils backward to keep the total momentum zero.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Collisions: Elastic vs Inelastic</h3>
+        <ul className="list-disc pl-6 space-y-2 text-sm">
+          <li>Total momentum is conserved <strong>whether the collision is elastic or inelastic</strong>.</li>
+          <li>In an <strong>elastic</strong> collision the total kinetic energy is <strong>also conserved</strong>.</li>
+          <li>In an <strong>inelastic</strong> collision some kinetic energy is lost (to heat and sound); in a <strong>completely inelastic</strong> collision the bodies move together afterwards, with common velocity (m₁u₁ + m₂u₂)/(m₁ + m₂).</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">A Newton's cradle and a carrom striker pass momentum from one body to the next.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A skater or diver pushing off gains momentum equal and opposite to what they push away.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Technology</h4><p className="text-sm text-rose-900">Gun recoil and rocket exhaust: backward momentum balances forward momentum.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Collide two pucks and watch the "total momentum before" bar always equal the "after" bar.</li>
+            <li>Switch between Elastic and Inelastic — the kinetic-energy bar stays equal only for the elastic case.</li>
+            <li>Change the masses and initial velocities and confirm m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂ every time.</li>
+            <li>Use Recoil mode to fire the pucks apart from rest and see equal-and-opposite momenta (total stays zero).</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'work-energy-theorem') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Work-Energy Theorem</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          When forces act on a moving body, the bookkeeping is simple: the <strong>net work</strong> done on it equals the <strong>change in its kinetic energy</strong>. This one statement ties force and displacement to motion.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Work Done by a Force</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
+          <p className="font-mono text-lg text-blue-900">W = (F cos θ) d = F · d</p>
+          <p className="text-sm text-slate-600 mt-1">Component of force along the displacement × the displacement. Unit: joule (J).</p>
+        </div>
+        <p className="text-sm">Work is a <strong>scalar</strong> and can be positive, negative or zero. If there is no displacement there is no work (pushing a rigid wall does zero work). A force <strong>perpendicular</strong> to the motion (θ = 90°) does no work, and <strong>friction</strong> does negative work.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Kinetic Energy</h3>
+        <div className="my-4 p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+          <p className="font-mono text-lg text-amber-900">K = ½ m v²</p>
+          <p className="text-sm text-slate-600 mt-1">The energy of motion — a scalar, and always positive.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Theorem</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
+          <p className="font-mono text-lg text-emerald-900">W_net = K_f − K_i = ½mv² − ½mu²</p>
+          <p className="text-sm text-slate-600 mt-1">The change in kinetic energy of a particle equals the work done on it by the net force.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Derivation</h3>
+        <p className="text-sm">For constant acceleration along a line, kinematics gives v² − u² = 2as. Multiplying both sides by m/2:</p>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center font-mono text-base text-brand-primary">
+          <p>½mv² − ½mu² = mas = Fs &nbsp;(Newton's 2nd law)</p>
+          <p>⇒ K_f − K_i = W</p>
+        </div>
+        <p className="text-sm">In vector form ½mv² − ½mu² = <strong>F·d</strong>; for a variable force, K_f − K_i = ∫F dx. The theorem is the integral (scalar) form of Newton's second law.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">Pushing a trolley: your push does positive work and speeds it up, while friction does negative work.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature</h4><p className="text-sm text-sky-900">A falling raindrop: gravity does positive work, air resistance negative; the net work equals its gain in kinetic energy.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Technology</h4><p className="text-sm text-rose-900">Braking a vehicle: friction does negative work equal to the kinetic energy that must be removed to stop.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Push the block and watch the net-work bar rise in lock-step with the change-in-KE bar.</li>
+            <li>Tilt the force toward 90° and see the work (and speed gain) fall to zero.</li>
+            <li>Increase friction to make the net work negative — the block slows down.</li>
+            <li>Change the mass and confirm the same work produces a different speed gain (K = ½mv²).</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'conservation-of-angular-momentum') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Conservation of Angular Momentum</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Just as linear momentum is conserved when no external force acts, <strong>angular momentum is conserved when no external torque acts</strong>. This is why a spinning skater speeds up the instant she pulls her arms in.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Angular Momentum</h3>
+        <div className="my-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-center">
+          <p className="font-mono text-lg text-blue-900">L = I ω</p>
+          <p className="text-sm text-slate-600 mt-1">For rotation about a fixed axis: moment of inertia × angular velocity (for a symmetric body, L = L_z = Iω).</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Torque Changes Angular Momentum</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300 text-center font-mono text-base text-brand-primary">
+          <p>dL/dt = τ<sub>ext</sub> &nbsp;(rotational analogue of dP/dt = F<sub>ext</sub>)</p>
+          <p>If I is constant: τ = I α</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The Conservation Law</h3>
+        <div className="my-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-center">
+          <p className="font-mono text-lg text-emerald-900">τ<sub>ext,z</sub> = 0 ⇒ L<sub>z</sub> = Iω = constant ⇒ I₁ω₁ = I₂ω₂</p>
+          <p className="text-sm text-slate-600 mt-1">With zero external torque, a change in moment of inertia forces an opposite change in angular speed.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. The Spinning Skater</h3>
+        <p className="text-sm">With arms outstretched the skater has a large moment of inertia I₁. Pulling the arms in reduces it to I₂. Since there is no external torque (friction neglected), L = Iω stays constant, so the angular speed <strong>increases</strong>. Stretching the arms out again slows her down. Acrobats, divers and dancers all use this principle.</p>
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <strong>Note:</strong> angular momentum L is conserved, but rotational kinetic energy (½Iω²) is <em>not</em> — the skater's muscles do work pulling the arms in, which increases the kinetic energy.
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Understanding</h3>
+        <div className="grid gap-4 my-6">
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200"><h4 className="font-bold text-slate-900 mb-2">Daily life</h4><p className="text-sm text-slate-700">The swivel-chair experiment: spin with arms out, then fold them in to speed up.</p></div>
+          <div className="bg-sky-50 p-5 rounded-xl border border-sky-200"><h4 className="font-bold text-sky-900 mb-2">Nature / sport</h4><p className="text-sm text-sky-900">A diver tucks to spin faster and opens up to slow down before entering the water.</p></div>
+          <div className="bg-rose-50 p-5 rounded-xl border border-rose-200"><h4 className="font-bold text-rose-900 mb-2">Performance</h4><p className="text-sm text-rose-900">Ice-skaters and dancers performing a pirouette control their spin by drawing the arms in or out.</p></div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Slide the arms in and watch the figure visibly spin faster.</li>
+            <li>See the moment-of-inertia bar fall while the angular-speed bar rises — and the L = Iω bar stay constant.</li>
+            <li>Notice the rotational-KE bar changes, showing energy is not conserved here.</li>
+            <li>Changing arm mass or starting spin resets the reference state at r = 2 m; then posture changes obey I₁ω₁ = I₂ω₂.</li>
           </ul>
         </div>
 
