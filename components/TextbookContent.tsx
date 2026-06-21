@@ -7543,6 +7543,490 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'nuclei') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Nuclei</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Nuclear physics connects a nucleus's mass defect with its stability and energy. Radioactive change is random for one nucleus but follows a precise exponential law for a large sample.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Nuclear Size and Composition</h3>
+        <p>A nuclide contains Z protons and N neutrons, so its mass number is A = Z + N. Nuclear size follows R = R0 A^(1/3), showing that nuclear density is approximately constant.</p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">R = R0 A^(1/3), &nbsp; R0 about 1.2 fm</div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Mass Defect and Binding Energy</h3>
+        <p>The bound nucleus has less mass than its separated nucleons. This mass defect appears as binding energy. Greater binding energy per nucleon generally means greater stability.</p>
+        <div className="bg-blue-50 p-5 rounded-xl border border-blue-200 my-4 text-center font-mono text-lg text-blue-900">Delta E = Delta m c^2</div>
+        <p>The binding-energy-per-nucleon curve peaks near iron. Light nuclei can release energy by fusion, while very heavy nuclei can release energy by fission because both products move toward higher binding energy per nucleon.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Radioactive Decay</h3>
+        <p>Radioactive decay is spontaneous and is unaffected by ordinary temperature, pressure, or chemical state. The decay constant lambda is the probability of decay per unit time.</p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">N = N0 e^(-lambda t), &nbsp; T1/2 = ln(2)/lambda, &nbsp; activity = lambda N</div>
+        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-slate-800">
+            <li>Alpha decay lowers A by 4 and Z by 2.</li>
+            <li>Beta-minus decay leaves A unchanged and raises Z by 1.</li>
+            <li>Gamma emission changes neither A nor Z.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Fission and Fusion</h3>
+        <p>In fission, a heavy nucleus such as U-235 splits into medium-mass fragments and neutrons, permitting a chain reaction. Fusion combines light nuclei and powers stars, but requires extremely high temperature to overcome electrostatic repulsion.</p>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Move along the binding-energy curve and locate the most stable region.</li>
+            <li>Advance time by one half-life and verify that N becomes N0/2.</li>
+            <li>Compare fission and fusion through their movement toward larger binding energy per nucleon.</li>
+          </ul>
+        </div>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'moving-charges-magnetism') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Moving Charges and Magnetism</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          A magnetic field acts on moving charge. Its force is perpendicular to both the velocity and the field, so it bends a trajectory without changing the particle's speed or kinetic energy.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Magnetic Force on a Charge</h3>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          F = q(v x B) &nbsp;&nbsp; |F| = |q|vB sin(theta)
+        </div>
+        <p>
+          The right-hand rule gives the force direction for a positive charge; reverse it for a negative charge. The force vanishes when velocity is parallel to the field and is maximum when they are perpendicular.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Circular and Helical Motion</h3>
+        <p>
+          For velocity perpendicular to a uniform field, magnetic force supplies the centripetal force. A velocity component parallel to the field remains unchanged and turns the circular path into a helix.
+        </p>
+        <div className="bg-blue-50 p-5 rounded-xl border border-blue-200 my-4 text-center font-mono text-lg text-blue-900">
+          r = mv_perpendicular / (|q|B) &nbsp;&nbsp; T = 2 pi m / (|q|B)
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Current-Carrying Conductor</h3>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          F = I(L x B) &nbsp;&nbsp; |F| = ILB sin(theta)
+        </div>
+        <p>
+          This macroscopic force is the sum of magnetic forces on the moving charge carriers. Its direction follows the same cross-product rule using conventional current.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Velocity Selector</h3>
+        <p>
+          In crossed electric and magnetic fields, a charged particle passes undeflected when the opposing forces balance: qE = qvB, so the selected speed is v = E/B.
+        </p>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li>Reverse the charge to see the magnetic-force direction reverse.</li>
+            <li>Set theta to zero and confirm that magnetic force vanishes.</li>
+            <li>Increase mass or speed and watch the circular-orbit radius grow.</li>
+            <li>Balance crossed fields and identify the one speed that travels straight.</li>
+          </ul>
+        </div>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'current-electricity') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Current Electricity</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          NCERT Chapter 3 builds the working toolkit for circuits: how a real cell drives current, where Ohm's law applies and where it doesn't, how to combine cells, and how Kirchhoff's two simple rules and the Wheatstone bridge let you analyse — and measure — any resistor network.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Current, Ohm's Law &amp; Resistance</h3>
+        <p>
+          Electric current I is the rate of flow of charge. The SI unit is the ampere (A), and current is a scalar (it does <em>not</em> obey vector addition).
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          R = V / I &nbsp;&nbsp;·&nbsp;&nbsp; R = ρ · ℓ / A &nbsp;&nbsp;·&nbsp;&nbsp; σ = 1 / ρ
+        </div>
+        <p>
+          Ohm's law (V ∝ I) is obeyed by many substances but is <strong>not a fundamental law of nature</strong>. NCERT lists three ways it fails:
+        </p>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
+            <li>V depends on I <strong>non-linearly</strong> (e.g. a filament bulb whose ρ rises with current).</li>
+            <li>The V–I relation depends on the <strong>sign of V</strong> for the same |V| (e.g. a diode).</li>
+            <li>The V–I relation is <strong>non-unique</strong> (e.g. GaAs).</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Drift Velocity</h3>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          v_d = e E τ / m
+        </div>
+        <p>
+          Conduction electrons drift slowly along the field at v_d, where e is the electronic charge, E is the field in the conductor, τ is the relaxation time and m is the electron mass.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. EMF and Internal Resistance</h3>
+        <p>
+          A real cell has electromotive force ε and an internal resistance r. When the cell drives an external resistance R, the terminal voltage across R is:
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          V_ext = I R = ε · R / (R + r)
+        </div>
+        <p>This is why a battery's terminal voltage <em>sags</em> as the load draws more current.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Cells in Series and Parallel</h3>
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-4">
+          <p className="text-emerald-900 font-semibold mb-2">Series (NCERT §3.11):</p>
+          <p className="font-mono text-sm text-emerald-900">ε_eq = ε₁ + ε₂ + … + ε_n,&nbsp;&nbsp;&nbsp; r_eq = r₁ + r₂ + … + r_n</p>
+          <p className="text-xs text-emerald-800 mt-1">If a cell is reversed, its ε enters with a minus sign: e.g. ε_eq = ε₁ − ε₂.</p>
+        </div>
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-4">
+          <p className="text-emerald-900 font-semibold mb-2">Two cells in parallel:</p>
+          <p className="font-mono text-sm text-emerald-900">ε_eq = (ε₁ r₂ + ε₂ r₁) / (r₁ + r₂),&nbsp;&nbsp; r_eq = r₁ r₂ / (r₁ + r₂)</p>
+          <p className="text-xs text-emerald-800 mt-1">Generalised: 1/r_eq = Σ 1/rᵢ,&nbsp; ε_eq / r_eq = Σ εᵢ / rᵢ.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Kirchhoff's Rules</h3>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
+            <li><strong>Junction rule:</strong> at any junction, Σ I_in = Σ I_out (conservation of charge).</li>
+            <li><strong>Loop rule:</strong> around any closed loop, the algebraic sum of changes in potential is zero (conservation of energy).</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Wheatstone Bridge</h3>
+        <p>
+          Four resistances R₁, R₂, R₃, R₄ arranged in a diamond with a battery on one diagonal and a galvanometer on the other. The galvanometer reads zero when the bridge is <em>balanced</em>:
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          R₁ / R₂ = R₃ / R₄
+        </div>
+        <p>At balance, an unknown resistance can be found purely from the three known resistances — independent of the EMF of the cell.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Touchpoints</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Daily life</div>
+            <p className="text-sm text-slate-600">A torch's batteries are in series for the voltage; old cells dim because their internal r has grown.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Natural</div>
+            <p className="text-sm text-slate-600">An electric eel stacks thousands of biological "cells" in series to deliver a high-voltage stun.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Technology</div>
+            <p className="text-sm text-slate-600">Strain gauges and bridge circuits use the Wheatstone null method to detect tiny resistance changes.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VIII. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li><strong>Ohm scene:</strong> swap element between Resistor, Bulb and Diode — watch the V–I trace turn from a straight line into a curve and then a sharp diode kink.</li>
+            <li><strong>Cells scene:</strong> series adds EMF, parallel cuts internal r. Reverse cell-2 and see ε_eq become a difference (and the current direction flip when ε₂ &gt; ε₁).</li>
+            <li><strong>Wheatstone scene:</strong> nudge R₄ slowly — the galvanometer needle whips through zero at R₁/R₂ = R₃/R₄. The "balance R₄" readout tells you the target.</li>
+            <li><strong>Internal resistance:</strong> raise r in the cells scene and watch V_ext sag below ε — that's why short, fat wires and fresh batteries matter.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'electrostatic-potential-capacitance') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electrostatic Potential and Capacitance</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          NCERT Chapter 2 introduces a scalar quantity — the <strong>electrostatic potential V</strong> — that captures the work needed to move a charge through an electric field, and uses it to build the <strong>capacitor</strong>: a geometric device that stores electrical energy in the field between two conductors.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Electrostatic Potential</h3>
+        <p>
+          The electrostatic potential V at a point in an electric field is the work done by an external agency in bringing a unit positive test charge from infinity to that point, without acceleration. It is a scalar. The SI unit is the <strong>volt (V)</strong>. <em>Potential difference</em> between two points is the physically significant quantity.
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          V<sub>point charge</sub> = (1 / 4πε₀) · q / r
+        </div>
+        <p>For a system of charges, the net potential is the algebraic (scalar) sum of the individual contributions — much easier than vector-summing fields.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Potential Due to a Dipole</h3>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          V<sub>dipole</sub> = (1 / 4πε₀) · (p cos θ) / r²
+        </div>
+        <p>
+          Here p = q·2a is the dipole moment and θ is the angle between <strong>p</strong> and the position vector. Note the <strong>1/r²</strong> fall-off — steeper than the 1/r of a point charge, but gentler than the 1/r³ of the dipole field.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Equipotential Surfaces</h3>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
+            <li>An equipotential surface is a surface over which V has a constant value.</li>
+            <li>For a point charge, equipotential surfaces are concentric spheres centred at the charge.</li>
+            <li><strong>E</strong> at any point is <em>perpendicular</em> to the equipotential surface through that point.</li>
+            <li><strong>E</strong> points in the direction of the steepest decrease of V.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Capacitors and Capacitance</h3>
+        <p>
+          A capacitor is a system of two conductors separated by an insulator. Its <strong>capacitance</strong> is defined as
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          C = Q / V
+        </div>
+        <p>where Q is the charge on either conductor and V is the potential difference between them. The SI unit is the <strong>farad (F = C·V⁻¹)</strong>. Critically, C is determined <em>purely by geometry</em> — the shapes, sizes and relative positions of the two conductors — not by what charge you put on them.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Parallel-Plate Capacitor &amp; Dielectrics</h3>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          C₀ = ε₀ · A / d &nbsp;&nbsp;·&nbsp;&nbsp; C = K · C₀ (with dielectric)
+        </div>
+        <p>
+          When a dielectric of dielectric constant K fills the gap, the induced polarization sets up a field opposing the plate field. The net field — and hence the potential difference at fixed Q — is reduced, so the capacitance rises by the factor K (NCERT §2.13).
+        </p>
+        <p>
+          <strong>Combinations (§2.14):</strong> series 1/C = 1/C₁ + 1/C₂ + …;&nbsp; parallel C = C₁ + C₂ + …
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Energy Stored in a Capacitor</h3>
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-4">
+          <p className="text-emerald-900 font-semibold mb-2">Three equivalent forms (NCERT §2.15):</p>
+          <p className="font-mono text-sm text-emerald-900">U = ½ Q V = ½ C V² = ½ Q² / C</p>
+          <p className="text-xs text-emerald-800 mt-2">The energy is stored in the <em>field</em> between the plates, with energy density&nbsp;<span className="font-mono">u = ½ ε₀ E²</span>.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Touchpoints</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Daily life</div>
+            <p className="text-sm text-slate-600">Camera flash — a capacitor charges slowly from a small battery and dumps its energy in a millisecond pulse.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Natural</div>
+            <p className="text-sm text-slate-600">A thundercloud and the ground act as a giant capacitor; breakdown of the air discharges it as lightning.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Technology</div>
+            <p className="text-sm text-slate-600">Capacitive touchscreens detect a finger because your skin acts as a dielectric and changes the local capacitance.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VIII. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li><strong>Potential scene:</strong> drag the probe — V at its position reads out live. With two opposite charges, find the zero-potential line where the two contributions cancel.</li>
+            <li><strong>Equipotentials are perpendicular to E:</strong> watch how closely-packed contours mark strong-field regions.</li>
+            <li><strong>Capacitor scene:</strong> change A and d — see C ∝ A and C ∝ 1/d directly in the readout.</li>
+            <li><strong>Dielectric:</strong> slide the slab in. With the battery <em>connected</em>, V is held constant and Q (= CV) grows. With the battery <em>disconnected</em>, Q is locked and V drops to Q/C.</li>
+            <li><strong>Energy:</strong> notice U scales as V² at fixed C — the field region between the plates is where the energy lives, with density ½ε₀E².</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'electric-charges-fields') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electric Charges and Fields</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Charges exert forces on each other across empty space. NCERT Chapter 1 explains <em>how</em>: a charge fills the space around it with an <strong>electric field</strong>, and any other charge placed in that field feels a force — set by Coulomb’s inverse-square law.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Coulomb’s Law</h3>
+        <p>
+          The mutual electrostatic force between two point charges q₁ and q₂ separated by a distance r is proportional to the product of the charges and inversely proportional to the square of the distance:
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          F = k · q₁q₂ / r² &nbsp;&nbsp;·&nbsp;&nbsp; k = 1 / (4πε₀) ≈ 9 × 10⁹ N·m²·C⁻²
+        </div>
+        <p>
+          where ε₀ = 8.854 × 10⁻¹² C²·N⁻¹·m⁻² is the permittivity of free space. The force on q₂ acts along the line joining the charges, repulsive for like signs and attractive for unlike signs.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Electric Field</h3>
+        <p>
+          The electric field <strong>E</strong> at a point due to a charge configuration is the force on a small positive test charge q′ placed at that point, divided by q′:
+        </p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-4 text-center font-mono text-lg text-amber-900">
+          E = F / q′ &nbsp;&nbsp;⇒&nbsp;&nbsp; |E| = |q| / (4πε₀ r²)
+        </div>
+        <p>
+          The field points <em>radially outward</em> from a positive charge and <em>radially inward</em> toward a negative charge. Like Coulomb’s force, electric field obeys the <strong>superposition principle</strong> — the net field at a point is the vector sum of the fields due to each individual source charge.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Electric Field Lines</h3>
+        <p>An electric field line is a curve drawn so that its tangent at every point gives the direction of <strong>E</strong> at that point. The density of lines pictures the field’s strength.</p>
+        <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-blue-900">
+            <li>Field lines are continuous curves without any breaks.</li>
+            <li>Two field lines can <strong>never cross</strong> each other.</li>
+            <li>They <strong>start on positive charges and end on negative charges</strong>; they never form closed loops.</li>
+            <li>In a region of constant field, the lines are uniformly spaced parallel straight lines.</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Electric Dipole</h3>
+        <p>
+          An electric dipole is a pair of equal and opposite charges +q and −q separated by a distance 2a. Its <strong>dipole moment</strong> is a vector
+          <span className="font-mono"> p = q × 2a</span>, directed from −q to +q.
+        </p>
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-4">
+          <p className="text-emerald-900 font-semibold mb-2">Field of a dipole at large distance (r ≫ a):</p>
+          <p className="font-mono text-sm text-emerald-900">On the axis:&nbsp;&nbsp; E = 2p / (4πε₀ r³)</p>
+          <p className="font-mono text-sm text-emerald-900">On the equatorial plane:&nbsp;&nbsp; E = −p / (4πε₀ r³)</p>
+          <p className="text-xs text-emerald-800 mt-2">Note the <strong>1/r³</strong> dependence of the dipole field — sharper fall-off than the 1/r² field of a single point charge.</p>
+        </div>
+        <p>
+          In a <em>uniform</em> external field <strong>E</strong>, a dipole experiences a torque <span className="font-mono">τ = p × E</span> but no net force — the equal and opposite forces on +q and −q cancel.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Real-World Touchpoints</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Daily life</div>
+            <p className="text-sm text-slate-600">A plastic comb rubbed on hair picks up tiny bits of paper — frictional charging plus attraction.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Natural</div>
+            <p className="text-sm text-slate-600">Charge separation in storm clouds creates fields strong enough to ionize air — a lightning bolt.</p>
+          </div>
+          <div className="bg-white p-4 rounded-xl border border-slate-200">
+            <div className="font-bold text-slate-800 mb-1">Technology</div>
+            <p className="text-sm text-slate-600">A photocopier’s charged drum uses electric fields to pull toner powder along field lines onto paper.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. What to Explore in the Simulation</h3>
+        <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200 my-6">
+          <ul className="list-disc pl-5 space-y-2 text-sm text-indigo-900">
+            <li><strong>Single-charge mode:</strong> raise the charge — arrows everywhere grow and redden. Move the test charge outward and watch |E| fall off as 1/r² on the side graph.</li>
+            <li><strong>Pair mode:</strong> set unlike signs and switch to “Lines” — field lines run from + to −. Set like signs — lines repel and never cross. Drag a source to change separation; the field on the test charge changes sharply (inverse-square).</li>
+            <li><strong>Dipole mode:</strong> see the classic dipole pattern, the p-vector pointing from −q to +q, and compare axial vs equatorial field magnitudes — both with 1/r³ tails.</li>
+            <li><strong>Superposition:</strong> drag the test charge anywhere; the red force arrow is the vector sum of contributions from every source — exactly what NCERT §1.6 prescribes.</li>
+          </ul>
+        </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'magnetism-and-matter') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Magnetism and Matter</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          From the iron filings around a bar magnet to the difference between bismuth, aluminium and iron, this chapter
+          treats magnetism as a subject in its own right — built entirely on the idea that the simplest magnetic element is
+          a <b>dipole</b>, never a monopole. (NCERT Class 12 Physics, Chapter 5.)
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Bar Magnet and Field Lines</h3>
+        <p>
+          Iron filings sprinkled around a short bar magnet form a pattern identical to that of a current-carrying solenoid —
+          the magnet behaves as a <b>magnetic dipole</b>. Freely suspended, the N pole points roughly to Earth's geographic
+          north. Like poles repel, unlike poles attract. <b>Magnetic monopoles do not exist</b>: cut the magnet in two,
+          you get two smaller bar magnets, each with its own N and S.
+        </p>
+        <p>NCERT properties of magnetic field lines (§5.2.1):</p>
+        <ul>
+          <li>They form <b>continuous closed loops</b> (unlike electric field lines, which begin on +q and end on −q).</li>
+          <li>The tangent at any point gives the direction of <b>B</b>.</li>
+          <li>The line density indicates field strength.</li>
+          <li>Lines never intersect.</li>
+          <li>They do <i>not</i> indicate the direction of force on a moving charge.</li>
+        </ul>
+
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 my-4">
+          <p className="m-0 text-amber-900"><b>Axial field</b> (r ≫ l):&nbsp; B<sub>A</sub> = (μ₀/4π)·(2m/r³) &nbsp;(eq. 5.5)</p>
+          <p className="m-0 text-amber-900"><b>Equatorial field</b> (r ≫ l):&nbsp; B<sub>E</sub> = −(μ₀/4π)·(m/r³) &nbsp;(eq. 5.4)</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Dipole in a Uniform Field — Torque and Potential Energy</h3>
+        <p>
+          A bar magnet of dipole moment <b>m</b> placed in a uniform external field <b>B</b> feels <b>no net force</b>, but
+          it does feel a torque (eq. 5.2):
+        </p>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 my-4">
+          <p className="m-0 text-blue-900 font-mono text-center text-lg"><b>τ = m × B</b>,&nbsp; |τ| = mB sin θ</p>
+        </div>
+        <p>Integrating this restoring torque gives the magnetic potential energy (eq. 5.3):</p>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 my-4">
+          <p className="m-0 text-blue-900 font-mono text-center text-lg"><b>U = −m·B = −mB cos θ</b></p>
+        </div>
+        <ul>
+          <li>U is <b>minimum (−mB)</b> at θ = 0° → <b>stable</b> equilibrium (m aligned with B).</li>
+          <li>U is <b>maximum (+mB)</b> at θ = 180° → <b>unstable</b> equilibrium.</li>
+          <li>Zero of U is chosen at θ = 90° (m perpendicular to B).</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Gauss's Law for Magnetism</h3>
+        <p>Because field lines are closed loops, every line that enters a closed surface must also leave it. The net magnetic flux through any closed surface is zero (eq. 5.6):</p>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 my-4">
+          <p className="m-0 text-emerald-900 font-mono text-center text-lg"><b>Φ<sub>B</sub> = Σ B · ΔS = 0</b></p>
+        </div>
+        <p>This is the direct mathematical consequence of the non-existence of magnetic monopoles — there are no sources or sinks of <b>B</b>. Contrast with electrostatics, where Σ E·ΔS = q/ε₀.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Magnetisation, H, and Susceptibility</h3>
+        <p>For a sample placed in an external field <b>B₀</b>:</p>
+        <ul>
+          <li><b>Magnetic intensity</b>:&nbsp; H = B₀/μ₀ &nbsp; (units: A m⁻¹)</li>
+          <li><b>Magnetisation M</b>:&nbsp; dipole moment per unit volume.</li>
+          <li>For a linear material:&nbsp; <b>M = χH</b> &nbsp;(χ = magnetic susceptibility, dimensionless).</li>
+          <li>Total field inside:&nbsp; <b>B = μ₀(H + M) = μ₀(1+χ)H = μ<sub>r</sub>μ₀H = μH</b>.</li>
+          <li>Relative permeability:&nbsp; <b>μ<sub>r</sub> = 1 + χ</b>;&nbsp; permeability:&nbsp; μ = μ₀μ<sub>r</sub>.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. Classification of Materials (Table 5.2)</h3>
+        <div className="overflow-x-auto my-4">
+          <table className="w-full text-sm border border-slate-200">
+            <thead className="bg-slate-100">
+              <tr><th className="p-2 text-left">Class</th><th className="p-2 text-left">χ</th><th className="p-2 text-left">μ<sub>r</sub></th><th className="p-2 text-left">Behaviour</th></tr>
+            </thead>
+            <tbody>
+              <tr><td className="p-2 border-t">Diamagnetic</td><td className="p-2 border-t">−1 ≤ χ &lt; 0</td><td className="p-2 border-t">0 ≤ μ<sub>r</sub> &lt; 1</td><td className="p-2 border-t">Weakly <b>repelled</b>; field lines expelled. Superconductors: χ = −1 (Meissner effect).</td></tr>
+              <tr><td className="p-2 border-t">Paramagnetic</td><td className="p-2 border-t">0 &lt; χ &lt; ε</td><td className="p-2 border-t">1 &lt; μ<sub>r</sub> &lt; 1+ε</td><td className="p-2 border-t">Weakly <b>attracted</b>; dipoles align at low T / strong field.</td></tr>
+              <tr><td className="p-2 border-t">Ferromagnetic</td><td className="p-2 border-t">χ ≫ 1</td><td className="p-2 border-t">μ<sub>r</sub> ≫ 1</td><td className="p-2 border-t">Strongly magnetised, domain structure; <b>retains magnetisation as a permanent magnet</b>. Above a critical temperature, becomes paramagnetic.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>NCERT-named ferromagnets: <b>iron, cobalt, nickel, gadolinium</b>. Soft iron loses magnetisation when the external field is removed; lodestone and steel retain it.</p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VI. Worked Examples (from NCERT Ch 5)</h3>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 my-3">
+          <p className="m-0"><b>Ex 5.1.</b> A short bar magnet placed with its axis at 30° to a uniform field of 0.25 T experiences a torque of 4.5 × 10⁻² N·m. Find its magnetic moment.</p>
+          <p className="m-0 mt-2"><b>Solution.</b>&nbsp; τ = mB sin θ &nbsp;⇒&nbsp; m = τ / (B sin θ) = (4.5 × 10⁻²) / (0.25 × 0.5) = <b>0.36 J T⁻¹</b>.</p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 my-3">
+          <p className="m-0"><b>Ex 5.5 (solenoid with iron core).</b> A solenoid with relative permeability 400, n = 1000 turns/m, carries I = 2 A. Then H = nI = 2×10³ A/m, B = μ<sub>r</sub>μ₀H = 1.0 T, and magnetisation M ≈ (μ<sub>r</sub>−1)H ≈ 8×10⁵ A/m.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VII. Real-World Touchpoints</h3>
+        <ul>
+          <li><b>Compass</b> — a freely suspended bar magnet aligning with Earth's field.</li>
+          <li><b>Lodestone</b> — naturally magnetised mineral, the first compasses.</li>
+          <li><b>Maglev trains</b> — exploit perfect diamagnetism (Meissner effect) in superconductors.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">VIII. What to Explore in the Simulation</h3>
+        <ul>
+          <li><b>Dipole scene:</b> watch the closed-loop field lines; press <b>Cut it!</b> — each half still has both poles. No isolated North.</li>
+          <li><b>Torque scene:</b> slide θ from 0° → 90° → 180°. The torque arc peaks at 90°; the U(θ) dot dips to −mB at 0° (stable) and rises to +mB at 180° (unstable). Toggle the <b>Gaussian surface</b> — count lines in vs out.</li>
+          <li><b>Materials scene:</b> switch Bi → Al → Fe. Watch lines expel (dia) → mildly concentrate (para) → flood (ferro). Switch the solenoid OFF; only iron remains magnetised — that is what makes it a permanent magnet.</li>
+        </ul>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
   return <div>Topic Content Not Found</div>;
 };
 

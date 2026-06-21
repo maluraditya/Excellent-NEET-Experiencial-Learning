@@ -93,7 +93,13 @@ import RayOpticsLab from './components/grade-12/physics/RayOpticsLab';
 import WaveOpticsLab from './components/grade-12/physics/WaveOpticsLab';
 import PolarisationLab from './components/grade-12/physics/PolarisationLab';
 import PhotoelectricLab from './components/grade-12/physics/PhotoelectricLab';
+import ElectricChargesFieldsLab from './components/grade-12/physics/ElectricChargesFieldsLab';
+import ElectrostaticPotentialCapacitanceLab from './components/grade-12/physics/ElectrostaticPotentialCapacitanceLab';
+import CurrentElectricityLab from './components/grade-12/physics/CurrentElectricityLab';
+import MovingChargesMagnetismLab from './components/grade-12/physics/MovingChargesMagnetismLab';
+import MagnetismMatterLab from './components/grade-12/physics/MagnetismMatterLab';
 import AtomsLab from './components/grade-12/physics/AtomsLab';
+import NucleiLab from './components/grade-12/physics/NucleiLab';
 import SemiconductorLab from './components/grade-12/physics/SemiconductorLab';
 
 // Grade 12 - Chemistry
@@ -900,6 +906,30 @@ const App: React.FC = () => {
         Formula: Fringe width β = λD/d.
         Simulation: Interactive YDSE setup with wavelength, slit separation, and screen distance controls.
       `;
+    } else if (activeTopicId === 'current-electricity') {
+      return `
+        Topic: Current Electricity (NCERT Class 12 Physics, Unit 2, Chapter 3)
+        Concept: Current I is the flow of charge (scalar). Ohm's law V = IR holds for many substances but is NOT a fundamental law — it fails when V depends non-linearly on I, depends on the sign of V, or is non-unique (e.g. GaAs). A filament bulb's R rises with current; a diode blocks reverse bias. Resistance R = ρℓ/A; conductivity σ = 1/ρ. Drift speed v_d = eEτ/m. A real cell has EMF ε and internal resistance r; V_ext = εR/(R+r). Cells in series: ε_eq = Σεᵢ (signed if reversed), r_eq = Σrᵢ. Two cells in parallel: ε_eq = (ε₁r₂+ε₂r₁)/(r₁+r₂), r_eq = r₁r₂/(r₁+r₂). Kirchhoff's junction rule (Σ I_in = Σ I_out, charge conservation) and loop rule (Σ ΔV = 0, energy conservation). Wheatstone bridge balance: R₁/R₂ = R₃/R₄ → I_g = 0.
+        Simulation: Three scenes — (1) Ohm / V–I with resistor, filament bulb and diode driven by a sign-controlled EMF, live V–I trace. (2) Two-cell combo (series ↔ parallel, reverse cell-2) feeding a load with live ε_eq, r_eq, I, V_ext. (3) Wheatstone diamond with sliders for R₁..R₄ and a galvanometer needle that snaps to zero at balance.
+      `;
+    } else if (activeTopicId === 'electrostatic-potential-capacitance') {
+      return `
+        Topic: Electrostatic Potential and Capacitance (NCERT Class 12 Physics, Unit 1, Chapter 2)
+        Concept: Electrostatic potential V at a point is the work done by an external agency to bring a unit positive test charge from infinity to that point. Scalar. V = (1/4πε₀)·q/r for a point charge; for a dipole V = (1/4πε₀)·(p cosθ)/r² (1/r² fall-off). Equipotential surfaces — loci of constant V — are perpendicular to E, which points along steepest decrease of V. Capacitor: C = Q/V, set purely by geometry; parallel-plate C = K·ε₀·A/d. Dielectric K reduces internal field and raises C to K·C₀. Energy stored U = ½QV = ½CV² = ½Q²/C; energy density u = ½ε₀E².
+        Simulation: Two scenes — (1) Potential map: V heat-map with contour equipotentials, draggable charges and a probe that reads V. (2) Capacitor: parallel plates with sliders for area, gap, voltage, dielectric K and slab insertion fraction; battery connected/disconnected toggle to demonstrate Q-locked vs V-locked behaviour; live C, Q, V, U, E readouts.
+      `;
+    } else if (activeTopicId === 'magnetism-and-matter') {
+      return `
+        Topic: Magnetism and Matter (NCERT Class 12 Physics, Unit 3, Chapter 5)
+        Concept: A bar magnet is a magnetic dipole — iron filings reveal field lines that form continuous closed loops (S → N inside, N → S outside). Magnetic monopoles do not exist: cutting a bar magnet yields two complete dipoles. In a uniform external field B, a dipole of moment m experiences torque τ = m × B (magnitude mB sinθ) and has potential energy U = −m·B = −mB cosθ — minimum (−mB) at θ=0° (stable), maximum (+mB) at θ=180° (unstable). Gauss's law for magnetism: Φ_B = ∮ B·dS = 0 for any closed surface (no monopoles, lines in = lines out). Inside a material, H = B₀/μ₀, magnetisation M = χH, and B = μ₀(H+M) = μ₀(1+χ)H = μH with μ_r = 1+χ. Table 5.2 classifies materials by χ: diamagnetic (−1 ≤ χ < 0, expels lines, weakly repelled), paramagnetic (0 < χ < ε, mild concentration, weakly attracted), ferromagnetic (χ ≫ 1, strong magnetisation, retains as permanent magnet at room temperature; becomes paramagnet above a critical temperature). NCERT ferromagnets: iron, cobalt, nickel, gadolinium.
+        Simulation: Three scenes — (1) Dipole & Field lines: bar magnet with closed-loop streamlines and iron-filing overlay; press "Cut it!" to split the magnet into two complete dipoles. (2) Torque & U(θ): bar magnet on a pivot in a uniform B; sliders for θ, m, B; live torque arc, m vector and a U(θ) = −mB cosθ graph with a moving dot; toggle a green dashed Gaussian sphere to demonstrate Φ_B = 0. (3) Materials: a slab of Bi / Al / Fe sits in a solenoid's B₀; dia bows lines out, para concentrates weakly, ferro floods and — when the solenoid is switched OFF — iron alone retains its magnetisation as a permanent magnet.
+      `;
+    } else if (activeTopicId === 'electric-charges-fields') {
+      return `
+        Topic: Electric Charges and Fields (NCERT Class 12 Physics, Unit 1, Chapter 1)
+        Concept: Coulomb's law F = k·q₁q₂ / r² with k = 1/(4πε₀) ≈ 9×10⁹ N·m²/C². The electric field E = F/q′ around a point charge has magnitude |q|/(4πε₀r²), radial. Net field obeys superposition. An electric dipole (p = q·2a) produces an axial field 2p/(4πε₀r³) and equatorial field −p/(4πε₀r³) for r ≫ a — note the 1/r³ fall-off vs 1/r² for a point charge.
+        Simulation: Teacher drags point charges on a white canvas, flips signs, toggles between vector-arrow field and continuous field lines, and probes the field with a draggable +1 nC test charge. Live readouts of |E|, |F|, separation, and dipole moment. Scenes: single charge, two charges (any signs), dipole.
+      `;
     }
     return "User is on the curriculum dashboard.";
   }, [activeTopicId, kineticsConfig, reactionCount, externalVoltage, isomerConfig, selectedIon, haloConfig, unitCellConfig, defectMode]);
@@ -1663,10 +1693,71 @@ const App: React.FC = () => {
           )
         }
 
+        {/* ================== ELECTRIC CHARGES AND FIELDS ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'electric-charges-fields' && (
+            <ElectricChargesFieldsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* ================== ELECTROSTATIC POTENTIAL & CAPACITANCE ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'electrostatic-potential-capacitance' && (
+            <ElectrostaticPotentialCapacitanceLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* ================== CURRENT ELECTRICITY ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'current-electricity' && (
+            <CurrentElectricityLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* ================== MAGNETISM AND MATTER ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'magnetism-and-matter' && (
+            <MagnetismMatterLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* 7. ATOMS */}
+        {/* ================== MOVING CHARGES AND MAGNETISM ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'moving-charges-magnetism' && (
+            <MovingChargesMagnetismLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
         {/* 7. ATOMS */}
         {
           currentScreen === 'TOPIC_VIEW' && activeTopicId === 'atoms' && (
             <AtomsLab
+              topic={currentTopics.find(t => t.id === activeTopicId)!}
+              onExit={goHome}
+            />
+          )
+        }
+
+        {/* ================== NUCLEI ================== */}
+        {
+          currentScreen === 'TOPIC_VIEW' && activeTopicId === 'nuclei' && (
+            <NucleiLab
               topic={currentTopics.find(t => t.id === activeTopicId)!}
               onExit={goHome}
             />

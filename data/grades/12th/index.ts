@@ -2,6 +2,79 @@
 import { Topic } from '../../../types';
 
 export const TOPICS: Topic[] = [
+  // --- PHYSICS UNIT III - MAGNETIC EFFECTS OF CURRENT AND MAGNETISM ---
+  {
+    id: 'magnetism-and-matter',
+    subject: 'Physics',
+    chapter: 'Magnetism and Matter',
+    branch: 'Magnetism',
+    grade: '12th',
+    unit: 'Unit 3',
+    title: 'Magnetism & Matter',
+    description: 'Bar-magnet field lines as closed loops, the m × B torque with a live U(θ) curve, and a slab of bismuth / aluminium / iron responding to an external B₀ — dia, para, ferro on Table 5.2.',
+    thumbnailIcon: 'magnet',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_magnetism_matter.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  {
+    id: 'moving-charges-magnetism',
+    subject: 'Physics',
+    chapter: 'Moving Charges and Magnetism',
+    branch: 'Magnetism',
+    grade: '12th',
+    unit: 'Unit 3',
+    title: 'Moving Charges & Magnetism',
+    description: 'Apply the right-hand rule to moving charges and current-carrying conductors, explore circular and helical trajectories, and balance crossed electric and magnetic fields in a velocity selector.',
+    thumbnailIcon: 'magnet',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_moving_charges_magnetism.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  // --- PHYSICS UNIT II — CURRENT ELECTRICITY ---
+  {
+    id: 'current-electricity',
+    subject: 'Physics',
+    chapter: 'Current Electricity',
+    branch: 'Electromagnetism',
+    grade: '12th',
+    unit: 'Unit 2',
+    title: 'Current Electricity',
+    description: 'Sweep the battery on a V–I trace to see Ohmic vs non-Ohmic (resistor / filament / diode), combine real cells in series and parallel with internal r, and balance a Wheatstone bridge with a live galvanometer needle.',
+    thumbnailIcon: 'zap',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_current_electricity.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  // --- PHYSICS UNIT I — ELECTROSTATICS ---
+  {
+    id: 'electrostatic-potential-capacitance',
+    subject: 'Physics',
+    chapter: 'Electrostatic Potential and Capacitance',
+    branch: 'Electrostatics',
+    grade: '12th',
+    unit: 'Unit 1',
+    title: 'Electrostatic Potential & Capacitance',
+    description: 'Build a live V heat-map with equipotential contours, then switch to a parallel-plate capacitor — slide a dielectric in, toggle battery, and watch C, Q, V and U respond to A, d and K.',
+    thumbnailIcon: 'layers',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_electrostatic_potential_capacitance.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
+  {
+    id: 'electric-charges-fields',
+    subject: 'Physics',
+    chapter: 'Electric Charges and Fields',
+    branch: 'Electrostatics',
+    grade: '12th',
+    unit: 'Unit 1',
+    title: 'Electric Charges & Fields',
+    description: 'Drag point charges on a white field, switch between vector arrows and field lines, and probe |E| with a +1 nC test charge — Coulomb’s 1/r² law, superposition, and the dipole field made visible.',
+    thumbnailIcon: 'zap',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_electric_charges_fields.png',
+    youtubeVideoIds: [],
+    coverImage: ''
+  },
   // --- PHYSICS UNIT VI & VII & VIII & IX ---
   {
     id: 'emi',
@@ -83,7 +156,7 @@ export const TOPICS: Topic[] = [
     title: 'Polarisation of Light',
     description: 'Rotate polaroids to reveal the transverse nature of light. Test Malus\' law, crossed axes, and the surprising transmission through a third middle polaroid.',
     thumbnailIcon: 'sun',
-    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_polarisation.svg',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_polarisation.png',
     youtubeVideoIds: [],
     coverImage: ''
   },
@@ -113,6 +186,20 @@ export const TOPICS: Topic[] = [
     thumbnailIcon: 'atom',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_rutherford_scattering.png',
     youtubeVideoIds: ['QmRFtM08F4A'],
+    coverImage: ''
+  },
+  {
+    id: 'nuclei',
+    subject: 'Physics',
+    chapter: 'Nuclei',
+    branch: 'Modern Physics',
+    grade: '12th',
+    unit: 'Unit 13',
+    title: 'Nuclei: Stability, Decay & Reactions',
+    description: 'Explore the binding-energy curve, model exponential radioactive decay and half-life, and compare energy release in nuclear fission and fusion.',
+    thumbnailIcon: 'atom',
+    thumbnailUrl: '/images/thumbnails/12th-physics/thumb_nuclei.png',
+    youtubeVideoIds: [],
     coverImage: ''
   },
   {

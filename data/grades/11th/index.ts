@@ -11,7 +11,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Measurement',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_dimensional_analysis.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_dimensional_analysis.png',
         youtubeVideoIds: []
     },
     {
@@ -24,7 +24,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Kinematics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_position_velocity_acceleration_graphs.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_position_velocity_acceleration_graphs.png',
         youtubeVideoIds: []
     },
     {
@@ -37,7 +37,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Kinematics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_projectile_motion.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_projectile_motion.png',
         youtubeVideoIds: []
     },
     {
@@ -50,7 +50,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Dynamics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_static_kinetic_friction.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_static_kinetic_friction.png',
         youtubeVideoIds: []
     },
     {
@@ -63,7 +63,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Dynamics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_newtons_laws.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_newtons_laws.png',
         youtubeVideoIds: []
     },
     {
@@ -76,7 +76,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Dynamics',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_momentum.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_momentum.png',
         youtubeVideoIds: []
     },
     {
@@ -89,7 +89,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Energy',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_work_energy.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_work_energy.png',
         youtubeVideoIds: []
     },
     {
@@ -102,7 +102,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Rotational',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_angular_momentum.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_angular_momentum.png',
         youtubeVideoIds: []
     },
     {
@@ -115,7 +115,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Rotational',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_centre_of_mass_torque.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_centre_of_mass_torque.png',
         youtubeVideoIds: []
     },
     {
@@ -128,7 +128,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Rotational',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_moment_of_inertia.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_moment_of_inertia.png',
         youtubeVideoIds: []
     },
     {
@@ -141,7 +141,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Energy',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_mechanical_energy.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_mechanical_energy.png',
         youtubeVideoIds: []
     },
     {
@@ -154,7 +154,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Gravitation',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_keplers_laws.svg',
+        thumbnailUrl: '/images/thumbnails/11th-physics/thumb_keplers_laws.png',
         youtubeVideoIds: []
     },
     {

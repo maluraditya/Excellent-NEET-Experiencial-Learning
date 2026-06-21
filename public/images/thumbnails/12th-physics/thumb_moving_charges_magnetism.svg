@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Moving Charges and Magnetism</title>
+  <desc id="desc">A charged particle curving through a magnetic field</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#ef4444"/></marker>
+  </defs>
+  <rect width="640" height="360" rx="28" fill="#ffffff"/>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="2" opacity=".75">
+    <circle cx="90" cy="75" r="11"/><circle cx="190" cy="75" r="11"/><circle cx="290" cy="75" r="11"/><circle cx="390" cy="75" r="11"/><circle cx="490" cy="75" r="11"/><circle cx="590" cy="75" r="11"/>
+    <circle cx="90" cy="175" r="11"/><circle cx="190" cy="175" r="11"/><circle cx="490" cy="175" r="11"/><circle cx="590" cy="175" r="11"/>
+    <circle cx="90" cy="275" r="11"/><circle cx="190" cy="275" r="11"/><circle cx="290" cy="275" r="11"/><circle cx="390" cy="275" r="11"/><circle cx="490" cy="275" r="11"/><circle cx="590" cy="275" r="11"/>
+  </g>
+  <circle cx="340" cy="190" r="105" fill="none" stroke="#f59e0b" stroke-width="10" stroke-dasharray="16 12"/>
+  <circle cx="340" cy="85" r="24" fill="#ef4444" stroke="white" stroke-width="5"/>
+  <text x="340" y="94" text-anchor="middle" fill="white" font-family="Arial" font-size="26" font-weight="700">+</text>
+  <path d="M340 85h105" stroke="#0f172a" stroke-width="9" stroke-linecap="round" marker-end="url(#arrow)"/>
+</svg>
