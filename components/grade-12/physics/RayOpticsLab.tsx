@@ -692,9 +692,13 @@ function drawDimension(ctx: CanvasRenderingContext2D, x1: number, x2: number, y:
 function drawPrismMode(ctx: CanvasRenderingContext2D, angleA: number, incidence: number, n: number, light: PrismLight) {
     const snap = computePrism(angleA, incidence, n);
     drawCanvasTitle(ctx, 'Refraction Through A Prism', 'r₁ + r₂ = A  |  δ = i + e − A  |  n = sin[(A + Dm)/2] / sin(A/2)');
-    const apex = { x: 650, y: 160 };
-    const left = { x: 440, y: 525 };
-    const right = { x: 860, y: 525 };
+    // --- Prism drawn with apex angle exactly equal to A (base horizontal) ---
+    const apex = { x: 650, y: 175 };
+    const faceLen = 380;
+    const halfA = (angleA / 2) * DEG;
+    const left = { x: apex.x - Math.sin(halfA) * faceLen, y: apex.y + Math.cos(halfA) * faceLen };
+    const right = { x: apex.x + Math.sin(halfA) * faceLen, y: apex.y + Math.cos(halfA) * faceLen };
+    const centroid = { x: (apex.x + left.x + right.x) / 3, y: (apex.y + left.y + right.y) / 3 };
     ctx.fillStyle = 'rgba(56,189,248,0.08)';
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 2.4;
@@ -707,53 +711,102 @@ function drawPrismMode(ctx: CanvasRenderingContext2D, angleA: number, incidence:
     ctx.stroke();
     drawLabel(ctx, `A = ${angleA}°`, apex.x, apex.y - 22, '#0e7490', 'center', '900 15px Inter, sans-serif');
 
-    const hit1 = { x: 512, y: 400 };
-    const face1Angle = -60 * DEG;
-    const normal1 = face1Angle - Math.PI / 2;
-    const incDir = normal1 + incidence * DEG;
-    const start = { x: hit1.x - Math.cos(incDir) * 260, y: hit1.y - Math.sin(incDir) * 260 };
-    const internalAngle = normal1 + snap.r1 * DEG;
-    const hit2 = { x: 744, y: 365 + (snap.r2 - angleA / 2) * 1.5 };
-    const face2Angle = 60 * DEG;
-    const normal2 = face2Angle + Math.PI / 2;
+    // --- Geometry helpers (real vector optics, so drawn angles match the formulas) ---
+    type Pt = { x: number; y: number };
+    const norm = (v: Pt): Pt => { const m = Math.hypot(v.x, v.y) || 1; return { x: v.x / m, y: v.y / m }; };
+    const angleOf = (v: Pt) => Math.atan2(v.y, v.x);
+    // Outward unit normal of the face p1->p2 (points away from the prism interior).
+    const outwardNormal = (p1: Pt, p2: Pt): Pt => {
+        const t = norm({ x: p2.x - p1.x, y: p2.y - p1.y });
+        let nx = -t.y, ny = t.x;
+        const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+        if ((centroid.x - mid.x) * nx + (centroid.y - mid.y) * ny > 0) { nx = -nx; ny = -ny; }
+        return { x: nx, y: ny };
+    };
+    // Snell refraction of unit dir d crossing a surface with outward normal nOut. eta = n_incident / n_transmitted.
+    const refractDir = (d: Pt, nOut: Pt, eta: number): Pt | null => {
+        const nrm = (d.x * nOut.x + d.y * nOut.y) > 0 ? { x: -nOut.x, y: -nOut.y } : nOut; // normal opposing the ray
+        const cosI = -(nrm.x * d.x + nrm.y * d.y);
+        const s2 = eta * eta * (1 - cosI * cosI);
+        if (s2 > 1) return null; // total internal reflection
+        const cosT = Math.sqrt(1 - s2);
+        return norm({ x: eta * d.x + (eta * cosI - cosT) * nrm.x, y: eta * d.y + (eta * cosI - cosT) * nrm.y });
+    };
+    // Intersection of ray (o, dir) with segment a-b; returns hit point or null.
+    const raySeg = (o: Pt, dir: Pt, a: Pt, b: Pt): Pt | null => {
+        const s = { x: b.x - a.x, y: b.y - a.y };
+        const denom = dir.x * s.y - dir.y * s.x;
+        if (Math.abs(denom) < 1e-9) return null;
+        const t = ((a.x - o.x) * s.y - (a.y - o.y) * s.x) / denom;
+        const u = ((a.x - o.x) * dir.y - (a.y - o.y) * dir.x) / denom;
+        if (t > 0.5 && u >= -0.02 && u <= 1.02) return { x: o.x + dir.x * t, y: o.y + dir.y * t };
+        return null;
+    };
 
-    drawLine(ctx, hit1.x - Math.cos(normal1) * 62, hit1.y - Math.sin(normal1) * 62, hit1.x + Math.cos(normal1) * 62, hit1.y + Math.sin(normal1) * 62, '#64748b', 1.3, [5, 5]);
-    drawLine(ctx, hit2.x - Math.cos(normal2) * 62, hit2.y - Math.sin(normal2) * 62, hit2.x + Math.cos(normal2) * 62, hit2.y + Math.sin(normal2) * 62, '#64748b', 1.3, [5, 5]);
+    const nOut1 = outwardNormal(apex, left);   // left (first) face — points up-left
+    const nOut2 = outwardNormal(apex, right);  // right (second) face — points up-right
+    // Entry point midway up the LEFT refracting face (clearly on the side, not the base).
+    const hit1 = { x: apex.x + (left.x - apex.x) * 0.5, y: apex.y + (left.y - apex.y) * 0.5 };
+
+    // Incident ray strikes the first face at angle i, arriving from OUTSIDE the prism (from the left).
+    const inwardN1 = angleOf({ x: -nOut1.x, y: -nOut1.y });
+    const incCandidates = [inwardN1 + incidence * DEG, inwardN1 - incidence * DEG].map(a => {
+        const prop = { x: Math.cos(a), y: Math.sin(a) };
+        const internal = refractDir(prop, nOut1, 1 / n);
+        const hit = internal ? raySeg(hit1, internal, apex, right) : null;
+        const source = { x: hit1.x - prop.x * 250, y: hit1.y - prop.y * 250 };
+        return { prop, internal, hit, source };
+    });
+    // Prefer the candidate whose refracted ray actually reaches the second face and whose source is to the left.
+    const inc = incCandidates
+        .filter(c => c.internal && c.hit)
+        .sort((a, b) => a.source.x - b.source.x)[0] ?? incCandidates[0];
+    const incProp = inc.prop;
+    const start = { x: hit1.x - incProp.x * 250, y: hit1.y - incProp.y * 250 };
+
+    const internalMain = inc.internal ?? refractDir(incProp, nOut1, 1 / n)!;
+    const hit2 = inc.hit ?? raySeg(hit1, internalMain, apex, right) ?? { x: right.x, y: right.y };
+    const emergentMain = refractDir(internalMain, nOut2, n);
+
+    const normal1Angle = angleOf(nOut1);
+    const normal2Angle = angleOf(nOut2);
+    drawLine(ctx, hit1.x - nOut1.x * 62, hit1.y - nOut1.y * 62, hit1.x + nOut1.x * 62, hit1.y + nOut1.y * 62, '#64748b', 1.3, [5, 5]);
+    drawLine(ctx, hit2.x - nOut2.x * 62, hit2.y - nOut2.y * 62, hit2.x + nOut2.x * 62, hit2.y + nOut2.y * 62, '#64748b', 1.3, [5, 5]);
     drawGlowRay(ctx, [start, hit1], light === 'white' ? '#f59e0b' : '#ca8a04', 4);
-    drawArrowOnLine(ctx, start.x, start.y, hit1.x, hit1.y, 0.64, light === 'white' ? '#f59e0b' : '#ca8a04', 10);
+    drawArrowOnLine(ctx, start.x, start.y, hit1.x, hit1.y, 0.6, light === 'white' ? '#f59e0b' : '#ca8a04', 10);
 
-    const colors = light === 'white' ? DISPERSION : [{ label: '', name: 'Mono', n, color: '#ca8a04' }];
-    colors.forEach((band, index) => {
-        const bandSnap = computePrism(angleA, incidence, band.n);
-        const r1Dir = normal1 + bandSnap.r1 * DEG;
-        const r2Hit = { x: hit2.x, y: hit2.y + (index - 3) * (light === 'white' ? 6 : 0) };
-        drawGlowRay(ctx, [hit1, { x: hit1.x + Math.cos(r1Dir) * 140, y: hit1.y + Math.sin(r1Dir) * 140 }, r2Hit], light === 'white' ? `${band.color}cc` : band.color, 2.7);
-        if (bandSnap.tirAtSecondFace) {
-            const reflectedDirection = reflectAngle(r1Dir, face2Angle);
-            const reflectedEnd = {
-                x: r2Hit.x + Math.cos(reflectedDirection) * 230,
-                y: r2Hit.y + Math.sin(reflectedDirection) * 230,
-            };
-            drawGlowRay(ctx, [r2Hit, reflectedEnd], light === 'white' ? band.color : '#be123c', light === 'white' ? 2.4 : 4, light === 'white' ? [] : [7, 5]);
-            drawArrowOnLine(ctx, r2Hit.x, r2Hit.y, reflectedEnd.x, reflectedEnd.y, 0.35, light === 'white' ? band.color : '#be123c', 8);
+    // Refracted (and dispersed) rays — each colour band refracts by its own n at both faces.
+    const bands = light === 'white' ? DISPERSION : [{ label: '', name: 'Mono', n, color: '#ca8a04' }];
+    bands.forEach(band => {
+        const internalB = refractDir(incProp, nOut1, 1 / band.n);
+        if (!internalB) return;
+        const hitB = raySeg(hit1, internalB, apex, right) ?? hit2;
+        const emergentB = refractDir(internalB, nOut2, band.n);
+        drawGlowRay(ctx, [hit1, hitB], light === 'white' ? `${band.color}cc` : band.color, 2.7);
+        if (!emergentB) {
+            // Total internal reflection at the second face.
+            const reflectedDirection = reflectAngle(angleOf(internalB), angleOf({ x: right.x - apex.x, y: right.y - apex.y }));
+            const reflectedEnd = { x: hitB.x + Math.cos(reflectedDirection) * 230, y: hitB.y + Math.sin(reflectedDirection) * 230 };
+            drawGlowRay(ctx, [hitB, reflectedEnd], light === 'white' ? band.color : '#be123c', light === 'white' ? 2.4 : 4, light === 'white' ? [] : [7, 5]);
+            drawArrowOnLine(ctx, hitB.x, hitB.y, reflectedEnd.x, reflectedEnd.y, 0.35, light === 'white' ? band.color : '#be123c', 8);
         } else {
-            const eDirection = normal2 + (Math.PI - bandSnap.e * DEG) + (index - 3) * (light === 'white' ? 0.006 : 0);
-            const end = lineToEdge(r2Hit.x, r2Hit.y, Math.cos(eDirection), Math.sin(eDirection));
-            drawGlowRay(ctx, [r2Hit, end], light === 'white' ? band.color : '#ca8a04', light === 'white' ? 2.6 : 4);
-            drawArrowOnLine(ctx, r2Hit.x, r2Hit.y, end.x, end.y, 0.28, light === 'white' ? band.color : '#ca8a04', 8);
-            if (light === 'white') drawLabel(ctx, band.label, end.x - 24, end.y, band.color, 'center', '900 14px Inter, sans-serif');
+            const end = lineToEdge(hitB.x, hitB.y, emergentB.x, emergentB.y);
+            drawGlowRay(ctx, [hitB, end], light === 'white' ? band.color : '#ca8a04', light === 'white' ? 2.6 : 4);
+            drawArrowOnLine(ctx, hitB.x, hitB.y, end.x, end.y, 0.28, light === 'white' ? band.color : '#ca8a04', 8);
+            if (light === 'white') drawLabel(ctx, band.label, end.x + 18, end.y, band.color, 'center', '900 14px Inter, sans-serif');
         }
     });
 
-    drawAngleArc(ctx, hit1.x, hit1.y, normal1, incDir, 52, `i=${incidence}°`, '#ca8a04');
-    drawAngleArc(ctx, hit1.x, hit1.y, normal1, internalAngle, 36, `r₁=${snap.r1.toFixed(1)}°`, '#0e7490');
-    if (snap.tirAtSecondFace) {
+    drawAngleArc(ctx, hit1.x, hit1.y, normal1Angle, angleOf({ x: -incProp.x, y: -incProp.y }), 52, `i=${incidence}°`, '#ca8a04');
+    drawAngleArc(ctx, hit1.x, hit1.y, angleOf({ x: -nOut1.x, y: -nOut1.y }), angleOf(internalMain), 36, `r₁=${snap.r1.toFixed(1)}°`, '#0e7490');
+    if (snap.tirAtSecondFace || !emergentMain) {
         const critical = Math.asin(1 / n) * RAD;
-        drawAngleArc(ctx, hit2.x, hit2.y, normal2, normal2 + Math.PI / 2, 50, `r2=${snap.r2.toFixed(1)}° > ic=${critical.toFixed(1)}°`, '#be123c');
+        drawAngleArc(ctx, hit2.x, hit2.y, angleOf({ x: -nOut2.x, y: -nOut2.y }), angleOf(internalMain), 50, `r2=${snap.r2.toFixed(1)}° > ic=${critical.toFixed(1)}°`, '#be123c');
         drawLabel(ctx, 'No emergent ray', 920, 184, '#be123c', 'left', '900 18px Inter, sans-serif');
         drawLabel(ctx, 'Total internal reflection at second face', 920, 214, '#be123c', 'left', '800 14px Inter, sans-serif');
     } else {
-        drawAngleArc(ctx, hit2.x, hit2.y, normal2, normal2 + (Math.PI - snap.e * DEG), 50, `e=${snap.e.toFixed(1)}°`, '#ca8a04');
+        drawAngleArc(ctx, hit2.x, hit2.y, normal2Angle, angleOf(internalMain), 50, `r₂=${snap.r2.toFixed(1)}°`, '#0e7490');
+        drawAngleArc(ctx, hit2.x, hit2.y, normal2Angle, angleOf(emergentMain), 74, `e=${snap.e.toFixed(1)}°`, '#ca8a04');
         drawLabel(ctx, `δ = ${snap.delta.toFixed(1)}°`, 920, 184, '#ca8a04', 'left', '900 18px Inter, sans-serif');
         drawLabel(ctx, snap.minimumDeviationPossible ? `Dm = ${snap.dm.toFixed(1)}° ${snap.minimum ? '(minimum)' : ''}` : 'Dm unavailable for this A,n', 920, 214, snap.minimum ? '#15803d' : '#334155', 'left', '800 14px Inter, sans-serif');
     }
