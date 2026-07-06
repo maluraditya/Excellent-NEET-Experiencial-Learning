@@ -80,6 +80,18 @@ import MitosisMeiosisStagesLab from './components/grade-11/biology/MitosisMeiosi
 import PhotosynthesisLightReactionLab from './components/grade-11/biology/PhotosynthesisLightReactionLab';
 import CalvinCycleC3C4Lab from './components/grade-11/biology/CalvinCycleC3C4Lab';
 import RespirationInPlantsLab from './components/grade-11/biology/RespirationInPlantsLab';
+import ElectronTransportChainLab from './components/grade-11/biology/ElectronTransportChainLab';
+import PlantHormonesTropismsLab from './components/grade-11/biology/PlantHormonesTropismsLab';
+import PulmonaryVentilationLab from './components/grade-11/biology/PulmonaryVentilationLab';
+import BloodGroupsCoagulationLab from './components/grade-11/biology/BloodGroupsCoagulationLab';
+import CardiacCycleEcgLab from './components/grade-11/biology/CardiacCycleEcgLab';
+import GlomerularFiltrationLab from './components/grade-11/biology/GlomerularFiltrationLab';
+import CountercurrentMultiplierLab from './components/grade-11/biology/CountercurrentMultiplierLab';
+import SlidingFilamentLab from './components/grade-11/biology/SlidingFilamentLab';
+import ActionPotentialLab from './components/grade-11/biology/ActionPotentialLab';
+import SynapticTransmissionLab from './components/grade-11/biology/SynapticTransmissionLab';
+import EndocrineGlandsLab from './components/grade-11/biology/EndocrineGlandsLab';
+import HormoneActionAxisLab from './components/grade-11/biology/HormoneActionAxisLab';
 import MorphologyFloweringPlantsLab from './components/grade-11/biology/MorphologyFloweringPlantsLab';
 import AnatomyFloweringPlantsLab from './components/grade-11/biology/AnatomyFloweringPlantsLab';
 import GymnospermsAngiospermsLab from './components/grade-11/biology/GymnospermsAngiospermsLab';
@@ -849,6 +861,78 @@ const App: React.FC = () => {
         Concept: Glycolysis splits glucose into pyruvate in the cytoplasm. Without oxygen, pyruvate enters fermentation to regenerate NAD+. With oxygen, pyruvate enters the mitochondrion for link reaction and TCA cycle oxidation.
         Simulation: Start glycolysis, toggle oxygen, run fermentation or drag pyruvate into the mitochondrion, and track ATP, NADH, FADH2, and CO2.
       `;
+    } else if (activeTopicId === 'electron-transport-chain') {
+      return `
+        Topic: Electron Transport Chain and ATP Yield (NCERT Class 11 Biology, Unit 4, Chapter 12, Section 12.4.2)
+        Concept: NADH and FADH2 from glycolysis and the Krebs cycle pass electrons through Complexes I-IV on the inner mitochondrial membrane. Energy released pumps H+ into the intermembrane space; ATP synthase (Complex V) uses the gradient (4 H+ per ATP) to phosphorylate ADP. Oxygen is the final hydrogen acceptor at Complex IV, reduced to water. NADH yields ~3 ATP, FADH2 ~2 ATP.
+        Simulation: Pick substrate (NADH/FADH2/Mixed), adjust O2 supply and flow speed, and toggle inhibitors (rotenone, antimycin A, cyanide, uncoupler). Watch electrons traverse the complexes, protons accumulate in the intermembrane space, the ATP synthase rotor spin, and the live ATP and H2O counters update.
+      `;
+    } else if (activeTopicId === 'plant-hormones-tropisms') {
+      return `
+        Topic: Plant Hormones and Tropisms (NCERT Class 11 Biology, Chapter 13: Plant Growth and Development, Section 13.4)
+        Concept: Plant growth regulators (PGRs) are small molecules — auxins (IAA), gibberellins (GA3), cytokinins (kinetin/zeatin), ethylene (gaseous), and abscisic acid (ABA). Auxin redistributes to the shaded side of a coleoptile causing it to bend toward light (phototropism, Darwin 1880). The apical bud inhibits lateral buds via auxin (apical dominance); decapitation or cytokinin lifts this. Ethylene is the climacteric ripening signal.
+        Simulation: Three stages — Darwin coleoptile (move the sun to see auxin-driven bending), Apical Dominance (decapitate or add cytokinin to bloom lateral buds), Fruit Ripening (click a fruit to make it ripe and watch ethylene spread to neighbours; sealed bag accelerates ripening).
+      `;
+    } else if (activeTopicId === 'pulmonary-ventilation-gas-exchange') {
+      return `
+        Topic: Pulmonary Ventilation and Gas Exchange (NCERT Class 11 Biology, Ch 14, §14.2–14.4)
+        Concept: Breathing = pulmonary ventilation (TV ~500 mL). O2 binds Hb in alveoli (high PO2, low pCO2) and dissociates at tissues (low PO2, high pCO2, high H+, higher T) — oxyhaemoglobin dissociation curve is sigmoidal. CO2 transported as 70% bicarbonate (carbonic anhydrase in RBC), 20-25% carbamino-Hb, ~5% dissolved.
+        Simulation: Run the breath cycle, adjust TV and rate, change altitude (sea/3000/5000/Everest) and tissue activity (rest/walk/sprint). Watch the dissociation curve cursors shift and live Hb saturation update. Toggle CO2 transport inset for the 70/20-25/5 split.
+      `;
+    } else if (activeTopicId === 'blood-groups-coagulation') {
+      return `
+        Topic: Blood Groups and Coagulation Cascade (NCERT Class 11 Biology, Ch 15, §15.1.3 + §15.1.4)
+        Concept: ABO grouping based on A/B antigens on RBCs and natural antibodies in plasma — O is universal donor, AB universal recipient. Rh (~80% +) — Rh- mother + Rh+ foetus risks erythroblastosis foetalis. Coagulation cascade: injury → platelets → thrombokinase → prothrombin/thrombin → fibrinogen/fibrin → clot.
+        Simulation: Two tabs — Transfusion (pick donor/recipient ABO + Rh and see antigen-antibody clumping or safe mixing) and Cut & Cascade (open a vessel cut, watch the cascade weave a fibrin mesh; drop platelets to demonstrate haemophilia-like failure).
+      `;
+    } else if (activeTopicId === 'cardiac-cycle-ecg') {
+      return `
+        Topic: Cardiac Cycle and ECG Waves (NCERT Class 11 Biology, Ch 15, §15.3.2 + §15.3.3)
+        Concept: Cardiac cycle = systole + diastole of atria and ventricles, ~0.8 s/cycle at 72 bpm. SAN sets pace, conducts to AVN, then to ventricles. Heart sounds: lub (AV close) / dub (semilunar close). ECG: P (atrial depolarisation) - QRS (ventricular depolarisation - start of systole) - T (ventricular repolarisation - end of systole). SV ~70 mL × HR = CO ~5 L/min.
+        Simulation: Watch SAN fire, conduction wave race across heart, atria and ventricles contract in sequence, valves snap with audible lub/dub. Scrolling ECG trace tracks P-QRS-T live. Toggle Exercise, Sleep or AV-Block scenarios; adjust HR and SV; enable step-mode to advance one phase at a time.
+      `;
+    } else if (activeTopicId === 'hormone-action-axis') {
+      return `
+        Topic: Mechanism of Hormone Action & Tropic Axis (NCERT Class 11 Biology, Ch 19, §19.2 + §19.4)
+        Concept: Peptide/amine hormones bind membrane-bound receptors → generate second messengers (cyclic AMP, IP3, Ca2+) → cellular response. Steroid/iodothyronine hormones bind intracellular (nuclear) receptors → regulate gene expression → physiological response. Tropic hormones (TSH, ACTH, LH, FSH) drive the hypothalamus-pituitary-target-gland axis.
+        Simulation: Two cells side-by-side — membrane receptor (left) for peptide hormones, nuclear receptor (right) for steroids. Pick any hormone to fire its pathway. Switch HPA/HPT/HPG axes to see chain of releasing hormone → tropic hormone → target gland → final hormone. Disorder gallery breaks the axis at NCERT-named points (diabetes, goitre, dwarfism, etc.).
+      `;
+    } else if (activeTopicId === 'endocrine-glands-hormones') {
+      return `
+        Topic: Endocrine Glands and Hormone Actions (NCERT Class 11 Biology, Ch 19, §19.1-19.3)
+        Concept: Ductless glands secrete hormones (non-nutrient intercellular messengers in trace amounts) directly into blood. Hypothalamus (releasing/inhibiting), Pituitary (master gland, 6+1+2 hormones), Thyroid (T3/T4/calcitonin), Parathyroid (PTH), Adrenal (medulla: adrenaline; cortex: cortisol/aldosterone), Pancreas (insulin/glucagon), Gonads (testosterone/estrogen/progesterone), plus heart (ANF), kidney (erythropoietin), GI tract (gastrin/secretin/CCK/GIP).
+        Simulation: Human silhouette with all glands. Click any gland to release its hormones to target organs. Scenario modes: Stress (HPA cascade), Fed (insulin), Fasting (glucagon), Cold (TSH → T4), Puberty (LH/FSH → gonads → androgens/estrogen).
+      `;
+    } else if (activeTopicId === 'synaptic-transmission') {
+      return `
+        Topic: Synaptic Transmission Mechanism (NCERT Class 11 Biology, Ch 18, §18.3.2)
+        Concept: Synapse = junction between pre- and post-synaptic neuron. Two types: electrical (close membranes, instant) and chemical (synaptic cleft + neurotransmitters). Chemical 6-step sequence: AP arrives → Ca²⁺ in → vesicles fuse → NTs release into cleft → bind post-synaptic receptors → ion channels open → EPSP or IPSP.
+        Simulation: Watch full vesicle migration, fusion and NT release. Switch to electrical synapse for contrast. Toggle excitatory vs inhibitory NTs. Adjust firing frequency to see vesicle depletion. Block re-uptake (SSRI-style) to see prolonged NT effect.
+      `;
+    } else if (activeTopicId === 'action-potential') {
+      return `
+        Topic: Action Potential Generation (NCERT Class 11 Biology, Ch 18 Neural Control and Coordination, §18.3.1)
+        Concept: Neuron at rest is polarised — Na-K pump moves 3 Na+ out / 2 K+ in, K+ permeable membrane, negative proteins trapped inside → resting potential. Stimulus opens Na+ channels → Na+ rushes in → polarity reverses (depolarisation, action potential). Local current triggers neighbouring segment → wave propagates. K+ efflux restores resting potential (repolarisation). Refractory period prevents reverse propagation.
+        Simulation: Click anywhere on the axon to fire an AP. Voltage trace at probe shows the classic spike. Block Na+ (anaesthetic) → no AP. Block K+ → no repolarisation. Disable Na-K pump → gradient drains. Toggle myelin sheath for saltatory conduction.
+      `;
+    } else if (activeTopicId === 'sliding-filament-theory') {
+      return `
+        Topic: Sliding Filament Theory (NCERT Class 11 Biology, Ch 17 Locomotion and Movement, §17.2)
+        Concept: Muscle contraction = thin (actin) filaments slide over thick (myosin) filaments. AP at neuromuscular junction releases ACh → sarcolemma depolarises → Ca²⁺ released from sarcoplasmic cisternae → binds troponin → unmasks actin sites → myosin head binds, power stroke (ATP-powered) → sarcomere shortens (I bands shrink, A bands unchanged). New ATP detaches head; cycle repeats.
+        Simulation: Fire single twitches or run at tetanus rate. Watch Ca²⁺ release, myosin heads cycle, Z lines pull inward, I band visibly shrink while A band stays constant. Drop ATP to zero and see rigor mortis (heads locked). Step-mode walks through all 6 NCERT phases.
+      `;
+    } else if (activeTopicId === 'countercurrent-multiplier') {
+      return `
+        Topic: Countercurrent Multiplier System (NCERT Class 11 Biology, Ch 16, §16.4 + §16.5)
+        Concept: Loop of Henle + vasa recta flow in opposite directions = counter-current. NaCl actively pumped from ascending limb + urea recycling from collecting duct build a medullary gradient 300 → 1200 mOsmolL⁻¹. ADH from hypothalamus/neurohypophysis makes the collecting duct water-permeable → concentrated urine.
+        Simulation: Watch filtrate concentrate down the descending limb (water out) and dilute up the ascending limb (NaCl out). Adjust hydration scenarios (normal / dehydrated / overhydrated / marathon), loop length (cortical / juxta-medullary / desert mammal), and toggle the vasa recta counter-current to see the gradient collapse.
+      `;
+    } else if (activeTopicId === 'glomerular-filtration-reabsorption') {
+      return `
+        Topic: Glomerular Filtration & Reabsorption (NCERT Class 11 Biology, Ch 16, §16.2-16.3)
+        Concept: Urine formation = filtration + reabsorption + secretion. GFR ~125 mL/min ≈ 180 L/day; ~99% reabsorbed → 1.5 L/day urine. PCT brush border actively reabsorbs glucose, amino acids, Na+, plus 70-80% water/electrolytes. JGA cells release renin to regulate GFR. Plasma proteins do not pass — "ultrafiltration".
+        Simulation: Watch plasma particles squeeze through podocyte slit pores into Bowman's capsule, glucose/AA/Na+ get actively pumped from PCT into peritubular capillary, urea drift passively. Adjust blood pressure to change GFR, toggle JGA autoregulation, crank plasma glucose to demonstrate glucosuria when transport saturates.
+      `;
     } else if (activeTopicId === 'angiosperms-double-fertilisation-seed-development') {
       return `
         Topic: Angiosperms - Double Fertilisation and Seed Development (NCERT Class 11 Biology, Unit 1 and Unit 2)
@@ -1520,6 +1604,102 @@ const App: React.FC = () => {
         {/* ================== RESPIRATION IN PLANTS ================== */}
         {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'respiration-in-plants' && (
           <RespirationInPlantsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== ELECTRON TRANSPORT CHAIN ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'electron-transport-chain' && (
+          <ElectronTransportChainLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PLANT HORMONES & TROPISMS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'plant-hormones-tropisms' && (
+          <PlantHormonesTropismsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== PULMONARY VENTILATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'pulmonary-ventilation-gas-exchange' && (
+          <PulmonaryVentilationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== BLOOD GROUPS & COAGULATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'blood-groups-coagulation' && (
+          <BloodGroupsCoagulationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== CARDIAC CYCLE & ECG ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'cardiac-cycle-ecg' && (
+          <CardiacCycleEcgLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== GLOMERULAR FILTRATION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'glomerular-filtration-reabsorption' && (
+          <GlomerularFiltrationLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== COUNTERCURRENT MULTIPLIER ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'countercurrent-multiplier' && (
+          <CountercurrentMultiplierLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== SLIDING FILAMENT ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'sliding-filament-theory' && (
+          <SlidingFilamentLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== ACTION POTENTIAL ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'action-potential' && (
+          <ActionPotentialLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== SYNAPTIC TRANSMISSION ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'synaptic-transmission' && (
+          <SynapticTransmissionLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== ENDOCRINE GLANDS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'endocrine-glands-hormones' && (
+          <EndocrineGlandsLab
+            topic={currentTopics.find(t => t.id === activeTopicId)!}
+            onExit={goHome}
+          />
+        )}
+
+        {/* ================== HORMONE ACTION & AXIS ================== */}
+        {currentScreen === 'TOPIC_VIEW' && activeTopicId === 'hormone-action-axis' && (
+          <HormoneActionAxisLab
             topic={currentTopics.find(t => t.id === activeTopicId)!}
             onExit={goHome}
           />

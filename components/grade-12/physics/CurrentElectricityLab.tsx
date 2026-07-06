@@ -20,7 +20,6 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 const currentThroughElement = (V: number, type: ElementType, R: number) => {
     if (type === 'resistor') return V / R;
     if (type === 'bulb') {
-        // R rises with current (heating). Iteratively solve: R_eff = R(1 + α·I²) ; α visualization-tuned
         let I = V / R;
         for (let k = 0; k < 12; k++) {
             const Reff = R * (1 + 0.6 * I * I);
@@ -28,12 +27,22 @@ const currentThroughElement = (V: number, type: ElementType, R: number) => {
         }
         return I;
     }
-    // Qualitative diode curve used by NCERT to illustrate a non-ohmic device.
-    // A smooth knee avoids a discontinuity while reverse breakdown is out of scope.
-    const knee = 0.7;
-    if (V <= 0) return -0.00002 * (1 - Math.exp(Math.max(V, -10) / 2));
-    if (V < knee) return 0.00002 * (Math.exp((V / knee) * 5) - 1);
-    return (V - knee) / Math.max(R, 0.5) + 0.003;
+    const VT = 0.7;
+    if (V <= VT && V > -10) return Math.max(0, (V - VT) / Math.max(R, 0.5)) * 0.001;
+    if (V > VT) return (V - VT) / Math.max(R, 0.5);
+    return 0;
+};
+
+// 4-band colour code helper for realistic resistor body
+const BAND_COLOURS = ['#0f172a', '#92400e', '#dc2626', '#ea580c', '#facc15', '#16a34a', '#2563eb', '#7c3aed', '#6b7280', '#f8fafc'];
+const resistorBands = (R: number): string[] => {
+    if (R <= 0) return ['#0f172a', '#0f172a', '#0f172a', '#ca8a04'];
+    const exp = Math.max(0, Math.floor(Math.log10(R)) - 1);
+    const sig = R / Math.pow(10, exp);
+    const d1 = clamp(Math.floor(sig / 10), 0, 9);
+    const d2 = clamp(Math.floor(sig) % 10, 0, 9);
+    const mult = clamp(exp, 0, 9);
+    return [BAND_COLOURS[d1], BAND_COLOURS[d2], BAND_COLOURS[mult], '#ca8a04'];
 };
 
 const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, onExit }) => {
@@ -42,10 +51,10 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
     const [paused, setPaused] = useState(false);
 
     // ----- Ohm scene state -----
-    const [ohmEMF, setOhmEMF] = useState(6);            // V
-    const [ohmR, setOhmR] = useState(10);               // Ω
+    const [ohmEMF, setOhmEMF] = useState(6);
+    const [ohmR, setOhmR] = useState(10);
     const [element, setElement] = useState<ElementType>('resistor');
-    const [traceMode, setTraceMode] = useState(true);   // build live V–I trace
+    const [traceMode, setTraceMode] = useState(true);
     const traceRef = useRef<Array<{ V: number; I: number }>>([]);
 
     // ----- Cells scene state -----
@@ -68,14 +77,12 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
 
     // ----- Derived numbers -----
     const ohm = useMemo(() => {
-        // For the V–I curve: vary V across element from -ohmEMF to +ohmEMF
         const traceCurve: Array<{ V: number; I: number }> = [];
         const range = Math.max(2, Math.abs(ohmEMF) + 2);
         for (let i = 0; i <= 80; i++) {
             const V = -range + (i / 80) * (2 * range);
             traceCurve.push({ V, I: currentThroughElement(V, element, ohmR) });
         }
-        // Operating point: actual circuit has battery ohmEMF and (element + R_internal small). Use element response with full applied V (assume negligible series wire R).
         const Iop = currentThroughElement(ohmEMF, element, ohmR);
         const Vop = ohmEMF;
         const P = Vop * Iop;
@@ -91,7 +98,6 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
             const Vext = I * loadR;
             return { eEq, rEq, I, Vext, I1: I, I2: I };
         }
-        // NCERT Eqs. 3.56-3.57, including an opposed cell via e2 < 0.
         const invR = 1 / r1 + 1 / r2;
         const rEq = 1 / invR;
         const eEq = (emf1 / r1 + e2 / r2) / invR;
@@ -103,29 +109,23 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
     }, [combo, emf1, emf2, r1, r2, reverse2, loadR]);
 
     const bridge = useMemo(() => {
-        // Two parallel branches: top branch R1 then R2, bottom branch R3 then R4 (between A and C through B and D).
-        // For diagnostic, we compute potentials at B and D when no current flows through galvanometer (assume open galvanometer).
         const I_top = bridgeEMF / (R1w + R2w);
         const I_bot = bridgeEMF / (R3w + R4w);
-        // V_A = bridgeEMF, V_C = 0
         const Vb = bridgeEMF - I_top * R1w;
         const Vd = bridgeEMF - I_bot * R3w;
         const dV = Vb - Vd;
-        // Galvanometer needle deflection 0..1 mapped from dV
         const deflection = clamp(dV / (bridgeEMF * 0.5), -1, 1);
         const balanced = Math.abs(deflection) < 0.005;
         const balanceR4 = (R2w * R3w) / R1w;
         return { I_top, I_bot, Vb, Vd, dV, deflection, balanced, balanceR4 };
     }, [R1w, R2w, R3w, R4w, bridgeEMF]);
 
-    // Append to live V–I trace (Ohm scene)
     useEffect(() => {
         if (scene !== 'ohm' || !traceMode) return;
         traceRef.current.push({ V: ohm.Vop, I: ohm.Iop });
         if (traceRef.current.length > 220) traceRef.current.shift();
     }, [scene, traceMode, ohm.Vop, ohm.Iop]);
 
-    // Reset trace when element changes
     useEffect(() => { traceRef.current = []; }, [element]);
 
     const handleReset = useCallback(() => {
@@ -136,7 +136,7 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
         setR1w(100); setR2w(100); setR3w(100); setR4w(100); setBridgeEMF(6);
     }, []);
 
-    // ----- Draw -----
+    // ============= DRAW LOOP =============
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -144,87 +144,65 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
         if (!ctx) return;
 
         const draw = (t: number) => {
-            const background = ctx.createLinearGradient(0, 0, W, H);
-            background.addColorStop(0, '#f8fafc');
-            background.addColorStop(0.55, '#fffdf5');
-            background.addColorStop(1, '#eff6ff');
-            ctx.fillStyle = background;
+            // soft white background
+            const bg = ctx.createLinearGradient(0, 0, 0, H);
+            bg.addColorStop(0, '#fbfcfe');
+            bg.addColorStop(1, '#f3f6fb');
+            ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+            ctx.strokeStyle = 'rgba(148,163,184,0.14)';
             ctx.lineWidth = 1;
-            for (let x = 0; x <= W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            for (let y = 0; y <= H; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            for (let x = 0; x <= W; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+            for (let y = 0; y <= H; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
+            // title
             ctx.fillStyle = '#0f172a';
-            ctx.font = '600 16px Inter, system-ui, sans-serif';
+            ctx.font = '700 20px Inter, system-ui, sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText(
-                scene === 'ohm' ? 'Ohm’s law & V–I behaviour (resistor · filament · diode)'
-                    : scene === 'cells' ? 'Cells in series / parallel — EMF, internal r, terminal V'
-                        : 'Wheatstone bridge — balance condition R₁/R₂ = R₃/R₄',
-                24, 28
+                scene === 'ohm' ? 'Ohm’s Law & V–I Behaviour'
+                    : scene === 'cells' ? 'Cells in Series & Parallel — Terminal Voltage'
+                        : 'Wheatstone Bridge — Balance Condition',
+                32, 38
             );
 
             if (scene === 'ohm') drawOhmScene(ctx, t);
             else if (scene === 'cells') drawCellsScene(ctx, t);
             else drawBridgeScene(ctx, t);
 
-            // Hint
+            // bottom hint
             ctx.fillStyle = '#64748b';
-            ctx.font = '12px Inter, system-ui, sans-serif';
+            ctx.font = '13px Inter, system-ui, sans-serif';
             ctx.textAlign = 'left';
             const hint =
-                scene === 'ohm' ? 'Watch the V–I trace. Switch element to see Ohm-obeying vs non-Ohmic behaviour.'
-                    : scene === 'cells' ? 'Toggle series ↔ parallel; reverse cell-2 to see ε_eq subtract.'
-                        : 'Slide R₄ until the galvanometer needle hits zero — balance!';
-            ctx.fillText(hint, 24, 736);
+                scene === 'ohm' ? 'Sweep EMF on the bench → watch the live V–I trace bend (resistor straight, bulb curves, diode one-way).'
+                    : scene === 'cells' ? 'Toggle Series ↔ Parallel; reverse cell 2 to make ε’s oppose; load slider sets V_ext.'
+                        : 'Slide R₄ until the galvanometer needle pins to zero — bridge is balanced.';
+            ctx.fillText(hint, 32, H - 16);
         };
 
-        // ===== Ohm scene =====
+        // ============= SCENE: OHM =============
         const drawOhmScene = (ctx: CanvasRenderingContext2D, t: number) => {
-            // Simple loop circuit
             const cx = W / 2;
-            const cy = H / 2 + 20;
-            const loopW = 720;
-            const loopH = 260;
+            const cy = H / 2 + 30;
+            const loopW = 860;
+            const loopH = 340;
             const left = cx - loopW / 2;
             const right = cx + loopW / 2;
             const top = cy - loopH / 2;
             const bot = cy + loopH / 2;
 
-            // Wires
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(left, top); ctx.lineTo(right, top);
-            ctx.moveTo(right, top); ctx.lineTo(right, bot);
-            ctx.moveTo(right, bot); ctx.lineTo(left, bot);
-            ctx.moveTo(left, bot); ctx.lineTo(left, top);
-            ctx.stroke();
+            // wires (drawn beneath components)
+            drawWire(ctx, [
+                { x: left, y: top }, { x: right, y: top },
+                { x: right, y: bot }, { x: left, y: bot },
+                { x: left, y: top },
+            ]);
 
-            // Battery on left edge
-            drawBattery(ctx, left, cy, ohmEMF, 'vertical');
-
-            // Element on top edge (centre)
-            drawElement(ctx, cx, top, element, ohm.Iop, ohmR);
-
-            // Ammeter on right edge
-            drawMeter(ctx, right, cy, 'A', ohm.Iop.toFixed(2) + ' A', '#dc2626');
-
-            // Voltmeter across element (above)
-            drawMeter(ctx, cx, top - 90, 'V', ohm.Vop.toFixed(2) + ' V', '#1d4ed8');
-            ctx.strokeStyle = '#94a3b8';
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(cx - 50, top); ctx.lineTo(cx - 50, top - 70);
-            ctx.moveTo(cx + 50, top); ctx.lineTo(cx + 50, top - 70);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Animated conventional-current markers, with direction set by the sign of I.
+            // flow dots animated along the loop
             const dir = ohm.Iop >= 0 ? 1 : -1;
-            const speed = Math.abs(ohm.Iop) < 1e-6 ? 0 : clamp(Math.abs(ohm.Iop) * 60, 8, 220);
+            const speed = clamp(Math.abs(ohm.Iop) * 60, 8, 220);
             drawFlowDots(ctx, [
                 { ax: left, ay: top, bx: right, by: top },
                 { ax: right, ay: top, bx: right, by: bot },
@@ -232,65 +210,47 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
                 { ax: left, ay: bot, bx: left, by: top },
             ], t, speed, dir);
 
-            // Live V–I plot overlay (bottom-left corner of canvas)
-            drawVIPlot(ctx, ohm.traceCurve, traceRef.current, ohm.range, ohm.Iop, ohm.Vop);
+            // Battery on the left wire (big AA cell, vertical)
+            drawCellBattery(ctx, left, cy, ohmEMF, 'vertical');
+
+            // Element on the top wire (centre)
+            drawElement(ctx, cx, top, element, ohm.Iop, ohmR);
+
+            // Ammeter on the right wire
+            drawAnalogMeter(ctx, right, cy, 'A', ohm.Iop, Math.max(0.1, Math.abs(ohm.Vop / Math.max(1, ohmR)) * 1.5), '#dc2626');
+
+            // Voltmeter spans the element (above) via dashed leads
+            drawAnalogMeter(ctx, cx, top - 110, 'V', ohm.Vop, Math.max(2, Math.abs(ohm.Vop) + 1), '#1d4ed8');
+            drawDashedLead(ctx, cx - 90, top, cx - 90, top - 70);
+            drawDashedLead(ctx, cx + 90, top, cx + 90, top - 70);
+
+            // tiny element label badge above its body
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '700 14px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            const lbl = element === 'resistor' ? `Resistor · ${ohmR.toFixed(0)} Ω`
+                : element === 'bulb' ? `Filament bulb · ${ohmR.toFixed(0)} Ω cold`
+                    : 'Si diode · cut-in 0.7 V';
+            ctx.fillText(lbl, cx, top + 84);
         };
 
-        // ===== Cells scene =====
+        // ============= SCENE: CELLS =============
         const drawCellsScene = (ctx: CanvasRenderingContext2D, t: number) => {
             const cx = W / 2;
-            const cy = H / 2 + 10;
-            const loopW = 760;
-            const loopH = 280;
+            const cy = H / 2 + 30;
+            const loopW = 860;
+            const loopH = 360;
             const left = cx - loopW / 2;
             const right = cx + loopW / 2;
             const top = cy - loopH / 2;
             const bot = cy + loopH / 2;
 
-            // Wires
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(left, top); ctx.lineTo(right, top);
-            ctx.moveTo(right, top); ctx.lineTo(right, bot);
-            ctx.moveTo(right, bot); ctx.lineTo(left, bot);
-            ctx.moveTo(left, bot); ctx.lineTo(left, top);
-            ctx.stroke();
+            drawWire(ctx, [
+                { x: left, y: top }, { x: right, y: top },
+                { x: right, y: bot }, { x: left, y: bot },
+                { x: left, y: top },
+            ]);
 
-            if (combo === 'series') {
-                // Two cells on left edge stacked
-                drawBattery(ctx, left, cy - 70, emf1, 'vertical', `ε₁=${emf1.toFixed(1)} r₁=${r1.toFixed(1)}Ω`);
-                drawBattery(ctx, left, cy + 70, reverse2 ? -emf2 : emf2, 'vertical', `ε₂=${emf2.toFixed(1)} r₂=${r2.toFixed(1)}Ω${reverse2 ? ' ↺' : ''}`);
-            } else {
-                // Two cells in parallel — each on its own branch above and below the central wire
-                drawBattery(ctx, left - 60, cy - 70, emf1, 'vertical', `ε₁=${emf1.toFixed(1)} r₁=${r1.toFixed(1)}Ω`);
-                drawBattery(ctx, left + 60, cy - 70, reverse2 ? -emf2 : emf2, 'vertical', `ε₂=${emf2.toFixed(1)} r₂=${r2.toFixed(1)}Ω${reverse2 ? ' ↺' : ''}`);
-                ctx.strokeStyle = '#0f172a';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(left, top); ctx.lineTo(left - 60, top); ctx.lineTo(left - 60, cy - 100);
-                ctx.moveTo(left, bot); ctx.lineTo(left - 60, bot); ctx.lineTo(left - 60, cy - 40);
-                ctx.moveTo(left + 60, cy - 100); ctx.lineTo(left + 60, top);
-                ctx.moveTo(left + 60, cy - 40); ctx.lineTo(left + 60, bot);
-                ctx.stroke();
-            }
-
-            // Load resistor on right edge
-            drawElement(ctx, right, cy, 'resistor', cellCombo.I, loadR, 'load');
-
-            // Ammeter top
-            drawMeter(ctx, cx, top, 'A', cellCombo.I.toFixed(2) + ' A', '#dc2626');
-            // Voltmeter across load (right side)
-            drawMeter(ctx, right + 100, cy, 'V', cellCombo.Vext.toFixed(2) + ' V', '#1d4ed8');
-            ctx.strokeStyle = '#94a3b8';
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(right + 18, cy - 30); ctx.lineTo(right + 80, cy - 30);
-            ctx.moveTo(right + 18, cy + 30); ctx.lineTo(right + 80, cy + 30);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Flow dots
             const dir = cellCombo.I >= 0 ? 1 : -1;
             const speed = Math.abs(cellCombo.I) < 1e-6 ? 0 : clamp(Math.abs(cellCombo.I) * 60, 6, 200);
             drawFlowDots(ctx, [
@@ -300,344 +260,628 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
                 { ax: left, ay: bot, bx: left, by: top },
             ], t, speed, dir);
 
-            // Equivalent cell card on canvas (small)
-            ctx.fillStyle = '#0f172a';
-            ctx.font = '700 14px Inter, system-ui, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(`ε_eq = ${cellCombo.eEq.toFixed(2)} V`, 24, 60);
-            ctx.fillText(`r_eq = ${cellCombo.rEq.toFixed(2)} Ω`, 24, 80);
-            ctx.font = '600 12px Inter, system-ui, sans-serif';
-            ctx.fillStyle = '#64748b';
-            ctx.fillText(`Load R = ${loadR.toFixed(1)} Ω`, 24, 98);
+            if (combo === 'series') {
+                // two AA cells stacked vertically on left wire
+                drawCellBattery(ctx, left, cy - 100, emf1, 'vertical', `ε₁ ${emf1.toFixed(1)} V · r₁ ${r1.toFixed(1)} Ω`);
+                drawCellBattery(ctx, left, cy + 100, reverse2 ? -emf2 : emf2, 'vertical',
+                    `ε₂ ${emf2.toFixed(1)} V · r₂ ${r2.toFixed(1)} Ω${reverse2 ? ' (reversed)' : ''}`);
+            } else {
+                // two parallel branches dropped from left wire
+                const branchLx = left - 70;
+                const branchRx = left + 70;
+                drawWire(ctx, [
+                    { x: left, y: cy - loopH / 2 }, { x: branchLx, y: cy - loopH / 2 },
+                    { x: branchLx, y: cy - 120 },
+                ]);
+                drawWire(ctx, [
+                    { x: branchLx, y: cy + 120 }, { x: branchLx, y: cy + loopH / 2 },
+                    { x: left, y: cy + loopH / 2 },
+                ]);
+                drawWire(ctx, [
+                    { x: branchRx, y: cy - 120 }, { x: branchRx, y: cy - loopH / 2 },
+                ]);
+                drawWire(ctx, [
+                    { x: branchRx, y: cy + loopH / 2 }, { x: branchRx, y: cy + 120 },
+                ]);
+                drawCellBattery(ctx, branchLx, cy, emf1, 'vertical', `ε₁ ${emf1.toFixed(1)} V · r₁ ${r1.toFixed(1)} Ω`);
+                drawCellBattery(ctx, branchRx, cy, reverse2 ? -emf2 : emf2, 'vertical',
+                    `ε₂ ${emf2.toFixed(1)} V · r₂ ${r2.toFixed(1)} Ω${reverse2 ? ' (rev)' : ''}`);
+            }
+
+            // Load resistor on right wire (big, with colour bands)
+            drawElement(ctx, right, cy, 'resistor', cellCombo.I, loadR, `Load ${loadR.toFixed(0)} Ω`);
+
+            // Ammeter on the top wire
+            drawAnalogMeter(ctx, cx, top, 'A', cellCombo.I, Math.max(0.3, Math.abs(cellCombo.I) * 1.5), '#dc2626');
+
+            // Voltmeter across the load (right of it)
+            drawAnalogMeter(ctx, right + 100, cy, 'V', cellCombo.Vext, Math.max(2, Math.abs(cellCombo.Vext) + 1), '#1d4ed8');
+            drawDashedLead(ctx, right + 36, cy - 50, right + 70, cy - 50);
+            drawDashedLead(ctx, right + 36, cy + 50, right + 70, cy + 50);
         };
 
-        // ===== Wheatstone scene =====
+        // ============= SCENE: WHEATSTONE =============
         const drawBridgeScene = (ctx: CanvasRenderingContext2D, _t: number) => {
             const cx = W / 2;
-            const cy = H / 2 + 10;
-            const size = 260;
-            const A = { x: cx - size, y: cy };       // left vertex
-            const C = { x: cx + size, y: cy };       // right vertex
-            const B = { x: cx, y: cy - size * 0.75 };// top
-            const D = { x: cx, y: cy + size * 0.75 };// bottom
+            const cy = H / 2 - 20;
+            const size = 240;
+            const A = { x: cx - size, y: cy };
+            const C = { x: cx + size, y: cy };
+            const B = { x: cx, y: cy - size * 0.7 };
+            const D = { x: cx, y: cy + size * 0.7 };
 
-            // Edges
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y);
-            ctx.lineTo(C.x, C.y);
-            ctx.lineTo(D.x, D.y);
-            ctx.lineTo(A.x, A.y);
-            ctx.stroke();
+            // diamond edges
+            drawWire(ctx, [A, B, C, D, A]);
 
             // Resistors at midpoints
-            drawResistorOnEdge(ctx, A, B, `R₁=${R1w.toFixed(0)}Ω`, '#dc2626');
-            drawResistorOnEdge(ctx, B, C, `R₂=${R2w.toFixed(0)}Ω`, '#d97706');
-            drawResistorOnEdge(ctx, A, D, `R₃=${R3w.toFixed(0)}Ω`, '#0891b2');
-            drawResistorOnEdge(ctx, D, C, `R₄=${R4w.toFixed(0)}Ω`, '#16a34a');
+            drawResistorOnEdge(ctx, A, B, R1w, 'R₁');
+            drawResistorOnEdge(ctx, B, C, R2w, 'R₂');
+            drawResistorOnEdge(ctx, A, D, R3w, 'R₃');
+            drawResistorOnEdge(ctx, D, C, R4w, 'R₄');
 
             // Galvanometer on B–D diagonal
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(B.x, B.y); ctx.lineTo(D.x, D.y);
-            ctx.stroke();
+            drawWire(ctx, [B, D]);
             drawGalvanometer(ctx, (B.x + D.x) / 2, (B.y + D.y) / 2, bridge.deflection, bridge.balanced);
 
-            // Battery A–C (below the bridge)
-            const bx = cx;
-            const by = cy + size + 40;
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(A.x, A.y); ctx.lineTo(A.x, by); ctx.lineTo(bx - 40, by);
-            ctx.moveTo(C.x, C.y); ctx.lineTo(C.x, by); ctx.lineTo(bx + 40, by);
-            ctx.stroke();
-            drawBattery(ctx, bx, by, bridgeEMF, 'horizontal', `EMF = ${bridgeEMF.toFixed(1)} V`);
+            // Battery A–C below
+            const by = D.y + 90;
+            drawWire(ctx, [
+                { x: A.x, y: A.y }, { x: A.x, y: by }, { x: cx - 60, y: by },
+            ]);
+            drawWire(ctx, [
+                { x: C.x, y: C.y }, { x: C.x, y: by }, { x: cx + 60, y: by },
+            ]);
+            drawCellBattery(ctx, cx, by, bridgeEMF, 'horizontal');
 
-            // Labels for A, B, C, D
+            // node labels A, B, C, D (bold, large)
             ctx.fillStyle = '#0f172a';
-            ctx.font = '700 14px Inter, system-ui, sans-serif';
+            ctx.font = '900 22px Inter, system-ui, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('A', A.x - 16, A.y + 5);
-            ctx.fillText('B', B.x, B.y - 12);
-            ctx.fillText('C', C.x + 16, C.y + 5);
-            ctx.fillText('D', D.x, D.y + 22);
-
-            // Balance hint on canvas
-            ctx.fillStyle = bridge.balanced ? '#16a34a' : '#0f172a';
-            ctx.font = '700 14px Inter, system-ui, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(
-                bridge.balanced
-                    ? '✓ BALANCED: R₁/R₂ = R₃/R₄ → I_g = 0'
-                    : `Imbalance: V_B − V_D = ${bridge.dV.toFixed(3)} V  (try R₄ ≈ ${bridge.balanceR4.toFixed(1)} Ω)`,
-                24, 60
-            );
+            ctx.textBaseline = 'middle';
+            drawNodeBadge(ctx, A.x - 36, A.y, 'A');
+            drawNodeBadge(ctx, B.x, B.y - 32, 'B');
+            drawNodeBadge(ctx, C.x + 36, C.y, 'C');
+            drawNodeBadge(ctx, D.x, D.y + 32, 'D');
+            ctx.textBaseline = 'alphabetic';
         };
 
-        // ===== drawing primitives =====
-        const drawBattery = (
+        // ============= PRIMITIVES =============
+
+        // Smooth wire path with rounded joins
+        function drawWire(ctx: CanvasRenderingContext2D, pts: Array<{ x: number; y: number }>) {
+            ctx.save();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            pts.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+            ctx.stroke();
+            // inner highlight for "metallic" feel
+            ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawDashedLead(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number) {
+            ctx.save();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Realistic AA-cell battery: cylinder body, terminal nub, label ribbon
+        function drawCellBattery(
             ctx: CanvasRenderingContext2D,
             x: number, y: number,
             emf: number,
             orient: 'vertical' | 'horizontal',
             label?: string
-        ) => {
+        ) {
             const sign = emf >= 0 ? 1 : -1;
-            ctx.fillStyle = '#f1f5f9';
+            ctx.save();
+            ctx.translate(x, y);
+            if (orient === 'horizontal') ctx.rotate(Math.PI / 2);
+            // body: tall capsule, vertical orientation
+            const w = 56, h = 118;
+            // shadow
+            ctx.shadowColor = 'rgba(15,23,42,0.18)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetY = 3;
+            // shell
+            const g = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
+            g.addColorStop(0, '#94a3b8');
+            g.addColorStop(0.45, '#e2e8f0');
+            g.addColorStop(0.55, '#f8fafc');
+            g.addColorStop(1, '#475569');
+            ctx.fillStyle = g;
+            roundRect(ctx, -w / 2, -h / 2, w, h, 10);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 2;
-            if (orient === 'vertical') {
-                ctx.beginPath();
-                ctx.roundRect(x - 22, y - 28, 44, 56, 6);
-                ctx.fill(); ctx.stroke();
-                ctx.fillStyle = sign > 0 ? '#dc2626' : '#1d4ed8';
-                ctx.font = '900 18px Inter, system-ui, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('+', x, y - 10);
-                ctx.fillStyle = sign > 0 ? '#1d4ed8' : '#dc2626';
-                ctx.fillText('−', x, y + 18);
-            } else {
-                ctx.beginPath();
-                ctx.roundRect(x - 28, y - 22, 56, 44, 6);
-                ctx.fill(); ctx.stroke();
-                ctx.fillStyle = sign > 0 ? '#dc2626' : '#1d4ed8';
-                ctx.font = '900 18px Inter, system-ui, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('+', x - 12, y + 6);
-                ctx.fillStyle = sign > 0 ? '#1d4ed8' : '#dc2626';
-                ctx.fillText('−', x + 12, y + 6);
-            }
-            ctx.fillStyle = '#0f172a';
-            ctx.font = '700 12px Inter, system-ui, sans-serif';
+            ctx.stroke();
+            // terminal nub on the + end (top if sign > 0, bottom otherwise)
+            const nubY = sign > 0 ? -h / 2 : h / 2;
+            ctx.fillStyle = '#cbd5e1';
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 1.8;
+            const nubH = 12;
+            ctx.beginPath();
+            ctx.rect(-12, nubY - (sign > 0 ? nubH : 0), 24, nubH);
+            ctx.fill(); ctx.stroke();
+            // label ribbon
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(-w / 2 + 3, -22, w - 6, 44);
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-w / 2 + 3, -22, w - 6, 44);
+            // EMF text on ribbon
+            ctx.fillStyle = '#7c2d12';
+            ctx.font = '900 18px Inter, system-ui, sans-serif';
             ctx.textAlign = 'center';
-            const lbl = label ?? `${Math.abs(emf).toFixed(1)} V`;
-            if (orient === 'vertical') ctx.fillText(lbl, x, y + 50);
-            else ctx.fillText(lbl, x, y + 42);
-        };
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${Math.abs(emf).toFixed(1)} V`, 0, 0);
+            // + / - badges
+            ctx.font = '900 16px Inter, system-ui, sans-serif';
+            ctx.fillStyle = sign > 0 ? '#dc2626' : '#1d4ed8';
+            ctx.fillText('+', 0, -h / 2 + 16);
+            ctx.fillStyle = sign > 0 ? '#1d4ed8' : '#dc2626';
+            ctx.fillText('−', 0, h / 2 - 14);
+            ctx.textBaseline = 'alphabetic';
+            ctx.restore();
+            // external label below
+            if (label) {
+                ctx.fillStyle = '#334155';
+                ctx.font = '700 12px Inter, system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, x, y + (orient === 'vertical' ? 82 : 0));
+            }
+        }
 
-        const drawElement = (
+        // Element body: resistor with colour bands / filament bulb / diode schematic
+        function drawElement(
             ctx: CanvasRenderingContext2D,
             x: number, y: number,
             type: ElementType,
-            I: number,
-            R: number,
-            tagOverride?: string
-        ) => {
-            const w = 110, h = 30;
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.roundRect(x - w / 2, y - h / 2, w, h, 8);
-            ctx.fill(); ctx.stroke();
-            ctx.fillStyle = '#0f172a';
-            ctx.font = '700 13px Inter, system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(
-                tagOverride
-                    ? `${tagOverride} R=${R.toFixed(1)}Ω`
-                    : type === 'resistor' ? `Resistor R=${R.toFixed(1)}Ω`
-                        : type === 'bulb' ? `Filament bulb (≈${R.toFixed(1)}Ω cold)`
-                            : 'Diode (schematic knee)',
-                x, y + 5
-            );
-            // glow if bulb and current is high
-            if (type === 'bulb') {
-                const glow = clamp(Math.abs(I) / 0.8, 0, 1);
-                if (glow > 0.05) {
-                    const grd = ctx.createRadialGradient(x, y - 24, 4, x, y - 24, 50);
-                    grd.addColorStop(0, `rgba(253,224,71,${0.85 * glow})`);
-                    grd.addColorStop(1, 'rgba(253,224,71,0)');
-                    ctx.fillStyle = grd;
-                    ctx.beginPath();
-                    ctx.arc(x, y - 24, 50, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        };
+            I: number, R: number,
+            labelOverride?: string
+        ) {
+            if (type === 'resistor') drawResistorBody(ctx, x, y, R, labelOverride);
+            else if (type === 'bulb') drawBulb(ctx, x, y, I, R);
+            else drawDiode(ctx, x, y, I);
+        }
 
-        const drawMeter = (
+        function drawResistorBody(
+            ctx: CanvasRenderingContext2D,
+            x: number, y: number,
+            R: number,
+            labelOverride?: string
+        ) {
+            ctx.save();
+            ctx.translate(x, y);
+            const w = 180, h = 56;
+            // lead wires already covered by main wire; draw end caps
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(-w / 2 - 10, -8, 10, 16);
+            ctx.fillRect(w / 2, -8, 10, 16);
+            // ceramic body
+            ctx.shadowColor = 'rgba(15,23,42,0.18)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 3;
+            const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+            g.addColorStop(0, '#fde68a');
+            g.addColorStop(0.5, '#f59e0b');
+            g.addColorStop(1, '#b45309');
+            ctx.fillStyle = g;
+            roundRect(ctx, -w / 2, -h / 2, w, h, 26);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // colour bands
+            const bands = resistorBands(R);
+            const bandX = [-w / 2 + 24, -w / 2 + 50, -w / 2 + 76, w / 2 - 24];
+            bands.forEach((c, i) => {
+                ctx.fillStyle = c;
+                ctx.fillRect(bandX[i] - 7, -h / 2 + 4, 14, h - 8);
+            });
+            ctx.restore();
+            // label below
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '700 14px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(labelOverride ?? `Resistor · ${R.toFixed(0)} Ω`, x, y + h / 2 + 22);
+        }
+
+        function drawBulb(ctx: CanvasRenderingContext2D, x: number, y: number, I: number, R: number) {
+            ctx.save();
+            const glow = clamp(Math.abs(I * I * R) / 4, 0, 1);
+            // glow halo first
+            if (glow > 0.03) {
+                const grd = ctx.createRadialGradient(x, y - 14, 6, x, y - 14, 130);
+                grd.addColorStop(0, `rgba(254,240,138,${0.95 * glow})`);
+                grd.addColorStop(0.4, `rgba(251,191,36,${0.55 * glow})`);
+                grd.addColorStop(1, 'rgba(251,191,36,0)');
+                ctx.fillStyle = grd;
+                ctx.beginPath();
+                ctx.arc(x, y - 14, 130, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            // glass envelope
+            ctx.translate(x, y);
+            ctx.shadowColor = 'rgba(15,23,42,0.18)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 3;
+            const g = ctx.createRadialGradient(-10, -14, 4, 0, -14, 64);
+            g.addColorStop(0, '#ffffff');
+            g.addColorStop(0.5, '#fef3c7');
+            g.addColorStop(1, '#fde68a');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(0, -14, 56, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // tungsten coil
+            ctx.strokeStyle = glow > 0.05 ? '#dc2626' : '#475569';
+            ctx.lineWidth = glow > 0.05 ? 3 : 2;
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const px = -22 + i * 6;
+                const py = -14 + (i % 2 === 0 ? 6 : -6);
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            // brass screw base
+            const g2 = ctx.createLinearGradient(0, 32, 0, 64);
+            g2.addColorStop(0, '#fbbf24');
+            g2.addColorStop(1, '#92400e');
+            ctx.fillStyle = g2;
+            roundRect(ctx, -28, 32, 56, 22, 4);
+            ctx.fill();
+            ctx.strokeStyle = '#7c2d12';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            // screw threads
+            ctx.strokeStyle = 'rgba(120,53,15,0.5)';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-26, 37 + i * 5);
+                ctx.lineTo(26, 37 + i * 5);
+                ctx.stroke();
+            }
+            ctx.restore();
+            // label below
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '700 14px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Filament bulb · ${R.toFixed(0)} Ω cold`, x, y + 80);
+        }
+
+        function drawDiode(ctx: CanvasRenderingContext2D, x: number, y: number, I: number) {
+            ctx.save();
+            ctx.translate(x, y);
+            const w = 170, h = 56;
+            // body (matte black package)
+            ctx.shadowColor = 'rgba(15,23,42,0.22)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 3;
+            const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+            g.addColorStop(0, '#334155');
+            g.addColorStop(0.5, '#0f172a');
+            g.addColorStop(1, '#1e293b');
+            ctx.fillStyle = g;
+            roundRect(ctx, -w / 2, -h / 2, w, h, 12);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            // cathode ring (right side) — white band
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(w / 2 - 24, -h / 2 + 2, 12, h - 4);
+            // schematic triangle + bar (anode on left, cathode on right)
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(-40, -18); ctx.lineTo(20, 0); ctx.lineTo(-40, 18); ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(20, -20); ctx.lineTo(20, 20);
+            ctx.stroke();
+            // current indicator
+            if (Math.abs(I) > 0.005) {
+                ctx.fillStyle = I > 0 ? '#16a34a' : '#dc2626';
+                ctx.font = '900 14px Inter, system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(I > 0 ? 'FORWARD' : 'BLOCKED', 0, h / 2 - 6);
+            }
+            ctx.restore();
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '700 14px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Si diode · cut-in 0.7 V', x, y + h / 2 + 22);
+        }
+
+        // Big analog dial meter with swinging needle
+        function drawAnalogMeter(
             ctx: CanvasRenderingContext2D,
             x: number, y: number,
             kind: 'A' | 'V',
-            readout: string,
+            value: number, range: number,
             colour: string
-        ) => {
-            const r = 30;
+        ) {
+            const r = 58;
+            ctx.save();
+            ctx.translate(x, y);
+            // shadow
+            ctx.shadowColor = 'rgba(15,23,42,0.22)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetY = 4;
+            // case
             ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
             ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            // inner bezel
+            ctx.strokeStyle = '#cbd5e1';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fill(); ctx.stroke();
+            ctx.arc(0, 0, r - 8, 0, Math.PI * 2);
+            ctx.stroke();
+            // scale arc — from 210° to 330° around top (i.e. from -150° to -30°)
+            const A0 = Math.PI * 1.15; // 207°
+            const A1 = Math.PI * 1.85; // 333°
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, r - 18, A0, A1);
+            ctx.stroke();
+            // tick marks
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            for (let i = 0; i <= 10; i++) {
+                const a = A0 + (i / 10) * (A1 - A0);
+                const x1 = (r - 18) * Math.cos(a);
+                const y1 = (r - 18) * Math.sin(a);
+                const x2 = (r - (i % 5 === 0 ? 32 : 26)) * Math.cos(a);
+                const y2 = (r - (i % 5 === 0 ? 32 : 26)) * Math.sin(a);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            // green safe zone (centre)
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(0, 0, r - 12, A0 + (A1 - A0) * 0.4, A0 + (A1 - A0) * 0.6);
+            ctx.stroke();
+            // needle
+            const norm = clamp(value / range, -1, 1);
+            const ang = A0 + ((norm + 1) / 2) * (A1 - A0);
+            ctx.save();
+            ctx.rotate(ang);
+            ctx.strokeStyle = colour;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 0); ctx.lineTo(r - 22, 0);
+            ctx.stroke();
+            // counter-weight
             ctx.fillStyle = colour;
-            ctx.font = '900 18px Inter, system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(kind, x, y - 2);
+            ctx.beginPath();
+            ctx.arc(-10, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            // pivot
             ctx.fillStyle = '#0f172a';
-            ctx.font = '700 12px Inter, system-ui, sans-serif';
-            ctx.fillText(readout, x, y + r + 14);
-        };
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            // kind badge at bottom of dial
+            ctx.fillStyle = colour;
+            ctx.font = '900 22px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(kind, 0, r - 38);
+            // digital readout below
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '800 14px Inter, system-ui, sans-serif';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText(`${value.toFixed(kind === 'A' ? 3 : 2)} ${kind === 'A' ? 'A' : 'V'}`, 0, r + 22);
+            ctx.restore();
+        }
 
-        const drawFlowDots = (
+        // Glowing electron flow dots (large, with arrow chevrons)
+        function drawFlowDots(
             ctx: CanvasRenderingContext2D,
             segments: Array<{ ax: number; ay: number; bx: number; by: number }>,
             t: number, speed: number, dir: number
-        ) => {
+        ) {
             if (speed <= 0.01) return;
             ctx.save();
-            ctx.fillStyle = '#f59e0b';
-            ctx.shadowColor = '#fbbf24';
-            ctx.shadowBlur = 12;
-            const total = segments.length;
-            const phase = (t * speed * 0.001) % 1;
-            const perSeg = 6;
-            for (let s = 0; s < total; s++) {
+            const phase = ((t * speed * 0.0005) * dir) % 1;
+            const perSeg = 8;
+            // dots
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#f97316';
+            ctx.shadowBlur = 18;
+            for (let s = 0; s < segments.length; s++) {
                 const seg = segments[s];
                 for (let k = 0; k < perSeg; k++) {
-                    const u = (k / perSeg + phase * dir + 100) % 1;
+                    const u = (k / perSeg + phase + 100) % 1;
                     const x = seg.ax + (seg.bx - seg.ax) * u;
                     const y = seg.ay + (seg.by - seg.ay) * u;
                     ctx.beginPath();
-                    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+                    ctx.arc(x, y, 5.5, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
-            ctx.restore();
-        };
-
-        const drawVIPlot = (
-            ctx: CanvasRenderingContext2D,
-            curve: Array<{ V: number; I: number }>,
-            trace: Array<{ V: number; I: number }>,
-            range: number,
-            Iop: number, Vop: number
-        ) => {
-            const px = 32;
-            const py = H - 200;
-            const pw = 360;
-            const ph = 160;
-            // panel
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.roundRect(px, py, pw, ph, 10);
-            ctx.fill(); ctx.stroke();
-
-            // axes
-            const x0 = px + pw / 2;
-            const y0 = py + ph / 2;
-            ctx.strokeStyle = '#94a3b8';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(px + 10, y0); ctx.lineTo(px + pw - 10, y0);
-            ctx.moveTo(x0, py + 24); ctx.lineTo(x0, py + ph - 10);
-            ctx.stroke();
-            ctx.fillStyle = '#64748b';
-            ctx.font = '11px Inter, system-ui, sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText('I', x0 - 5, py + 22);
-            ctx.textAlign = 'left';
-            ctx.fillText('V', px + pw - 20, y0 - 6);
-            ctx.fillStyle = '#0f172a';
-            ctx.font = '700 12px Inter, system-ui, sans-serif';
-            ctx.fillText('Live V–I trace', px + 12, py + 16);
-
-            const xs = (v: number) => x0 + (v / range) * (pw / 2 - 18);
-            const maxI = Math.max(0.1, ...curve.map(p => Math.abs(p.I)));
-            const ys = (I: number) => y0 - (I / maxI) * (ph / 2 - 14);
-
-            // theoretical curve
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(px + 2, py + 24, pw - 4, ph - 26);
-            ctx.clip();
-            ctx.strokeStyle = element === 'resistor' ? '#0891b2' : element === 'bulb' ? '#d97706' : '#dc2626';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            curve.forEach((p, i) => {
-                const x = xs(p.V); const y = ys(p.I);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-
-            // live trace dots
-            ctx.fillStyle = '#16a34a';
-            trace.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(xs(p.V), ys(p.I), 2, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // operating-point marker
+            ctx.shadowColor = 'transparent';
+            // direction chevrons (sparse, brighter)
             ctx.fillStyle = '#dc2626';
-            ctx.beginPath();
-            ctx.arc(xs(Vop), ys(Iop), 5, 0, Math.PI * 2);
-            ctx.fill();
+            for (let s = 0; s < segments.length; s++) {
+                const seg = segments[s];
+                const ang = Math.atan2(seg.by - seg.ay, seg.bx - seg.ax) + (dir > 0 ? 0 : Math.PI);
+                for (let k = 0; k < 2; k++) {
+                    const u = (k * 0.5 + ((phase * 2) % 0.5) + 1) % 1;
+                    const x = seg.ax + (seg.bx - seg.ax) * u;
+                    const y = seg.ay + (seg.by - seg.ay) * u;
+                    ctx.save();
+                    ctx.translate(x, y); ctx.rotate(ang);
+                    ctx.beginPath();
+                    ctx.moveTo(8, 0); ctx.lineTo(-4, 6); ctx.lineTo(-4, -6); ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
             ctx.restore();
-        };
+        }
 
-        const drawResistorOnEdge = (
+        // Wheatstone: rotated zig-zag resistor on a diamond edge
+        function drawResistorOnEdge(
             ctx: CanvasRenderingContext2D,
             P: { x: number; y: number }, Q: { x: number; y: number },
-            label: string, colour: string
-        ) => {
+            R: number, label: string
+        ) {
             const mx = (P.x + Q.x) / 2;
             const my = (P.y + Q.y) / 2;
+            const ang = Math.atan2(Q.y - P.y, Q.x - P.x);
             ctx.save();
             ctx.translate(mx, my);
-            const ang = Math.atan2(Q.y - P.y, Q.x - P.x);
             ctx.rotate(ang);
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = colour;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.roundRect(-40, -12, 80, 24, 6);
-            ctx.fill(); ctx.stroke();
-            ctx.fillStyle = colour;
-            ctx.font = '700 12px Inter, system-ui, sans-serif';
+            const w = 120, h = 36;
+            ctx.shadowColor = 'rgba(15,23,42,0.18)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 2;
+            const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+            g.addColorStop(0, '#fde68a');
+            g.addColorStop(0.5, '#f59e0b');
+            g.addColorStop(1, '#b45309');
+            ctx.fillStyle = g;
+            roundRect(ctx, -w / 2, -h / 2, w, h, 18);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // colour bands
+            const bands = resistorBands(R);
+            const bandX = [-w / 2 + 18, -w / 2 + 36, -w / 2 + 54, w / 2 - 18];
+            bands.forEach((c, i) => {
+                ctx.fillStyle = c;
+                ctx.fillRect(bandX[i] - 4, -h / 2 + 2, 8, h - 4);
+            });
+            ctx.restore();
+            // label outside diamond — always upright
+            const nx = (Q.y - P.y) / Math.hypot(Q.x - P.x, Q.y - P.y);
+            const ny = -(Q.x - P.x) / Math.hypot(Q.x - P.x, Q.y - P.y);
+            const lx = mx + nx * 34;
+            const ly = my + ny * 34;
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '800 14px Inter, system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(label, 0, 1);
+            ctx.fillText(`${label} ${R.toFixed(0)}Ω`, lx, ly);
+            ctx.textBaseline = 'alphabetic';
+        }
+
+        function drawGalvanometer(ctx: CanvasRenderingContext2D, x: number, y: number, deflection: number, balanced: boolean) {
+            const r = 50;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.shadowColor = 'rgba(15,23,42,0.22)';
+            ctx.shadowBlur = 14;
+            ctx.shadowOffsetY = 3;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            // scale arc with negative-zero-positive zones
+            const A0 = Math.PI * 1.15;
+            const A1 = Math.PI * 1.85;
+            const Amid = (A0 + A1) / 2;
+            ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(0, 0, r - 12, A0, Amid - 0.04); ctx.stroke();
+            ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(0, 0, r - 12, Amid - 0.04, Amid + 0.04); ctx.stroke();
+            ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(0, 0, r - 12, Amid + 0.04, A1); ctx.stroke();
+            // ticks
+            for (let i = 0; i <= 10; i++) {
+                const a = A0 + (i / 10) * (A1 - A0);
+                const x1 = (r - 12) * Math.cos(a);
+                const y1 = (r - 12) * Math.sin(a);
+                const x2 = (r - (i === 5 ? 26 : 20)) * Math.cos(a);
+                const y2 = (r - (i === 5 ? 26 : 20)) * Math.sin(a);
+                ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            }
+            // needle
+            const ang = Amid + deflection * ((A1 - A0) / 2.4);
+            ctx.save();
+            ctx.rotate(ang);
+            ctx.strokeStyle = balanced ? '#16a34a' : '#dc2626';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 0); ctx.lineTo(r - 18, 0);
+            ctx.stroke();
+            ctx.restore();
+            // pivot
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill();
+            // G label
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '900 24px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('G', 0, r - 28);
             ctx.textBaseline = 'alphabetic';
             ctx.restore();
-        };
+        }
 
-        const drawGalvanometer = (
-            ctx: CanvasRenderingContext2D,
-            x: number, y: number,
-            deflection: number, balanced: boolean
-        ) => {
-            const r = 36;
+        function drawNodeBadge(ctx: CanvasRenderingContext2D, x: number, y: number, letter: string) {
+            ctx.save();
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.arc(x, y, 16, 0, Math.PI * 2);
             ctx.fill(); ctx.stroke();
-            // scale arc
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.beginPath();
-            ctx.arc(x, y, r - 6, Math.PI * 1.15, Math.PI * 1.85);
-            ctx.stroke();
-            // needle
-            const angle = -Math.PI / 2 + deflection * Math.PI / 3;
-            ctx.strokeStyle = balanced ? '#16a34a' : '#dc2626';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + Math.cos(angle) * (r - 8), y + Math.sin(angle) * (r - 8));
-            ctx.stroke();
-            // label
             ctx.fillStyle = '#0f172a';
-            ctx.font = '900 14px Inter, system-ui, sans-serif';
+            ctx.font = '900 18px Inter, system-ui, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('G', x, y + r + 14);
-        };
+            ctx.textBaseline = 'middle';
+            ctx.fillText(letter, x, y + 1);
+            ctx.textBaseline = 'alphabetic';
+            ctx.restore();
+        }
+
+        function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
 
         let raf = 0;
         let previous = performance.now();
@@ -651,7 +895,7 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
         tick();
         if (paused) draw(tRef.current);
         return () => cancelAnimationFrame(raf);
-    }, [scene, paused, ohm, cellCombo, bridge, element, combo, emf1, emf2, r1, r2, reverse2, loadR, R1w, R2w, R3w, R4w, bridgeEMF]);
+    }, [scene, paused, ohm, cellCombo, bridge, element, combo, emf1, emf2, r1, r2, reverse2, loadR, R1w, R2w, R3w, R4w, bridgeEMF, ohmR, ohmEMF]);
 
     // ===== Panels =====
     const graphPanel = (
@@ -663,18 +907,25 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
                 {scene === 'ohm' && (
                     <>
                         <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
+                            <div className="text-base font-extrabold text-slate-900">Live V–I trace</div>
+                            <div className="text-xs font-semibold text-slate-500 mb-2">NCERT §3.4 · operating point</div>
+                            <OhmVIPlot
+                                curve={ohm.traceCurve}
+                                trace={traceRef.current}
+                                range={ohm.range}
+                                Vop={ohm.Vop}
+                                Iop={ohm.Iop}
+                                element={element}
+                            />
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
                             <div className="text-base font-extrabold text-slate-900">Element behaviour</div>
                             <div className="text-xs font-semibold text-slate-500 mb-2">NCERT §3.4 · §3.6</div>
                             <ul className="text-xs leading-snug text-slate-700 list-disc pl-4 space-y-1">
                                 <li><b className="text-cyan-700">Resistor</b>: straight V–I line → Ohm’s law.</li>
                                 <li><b className="text-amber-700">Filament bulb</b>: bends as R rises with current (heating).</li>
-                                <li><b className="text-red-700">Diode</b>: sign-dependent, non-linear V–I curve (qualitative, not to scale).</li>
+                                <li><b className="text-red-700">Diode</b>: sign-dependent, non-linear V–I curve.</li>
                             </ul>
-                        </div>
-                        <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
-                            <div className="text-base font-extrabold text-slate-900">Geometry of R</div>
-                            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center font-mono text-sm text-amber-900 mt-1">R = ρ · ℓ / A</div>
-                            <p className="text-xs leading-snug text-slate-700 mt-2">Longer/thinner wire → higher R. σ = 1/ρ.</p>
                         </div>
                     </>
                 )}
@@ -689,14 +940,11 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
                             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center font-mono text-xs text-amber-900 mt-2">
                                 Parallel: ε_eq = (ε₁r₂ + ε₂r₁)/(r₁ + r₂),&nbsp; r_eq = r₁r₂/(r₁+r₂)
                             </div>
-                            <p className="text-xs leading-snug text-slate-700 mt-2">Reverse a cell → its ε enters with a minus sign.</p>
                         </div>
                         <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
-                            <div className="text-base font-extrabold text-slate-900">Real cell, real load</div>
-                            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center font-mono text-sm text-amber-900 mt-1">
-                                V_ext = ε · R / (R + r)
-                            </div>
-                            <p className="text-xs leading-snug text-slate-700 mt-2">Internal r causes terminal V to sag as current rises.</p>
+                            <div className="text-base font-extrabold text-slate-900">Operating point</div>
+                            <div className="text-xs font-semibold text-slate-500 mb-2">ε_eq vs V_ext</div>
+                            <CellsBars eEq={cellCombo.eEq} Vext={cellCombo.Vext} I={cellCombo.I} />
                         </div>
                     </>
                 )}
@@ -708,14 +956,14 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
                             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center font-mono text-sm text-amber-900">
                                 R₁ / R₂ = R₃ / R₄
                             </div>
-                            <p className="text-xs leading-snug text-slate-700 mt-2">When balanced, no current flows through the galvanometer (I_g = 0) — the bridge "nulls".</p>
+                            <BalanceGauge dV={bridge.dV} EMF={bridgeEMF} balanced={bridge.balanced} />
                         </div>
                         <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-900 shadow-xl">
                             <div className="text-base font-extrabold text-slate-900">Kirchhoff's rules</div>
                             <div className="text-xs font-semibold text-slate-500 mb-2">NCERT §3.12</div>
                             <ul className="text-xs leading-snug text-slate-700 list-disc pl-4 space-y-1">
-                                <li><b>Junction:</b> Σ I_in = Σ I_out (charge conserved).</li>
-                                <li><b>Loop:</b> Σ ΔV around closed loop = 0 (energy conserved).</li>
+                                <li><b>Junction:</b> Σ I_in = Σ I_out.</li>
+                                <li><b>Loop:</b> Σ ΔV around closed loop = 0.</li>
                             </ul>
                         </div>
                     </>
@@ -940,7 +1188,7 @@ const CurrentElectricityLab: React.FC<CurrentElectricityLabProps> = ({ topic, on
     );
 };
 
-// ----- subcomponents -----
+// ===== Subcomponents (panels & SVG cards) =====
 const ValueRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <div className="rounded-lg border border-slate-100 bg-amber-50 px-3 py-2.5">
         <div className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</div>
@@ -951,8 +1199,7 @@ const ValueRow: React.FC<{ label: string; value: string }> = ({ label, value }) 
 const ModeButton: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
     <button
         onClick={onClick}
-        className={`flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-sm font-semibold transition-colors ${active ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-            }`}
+        className={`flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-sm font-semibold transition-colors ${active ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
     >
         {icon}<span>{label}</span>
     </button>
@@ -976,5 +1223,79 @@ const SliderRow: React.FC<SliderRowProps> = ({ label, value, min, max, step, uni
         />
     </div>
 );
+
+// V–I plot in the left aside (replaces the on-canvas overlay)
+const OhmVIPlot: React.FC<{
+    curve: Array<{ V: number; I: number }>;
+    trace: Array<{ V: number; I: number }>;
+    range: number; Vop: number; Iop: number;
+    element: ElementType;
+}> = ({ curve, trace, range, Vop, Iop, element }) => {
+    const w = 320, h = 200;
+    const x0 = w / 2, y0 = h / 2;
+    const maxI = Math.max(0.1, ...curve.map(p => Math.abs(p.I)));
+    const xs = (V: number) => x0 + (V / range) * (w / 2 - 22);
+    const ys = (I: number) => y0 - (I / maxI) * (h / 2 - 18);
+    const stroke = element === 'resistor' ? '#0891b2' : element === 'bulb' ? '#d97706' : '#dc2626';
+    const path = curve.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xs(p.V).toFixed(1)} ${ys(p.I).toFixed(1)}`).join(' ');
+    return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[200px]">
+            <line x1="12" y1={y0} x2={w - 12} y2={y0} stroke="#94a3b8" strokeWidth="1" />
+            <line x1={x0} y1="12" x2={x0} y2={h - 12} stroke="#94a3b8" strokeWidth="1" />
+            <text x={w - 18} y={y0 - 6} fontSize="10" fill="#64748b" fontWeight="700">V</text>
+            <text x={x0 + 6} y="20" fontSize="10" fill="#64748b" fontWeight="700">I</text>
+            <path d={path} stroke={stroke} strokeWidth="2.5" fill="none" />
+            {trace.map((p, i) => (
+                <circle key={i} cx={xs(p.V)} cy={ys(p.I)} r="1.6" fill="#16a34a" />
+            ))}
+            <circle cx={xs(Vop)} cy={ys(Iop)} r="6" fill="#dc2626" stroke="#fff" strokeWidth="2" />
+        </svg>
+    );
+};
+
+// Cells: ε_eq vs V_ext bar comparison
+const CellsBars: React.FC<{ eEq: number; Vext: number; I: number }> = ({ eEq, Vext, I }) => {
+    const w = 320, h = 130;
+    const scale = Math.max(0.5, Math.max(Math.abs(eEq), Math.abs(Vext)) + 1);
+    const barH = 30;
+    const xZero = 30;
+    const xMax = w - 18;
+    const bar = (v: number) => ((v / scale) * (xMax - xZero));
+    return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[130px]">
+            <text x="0" y="22" fontSize="11" fill="#475569" fontWeight="700">ε_eq</text>
+            <rect x={xZero} y="10" width={bar(eEq)} height={barH} rx="4" fill="#1d4ed8" />
+            <text x={xZero + bar(eEq) + 6} y="30" fontSize="11" fill="#1d4ed8" fontWeight="800">{eEq.toFixed(2)} V</text>
+            <text x="0" y="66" fontSize="11" fill="#475569" fontWeight="700">V_ext</text>
+            <rect x={xZero} y="54" width={bar(Vext)} height={barH} rx="4" fill="#16a34a" />
+            <text x={xZero + bar(Vext) + 6} y="74" fontSize="11" fill="#16a34a" fontWeight="800">{Vext.toFixed(2)} V</text>
+            <text x="0" y="110" fontSize="11" fill="#475569" fontWeight="700">I</text>
+            <rect x={xZero} y="98" width={Math.min(xMax - xZero, Math.abs(I) * 80)} height={barH - 8} rx="4" fill="#dc2626" />
+            <text x={xZero + Math.min(xMax - xZero, Math.abs(I) * 80) + 6} y="115" fontSize="11" fill="#dc2626" fontWeight="800">{I.toFixed(3)} A</text>
+        </svg>
+    );
+};
+
+// Wheatstone: null-pointer-style balance gauge
+const BalanceGauge: React.FC<{ dV: number; EMF: number; balanced: boolean }> = ({ dV, EMF, balanced }) => {
+    const w = 320, h = 120;
+    const cx = w / 2, cy = h - 18;
+    const r = 90;
+    const norm = clamp(dV / (EMF * 0.5), -1, 1);
+    const ang = -Math.PI / 2 + norm * Math.PI / 3;
+    return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[120px] mt-2">
+            <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="#cbd5e1" strokeWidth="3" />
+            <path d={`M ${cx - r * 0.13} ${cy - Math.sqrt(r * r - (r * 0.13) ** 2)} A ${r} ${r} 0 0 1 ${cx + r * 0.13} ${cy - Math.sqrt(r * r - (r * 0.13) ** 2)}`} fill="none" stroke="#16a34a" strokeWidth="4" />
+            <line x1={cx} y1={cy} x2={cx + (r - 8) * Math.cos(ang)} y2={cy + (r - 8) * Math.sin(ang)}
+                stroke={balanced ? '#16a34a' : '#dc2626'} strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx={cx} cy={cy} r="5" fill="#0f172a" />
+            <text x={cx} y={cy + 14} textAnchor="middle" fontSize="11" fontWeight="800"
+                fill={balanced ? '#16a34a' : '#0f172a'}>
+                {balanced ? '✓ BALANCED' : `ΔV = ${dV.toFixed(3)} V`}
+            </text>
+        </svg>
+    );
+};
 
 export default CurrentElectricityLab;

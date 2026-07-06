@@ -8027,6 +8027,489 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'electron-transport-chain') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electron Transport Chain &amp; ATP Yield</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          The final, energy-rich stage of aerobic respiration: NADH and FADH₂ from glycolysis and Krebs' cycle hand their electrons to a chain of carriers on the inner mitochondrial membrane. Energy released along the way pumps protons into the intermembrane space, and ATP synthase turns that gradient back into ATP.
+        </p>
+
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-amber-900">
+            Class 11 Biology, Unit 4 — Chapter 12: <i>Respiration in Plants</i>, Section 12.4.2 (Electron Transport System and Oxidative Phosphorylation) and Section 12.5 (Respiratory Balance Sheet).
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Electron Transport System (ETS)</h3>
+        <p>
+          The ETS is "a metabolic pathway through which the electron passes from one carrier to another" (NCERT §12.4.2). It is located on the <strong>inner mitochondrial membrane</strong>. As electrons move through the system, they release energy that is trapped to synthesise ATP — a process called <strong>oxidative phosphorylation</strong>.
+        </p>
+        <div className="grid md:grid-cols-2 gap-3 my-4">
+          <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-200">
+            <h4 className="font-bold text-cyan-900">Complex I — NADH dehydrogenase</h4>
+            <p className="text-sm">Oxidises NADH+H⁺ from the matrix; passes electrons to <b>ubiquinone (UQ)</b>.</p>
+          </div>
+          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+            <h4 className="font-bold text-emerald-900">Complex II — Succinate dehydrogenase</h4>
+            <p className="text-sm">Feeds electrons from <b>FADH₂</b> (generated during succinate → fumarate in Krebs') into UQ.</p>
+          </div>
+          <div className="bg-violet-50 p-4 rounded-xl border border-violet-200">
+            <h4 className="font-bold text-violet-900">Complex III — Cytochrome bc₁</h4>
+            <p className="text-sm">Oxidises reduced UQ (ubiquinol); passes electrons to <b>cytochrome c</b>.</p>
+          </div>
+          <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
+            <h4 className="font-bold text-rose-900">Complex IV — Cytochrome c oxidase</h4>
+            <p className="text-sm">Contains cytochromes <i>a</i> and <i>a₃</i> + two Cu centres. Passes electrons to <b>O₂</b> → reduced to <b>H₂O</b>.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. ATP Synthase (Complex V) and the 4 H⁺ Rule</h3>
+        <p>
+          ATP synthase has two parts: <strong>F₁</strong> (peripheral, catalytic site for ADP + Pi → ATP) and <strong>F₀</strong> (integral channel for protons). NCERT verbatim: "For each ATP produced, <strong>4 H⁺ pass through F₀</strong> from the intermembrane space to the matrix down the electrochemical proton gradient."
+        </p>
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-lg text-brand-primary text-center">NADH → 3 ATP &nbsp;&nbsp;·&nbsp;&nbsp; FADH₂ → 2 ATP</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">FADH₂ enters at Complex II, bypassing Complex I — fewer protons pumped, hence lower ATP yield.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Why Oxygen Matters</h3>
+        <p>
+          NCERT: "the presence of oxygen is vital, since it drives the whole process by removing hydrogen from the system. <strong>Oxygen acts as the final hydrogen acceptor.</strong>" Without O₂, electrons cannot exit Complex IV → the chain backs up → the proton gradient collapses → ATP synthesis halts.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. The Respiratory Balance Sheet</h3>
+        <p>
+          NCERT explicitly flags that the 38-ATP-per-glucose figure is theoretical: it assumes a sequential pathway with no intermediate utilisation, NADH from glycolysis fully oxidised in the mitochondrion, and glucose as the only substrate. In a living cell, those assumptions don't hold — but the exercise is useful for "appreciating the beauty and efficiency of the living system in extracting and storing energy."
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Switch <b>substrate</b> to FADH₂ only — watch Complex I get bypassed and the ATP yield drop.</li>
+          <li>Drop <b>O₂ supply</b> to zero — electrons stall at Complex IV, the H⁺ gradient drains, ATP synthase rotor freezes.</li>
+          <li>Toggle <b>Uncoupler</b> — protons leak back through the membrane instead of through F₀; the rotor stops even though electrons keep flowing.</li>
+          <li>Toggle <b>Cyanide</b> — blocks Complex IV; whole chain backs up, no H₂O produced.</li>
+          <li>Toggle <b>Rotenone</b> — blocks Complex I; only FADH₂ can still drive the chain (entry at Complex II).</li>
+        </ul>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'plant-hormones-tropisms') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Plant Hormones &amp; Tropisms</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Plant growth regulators (PGRs) are tiny molecules that coordinate growth, flowering, ripening and stress responses. Five major groups — auxins, gibberellins, cytokinins, ethylene and abscisic acid — each discovered by accident.
+        </p>
+
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 my-6">
+          <h4 className="font-bold text-emerald-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-emerald-900">
+            Class 11 Biology, Chapter 13 — <i>Plant Growth and Development</i>, Section 13.4 (Plant Growth Regulators).
+            Note: seed dormancy, vernalisation and photoperiodism are <b>not in the rationalised 2025-26 syllabus</b> and are not covered here.
+          </p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Five PGRs (Accidental Discoveries)</h3>
+        <div className="grid md:grid-cols-2 gap-3 my-4">
+          <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-200">
+            <h4 className="font-bold text-cyan-900">Auxin (IAA)</h4>
+            <p className="text-sm">From Greek <i>auxein</i> "to grow". Charles &amp; Francis Darwin (1880) — canary grass coleoptiles bend to light. Went isolated auxin from oat tips. Functions: rooting, parthenocarpy, apical dominance, herbicides (2,4-D).</p>
+          </div>
+          <div className="bg-violet-50 p-4 rounded-xl border border-violet-200">
+            <h4 className="font-bold text-violet-900">Gibberellin (GA₃)</h4>
+            <p className="text-sm">Kurosawa 1926 — "bakanae" disease of rice (<i>Gibberella fujikuroi</i>). Functions: grape stalk length, bolting, juvenile-conifer maturity.</p>
+          </div>
+          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+            <h4 className="font-bold text-emerald-900">Cytokinin</h4>
+            <p className="text-sm">Miller (1955) — kinetin from autoclaved DNA. Zeatin natural from corn-kernels &amp; coconut milk. Functions: cell division, lateral shoots, delay leaf senescence.</p>
+          </div>
+          <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-amber-900">Ethylene (C₂H₄)</h4>
+            <p className="text-sm">Gaseous PGR. Cousins (1910) — ripe oranges hasten banana ripening. Functions: fruit ripening (climacteric), abscission, breaks dormancy. <b>Ethephon</b> widely used in agriculture.</p>
+          </div>
+          <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 md:col-span-2">
+            <h4 className="font-bold text-rose-900">Abscisic Acid (ABA)</h4>
+            <p className="text-sm">1960s — three names (inhibitor-B, abscission II, dormin) all proved chemically identical. Stress hormone — abscission and dormancy.</p>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Phototropism (Darwin's experiment)</h3>
+        <p>
+          NCERT Fig 13.10. When unilateral light hits a coleoptile, the <strong>tip</strong> is the source of the "transmittable influence". Auxin migrates down the shaded side, causing those cells to elongate more — and the coleoptile bends <i>toward</i> the light.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Apical Dominance</h3>
+        <p>
+          The apical bud's auxin suppresses lateral buds. Decapitation (removing the shoot tip) releases this suppression — laterals grow into branches. Cytokinin antagonises auxin and can lift dominance without decapitation. NCERT highlights this is the basis of <strong>tea plantation pruning and hedge-making</strong>.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Fruit Ripening &amp; Ethylene</h3>
+        <p>
+          Ethylene is a gaseous PGR synthesised by senescing tissues and ripening fruits. It enhances the respiration rate during ripening — the <strong>respiratory climacteric</strong>. One ripe fruit emits ethylene that triggers neighbours — which is why greengrocers separate bananas from other fruit.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><b>Stage A</b> — slide the sun left/right; watch the coleoptile bend with the auxin-rich shaded side elongating.</li>
+          <li><b>Stage B</b> — pick auxin (high dose suppresses laterals), then click <i>Decapitate</i> to bloom them. Switch to cytokinin to bloom them without cutting.</li>
+          <li><b>Stage C</b> — click any fruit to ripen it; watch ethylene spread. Seal the bowl in a bag to trap the gas and accelerate ripening.</li>
+        </ul>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'pulmonary-ventilation-gas-exchange') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Pulmonary Ventilation &amp; Gas Exchange</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Every breath is a gradient-maintenance operation. Air enters the alveoli, O₂ binds haemoglobin, blood carries it to tissues, O₂ unloads where PO₂ is low — and the reverse story carries CO₂ back out.
+        </p>
+        <div className="bg-sky-50 p-5 rounded-xl border border-sky-200 my-6">
+          <h4 className="font-bold text-sky-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-sky-900">Class 11 Biology, Chapter 14 — <i>Breathing and Exchange of Gases</i>, Sections 14.2 (Mechanism), 14.3 (Exchange of Gases), 14.4 (Transport of Gases).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Pulmonary Ventilation</h3>
+        <p>Inspiration + expiration, driven by pressure gradients between atmosphere and alveoli using intercostal muscles and the diaphragm. <strong>Tidal volume (TV) ≈ 500 mL</strong> for a healthy human.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Oxygen Transport</h3>
+        <p>Mostly as <strong>oxyhaemoglobin</strong>. In alveoli (high PO₂, low pCO₂) O₂ binds Hb; in tissues (low PO₂, high pCO₂, high H⁺, higher T) O₂ dissociates. Every 100 mL of oxygenated blood delivers ~5 mL O₂ to tissues.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. CO₂ Transport (three routes)</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>70%</b> as bicarbonate (HCO₃⁻) via carbonic anhydrase in RBCs.</li>
+          <li><b>20-25%</b> as carbamino-haemoglobin.</li>
+          <li><b>~5%</b> dissolved in plasma.</li>
+        </ul>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-center text-brand-primary">CO₂ + H₂O ⇌ H₂CO₃ ⇌ HCO₃⁻ + H⁺</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Oxyhaemoglobin Dissociation Curve</h3>
+        <p>Sigmoidal. Shifts <strong>right</strong> when pCO₂, H⁺ and temperature rise — more O₂ unloads at tissues during exercise.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Switch <b>altitude</b> to Everest — atmospheric PO₂ falls, Hb saturation plummets.</li>
+          <li>Switch <b>activity</b> to Sprinting — curve right-shifts, more O₂ unloads at tissues.</li>
+          <li>Toggle the bicarbonate inset to see the 70/20-25/5 CO₂ split.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'blood-groups-coagulation') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Blood Groups &amp; Coagulation Cascade</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Two interlocking stories: why mismatched blood clumps (antigen meets antibody) and why a small cut doesn't bleed forever (a cascade of inactive plasma factors amplifies into a fibrin mesh).
+        </p>
+        <div className="bg-rose-50 p-5 rounded-xl border border-rose-200 my-6">
+          <h4 className="font-bold text-rose-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-rose-900">Class 11 Biology, Chapter 15 — <i>Body Fluids and Circulation</i>, §15.1.3 (Blood Groups, Table 15.1) and §15.1.4 (Coagulation of Blood).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. ABO Grouping (NCERT Table 15.1)</h3>
+        <table className="w-full my-4 border border-slate-300">
+          <thead className="bg-slate-100">
+            <tr><th className="border p-2">Group</th><th className="border p-2">Antigens on RBC</th><th className="border p-2">Antibodies in Plasma</th><th className="border p-2">Donor's Group</th></tr>
+          </thead>
+          <tbody>
+            <tr><td className="border p-2 text-center font-bold">A</td><td className="border p-2 text-center">A</td><td className="border p-2 text-center">anti-B</td><td className="border p-2 text-center">A, O</td></tr>
+            <tr><td className="border p-2 text-center font-bold">B</td><td className="border p-2 text-center">B</td><td className="border p-2 text-center">anti-A</td><td className="border p-2 text-center">B, O</td></tr>
+            <tr><td className="border p-2 text-center font-bold">AB</td><td className="border p-2 text-center">A, B</td><td className="border p-2 text-center">nil</td><td className="border p-2 text-center">AB, A, B, O</td></tr>
+            <tr><td className="border p-2 text-center font-bold">O</td><td className="border p-2 text-center">nil</td><td className="border p-2 text-center">anti-A, anti-B</td><td className="border p-2 text-center">O</td></tr>
+          </tbody>
+        </table>
+        <p><strong>O = universal donor</strong>, <strong>AB = universal recipient</strong>. Mismatch causes severe clumping and RBC destruction.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Rh Grouping</h3>
+        <p>~80% of humans are Rh⁺ (carry the Rh antigen, similar to one in Rhesus monkeys). An Rh⁻ person exposed to Rh⁺ blood develops anti-Rh antibodies. <strong>Erythroblastosis foetalis</strong>: Rh⁻ mother carrying Rh⁺ foetus — second pregnancy attack. Avoided by injecting anti-Rh antibodies to the mother after the first Rh⁺ delivery.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Coagulation Cascade</h3>
+        <ol className="list-decimal pl-5 space-y-1">
+          <li>Injury → <b>platelets</b> (thrombocytes) activated.</li>
+          <li>Cascade of inactive plasma factors → forms <b>thrombokinase</b>.</li>
+          <li>Thrombokinase: inactive <b>prothrombin → thrombin</b>.</li>
+          <li>Thrombin: inactive <b>fibrinogen → fibrin</b>.</li>
+          <li>Fibrin = network trapping cells → the <b>dark reddish-brown clot/coagulum</b>.</li>
+        </ol>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Try O → AB (safe) vs A → B (clumping). Watch antibodies bind donor antigens.</li>
+          <li>In Cascade: drop platelet count to 0 to see haemophilia-style bleeding.</li>
+          <li>Use step-mode to advance one NCERT step at a time.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'cardiac-cycle-ecg') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Cardiac Cycle &amp; ECG Waves</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Each heartbeat is a 0.8-second sequence: SAN fires, atria squeeze, ventricles squeeze, valves snap, blood ejects, heart relaxes — and the ECG trace records the whole electrical script.</p>
+        <div className="bg-rose-50 p-5 rounded-xl border border-rose-200 my-6">
+          <h4 className="font-bold text-rose-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-rose-900">Class 11 Biology, Chapter 15 — <i>Body Fluids and Circulation</i>, §15.3.2 (Cardiac Cycle) and §15.3.3 (Electrocardiogram).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Cardiac Cycle</h3>
+        <p>SAN (pacemaker) → atrial systole → ventricular systole (lub = AV valves close) → semilunar valves open, blood ejects → ventricular diastole (dub = semilunar valves close) → joint diastole → SAN fires again. <strong>72 cycles/min</strong> means each cycle is <strong>0.8 s</strong>.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Stroke Volume &amp; Cardiac Output</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-center text-brand-primary">CO = SV × HR ≈ 70 mL × 72 bpm = 5 L/min</p>
+        </div>
+        <p>An athlete's CO is much higher than an ordinary person's — body adjusts both SV and HR.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. The ECG</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>P wave</b> — atrial depolarisation → atrial contraction.</li>
+          <li><b>QRS complex</b> — ventricular depolarisation → start of systole.</li>
+          <li><b>T wave</b> — ventricular repolarisation → end of systole.</li>
+        </ul>
+        <p>Heart rate can be read by counting QRS complexes per minute. Deviations from typical shape suggest abnormality.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Toggle Exercise — HR climbs, SV climbs, CO doubles.</li>
+          <li>Switch to AV Block — atria fire (P waves) but ventricles don't (no QRS).</li>
+          <li>Step-mode lets you advance one phase at a time and map it to the ECG.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'glomerular-filtration-reabsorption') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Glomerular Filtration &amp; Reabsorption</h1>
+        <p className="lead text-xl text-slate-600 mb-8">The kidney filters 180 L of plasma every day, then reclaims 99% of it. The maths is brutal — the design is elegant.</p>
+        <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 my-6">
+          <h4 className="font-bold text-amber-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-amber-900">Class 11 Biology, Chapter 16 — <i>Excretory Products and their Elimination</i>, §16.2 (Urine Formation) and §16.3 (Function of the Tubules).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Three Processes</h3>
+        <ol className="list-decimal pl-5 space-y-1">
+          <li><b>Glomerular filtration</b> — non-selective, driven by glomerular capillary BP, passes everything except plasma proteins → "ultrafiltration".</li>
+          <li><b>Reabsorption</b> — active (glucose, AA, Na⁺) or passive (urea, water), returns 99% of filtrate to blood.</li>
+          <li><b>Tubular secretion</b> — actively pumps H⁺, K⁺, NH₃ INTO the filtrate to maintain pH and ionic balance.</li>
+        </ol>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. GFR</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-center text-brand-primary">GFR ≈ 125 mL/min ≈ 180 L/day · Urine ≈ 1.5 L/day → ~99% reabsorbed</p>
+        </div>
+        <p>Regulated by the Juxta Glomerular Apparatus (JGA): JG cells release <b>renin</b> when GFR drops → restores blood flow.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. PCT — The Workhorse</h3>
+        <p>Lined by simple cuboidal <b>brush-border epithelium</b> — huge surface area. Reabsorbs nearly all essential nutrients and 70-80% of electrolytes and water.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Drop blood pressure — GFR plummets. Enable JGA — renin restores it.</li>
+          <li>Crank plasma glucose to diabetic levels — PCT pumps saturate, glucose spills into urine.</li>
+          <li>Toggle tubular secretion to see H⁺/K⁺ pumped INTO the filtrate.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'countercurrent-multiplier') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Countercurrent Multiplier System</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Two parallel pipes flowing in opposite directions build a 4× concentration gradient that lets us make 1.5 L of concentrated urine from 180 L of filtrate.</p>
+        <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-200 my-6">
+          <h4 className="font-bold text-indigo-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-indigo-900">Class 11 Biology, Chapter 16 — <i>Excretory Products and their Elimination</i>, §16.4 (Concentration of Filtrate) and §16.5 (Regulation of Kidney Function).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Loop of Henle</h3>
+        <p>Filtrate flows down the descending limb (water-permeable → concentrates) and up the ascending limb (NaCl actively pumped out → dilutes). Vasa recta blood flows in the opposite direction — this counter-current pattern preserves the gradient.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Medullary Osmotic Gradient</h3>
+        <div className="my-4 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-center text-brand-primary">Cortex 300 mOsm/L → Inner medulla 1200 mOsm/L (4× gradient)</p>
+        </div>
+        <p>Built by NaCl + urea (small amounts from collecting duct recycling).</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. ADH Regulation</h3>
+        <p>Hypothalamic osmoreceptors detect dehydration → release ADH (vasopressin) from neurohypophysis → collecting duct becomes water-permeable → water moves into the saltier interstitium → concentrated urine. Excess water → ADH drops → dilute urine.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Switch to Dehydrated — ADH spikes, urine becomes tiny and dark.</li>
+          <li>Turn off counter-current — gradient drains; even max ADH can't concentrate urine.</li>
+          <li>Switch loop length to Desert mammal — gradient extends much deeper, urine 8× more concentrated.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'sliding-filament-theory') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Sliding Filament Theory</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Muscles don't shorten because their filaments shrink — they shorten because thin filaments slide over thick ones, pulled by tireless myosin "oars".</p>
+        <div className="bg-rose-50 p-5 rounded-xl border border-rose-200 my-6">
+          <h4 className="font-bold text-rose-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-rose-900">Class 11 Biology, Chapter 17 — <i>Locomotion and Movement</i>, §17.2 (Skeletal Muscle Contraction).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Sarcomere</h3>
+        <p>Functional unit between two <b>Z lines</b>. <b>Thin filaments</b> = F-actin + tropomyosin + troponin. <b>Thick filaments</b> = myosin with HMM heads projecting outward.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The Cycle (NCERT verbatim)</h3>
+        <ol className="list-decimal pl-5 space-y-1">
+          <li>Motor neuron → ACh at NMJ → AP in sarcolemma.</li>
+          <li>Ca²⁺ released into sarcoplasm.</li>
+          <li>Ca²⁺ binds troponin → unmasks actin sites.</li>
+          <li>Myosin head (ATP-powered) binds → cross-bridge.</li>
+          <li>Power stroke → actin pulled toward A-band centre → Z lines drawn in → sarcomere shortens.</li>
+          <li>New ATP binds → head detaches → cycle repeats.</li>
+          <li>Relaxation = Ca²⁺ pumped back into cisternae → troponin re-masks.</li>
+        </ol>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Key Insight</h3>
+        <p>During contraction: <b>I bands shrink</b> · <b>A bands retain length</b>. The filaments themselves don't change length — they just overlap more.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Fire a single twitch — watch Ca²⁺ burst, heads cycle, sarcomere shorten, then relax.</li>
+          <li>Raise stim rate to high Hz — tetanus.</li>
+          <li>Drop ATP to 0 — rigor mortis (heads locked).</li>
+          <li>Step-mode walks the 6 NCERT steps with labels.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'action-potential') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Action Potential Generation</h1>
+        <p className="lead text-xl text-slate-600 mb-8">An AP isn't a current flowing along a wire — it's a wave of local depolarisation–repolarisation regenerated at every segment of the axon.</p>
+        <div className="bg-cyan-50 p-5 rounded-xl border border-cyan-200 my-6">
+          <h4 className="font-bold text-cyan-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-cyan-900">Class 11 Biology, Chapter 18 — <i>Neural Control and Coordination</i>, §18.3.1 (Generation and Conduction of Nerve Impulse).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Resting Potential</h3>
+        <p>Membrane more permeable to K⁺, nearly impermeable to Na⁺. Na-K pump moves <strong>3 Na⁺ out</strong> for every <strong>2 K⁺ in</strong>. Inside: high K⁺ + negative proteins. Outside: high Na⁺. Net: outside positive, inside negative → polarised.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Action Potential</h3>
+        <p>Stimulus → membrane becomes Na⁺-permeable → rapid Na⁺ influx → polarity reverses (outer −, inner +) → depolarised. This electrical difference = <b>action potential</b>.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Conduction</h3>
+        <p>Current flows from depolarised site A to polarised B inside the axon, B to A outside → polarity at B reverses → AP at B. Sequence repeats along axon.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. Repolarisation</h3>
+        <p>Na⁺ permeability rise is "extremely short-lived". K⁺ permeability rises → K⁺ diffuses out → resting potential restored. Fibre becomes responsive again (after a brief refractory period).</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">V. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Click axon → AP races along, voltage spike at probe.</li>
+          <li>Block Na⁺ channels — local anaesthetic effect, no AP propagation.</li>
+          <li>Block K⁺ channels — voltage stays high (no repolarisation).</li>
+          <li>Disable Na-K pump — APs fire for a few seconds, then gradients drain.</li>
+          <li>Enable myelin — saltatory conduction, much faster.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'synaptic-transmission') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Synaptic Transmission Mechanism</h1>
+        <p className="lead text-xl text-slate-600 mb-8">An action potential can't jump from one neuron to the next directly. It has to hand off — either as a current (electrical synapse) or as a chemical messenger packed into vesicles (chemical synapse).</p>
+        <div className="bg-violet-50 p-5 rounded-xl border border-violet-200 my-6">
+          <h4 className="font-bold text-violet-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-violet-900">Class 11 Biology, Chapter 18 — <i>Neural Control and Coordination</i>, §18.3.2 (Transmission of Impulses).</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Two Types of Synapse</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Electrical</b> — membranes in very close proximity; current flows directly. Faster than chemical; rare in humans.</li>
+          <li><b>Chemical</b> — membranes separated by synaptic cleft; uses neurotransmitters.</li>
+        </ul>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. The 6-Step Chemical Cascade</h3>
+        <ol className="list-decimal pl-5 space-y-1">
+          <li>Axon terminals contain <b>synaptic knobs</b> with <b>vesicles</b> of neurotransmitter.</li>
+          <li>AP arrives → triggers vesicles.</li>
+          <li>Vesicles move to pre-synaptic membrane, fuse with it.</li>
+          <li>Neurotransmitters released into cleft.</li>
+          <li>NTs bind specific receptors on post-synaptic membrane.</li>
+          <li>Ion channels open → new potential (excitatory or inhibitory).</li>
+        </ol>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Switch chemical ↔ electrical — see the difference in speed and mechanism.</li>
+          <li>Switch excitatory ↔ inhibitory neurotransmitter — post-synaptic trace flips direction.</li>
+          <li>Crank firing frequency until vesicle pool depletes.</li>
+          <li>Disable re-uptake (SSRI effect) — NTs linger longer in cleft.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'endocrine-glands-hormones') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Endocrine Glands &amp; Hormone Actions</h1>
+        <p className="lead text-xl text-slate-600 mb-8">Ductless glands quietly run the body's slow, sustained coordination — temperature, sugar, water, growth, reproduction.</p>
+        <div className="bg-cyan-50 p-5 rounded-xl border border-cyan-200 my-6">
+          <h4 className="font-bold text-cyan-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-cyan-900">Class 11 Biology, Chapter 19 — <i>Chemical Coordination and Integration</i>, §19.1 to §19.3.</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. The Glands</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Hypothalamus</b> — releasing &amp; inhibiting hormones to pituitary (e.g. GnRH, somatostatin).</li>
+          <li><b>Pituitary</b> — master gland. Pars distalis: 6 trophic hormones (GH, PRL, TSH, ACTH, LH, FSH). Pars intermedia: MSH. Pars nervosa: oxytocin, ADH.</li>
+          <li><b>Thyroid</b> — T3, T4 (BMR, CNS maturation), thyrocalcitonin (↓ blood Ca²⁺).</li>
+          <li><b>Parathyroid</b> — PTH (↑ blood Ca²⁺).</li>
+          <li><b>Adrenal medulla</b> — epinephrine, norepinephrine ("fight-or-flight").</li>
+          <li><b>Adrenal cortex</b> — glucocorticoids, mineralocorticoids.</li>
+          <li><b>Pancreas</b> — insulin (↓ blood glucose), glucagon (↑ blood glucose).</li>
+          <li><b>Gonads</b> — testis: androgens; ovary: estrogen + progesterone.</li>
+          <li><b>Heart, kidney, GI tract</b> — ANF (↓ BP), erythropoietin (RBC), gastrin/secretin/CCK/GIP.</li>
+        </ul>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Click any gland on the silhouette to release its hormones.</li>
+          <li>Run Stress scenario — full HPA axis: hypothalamus → pituitary (ACTH) → adrenal cortex (cortisol) + medulla (adrenaline).</li>
+          <li>Run Fed vs Fasting — pancreas insulin vs glucagon.</li>
+          <li>Run Puberty — hypothalamus → LH/FSH → gonads → testosterone/estrogen.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'hormone-action-axis') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Mechanism of Hormone Action &amp; Tropic Axis</h1>
+        <p className="lead text-xl text-slate-600 mb-8">The same word "hormone" hides two completely different mechanisms — one rings the doorbell, the other walks in and edits the genome.</p>
+        <div className="bg-fuchsia-50 p-5 rounded-xl border border-fuchsia-200 my-6">
+          <h4 className="font-bold text-fuchsia-900 mb-2">NCERT Reference</h4>
+          <p className="text-sm text-fuchsia-900">Class 11 Biology, Chapter 19 — <i>Chemical Coordination and Integration</i>, §19.4 (Mechanism of Hormone Action) and §19.2 (Pituitary tropic hormones). Note: positive/negative feedback regulation by name is <b>not</b> in NCERT Ch 19; this sim shows it as the natural emergent property of the axis.</p>
+        </div>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Two Receptor Types</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Membrane-bound</b> — on cell membrane. Hormone doesn't enter. Generates 2nd messenger (cAMP, IP₃, Ca²⁺) → regulates cellular metabolism.</li>
+          <li><b>Intracellular (nuclear)</b> — receptors inside the cell. Hormone enters, binds, complex enters nucleus, interacts with genome → regulates gene expression.</li>
+        </ul>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Hormone Classes</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Peptide / polypeptide / protein</b> (insulin, glucagon, pituitary hormones) → membrane receptors.</li>
+          <li><b>Steroids</b> (cortisol, testosterone, estradiol, progesterone) → intracellular receptors.</li>
+          <li><b>Iodothyronines</b> (T3, T4) → intracellular receptors.</li>
+          <li><b>Amino-acid derivatives</b> (epinephrine) → membrane receptors.</li>
+        </ul>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. Tropic Hormones</h3>
+        <p>Anterior pituitary hormones that stimulate other endocrine glands: <b>TSH → thyroid</b>, <b>ACTH → adrenal cortex</b>, <b>LH/FSH → gonads</b>. Each axis follows: hypothalamus releasing hormone → pituitary tropic hormone → target gland → final hormone → target tissue.</p>
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">IV. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Switch hormone — see which cell type (membrane vs nuclear) fires.</li>
+          <li>Switch axis — HPA (stress), HPT (thyroid), HPG (gonadal).</li>
+          <li>Activate disorder mode — visually break the axis at a NCERT-named disease point.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
   return <div>Topic Content Not Found</div>;
 };
 

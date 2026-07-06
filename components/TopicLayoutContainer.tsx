@@ -1,13 +1,16 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, BookOpen, GraduationCap, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, GraduationCap, LayoutGrid, X } from 'lucide-react';
 import { Topic } from '../types';
 import TextbookContent from './TextbookContent';
+import { getInfographic } from './infographics/registry';
 
 interface TopicLayoutContainerProps {
     topic: Topic;
     onExit: () => void;
     SimulationComponent: React.ReactNode;
     ControlsComponent?: React.ReactNode;
+    // Optional infographic panel shown in its own drawer (button appears below "Explanation")
+    InfographicComponent?: React.ReactNode;
     // Optional floating top nav specific to the simulation (e.g., view modes)
     FloatingNavComponent?: React.ReactNode;
     // Optional status badge (e.g., staggered/eclipsed warning)
@@ -86,6 +89,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     onExit,
     SimulationComponent,
     ControlsComponent,
+    InfographicComponent,
     FloatingNavComponent,
     StatusBadgeComponent,
     simulationAreaFlex,
@@ -100,6 +104,9 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
     contentToggleClassName
 }) => {
     const [isContentOpen, setIsContentOpen] = useState(false);
+    const [isInfographicOpen, setIsInfographicOpen] = useState(false);
+    // Explicit prop wins; otherwise fall back to the id-keyed infographic registry.
+    const resolvedInfographic = InfographicComponent ?? getInfographic(topic.id);
     const usesClass11BiologyLayout = topic.grade === '11th' && topic.subject === 'Biology';
     const usesDrawerLayout = contentPanelMode === 'left-drawer';
     const resolvedSimulationAreaFlex = simulationAreaFlex ?? (
@@ -218,32 +225,61 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 </button>
 
 
-                <div className={`absolute ${isRightDrawer ? 'right-4' : 'left-4'} top-1/2 z-[110] flex -translate-y-1/2 flex-col items-center gap-2`}>
-                    <button
-                        type="button"
-                        aria-expanded={isContentOpen}
-                        aria-controls="tour-content"
-                        onClick={() => setIsContentOpen(open => !open)}
-                        className={`h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all ${contentToggleClasses}`}
-                        title={isContentOpen ? 'Hide content' : 'Show content'}
-                    >
-                        {isContentOpen ? <X size={24} /> : <BookOpen size={24} />}
-                        <span className="sr-only">{isContentOpen ? 'Hide content' : 'Show content'}</span>
-                    </button>
-
-                    {!isContentOpen && (
+                <div className={`absolute ${isRightDrawer ? 'right-4' : 'left-4'} top-1/2 z-[110] flex -translate-y-1/2 flex-col items-center gap-4`}>
+                    {/* Explanation toggle */}
+                    <div className="flex flex-col items-center gap-1.5">
+                        <button
+                            type="button"
+                            aria-expanded={isContentOpen}
+                            aria-controls="tour-content"
+                            onClick={() => {
+                                setIsContentOpen(open => !open);
+                                setIsInfographicOpen(false);
+                            }}
+                            className={`h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all ${contentToggleClasses}`}
+                            title={isContentOpen ? 'Hide explanation' : 'Show explanation'}
+                        >
+                            {isContentOpen ? <X size={24} /> : <BookOpen size={24} />}
+                            <span className="sr-only">{isContentOpen ? 'Hide explanation' : 'Show explanation'}</span>
+                        </button>
                         <span className="text-xs font-semibold text-slate-700">
-                            Explanation
+                            {isContentOpen ? 'Close' : 'Explanation'}
                         </span>
+                    </div>
+
+                    {/* Infographics toggle */}
+                    {resolvedInfographic && (
+                        <div className="flex flex-col items-center gap-1.5">
+                            <button
+                                type="button"
+                                aria-expanded={isInfographicOpen}
+                                aria-controls="tour-infographic"
+                                onClick={() => {
+                                    setIsInfographicOpen(open => !open);
+                                    setIsContentOpen(false);
+                                }}
+                                className="h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all bg-brand-secondary text-brand-dark border border-amber-300 hover:bg-white hover:text-brand-primary"
+                                title={isInfographicOpen ? 'Hide infographics' : 'Show infographics'}
+                            >
+                                {isInfographicOpen ? <X size={24} /> : <LayoutGrid size={24} />}
+                                <span className="sr-only">{isInfographicOpen ? 'Hide infographics' : 'Show infographics'}</span>
+                            </button>
+                            <span className="text-xs font-semibold text-slate-700">
+                                {isInfographicOpen ? 'Close' : 'Infographics'}
+                            </span>
+                        </div>
                     )}
                 </div>
 
-                {isContentOpen && (
+                {(isContentOpen || isInfographicOpen) && (
                     <button
                         type="button"
                         className="absolute inset-0 z-30 bg-slate-950/20 lg:hidden"
-                        aria-label="Close content panel"
-                        onClick={() => setIsContentOpen(false)}
+                        aria-label="Close panel"
+                        onClick={() => {
+                            setIsContentOpen(false);
+                            setIsInfographicOpen(false);
+                        }}
                     />
                 )}
 
@@ -292,6 +328,29 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                 >
                     {contentPanel}
                 </div>
+
+                {/* Infographic Drawer */}
+                {resolvedInfographic && (
+                    <div
+                        className={`absolute ${isRightDrawer ? 'right-0 shadow-[-18px_0_45px_rgba(15,23,42,0.24)]' : 'left-0 shadow-[18px_0_45px_rgba(15,23,42,0.24)]'} top-0 h-full w-[min(92vw,520px)] bg-white text-slate-900 overflow-y-auto custom-scrollbar z-[95] transition-transform duration-300 ease-out ${
+                            isInfographicOpen ? 'translate-x-0' : isRightDrawer ? 'translate-x-full' : '-translate-x-full'
+                        }`}
+                        id="tour-infographic"
+                    >
+                        <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200 bg-white/90 px-6 py-4 backdrop-blur-md">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-secondary text-brand-dark">
+                                <LayoutGrid size={16} />
+                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Infographic</span>
+                                <span className="text-sm font-bold text-slate-800 leading-tight truncate">{topic.title}</span>
+                            </div>
+                        </div>
+                        <div className="p-5 pb-24 sm:p-6">
+                            {resolvedInfographic}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
