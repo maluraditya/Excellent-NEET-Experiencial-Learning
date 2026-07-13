@@ -61,6 +61,7 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
   const cascadeStepRef = useRef(0);
   const axisProgressRef = useRef(0);
   const hormoneLevelRef = useRef(25); // blood level of the final hormone (0-100)
+  const axisOnRef = useRef(true);     // persistent axis state (hysteresis, avoids per-frame flip)
 
   const [paused, setPaused] = useState(false);
   const [hormone, setHormone] = useState<Hormone>('insulin');
@@ -94,10 +95,17 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
     // negative-feedback dynamics: the axis fires only while the blood level is
     // below the set point; the hormone is then cleared, so the level oscillates.
     const setpoint = 60;
+    const band = 6; // hysteresis deadband: axis holds its state within ±band of the set point
     const targetFails = disorder === 'goitre' || disorder === 'cretinism';   // gland can't make enough
     const overproduce = disorder === 'gigantism' || disorder === 'acromegaly'; // feedback ignored
     let level = hormoneLevelRef.current;
-    const axisOn = overproduce ? true : level < setpoint;
+    // negative feedback with hysteresis: switch OFF only once clearly above the set
+    // point, back ON only once clearly below it — otherwise hold the previous state.
+    let axisOn = axisOnRef.current;
+    if (overproduce) axisOn = true;
+    else if (level > setpoint + band) axisOn = false;
+    else if (level < setpoint - band) axisOn = true;
+    axisOnRef.current = axisOn;
     const production = (axisOn ? (targetFails ? 12 : 42) : 0);
     level += (production - level * 0.5) * dt;
     hormoneLevelRef.current = Math.max(0, Math.min(100, level));
@@ -131,10 +139,8 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
 
   const drawFeedbackLoop = (ctx: CanvasRenderingContext2D) => {
     const info = AXIS_META[axis];
-    const level = hormoneLevelRef.current;
-    const setpoint = 60;
     const overproduce = disorder === 'gigantism' || disorder === 'acromegaly';
-    const axisOn = overproduce ? true : level < setpoint;
+    const axisOn = overproduce ? true : axisOnRef.current;
     const feedbackOn = !axisOn;
     const finalHormone = info.chain[2].hormone;
 
@@ -221,12 +227,26 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
     // tube
     ctx.fillStyle = '#f1f5f9'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
     roundBox(ctx, x, y, w, h, 12); ctx.fill(); ctx.stroke();
+    // colour by health zone, not by the raw set-point crossing: a healthy level
+    // ripples gently around the set point and must read as "balanced" (green), not
+    // flip red/green every cycle. Only a disorder pushes it out of the normal band.
+    const band = 14;                    // normal range = set point ± band
+    const status = level > setpoint + band ? 'high' : level < setpoint - band ? 'low' : 'normal';
+    const zone = {
+      normal: { top: '#4ade80', bot: '#15803d', text: '#15803d', label: 'Balanced' },
+      high:   { top: '#f87171', bot: '#b91c1c', text: '#b91c1c', label: 'High' },
+      low:    { top: '#fbbf24', bot: '#b45309', text: '#b45309', label: 'Low' },
+    }[status];
+    // normal-range shading behind the fill
+    const nbTop = y + h - h * (setpoint + band) / 100;
+    const nbBot = y + h - h * (setpoint - band) / 100;
+    ctx.fillStyle = 'rgba(74,222,128,0.14)';
+    ctx.fillRect(x + 3, nbTop, w - 6, nbBot - nbTop);
     // fill
     const fillH = h * level / 100;
     const fg = ctx.createLinearGradient(0, y + h - fillH, 0, y + h);
-    const high = level >= setpoint;
-    fg.addColorStop(0, high ? '#f87171' : '#4ade80');
-    fg.addColorStop(1, high ? '#b91c1c' : '#15803d');
+    fg.addColorStop(0, zone.top);
+    fg.addColorStop(1, zone.bot);
     ctx.fillStyle = fg;
     roundBox(ctx, x + 3, y + h - fillH + 1, w - 6, fillH - 2, 10); ctx.fill();
     // set-point line
@@ -236,9 +256,11 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
     ctx.setLineDash([]);
     ctx.fillStyle = '#0f172a'; ctx.font = '700 12px Inter'; ctx.textAlign = 'left';
     ctx.fillText('set point', x + w + 8, spY - 6);
-    // value
-    ctx.fillStyle = high ? '#b91c1c' : '#15803d'; ctx.font = '800 20px Inter'; ctx.textAlign = 'center';
+    // value + status
+    ctx.fillStyle = zone.text; ctx.font = '800 20px Inter'; ctx.textAlign = 'center';
     ctx.fillText(`${level.toFixed(0)}%`, x + w / 2, y + h + 30);
+    ctx.font = '800 13px Inter';
+    ctx.fillText(zone.label, x + w / 2, y + h + 50);
     ctx.textAlign = 'left';
   };
 

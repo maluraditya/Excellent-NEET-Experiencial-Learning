@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Pregnancy Hormonal Control and Rh Incompatibility Infographic</title>
+  <desc id="desc">Pregnancy support by hCG, progesterone, estrogen, placenta, oxytocin, and Rh incompatibility risk.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M2 2 L12 7 L2 12 Z" fill="#be123c"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <text x="80" y="88" font-family="Arial, sans-serif" font-size="46" font-weight="700" fill="#17324d">Pregnancy: Hormonal Control and Rh Incompatibility</text>
+  <text x="82" y="130" font-family="Arial, sans-serif" font-size="22" fill="#475569">Placenta becomes the endocrine link that maintains pregnancy and separates maternal and fetal blood.</text>
+
+  <g transform="translate(90 205)">
+    <rect x="0" y="0" width="470" height="590" rx="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="32" y="55" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#9d174d">Hormone Timeline</text>
+    <line x1="80" y1="515" x2="400" y2="515" stroke="#94a3b8" stroke-width="4"/>
+    <text x="70" y="555" font-family="Arial, sans-serif" font-size="18" fill="#475569">Implantation</text>
+    <text x="216" y="555" font-family="Arial, sans-serif" font-size="18" fill="#475569">Placenta</text>
+    <text x="355" y="555" font-family="Arial, sans-serif" font-size="18" fill="#475569">Birth</text>
+    <path d="M80 450 C130 260 170 180 225 250 C290 330 330 315 400 260" fill="none" stroke="#db2777" stroke-width="9"/>
+    <path d="M80 485 C165 460 220 400 270 300 C320 210 360 180 400 165" fill="none" stroke="#f97316" stroke-width="9"/>
+    <path d="M80 470 C150 440 205 395 265 300 C325 205 370 155 400 120" fill="none" stroke="#2563eb" stroke-width="9"/>
+    <text x="100" y="190" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#db2777">hCG rescues corpus luteum</text>
+    <text x="115" y="315" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f97316">Progesterone maintains endometrium</text>
+    <text x="145" y="105" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#2563eb">Estrogen supports growth</text>
+  </g>
+
+  <g transform="translate(615 205)">
+    <rect x="0" y="0" width="420" height="590" rx="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="32" y="55" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#17324d">Placenta Barrier</text>
+    <ellipse cx="210" cy="300" rx="125" ry="170" fill="#fecdd3" stroke="#be123c" stroke-width="6"/>
+    <path d="M135 235 C205 180 275 240 220 300 C170 355 245 402 300 345" fill="none" stroke="#dc2626" stroke-width="12" stroke-linecap="round"/>
+    <path d="M105 390 C180 335 260 425 330 365" fill="none" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="170" cy="250" r="10" fill="#dc2626"/>
+    <circle cx="250" cy="345" r="10" fill="#dc2626"/>
+    <circle cx="190" cy="385" r="10" fill="#2563eb"/>
+    <circle cx="285" cy="377" r="10" fill="#2563eb"/>
+    <text x="65" y="510" font-family="Arial, sans-serif" font-size="22" fill="#17324d">Exchange: oxygen, nutrients, wastes, antibodies and hormones.</text>
+    <text x="65" y="552" font-family="Arial, sans-serif" font-size="22" fill="#17324d">Maternal and fetal blood normally do not mix directly.</text>
+  </g>
+
+  <g transform="translate(1090 205)">
+    <rect x="0" y="0" width="420" height="590" rx="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="32" y="55" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#be123c">Rh Incompatibility</text>
+    <rect x="55" y="105" width="135" height="72" rx="18" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+    <text x="84" y="150" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#991b1b">Mother Rh-</text>
+    <rect x="230" y="105" width="135" height="72" rx="18" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+    <text x="262" y="150" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#1e3a8a">Fetus Rh+</text>
+    <line x1="195" y1="141" x2="224" y2="141" stroke="#be123c" stroke-width="6" marker-end="url(#arrow)"/>
+    <circle cx="125" cy="275" r="48" fill="#ef4444"/>
+    <text x="92" y="283" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">Anti-D</text>
+    <line x1="170" y1="275" x2="265" y2="275" stroke="#be123c" stroke-width="6" marker-end="url(#arrow)"/>
+    <circle cx="315" cy="275" r="46" fill="#2563eb"/>
+    <text x="286" y="283" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">RBC</text>
+    <text x="58" y="405" font-family="Arial, sans-serif" font-size="22" fill="#17324d">If fetal Rh+ cells enter Rh- mother, anti-Rh antibodies may form.</text>
+    <text x="58" y="475" font-family="Arial, sans-serif" font-size="22" fill="#17324d">Later pregnancy: antibodies can cross placenta and damage fetal RBCs.</text>
+    <rect x="58" y="515" width="304" height="48" rx="16" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+    <text x="88" y="546" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#166534">Prevention: anti-D after delivery</text>
+  </g>
+</svg>

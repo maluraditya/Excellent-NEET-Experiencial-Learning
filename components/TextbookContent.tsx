@@ -1588,6 +1588,47 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
     );
   }
 
+  if (topic?.id === 'electronic-configuration-exchange-energy') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Electronic Configuration and Exchange Energy</h1>
+        <p className="lead text-xl text-slate-600 mb-8">
+          Electronic configuration shows how electrons occupy orbitals in increasing energy while obeying Aufbau principle, Pauli exclusion principle, and Hund rule.
+        </p>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">I. Filling Rules</h3>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li><strong>Aufbau principle:</strong> electrons enter the available subshell of lower energy first.</li>
+          <li><strong>Pauli exclusion principle:</strong> one orbital can hold at most two electrons, and their spins must be opposite.</li>
+          <li><strong>Hund rule:</strong> degenerate orbitals are singly occupied with parallel spins before pairing begins.</li>
+        </ul>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">Order: 1s, 2s, 2p, 3s, 3p, 4s, 3d, 4p ...</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">The n + l rule helps compare subshell energies; lower n wins when n + l is same.</p>
+        </div>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">II. Exchange Energy and Stability</h3>
+        <p>
+          Exchange energy is the stabilising effect produced when electrons with parallel spins can exchange their positions among degenerate orbitals. More parallel-spin exchanges mean greater stability.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li>Half-filled subshells such as p3 and d5 are especially stable because they maximise parallel spins.</li>
+          <li>Fully-filled subshells such as p6 and d10 are stable because the distribution is symmetrical and complete.</li>
+          <li>This explains familiar exceptional configurations such as chromium and copper, where 4s and 3d occupancy adjusts for extra stability.</li>
+        </ul>
+
+        <h3 className="text-xl font-display font-bold text-brand-dark mt-8 mb-4">III. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Fill orbitals one electron at a time and check whether the rule order is obeyed.</li>
+          <li>Compare paired and unpaired arrangements in p and d subshells.</li>
+          <li>Watch half-filled and fully-filled arrangements gain extra stability from exchange energy.</li>
+        </ul>
+        <VideoSection />
+      </div>
+    );
+  }
+
   // --- UNIT IV: CHEMICAL BONDING ---
 
   if (topic?.id === 'vsepr-theory') {
@@ -4553,6 +4594,49 @@ const TextbookContent: React.FC<TextbookContentProps> = ({ topic, layout = 'lega
             </p>
           </div>
         </div>
+
+        <VideoSection />
+      </div>
+    );
+  }
+
+  if (topic?.id === 'variable-oxidation-states-dblock') {
+    return (
+      <div className="prose prose-slate prose-lg max-w-none font-sans" id="tour-content">
+        <h1 className="font-display text-3xl font-bold text-brand-primary mb-6">Variable Oxidation States in d-block Elements</h1>
+
+        <p className="lead text-xl text-slate-600 mb-8">
+          Transition elements show variable oxidation states because both ns and (n-1)d electrons can participate in bonding, especially when the d subshell is incomplete.
+        </p>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">I. Why Many Oxidation States Appear</h3>
+        <p>
+          The energy gap between ns and (n-1)d orbitals is small in transition elements. As a result, different numbers of electrons can be removed or shared, producing oxidation states that often differ by one unit.
+        </p>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li>Scandium commonly shows +3, while zinc mainly shows +2 because Zn2+ has a stable d10 configuration.</li>
+          <li>Elements near the middle of the 3d series show the widest range of states.</li>
+          <li>Manganese is the classic example, showing states from +2 up to +7.</li>
+        </ul>
+
+        <div className="my-6 p-4 bg-slate-100 rounded-xl border border-slate-300">
+          <p className="font-mono text-xl text-brand-primary text-center">Mn: +2, +3, +4, +5, +6, +7</p>
+          <p className="text-sm text-slate-600 mt-2 text-center">High oxidation states are stabilised by electronegative ligands such as oxygen.</p>
+        </div>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">II. Stability Patterns</h3>
+        <ul className="list-disc pl-5 space-y-2 mb-6">
+          <li><strong>Oxo species:</strong> oxygen stabilises high oxidation states, as in chromate and permanganate ions.</li>
+          <li><strong>Carbonyls:</strong> carbon monoxide stabilises low oxidation states in complexes such as Ni(CO)4 and Fe(CO)5.</li>
+          <li><strong>Aqueous ions:</strong> colour, magnetic behaviour, and redox activity change with oxidation state because d-electron count changes.</li>
+        </ul>
+
+        <h3 className="text-xl font-bold text-brand-dark mt-8 mb-4">III. What to Explore in the Simulation</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Scan across Sc to Zn and compare the number of available oxidation states.</li>
+          <li>Use the manganese peak to connect electronic structure with maximum variability.</li>
+          <li>Toggle ligand effects to see why oxygen favours high states and carbonyls favour low states.</li>
+        </ul>
 
         <VideoSection />
       </div>
