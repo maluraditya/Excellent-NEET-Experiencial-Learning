@@ -72,7 +72,7 @@ const DynamicSimulationStage: React.FC<{ children: React.ReactNode; width?: numb
     return (
         <div ref={viewportRef} className="relative w-full h-full min-h-0 overflow-hidden">
             <div
-                className="absolute left-1/2 top-1/2 origin-center"
+                className="sim-stage absolute left-1/2 top-1/2 origin-center"
                 style={{
                     width,
                     height,

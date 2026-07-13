@@ -2,6 +2,22 @@ html {
   scrollbar-gutter: stable;
 }
 
+/*
+ * Simulation reference panels (the left / right <aside> boxes) are white cards,
+ * but they render inside the topic overlay whose root is `bg-black text-slate-100`
+ * (light text meant for the dark backdrop). Any panel text that does not set its
+ * own colour inherits that near-white default and becomes invisible on the white
+ * card — which is why the boxes looked empty while the coloured labels (amber /
+ * emerald / red accents that set their own colour) stayed crisp.
+ *
+ * Fix: give the panels a solid dark default text colour. `:where()` keeps the
+ * selector at zero specificity so it only overrides *inherited* colour — every
+ * explicit text-* utility (accents, muted captions, headings) still wins.
+ */
+:where(.sim-stage aside) {
+  color: #1e293b; /* slate-800 */
+}
+
 /* Premium Driver.js Theme */
 .driverjs-theme {
   background-color: #ffffff !important;
