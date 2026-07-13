@@ -177,162 +177,337 @@ const BloodGroupsCoagulationLab: React.FC<BloodGroupsCoagulationLabProps> = ({ t
     else drawCascade(ctx);
   };
 
+  // ---- shared cell helpers ----
+  const drawRBCdisc = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number, clumped: boolean, antigens?: string[]) => {
+    const bg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 1, x, y, r);
+    bg.addColorStop(0, clumped ? '#b91c1c' : '#fecaca');
+    bg.addColorStop(1, clumped ? '#7f1d1d' : '#ef4444');
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.92, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = clumped ? '#7f1d1d' : '#dc2626';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // biconcave dimple
+    ctx.fillStyle = clumped ? 'rgba(70,10,10,0.55)' : 'rgba(185,28,28,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(x, y, r * 0.45, r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // surface antigens
+    if (antigens && antigens.length) {
+      antigens.forEach((ag, i) => {
+        const ang = -0.7 + i * 1.3;
+        const ax = x + Math.cos(ang) * r, ay = y + Math.sin(ang) * r;
+        ctx.fillStyle = ag === 'A' ? '#0891b2' : '#7c3aed';
+        ctx.beginPath();
+        ctx.arc(ax, ay, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 6px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(ag, ax, ay + 2);
+        ctx.textAlign = 'left';
+      });
+    }
+  };
+
+  const drawAntibody = (ctx: CanvasRenderingContext2D, x: number, y: number, target: 'A' | 'B') => {
+    ctx.strokeStyle = target === 'A' ? '#0891b2' : '#7c3aed';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x, y + 8);
+    ctx.lineTo(x, y);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 6, y - 8);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 6, y - 8);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+  };
+
   const drawTransfusion = (ctx: CanvasRenderingContext2D) => {
     // banner
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '700 18px Inter';
-    ctx.fillText('Transfusion Bench — pour donor blood into recipient', 30, 50);
+    ctx.fillText('Transfusion bench — pour donor blood into the recipient', 30, 46);
     ctx.font = '500 12px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §15.1.3 Table 15.1 — ABO antigen / antibody pairing', 30, 70);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('NCERT §15.1.3 Table 15.1 — matching antigen meets antibody → agglutination (clumping).', 30, 66);
 
-    // donor vial (left)
-    drawVial(ctx, 200, 380, `Donor ${donor}${donorRh}`, '#dc2626');
-    // recipient vial (right)
-    drawVial(ctx, 1080, 380, `Recipient ${recipient}${recipientRh}`, '#0891b2');
-    // arrow
+    // recipient plasma chamber (rounded, pale amber)
+    const CH = { x: 360, y: 210, w: 700, h: 360 };
+    const chGrad = ctx.createLinearGradient(0, CH.y, 0, CH.y + CH.h);
+    chGrad.addColorStop(0, '#fffdf5');
+    chGrad.addColorStop(1, '#fef3c7');
+    ctx.fillStyle = chGrad;
+    roundRectPath(ctx, CH.x, CH.y, CH.w, CH.h, 22);
+    ctx.fill();
+    ctx.strokeStyle = '#e2c98a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#a16207';
+    ctx.font = '600 12px Inter';
+    ctx.fillText(`Recipient ${recipient}${recipientRh} — plasma + RBCs`, CH.x + 16, CH.y + 24);
+
+    // donor vial (left) with a pour stream when transfusing
+    drawGlassVial(ctx, 165, 250, 90, 250, `Donor ${donor}${donorRh}`, donor);
     if (transfused) {
-      ctx.strokeStyle = '#dc2626';
-      ctx.lineWidth = 6;
+      const streamGrad = ctx.createLinearGradient(210, 360, 360, 420);
+      streamGrad.addColorStop(0, '#dc2626');
+      streamGrad.addColorStop(1, 'rgba(220,38,38,0.25)');
+      ctx.strokeStyle = streamGrad;
+      ctx.lineWidth = 10;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(290, 380);
-      ctx.lineTo(380, 380);
+      ctx.moveTo(210, 380);
+      ctx.quadraticCurveTo(300, 360, CH.x + 20, 430);
       ctx.stroke();
-      ctx.fillStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.moveTo(380, 380);
-      ctx.lineTo(370, 372);
-      ctx.lineTo(370, 388);
-      ctx.closePath();
-      ctx.fill();
+      ctx.lineCap = 'butt';
     }
 
-    // recipient blood chamber
-    ctx.strokeStyle = '#94a3b8';
+    // antibodies (drift in plasma)
+    for (const a of absRef.current) drawAntibody(ctx, a.x, a.y, a.targetAg);
+
+    // agglutination bridges between nearby clumped cells
+    const clumped = rbcsRef.current.filter(r => r.clumped);
+    ctx.strokeStyle = 'rgba(124,58,237,0.5)';
     ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.strokeRect(380, 220, 590, 340);
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 11px Inter';
-    ctx.fillText('Recipient plasma + RBCs', 390, 214);
+    for (let i = 0; i < clumped.length; i++) {
+      for (let j = i + 1; j < clumped.length; j++) {
+        const d = Math.hypot(clumped[i].x - clumped[j].x, clumped[i].y - clumped[j].y);
+        if (d < 46) {
+          ctx.beginPath();
+          ctx.moveTo(clumped[i].x, clumped[i].y);
+          ctx.lineTo(clumped[j].x, clumped[j].y);
+          ctx.stroke();
+        }
+      }
+    }
 
     // RBCs
     for (const r of rbcsRef.current) {
       const ag = (r as any).antigen as string[] | undefined;
-      ctx.beginPath();
-      ctx.arc(r.x, r.y, 11, 0, Math.PI * 2);
-      ctx.fillStyle = r.clumped ? '#7f1d1d' : '#fecaca';
-      ctx.fill();
-      ctx.strokeStyle = '#b91c1c';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      // antigens as small spikes
-      if (ag) {
-        for (const a of ag) {
-          ctx.fillStyle = a === 'A' ? '#0891b2' : '#7c3aed';
-          ctx.beginPath();
-          ctx.arc(r.x + (a === 'A' ? -7 : 7), r.y - 7, 3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-    // antibodies (Y-shape)
-    for (const a of absRef.current) {
-      ctx.strokeStyle = a.targetAg === 'A' ? '#0891b2' : '#7c3aed';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(a.x, a.y + 6);
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(a.x - 5, a.y - 5);
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(a.x + 5, a.y - 5);
-      ctx.stroke();
+      drawRBCdisc(ctx, r.x, r.y, 12, r.clumped, ag);
     }
 
-    // verdict badge
+    // verdict badge — determined by the ABO donor rule + Rh (not by how many
+    // collisions have happened yet), so it is correct the instant you transfuse.
     if (transfused) {
-      const clumpedCount = rbcsRef.current.filter(r => r.clumped).length;
-      const hasReaction = clumpedCount > 0;
-      ctx.fillStyle = hasReaction ? '#fee2e2' : '#dcfce7';
+      const aboReaction = !ABO_META[recipient].donors.includes(donor);
+      const rhReaction = recipientRh === '-' && donorRh === '+';
+      const hasReaction = aboReaction || rhReaction;
+      const x = 420, y = 596, w = 580, h = 74;
+      ctx.fillStyle = hasReaction ? '#fef2f2' : '#f0fdf4';
       ctx.strokeStyle = hasReaction ? '#dc2626' : '#16a34a';
       ctx.lineWidth = 2;
-      ctx.fillRect(420, 600, 540, 70);
-      ctx.strokeRect(420, 600, 540, 70);
+      roundRectPath(ctx, x, y, w, h, 14);
+      ctx.fill();
+      ctx.stroke();
       ctx.fillStyle = hasReaction ? '#991b1b' : '#166534';
-      ctx.font = '800 20px Inter';
+      ctx.font = '800 19px Inter';
       ctx.textAlign = 'center';
-      ctx.fillText(hasReaction ? '⚠ CLUMPING — RBC destruction' : '✓ SAFE — compatible transfusion', 690, 635);
+      ctx.fillText(
+        aboReaction ? '⚠ CLUMPING — RBCs agglutinate & are destroyed'
+                    : rhReaction ? '⚠ Rh INCOMPATIBLE — sensitises the recipient'
+                    : '✓ SAFE — compatible transfusion',
+        x + w / 2, y + 30,
+      );
       ctx.font = '500 11px Inter';
       ctx.fillText(
-        hasReaction
-          ? `Recipient ${recipient} has anti-${ABO_META[recipient].antibodies.join('/')} antibodies — donor ${donor} antigens get attacked.`
-          : `Recipient ${recipient} accepts donor ${donor}: ${ABO_META[recipient].donors.join(', ')} are all compatible.`,
-        690, 655,
+        aboReaction
+          ? `Recipient ${recipient} carries ${ABO_META[recipient].antibodies.join(' & ')} — they attack donor ${donor}'s antigen${ABO_META[donor].antigens.length > 1 ? 's' : ''} ${ABO_META[donor].antigens.join(', ')}.`
+          : rhReaction
+          ? `Rh⁻ recipient receiving Rh⁺ blood makes anti-Rh antibodies (danger on the next exposure).`
+          : `Recipient ${recipient} accepts donor ${donor}. Compatible donors: ${ABO_META[recipient].donors.join(', ')}.`,
+        x + w / 2, y + 52,
       );
       ctx.textAlign = 'left';
     }
   };
 
-  const drawVial = (ctx: CanvasRenderingContext2D, x: number, y: number, label: string, fill: string) => {
-    ctx.fillStyle = '#f1f5f9';
-    ctx.strokeStyle = '#475569';
+  // realistic glass test-tube with blood fill + meniscus + highlight
+  const drawGlassVial = (ctx: CanvasRenderingContext2D, x: number, topY: number, w: number, h: number, label: string, group: ABO) => {
+    const r = w / 2;
+    // glass body (rounded bottom)
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.lineTo(x, topY + h - r);
+    ctx.arc(x + r, topY + h - r, r, Math.PI, 0, true);
+    ctx.lineTo(x + w, topY);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(226,232,240,0.35)';
+    ctx.fill();
+    // blood fill (lower ~65%)
+    const fillTop = topY + h * 0.35;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, fillTop);
+    ctx.lineTo(x, topY + h - r);
+    ctx.arc(x + r, topY + h - r, r, Math.PI, 0, true);
+    ctx.lineTo(x + w, fillTop);
+    ctx.closePath();
+    ctx.clip();
+    const bg = ctx.createLinearGradient(x, fillTop, x, topY + h);
+    bg.addColorStop(0, '#ef4444');
+    bg.addColorStop(1, '#991b1b');
+    ctx.fillStyle = bg;
+    ctx.fillRect(x, fillTop, w, h);
+    ctx.restore();
+    // meniscus
+    ctx.strokeStyle = '#7f1d1d';
     ctx.lineWidth = 2;
-    ctx.fillRect(x - 45, y - 100, 90, 200);
-    ctx.strokeRect(x - 45, y - 100, 90, 200);
-    ctx.fillStyle = fill;
-    ctx.fillRect(x - 43, y - 30, 86, 128);
-    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.ellipse(x + r, fillTop, r, 5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // glass outline + highlight
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.lineTo(x, topY + h - r);
+    ctx.arc(x + r, topY + h - r, r, Math.PI, 0, true);
+    ctx.lineTo(x + w, topY);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x + 9, topY + 12);
+    ctx.lineTo(x + 9, topY + h - r - 6);
+    ctx.stroke();
+    // rubber cap
+    ctx.fillStyle = '#334155';
+    roundRectPath(ctx, x - 4, topY - 14, w + 8, 16, 4);
+    ctx.fill();
+    // label
+    ctx.fillStyle = '#0f172a';
     ctx.font = '700 13px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText(label, x, y + 120);
+    ctx.fillText(label, x + r, topY + h + 26);
+    // antigen/antibody caption
+    const ag = ABO_META[group].antigens;
+    ctx.font = '600 10px Inter';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(ag.length ? `antigens: ${ag.join(', ')}` : 'no A/B antigens', x + r, topY + h + 42);
     ctx.textAlign = 'left';
   };
 
   const drawCascade = (ctx: CanvasRenderingContext2D) => {
     // banner
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = '#0f172a';
     ctx.font = '700 18px Inter';
-    ctx.fillText('Cut & Cascade — clotting in real time', 30, 50);
+    ctx.fillText('Cut & cascade — how a wound stops bleeding', 30, 46);
     ctx.font = '500 12px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §15.1.4 — Platelets → Thrombokinase → Prothrombin → Thrombin → Fibrinogen → Fibrin', 30, 70);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('NCERT §15.1.4 — platelets → thrombokinase → prothrombin→thrombin → fibrinogen→fibrin → clot', 30, 66);
 
-    // vessel
-    ctx.fillStyle = '#fecaca';
-    ctx.strokeStyle = '#b91c1c';
-    ctx.lineWidth = 3;
-    ctx.fillRect(200, 300, 880, 100);
-    ctx.strokeRect(200, 300, 880, 100);
+    // ---- skin cross-section ----
+    const skinTop = 120, dermisBot = 430, woundX = 640;
+    const epi = ctx.createLinearGradient(0, skinTop, 0, skinTop + 34);
+    epi.addColorStop(0, '#f9c9a4'); epi.addColorStop(1, '#f0a97a');
+    ctx.fillStyle = epi;
+    ctx.fillRect(160, skinTop, 960, 34);
+    const derm = ctx.createLinearGradient(0, skinTop + 34, 0, dermisBot);
+    derm.addColorStop(0, '#fde7dd'); derm.addColorStop(1, '#f8d3c6');
+    ctx.fillStyle = derm;
+    ctx.fillRect(160, skinTop + 34, 960, dermisBot - skinTop - 34);
+    ctx.fillStyle = '#9a6a52';
+    ctx.font = '600 11px Inter';
+    ctx.fillText('Skin (epidermis / dermis)', 172, skinTop + 22);
+
+    // ---- blood vessel (tube) ----
+    const vTop = 300, vBot = 400, vCy = (vTop + vBot) / 2;
+    const wall = 9;
+    // vessel wall
+    ctx.fillStyle = '#b91c1c';
+    roundRectPath(ctx, 175, vTop - wall, 930, (vBot - vTop) + wall * 2, 22);
+    ctx.fill();
+    // lumen with blood gradient
+    const lum = ctx.createLinearGradient(0, vTop, 0, vBot);
+    lum.addColorStop(0, '#f87171'); lum.addColorStop(0.5, '#dc2626'); lum.addColorStop(1, '#b91c1c');
+    ctx.fillStyle = lum;
+    roundRectPath(ctx, 175 + wall, vTop, 930 - wall * 2, vBot - vTop, 16);
+    ctx.fill();
     ctx.fillStyle = '#7f1d1d';
     ctx.font = '600 11px Inter';
-    ctx.fillText('Blood vessel', 220, 290);
+    ctx.fillText('Blood vessel (lumen)', 200, vTop - 16);
 
-    // cut location
+    // flowing RBC discs inside the lumen (decorative)
+    for (let i = 0; i < 10; i++) {
+      const rx = 240 + i * 78;
+      if (Math.abs(rx - woundX) < 40) continue;
+      drawRBCdisc(ctx, rx, vCy + Math.sin(i * 1.7) * 18, 10, false);
+    }
+
     if (cascadeStep !== 'idle') {
       const closed = cascadeStep === 'clotted';
-      // gap in vessel
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(620, 300, 40, 100);
-      // bleed drops
+      // ---- wound gash through skin into the vessel ----
+      ctx.save();
+      ctx.fillStyle = closed ? '#7f1d1d' : '#fee2e2';
+      ctx.beginPath();
+      ctx.moveTo(woundX - 34, skinTop - 2);
+      ctx.lineTo(woundX - 10, vTop + 6);
+      ctx.lineTo(woundX + 10, vTop + 6);
+      ctx.lineTo(woundX + 34, skinTop - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // platelets massing at the tear
+      const plateletGlow = cascadeStep === 'platelets' || cascadeStep === 'thrombokinase';
+      for (let i = 0; i < 14; i++) {
+        const px = woundX + (Math.random() - 0.5) * 54;
+        const py = vTop + 4 + Math.random() * 20;
+        ctx.fillStyle = plateletGlow ? '#f59e0b' : '#d4a017';
+        ctx.beginPath();
+        ctx.ellipse(px, py, 4, 2.6, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       if (!closed) {
+        // bleeding out of the gash
         for (const d of bleedDropsRef.current) {
           ctx.beginPath();
           ctx.arc(d.x, d.y, 5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(220, 38, 38, ${d.alpha})`;
+          ctx.fillStyle = `rgba(185, 28, 28, ${d.alpha})`;
           ctx.fill();
         }
+      } else {
+        // ---- fibrin clot: woven mesh + trapped RBCs, dark reddish-brown ----
+        ctx.strokeStyle = 'rgba(120,53,15,0.75)';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 16; i++) {
+          const gx = woundX - 40 + i * 5;
+          ctx.beginPath();
+          ctx.moveTo(gx, vTop);
+          ctx.lineTo(gx + (i % 2 ? 10 : -10), vBot);
+          ctx.stroke();
+        }
+        for (let i = 0; i < 9; i++) {
+          const gy = vTop + 6 + i * 10;
+          ctx.beginPath();
+          ctx.moveTo(woundX - 42, gy);
+          ctx.lineTo(woundX + 42, gy + (i % 2 ? 6 : -6));
+          ctx.stroke();
+        }
+        // trapped cells
+        for (let i = 0; i < 6; i++) drawRBCdisc(ctx, woundX - 30 + i * 12, vCy + Math.sin(i) * 16, 8, true);
+        ctx.fillStyle = '#78350f';
+        ctx.font = '700 13px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Fibrin clot — the dark reddish-brown "scum"', woundX, vBot + 34);
+        ctx.textAlign = 'left';
       }
     }
 
-    // cascade steps as horizontal flow
+    // ---- cascade step flow (vertical, below the vessel) ----
     const stages: { step: CascadeStep; label: string; color: string }[] = [
-      { step: 'platelets',     label: 'Platelets activated',      color: '#f59e0b' },
-      { step: 'thrombokinase', label: 'Thrombokinase enzyme complex', color: '#ea580c' },
-      { step: 'thrombin',      label: 'Prothrombin → Thrombin',   color: '#7c3aed' },
-      { step: 'fibrin',        label: 'Fibrinogen → Fibrin mesh', color: '#16a34a' },
-      { step: 'clotted',       label: 'Clot formed',              color: '#475569' },
+      { step: 'platelets',     label: 'Platelets activated at the injury', color: '#f59e0b' },
+      { step: 'thrombokinase', label: 'Factors form thrombokinase complex', color: '#ea580c' },
+      { step: 'thrombin',      label: 'Prothrombin → Thrombin', color: '#7c3aed' },
+      { step: 'fibrin',        label: 'Fibrinogen → Fibrin threads', color: '#16a34a' },
+      { step: 'clotted',       label: 'Fibrin mesh traps cells → clot', color: '#475569' },
     ];
     const order: CascadeStep[] = ['idle', 'platelets', 'thrombokinase', 'thrombin', 'fibrin', 'clotted'];
     const curIdx = order.indexOf(cascadeStep);
@@ -341,61 +516,70 @@ const BloodGroupsCoagulationLab: React.FC<BloodGroupsCoagulationLabProps> = ({ t
       const sIdx = order.indexOf(s.step);
       const active = sIdx === curIdx;
       const done = sIdx < curIdx;
-      const y = 470 + i * 42;
+      const y = 480 + i * 46;
+      // connector arrow to next
+      if (i < stages.length - 1) {
+        ctx.strokeStyle = done ? '#94a3b8' : '#e2e8f0';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(285, y + 15);
+        ctx.lineTo(285, y + 31);
+        ctx.stroke();
+      }
+      // node
       ctx.fillStyle = active ? s.color : done ? '#94a3b8' : '#e2e8f0';
+      if (active) { ctx.shadowColor = s.color; ctx.shadowBlur = 14; }
       ctx.beginPath();
-      ctx.arc(280, y, 12, 0, Math.PI * 2);
+      ctx.arc(285, y, 13, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${i + 1}`, 285, y + 4);
+      ctx.textAlign = 'left';
+      // label
       ctx.fillStyle = active ? s.color : done ? '#475569' : '#94a3b8';
-      ctx.font = active ? '700 13px Inter' : '600 13px Inter';
-      ctx.fillText(`${i + 1}. ${s.label}`, 310, y + 4);
+      ctx.font = active ? '700 14px Inter' : '600 14px Inter';
+      ctx.fillText(s.label, 312, y + 5);
+      // progress bar for the active step
       if (active) {
-        // progress bar
+        roundRectPath(ctx, 720, y - 8, 220, 16, 8);
         ctx.strokeStyle = s.color;
         ctx.lineWidth = 2;
-        ctx.strokeRect(700, y - 7, 200, 14);
+        ctx.stroke();
         ctx.fillStyle = s.color;
-        ctx.fillRect(700, y - 7, 200 * cascadeProgressRef.current, 14);
+        roundRectPath(ctx, 720, y - 8, Math.max(6, 220 * cascadeProgressRef.current), 16, 8);
+        ctx.fill();
       }
     }
 
-    // fibrin mesh weave at clotted state
-    if (cascadeStep === 'clotted') {
-      ctx.strokeStyle = '#16a34a';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < 12; i++) {
-        ctx.beginPath();
-        ctx.moveTo(610 + Math.random() * 60, 300);
-        ctx.lineTo(610 + Math.random() * 60, 400);
-        ctx.stroke();
-      }
-      for (let i = 0; i < 8; i++) {
-        ctx.beginPath();
-        ctx.moveTo(610, 305 + i * 12);
-        ctx.lineTo(670, 305 + i * 12);
-        ctx.stroke();
-      }
-      ctx.fillStyle = '#14532d';
-      ctx.font = '700 14px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('Fibrin mesh', 640, 290);
-      ctx.textAlign = 'left';
-    }
-
-    // platelet count warning
+    // low-platelet warning
     if (platelets < 30) {
-      ctx.fillStyle = '#fee2e2';
+      ctx.fillStyle = '#fef2f2';
       ctx.strokeStyle = '#dc2626';
       ctx.lineWidth = 2;
-      ctx.fillRect(800, 300, 270, 80);
-      ctx.strokeRect(800, 300, 270, 80);
+      roundRectPath(ctx, 800, 150, 300, 92, 12);
+      ctx.fill();
+      ctx.stroke();
       ctx.fillStyle = '#991b1b';
       ctx.font = '700 14px Inter';
-      ctx.fillText('⚠ Low platelets — cascade stalls', 810, 325);
+      ctx.fillText('⚠ Low platelets — cascade stalls', 818, 178);
       ctx.font = '500 11px Inter';
-      ctx.fillText('Haemophilia-like bleeding state', 810, 345);
-      ctx.fillText('(NCERT: 1.5–3.5 lakh /mm³ normal)', 810, 365);
+      ctx.fillStyle = '#7f1d1d';
+      ctx.fillText('Haemophilia-like bleeding: the wound', 818, 200);
+      ctx.fillText('keeps bleeding. Normal: 1.5–3.5 lakh /mm³.', 818, 218);
     }
+  };
+
+  const roundRectPath = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   };
 
   const advanceStep = () => {

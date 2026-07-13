@@ -1,0 +1,30 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:54px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#0ea5e9"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">GLOMERULAR FILTRATION</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">Ultrafiltration - PCT reabsorption - Glucose spill</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="430" height="642" rx="26" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <text x="297" y="292" text-anchor="middle" class="h" fill="#1D4ED8">RENAL CORPUSCLE</text>
+  <circle cx="296" cy="494" r="158" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="6"/>
+  <path d="M182 494 C216 410 286 448 326 386 C382 420 344 478 414 494 C350 520 382 590 312 604 C270 548 214 586 182 494Z" fill="#FCA5A5" stroke="#BE123C" stroke-width="5"/>
+  <path d="M140 438 C190 438 214 464 236 494" stroke="#DC2626" stroke-width="18" stroke-linecap="round"/>
+  <path d="M414 494 C448 514 468 544 488 580" stroke="#DC2626" stroke-width="14" stroke-linecap="round"/>
+  <g fill="#fff" stroke="#0EA5E9" stroke-width="3">
+    <circle cx="250" cy="548" r="12"/><circle cx="286" cy="570" r="12"/><circle cx="332" cy="548" r="12"/><circle cx="362" cy="508" r="12"/>
+  </g>
+  <path d="M296 438 V642" stroke="#0EA5E9" stroke-width="6" stroke-dasharray="10 10" marker-end="url(#arrow)"/>
+  <text x="297" y="710" text-anchor="middle" class="t" fill="#1D4ED8">Podocyte slit pores form filtrate</text>
+  <rect x="548" y="236" width="394" height="642" rx="26" fill="#ECFDF5" stroke="#BBF7D0" stroke-width="3"/>
+  <text x="745" y="292" text-anchor="middle" class="h" fill="#047857">PCT REABSORPTION</text>
+  <path d="M616 388 C714 310 838 354 836 456 C834 564 656 520 652 628 C650 716 798 728 870 664" stroke="#34D399" stroke-width="48" stroke-linecap="round" fill="none"/>
+  <path d="M616 388 C714 310 838 354 836 456 C834 564 656 520 652 628 C650 716 798 728 870 664" stroke="#047857" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <g class="s" text-anchor="middle">
+    <rect x="574" y="742" width="100" height="58" rx="18" fill="#FEF3C7" stroke="#FCD34D" stroke-width="3"/><text x="624" y="779" fill="#92400E">Glucose</text>
+    <rect x="692" y="742" width="100" height="58" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="742" y="779" fill="#1D4ED8">Na+</text>
+    <rect x="810" y="742" width="100" height="58" rx="18" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="3"/><text x="860" y="779" fill="#BE123C">Amino</text>
+  </g>
+  <path d="M628 700 V646M742 700 V646M858 700 V646" stroke="#0EA5E9" stroke-width="5" marker-end="url(#arrow)"/>
+  <text x="745" y="838" text-anchor="middle" class="t" fill="#047857">Transport saturation causes glucosuria</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Filtration is pressure-driven; selective reabsorption recovers useful solutes</text>
+</svg>

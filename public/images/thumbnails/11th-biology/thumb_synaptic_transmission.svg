@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:58px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#7c3aed"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">SYNAPTIC TRANSMISSION</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">AP arrival - Ca2+ entry - Vesicle fusion - Receptor binding</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="860" height="470" rx="26" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="3"/>
+  <text x="512" y="292" text-anchor="middle" class="h" fill="#6D28D9">CHEMICAL SYNAPSE</text>
+  <path d="M170 468 C260 328 414 328 494 452 C450 524 298 560 170 468Z" fill="#DDD6FE" stroke="#6D28D9" stroke-width="5"/>
+  <path d="M530 542 C644 456 780 456 882 542 C766 626 644 626 530 542Z" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="5"/>
+  <rect x="486" y="416" width="58" height="168" rx="24" fill="#FCFCF8" stroke="#64748B" stroke-width="3"/>
+  <g fill="#FDE68A" stroke="#92400E" stroke-width="3">
+    <circle cx="300" cy="428" r="24"/><circle cx="366" cy="438" r="24"/><circle cx="404" cy="488" r="24"/>
+  </g>
+  <g fill="#F59E0B"><circle cx="500" cy="480" r="9"/><circle cx="518" cy="512" r="9"/><circle cx="506" cy="546" r="9"/><circle cx="538" cy="470" r="9"/><circle cx="530" cy="534" r="9"/></g>
+  <path d="M230 342 C296 312 360 312 422 356" stroke="#7C3AED" stroke-width="7" fill="none" marker-end="url(#arrow)"/>
+  <text x="332" y="386" text-anchor="middle" class="s" fill="#6D28D9">AP arrives</text>
+  <text x="512" y="634" text-anchor="middle" class="t" fill="#6D28D9">Neurotransmitter crosses synaptic cleft</text>
+  <rect x="116" y="746" width="792" height="94" rx="24" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <g class="s" text-anchor="middle">
+    <text x="198" y="802" fill="#1D4ED8">1 AP</text><text x="316" y="802" fill="#047857">2 Ca2+ in</text><text x="456" y="802" fill="#92400E">3 vesicles fuse</text><text x="614" y="802" fill="#BE123C">4 NT release</text><text x="780" y="802" fill="#6D28D9">5 receptors open</text>
+  </g>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Chemical synapses convert an electrical signal into a chemical message, then back again</text>
+</svg>

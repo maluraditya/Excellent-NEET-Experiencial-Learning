@@ -1,0 +1,33 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:58px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#be123c"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">SLIDING FILAMENT THEORY</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">Actin - Myosin - Ca2+ - ATP cross-bridge cycle</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="860" height="420" rx="26" fill="#FFF1F2" stroke="#FECDD3" stroke-width="3"/>
+  <text x="512" y="292" text-anchor="middle" class="h" fill="#BE123C">SARCOMERE SHORTENING</text>
+  <line x1="170" y1="378" x2="170" y2="560" stroke="#0F172A" stroke-width="10"/>
+  <line x1="854" y1="378" x2="854" y2="560" stroke="#0F172A" stroke-width="10"/>
+  <g stroke="#DC2626" stroke-width="10" stroke-linecap="round">
+    <line x1="170" y1="430" x2="432" y2="430"/><line x1="170" y1="500" x2="432" y2="500"/>
+    <line x1="854" y1="430" x2="592" y2="430"/><line x1="854" y1="500" x2="592" y2="500"/>
+  </g>
+  <g stroke="#2563EB" stroke-width="20" stroke-linecap="round">
+    <line x1="380" y1="465" x2="644" y2="465"/>
+  </g>
+  <g stroke="#1D4ED8" stroke-width="7">
+    <path d="M438 452 C470 416 492 418 514 452"/><path d="M500 478 C532 514 556 512 578 478"/>
+    <path d="M586 452 C618 416 640 418 662 452"/>
+  </g>
+  <path d="M432 382H344M592 382H680" stroke="#BE123C" stroke-width="7" marker-end="url(#arrow)"/>
+  <text x="512" y="612" text-anchor="middle" class="t" fill="#BE123C">Thin filaments slide over thick filament; length of filament stays same</text>
+  <rect x="116" y="704" width="792" height="128" rx="24" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <g class="s" text-anchor="middle">
+    <circle cx="190" cy="768" r="28" fill="#FDE68A" stroke="#B45309" stroke-width="4"/><text x="190" y="774" fill="#92400E">Ca2+</text>
+    <rect x="274" y="734" width="138" height="68" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="343" y="776" fill="#1D4ED8">Binding sites</text>
+    <rect x="456" y="734" width="138" height="68" rx="18" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="3"/><text x="525" y="776" fill="#047857">Power stroke</text>
+    <rect x="638" y="734" width="138" height="68" rx="18" fill="#FEF3C7" stroke="#FCD34D" stroke-width="3"/><text x="707" y="776" fill="#92400E">ATP detaches</text>
+    <text x="836" y="776" fill="#BE123C">No ATP: rigor</text>
+  </g>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Motor neuron signal releases calcium; ATP powers repeated myosin pulls</text>
+</svg>

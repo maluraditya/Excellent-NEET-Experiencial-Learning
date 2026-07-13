@@ -130,7 +130,7 @@ const ElectronTransportChainLab: React.FC<ElectronTransportChainLabProps> = ({ t
             protonsRef.current.push({
               id: nextId(),
               x: COMPLEX_X[e.complex] + (Math.random() - 0.5) * 30,
-              y: MEMBRANE_Y - 10,
+              y: MEMBRANE_TOP - 2, // emerge from the top of the membrane, rising up
               vy: -50 - Math.random() * 30,
               phase: 'pumping',
             });
@@ -318,49 +318,91 @@ const ElectronTransportChainLab: React.FC<ElectronTransportChainLabProps> = ({ t
     // O2 supply on the right
     drawOxygenSource(ctx, W - 80, 70, oxygenLevel);
 
-    // electrons
+    // ---- directional annotations (why up / why down) ----
+    const pumpBlocked = (i: number) =>
+      (inhibitor === 'rotenone' && i === 0) ||
+      (inhibitor === 'antimycin' && i === 2) ||
+      (inhibitor === 'cyanide' && i === 3) ||
+      inhibitor === 'uncoupler';
+    // "H⁺ pumped UP" arrows above the three pumping complexes (I, III, IV)
+    [0, 2, 3].forEach(i => {
+      if (pumpBlocked(i)) return;
+      drawFlowArrow(ctx, COMPLEX_X[i], MEMBRANE_TOP - 20, MEMBRANE_TOP - 74, '#f97316');
+      ctx.fillStyle = '#c2410c';
+      ctx.font = '700 11px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('H⁺ ↑', COMPLEX_X[i], MEMBRANE_TOP - 80);
+      ctx.textAlign = 'left';
+    });
+    // "H⁺ DOWN" arrow into ATP synthase + "ATP" up-arrow below it
+    if (inhibitor !== 'uncoupler') {
+      drawFlowArrow(ctx, COMPLEX_X[4], MEMBRANE_TOP - 70, MEMBRANE_TOP - 20, '#16a34a');
+      ctx.fillStyle = '#15803d';
+      ctx.font = '700 11px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('H⁺ ↓', COMPLEX_X[4], MEMBRANE_TOP - 78);
+      ctx.textAlign = 'left';
+    }
+    // "electrons flow this way" hint along the membrane lane
+    ctx.fillStyle = '#0e7490';
+    ctx.font = '600 11px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('e⁻ flow  →', (COMPLEX_X[0] + COMPLEX_X[1]) / 2, MEMBRANE_BOT + 22);
+    ctx.textAlign = 'left';
+
+    // electrons — kept INSIDE the membrane band (a distinct lane from the
+    // protons above it) so the two particle types never overlap visually.
+    const eLaneY = MEMBRANE_Y + 6;      // centre of electron lane, inside bilayer
+    const eArc = 12;                    // gentle arc, stays within membrane
     for (const e of electronsRef.current) {
       const baseX = COMPLEX_X[e.complex];
       let nextX = COMPLEX_X[Math.min(e.complex + 1, 4)];
-      // electrons travelling between complexes — draw along arc
       const t = e.progress;
       const x = baseX + (nextX - baseX) * t;
-      const arc = Math.sin(t * Math.PI) * 30;
-      const y = MEMBRANE_Y - 10 - arc;
+      const y = eLaneY - Math.sin(t * Math.PI) * eArc;
+      // trail
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.35)';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#22d3ee';
+      ctx.moveTo(baseX + (nextX - baseX) * Math.max(0, t - 0.2),
+                 eLaneY - Math.sin(Math.max(0, t - 0.2) * Math.PI) * eArc);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      // orb (deeper cyan/blue so it reads clearly against amber protons)
+      ctx.beginPath();
+      ctx.arc(x, y, 6.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0891b2';
       ctx.shadowColor = '#22d3ee';
       ctx.shadowBlur = 14;
       ctx.fill();
       ctx.shadowBlur = 0;
-      // trail
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(baseX + (nextX - baseX) * Math.max(0, t - 0.2),
-                 MEMBRANE_Y - 10 - Math.sin(Math.max(0, t - 0.2) * Math.PI) * 30);
-      ctx.lineTo(x, y);
-      ctx.stroke();
+      // "e⁻" tag so it is unmistakably an electron
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 8px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('e⁻', x, y + 3);
+      ctx.textAlign = 'left';
     }
 
-    // protons
+    // protons — orange while pumping up / sitting in the space, green while
+    // returning DOWN through ATP synthase. Every proton shows its "+" charge
+    // so it can never be confused with the electron orbs.
     for (const p of protonsRef.current) {
+      const r = 6;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fillStyle = p.phase === 'returning' ? '#16a34a' : '#f97316';
       ctx.shadowColor = ctx.fillStyle as string;
       ctx.shadowBlur = 8;
       ctx.fill();
       ctx.shadowBlur = 0;
-      // tiny '+' badge for space protons
-      if (p.phase === 'space') {
-        ctx.fillStyle = '#fff7ed';
-        ctx.font = '700 6px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText('+', p.x, p.y + 2);
-        ctx.textAlign = 'left';
-      }
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 9px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('H', p.x - 1.5, p.y + 3);
+      ctx.font = '700 7px Inter, system-ui, sans-serif';
+      ctx.fillText('+', p.x + 5, p.y - 1);
+      ctx.textAlign = 'left';
     }
 
     // water droplets falling into matrix
@@ -410,6 +452,9 @@ const ElectronTransportChainLab: React.FC<ElectronTransportChainLabProps> = ({ t
     ctx.fill();
     ctx.stroke();
     ctx.restore();
+
+    // Legend — always visible so learners can read the two particle types
+    drawLegend(ctx);
 
     // Caption banner — bottom of canvas (NCERT phrase)
     ctx.fillStyle = '#64748b';
@@ -515,6 +560,67 @@ const ElectronTransportChainLab: React.FC<ElectronTransportChainLabProps> = ({ t
     ctx.font = '600 10px Inter';
     ctx.fillText(`${level}%`, x, y + 42);
     ctx.textAlign = 'left';
+  };
+
+  // Vertical flow arrow from y0 → y1 (direction inferred from sign).
+  const drawFlowArrow = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, color: string) => {
+    const up = y1 < y0;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x, y0);
+    ctx.lineTo(x, y1);
+    ctx.stroke();
+    const head = up ? y1 : y1;
+    const dir = up ? 1 : -1;
+    ctx.beginPath();
+    ctx.moveTo(x, head);
+    ctx.lineTo(x - 5, head + dir * 8);
+    ctx.lineTo(x + 5, head + dir * 8);
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  // Compact on-canvas legend (top-left) — the key fix for "what are these dots?"
+  const drawLegend = (ctx: CanvasRenderingContext2D) => {
+    const x = 16, y = 44, w = 250, rowH = 22;
+    const rows: [string, string, string][] = [
+      ['#0891b2', 'e⁻', 'Electron — hops complex → complex'],
+      ['#f97316', 'H⁺', 'Proton — pumped UP into the space'],
+      ['#16a34a', 'H⁺', 'Proton returning DOWN → makes ATP'],
+      ['#0ea5e9', '', 'H₂O — O₂ + e⁻ + H⁺ at Complex IV'],
+      ['#d97706', '', 'ATP — energy currency produced'],
+    ];
+    const h = 14 + rows.length * rowH;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, w, h, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '700 11px Inter, system-ui, sans-serif';
+    ctx.fillText('Legend', x + 12, y + 16);
+    rows.forEach((r, i) => {
+      const cy = y + 30 + i * rowH;
+      ctx.beginPath();
+      ctx.arc(x + 18, cy, 6, 0, Math.PI * 2);
+      ctx.fillStyle = r[0];
+      ctx.fill();
+      if (r[1]) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 7px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(r[1], x + 18, cy + 2.5);
+        ctx.textAlign = 'left';
+      }
+      ctx.fillStyle = '#334155';
+      ctx.font = '600 10.5px Inter, system-ui, sans-serif';
+      ctx.fillText(r[2], x + 32, cy + 3.5);
+    });
+    ctx.restore();
   };
 
   const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {

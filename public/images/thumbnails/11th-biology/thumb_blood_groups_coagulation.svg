@@ -1,0 +1,35 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>.title{font-family:Arial,Helvetica,sans-serif;font-size:50px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#be123c"/></marker>
+  </defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">BLOOD GROUPS &amp; COAGULATION</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">ABO compatibility - Agglutination - Clot cascade</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="430" height="642" rx="26" fill="#FFF1F2" stroke="#FECDD3" stroke-width="3"/>
+  <text x="297" y="292" text-anchor="middle" class="h" fill="#BE123C">BLOOD TYPING</text>
+  <g text-anchor="middle" class="t">
+    <circle cx="190" cy="396" r="54" fill="#FCA5A5" stroke="#B91C1C" stroke-width="5"/><text x="190" y="406" fill="#7F1D1D">A</text>
+    <circle cx="297" cy="396" r="54" fill="#93C5FD" stroke="#1D4ED8" stroke-width="5"/><text x="297" y="406" fill="#1E3A8A">B</text>
+    <circle cx="404" cy="396" r="54" fill="#DDD6FE" stroke="#6D28D9" stroke-width="5"/><text x="404" y="406" fill="#4C1D95">AB</text>
+  </g>
+  <rect x="138" y="502" width="318" height="164" rx="22" fill="#fff" stroke="#FDA4AF" stroke-width="3"/>
+  <path d="M178 574 C220 526 278 622 322 574 C366 526 418 622 448 574" stroke="#BE123C" stroke-width="8" fill="none"/>
+  <circle cx="206" cy="574" r="22" fill="#DC2626"/><circle cx="280" cy="574" r="22" fill="#DC2626"/><circle cx="354" cy="574" r="22" fill="#DC2626"/><circle cx="428" cy="574" r="22" fill="#DC2626"/>
+  <text x="297" y="710" text-anchor="middle" class="t" fill="#BE123C">Antigen-antibody clumping</text>
+  <rect x="120" y="754" width="354" height="76" rx="20" fill="#FFE4E6" stroke="#FDA4AF" stroke-width="3"/>
+  <text x="297" y="802" text-anchor="middle" class="t" fill="#9F1239">O negative: no A, B, Rh antigen</text>
+  <rect x="548" y="236" width="394" height="642" rx="26" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="3"/>
+  <text x="745" y="292" text-anchor="middle" class="h" fill="#166534">CLOT CASCADE</text>
+  <g class="s" text-anchor="middle" font-weight="800">
+    <rect x="608" y="342" width="274" height="62" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="745" y="381" fill="#1D4ED8">Platelets at wound</text>
+    <rect x="608" y="454" width="274" height="62" rx="18" fill="#FEF3C7" stroke="#FCD34D" stroke-width="3"/><text x="745" y="493" fill="#92400E">Thrombokinase</text>
+    <rect x="608" y="566" width="274" height="62" rx="18" fill="#EDE9FE" stroke="#A78BFA" stroke-width="3"/><text x="745" y="605" fill="#6D28D9">Thrombin</text>
+    <rect x="608" y="678" width="274" height="62" rx="18" fill="#DCFCE7" stroke="#86EFAC" stroke-width="3"/><text x="745" y="717" fill="#166534">Fibrin mesh</text>
+  </g>
+  <path d="M745 406V450M745 518V562M745 630V674" stroke="#BE123C" stroke-width="6" marker-end="url(#arrow)"/>
+  <path d="M610 790 C660 760 704 820 754 790 C804 760 848 820 894 790" stroke="#166534" stroke-width="8" fill="none"/>
+  <text x="745" y="838" text-anchor="middle" class="t" fill="#166534">Fibrin traps cells to seal the cut</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Blood must match antigens; clotting converts soluble fibrinogen into insoluble fibrin</text>
+</svg>

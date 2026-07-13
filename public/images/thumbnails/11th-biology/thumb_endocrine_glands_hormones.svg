@@ -1,0 +1,29 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:56px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#0f766e"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">ENDOCRINE GLANDS</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">Ductless glands - Hormones - Target organs - Feedback</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="430" height="642" rx="26" fill="#ECFDF5" stroke="#BBF7D0" stroke-width="3"/>
+  <text x="297" y="292" text-anchor="middle" class="h" fill="#047857">HUMAN MAP</text>
+  <circle cx="298" cy="364" r="46" fill="#FDE68A" stroke="#92400E" stroke-width="4"/>
+  <path d="M298 412 C240 454 238 574 298 626 C358 574 356 454 298 412Z" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="5"/>
+  <path d="M240 484 C184 522 170 606 214 676" stroke="#1D4ED8" stroke-width="14" stroke-linecap="round"/>
+  <path d="M356 484 C412 522 426 606 382 676" stroke="#1D4ED8" stroke-width="14" stroke-linecap="round"/>
+  <path d="M270 626 V790M326 626 V790" stroke="#1D4ED8" stroke-width="18" stroke-linecap="round"/>
+  <g fill="#F43F5E" stroke="#9F1239" stroke-width="3">
+    <circle cx="298" cy="354" r="10"/><circle cx="298" cy="442" r="12"/><circle cx="298" cy="510" r="12"/><circle cx="298" cy="602" r="12"/><circle cx="270" cy="730" r="12"/><circle cx="326" cy="730" r="12"/>
+  </g>
+  <text x="297" y="838" text-anchor="middle" class="t" fill="#047857">Click gland -> release hormone</text>
+  <rect x="548" y="236" width="394" height="642" rx="26" fill="#FFFBEB" stroke="#FDE68A" stroke-width="3"/>
+  <text x="745" y="292" text-anchor="middle" class="h" fill="#92400E">SCENARIO PANEL</text>
+  <g class="s" text-anchor="middle">
+    <rect x="600" y="350" width="290" height="66" rx="18" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="3"/><text x="745" y="391" fill="#BE123C">Stress: adrenal response</text>
+    <rect x="600" y="452" width="290" height="66" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="745" y="493" fill="#1D4ED8">Cold: thyroid rate</text>
+    <rect x="600" y="554" width="290" height="66" rx="18" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="3"/><text x="745" y="595" fill="#047857">Fed: insulin lowers glucose</text>
+    <rect x="600" y="656" width="290" height="66" rx="18" fill="#EDE9FE" stroke="#A78BFA" stroke-width="3"/><text x="745" y="697" fill="#6D28D9">Fasting: glucagon raises glucose</text>
+  </g>
+  <path d="M745 742 V808" stroke="#0F766E" stroke-width="6" marker-end="url(#arrow)"/>
+  <text x="745" y="840" text-anchor="middle" class="t" fill="#92400E">Trace amount, large effect</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Hormones are non-nutrient chemical messengers secreted directly into blood</text>
+</svg>

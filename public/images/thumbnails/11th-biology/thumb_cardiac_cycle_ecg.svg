@@ -1,0 +1,36 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>.title{font-family:Arial,Helvetica,sans-serif;font-size:58px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style>
+  </defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">CARDIAC CYCLE &amp; ECG</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">SA node - Valves - P-QRS-T waves - 0.8 s cycle</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="430" height="642" rx="26" fill="#FFF1F2" stroke="#FECDD3" stroke-width="3"/>
+  <text x="297" y="292" text-anchor="middle" class="h" fill="#BE123C">HEART PHASES</text>
+  <path d="M296 372 C242 292 124 346 148 488 C172 636 296 734 296 734 C296 734 420 636 444 488 C468 346 350 292 296 372Z" fill="#FCA5A5" stroke="#BE123C" stroke-width="5"/>
+  <path d="M296 374 V710" stroke="#BE123C" stroke-width="5" opacity=".65"/>
+  <circle cx="254" cy="420" r="44" fill="#93C5FD" stroke="#1D4ED8" stroke-width="4"/>
+  <circle cx="340" cy="420" r="44" fill="#F87171" stroke="#991B1B" stroke-width="4"/>
+  <path d="M232 510 H360" stroke="#7F1D1D" stroke-width="7" stroke-linecap="round"/>
+  <path d="M226 578 H368" stroke="#7F1D1D" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="218" cy="386" r="13" fill="#FDE68A" stroke="#92400E" stroke-width="3"/>
+  <text x="184" y="366" class="s" fill="#92400E">SA node</text>
+  <text x="297" y="778" text-anchor="middle" class="t" fill="#BE123C">Lub-dub valves open and close</text>
+  <rect x="548" y="236" width="394" height="284" rx="26" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <text x="745" y="292" text-anchor="middle" class="h" fill="#1D4ED8">0.8 SECOND LOOP</text>
+  <g class="s" text-anchor="middle">
+    <rect x="590" y="346" width="116" height="90" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="648" y="386" fill="#1D4ED8">Atrial</text><text x="648" y="412" fill="#1D4ED8">systole</text>
+    <rect x="724" y="346" width="116" height="90" rx="18" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="3"/><text x="782" y="386" fill="#BE123C">Ventricular</text><text x="782" y="412" fill="#BE123C">systole</text>
+    <rect x="658" y="434" width="152" height="58" rx="18" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="3"/><text x="734" y="471" fill="#047857">Joint diastole</text>
+  </g>
+  <rect x="548" y="558" width="394" height="320" rx="26" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
+  <text x="745" y="610" text-anchor="middle" class="h" fill="#334155">ECG TRACE</text>
+  <path d="M602 760 H646 C660 760 664 724 678 724 C692 724 696 760 710 760 H744 L760 670 L782 820 L802 760 H842 C856 760 860 724 874 724 C888 724 892 760 906 760" stroke="#BE123C" stroke-width="7" fill="none" stroke-linejoin="round"/>
+  <line x1="602" y1="760" x2="906" y2="760" stroke="#CBD5E1" stroke-width="3"/>
+  <text x="678" y="704" text-anchor="middle" class="s" fill="#1D4ED8">P</text>
+  <text x="774" y="648" text-anchor="middle" class="s" fill="#BE123C">QRS</text>
+  <text x="874" y="704" text-anchor="middle" class="s" fill="#047857">T</text>
+  <text x="745" y="838" text-anchor="middle" class="t" fill="#334155">Electrical event precedes mechanical beat</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Each heartbeat synchronizes conduction, pressure changes, valve motion, and ECG waves</text>
+</svg>

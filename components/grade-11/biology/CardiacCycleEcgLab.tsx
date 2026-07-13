@@ -128,23 +128,24 @@ const CardiacCycleEcgLab: React.FC<CardiacCycleEcgLabProps> = ({ topic, onExit }
   };
 
   const drawEcg = (ctx: CanvasRenderingContext2D, t: number) => {
-    const x0 = 50, y0 = 110, w = W - 100, h = 110;
-    ctx.fillStyle = '#f8fafc';
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
+    const x0 = 50, y0 = 108, w = W - 100, h = 112;
+    ctx.fillStyle = '#fff5f5';
     ctx.fillRect(x0, y0, w, h);
+    // classic ECG graph paper — fine 8px grid + bold 40px grid
+    ctx.strokeStyle = '#fbd5d5';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= w; i += 8) { ctx.beginPath(); ctx.moveTo(x0 + i, y0); ctx.lineTo(x0 + i, y0 + h); ctx.stroke(); }
+    for (let j = 0; j <= h; j += 8) { ctx.beginPath(); ctx.moveTo(x0, y0 + j); ctx.lineTo(x0 + w, y0 + j); ctx.stroke(); }
+    ctx.strokeStyle = '#f4a3a3';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= w; i += 40) { ctx.beginPath(); ctx.moveTo(x0 + i, y0); ctx.lineTo(x0 + i, y0 + h); ctx.stroke(); }
+    for (let j = 0; j <= h; j += 40) { ctx.beginPath(); ctx.moveTo(x0, y0 + j); ctx.lineTo(x0 + w, y0 + j); ctx.stroke(); }
+    ctx.strokeStyle = '#e2b4b4';
+    ctx.lineWidth = 1;
     ctx.strokeRect(x0, y0, w, h);
-    // grid
-    for (let i = 0; i < w; i += 40) {
-      ctx.beginPath();
-      ctx.moveTo(x0 + i, y0);
-      ctx.lineTo(x0 + i, y0 + h);
-      ctx.strokeStyle = '#fee2e2';
-      ctx.stroke();
-    }
     // trace
     ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     const trace = ecgTraceRef.current;
     for (let i = 0; i < trace.length; i++) {
@@ -167,102 +168,177 @@ const CardiacCycleEcgLab: React.FC<CardiacCycleEcgLabProps> = ({ topic, onExit }
     ctx.textAlign = 'left';
   };
 
+  // one heart chamber as a shaded rounded cavity
+  const drawCavity = (ctx: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, scale: number, deoxy: boolean, active: boolean, label: string) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    const light = deoxy ? (active ? '#3b82f6' : '#93c5fd') : (active ? '#ef4444' : '#fca5a5');
+    const dark = deoxy ? (active ? '#1e3a8a' : '#2563eb') : (active ? '#991b1b' : '#dc2626');
+    const g = ctx.createRadialGradient(-rx * 0.3, -ry * 0.3, 2, 0, 0, Math.max(rx, ry));
+    g.addColorStop(0, light);
+    g.addColorStop(1, dark);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(127,29,29,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 12px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 4);
+    ctx.textAlign = 'left';
+  };
+
+  // a valve: AV (leaflets) or semilunar (3-cusp) — green open, slate closed
+  const drawValve = (ctx: CanvasRenderingContext2D, x: number, y: number, type: 'av' | 'sl', open: boolean) => {
+    ctx.strokeStyle = open ? '#16a34a' : '#64748b';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    if (type === 'av') {
+      ctx.beginPath();
+      if (open) { ctx.moveTo(x - 12, y); ctx.lineTo(x - 3, y + 16); ctx.moveTo(x + 12, y); ctx.lineTo(x + 3, y + 16); }
+      else { ctx.moveTo(x - 12, y); ctx.lineTo(x, y - 6); ctx.lineTo(x + 12, y); }
+      ctx.stroke();
+    } else {
+      if (open) { ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.stroke(); }
+      else {
+        ctx.beginPath();
+        for (let i = 0; i < 3; i++) {
+          const a = -Math.PI / 2 + i * (Math.PI * 2 / 3);
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + Math.cos(a) * 8, y + Math.sin(a) * 8);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.lineCap = 'butt';
+  };
+
   const drawHeart = (ctx: CanvasRenderingContext2D, cx: number, cy: number, t: number) => {
     const p = phaseAt(t);
     const atriaContract = p === 'p' || p === 'pq';
     const ventContract = p === 'qrs' || p === 'st';
+    const aScale = atriaContract ? 0.9 : 1;
+    const vScale = ventContract ? 0.84 : 1;
+    const avOpen = !ventContract;
+    const slOpen = ventContract;
 
-    // heart outline
-    ctx.fillStyle = '#fef2f2';
-    ctx.strokeStyle = '#7f1d1d';
+    // ---- great vessels (behind the muscle) ----
+    ctx.lineCap = 'round';
+    // superior & inferior vena cava (deoxygenated, blue) into RA
+    ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 20;
+    ctx.beginPath(); ctx.moveTo(cx - 150, cy - 210); ctx.lineTo(cx - 118, cy - 96); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 150, cy + 190); ctx.lineTo(cx - 118, cy - 30); ctx.stroke();
+    // pulmonary trunk (blue) rising from RV, arching
+    ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 22;
+    ctx.beginPath(); ctx.moveTo(cx - 34, cy - 40); ctx.bezierCurveTo(cx - 20, cy - 170, cx + 30, cy - 196, cx + 60, cy - 168); ctx.stroke();
+    // aorta (oxygenated, red) arching from LV over the top
+    ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 26;
+    ctx.beginPath(); ctx.moveTo(cx + 46, cy - 34); ctx.bezierCurveTo(cx + 40, cy - 200, cx - 40, cy - 230, cx - 96, cy - 176); ctx.stroke();
+    // pulmonary veins (red) into LA
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 12;
+    ctx.beginPath(); ctx.moveTo(cx + 205, cy - 120); ctx.lineTo(cx + 128, cy - 84); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + 205, cy - 56); ctx.lineTo(cx + 128, cy - 62); ctx.stroke();
+    ctx.lineCap = 'butt';
+    // vessel labels
+    ctx.font = '600 10px Inter'; ctx.fillStyle = '#1d4ed8'; ctx.textAlign = 'center';
+    ctx.fillText('vena cava', cx - 150, cy - 218);
+    ctx.fillText('pulmonary trunk', cx + 92, cy - 176);
+    ctx.fillStyle = '#b91c1c';
+    ctx.fillText('aorta', cx - 110, cy - 184);
+    ctx.textAlign = 'left';
+
+    // ---- myocardium silhouette ----
+    const bg = ctx.createLinearGradient(cx - 180, cy - 120, cx + 180, cy + 200);
+    bg.addColorStop(0, '#fecdd3');
+    bg.addColorStop(1, '#f43f5e');
+    ctx.fillStyle = bg;
+    ctx.strokeStyle = '#9f1239';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(cx - 200, cy - 100);
-    ctx.bezierCurveTo(cx - 220, cy - 50, cx - 210, cy + 120, cx - 80, cy + 180);
-    ctx.lineTo(cx + 80, cy + 180);
-    ctx.bezierCurveTo(cx + 210, cy + 120, cx + 220, cy - 50, cx + 200, cy - 100);
+    ctx.moveTo(cx - 158, cy - 96);
+    ctx.bezierCurveTo(cx - 205, cy - 30, cx - 150, cy + 160, cx - 30, cy + 210);
+    ctx.bezierCurveTo(cx + 10, cy + 228, cx + 34, cy + 220, cx + 66, cy + 186);
+    ctx.bezierCurveTo(cx + 195, cy + 120, cx + 188, cy - 50, cx + 150, cy - 100);
+    ctx.bezierCurveTo(cx + 96, cy - 150, cx - 96, cy - 150, cx - 158, cy - 96);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // septum
+    // thick LV myocardial wall hint
+    ctx.fillStyle = 'rgba(159,18,57,0.25)';
     ctx.beginPath();
-    ctx.moveTo(cx, cy - 100);
-    ctx.lineTo(cx, cy + 175);
+    ctx.ellipse(cx + 74, cy + 78, 92, 108, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ---- four chambers ----
+    drawCavity(ctx, cx - 80, cy - 54, 58, 44, aScale, true, atriaContract, 'RA');
+    drawCavity(ctx, cx + 82, cy - 54, 58, 44, aScale, false, atriaContract, 'LA');
+    drawCavity(ctx, cx - 72, cy + 74, 62, 88, vScale, true, ventContract, 'RV');
+    drawCavity(ctx, cx + 74, cy + 78, 68, 96, vScale, false, ventContract, 'LV');
+
+    // septum
+    ctx.strokeStyle = 'rgba(127,29,29,0.5)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - 96);
+    ctx.lineTo(cx, cy + 178);
     ctx.stroke();
 
-    // atria (top half)
-    const atriaY = cy - 30;
-    const atriaScale = atriaContract ? 0.85 : 1;
-    ctx.save();
-    ctx.translate(cx, atriaY);
-    ctx.scale(atriaScale, atriaScale);
-    ctx.fillStyle = atriaContract ? '#fca5a5' : '#fecaca';
-    ctx.fillRect(-180, -60, 180, 90);
-    ctx.fillRect(0, -60, 180, 90);
-    ctx.strokeStyle = '#991b1b';
-    ctx.strokeRect(-180, -60, 180, 90);
-    ctx.strokeRect(0, -60, 180, 90);
-    ctx.fillStyle = '#7f1d1d';
-    ctx.font = '700 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Right Atrium', -90, -25);
-    ctx.fillText('Left Atrium', 90, -25);
-    ctx.restore();
+    // ---- valves ----
+    drawValve(ctx, cx - 76, cy + 6, 'av', avOpen);   // tricuspid
+    drawValve(ctx, cx + 78, cy + 8, 'av', avOpen);   // bicuspid/mitral
+    drawValve(ctx, cx - 34, cy - 34, 'sl', slOpen);  // pulmonary semilunar
+    drawValve(ctx, cx + 46, cy - 30, 'sl', slOpen);  // aortic semilunar
 
-    // ventricles (bottom half)
-    const ventScale = ventContract ? 0.75 : 1;
-    ctx.save();
-    ctx.translate(cx, cy + 80);
-    ctx.scale(1, ventScale);
-    ctx.fillStyle = ventContract ? '#dc2626' : '#fca5a5';
-    ctx.fillRect(-160, -30, 160, 100);
-    ctx.fillRect(0, -30, 160, 100);
-    ctx.strokeStyle = '#7f1d1d';
-    ctx.strokeRect(-160, -30, 160, 100);
-    ctx.strokeRect(0, -30, 160, 100);
-    ctx.fillStyle = '#fff';
-    ctx.font = '700 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Right Ventricle', -80, 25);
-    ctx.fillText('Left Ventricle', 80, 25);
-    ctx.restore();
-
+    // ---- conduction system ----
+    const avnActive = (p === 'pq' || p === 'qrs') && scenario !== 'avblock';
+    const ventConduct = ventContract && scenario !== 'avblock';
+    // internodal + His/Purkinje paths
+    ctx.strokeStyle = ventConduct ? '#f59e0b' : 'rgba(251,191,36,0.4)';
+    ctx.lineWidth = ventConduct ? 3 : 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - 6, cy - 4);              // AVN
+    ctx.lineTo(cx - 6, cy + 120);            // bundle of His down septum
+    ctx.moveTo(cx - 6, cy + 120); ctx.bezierCurveTo(cx - 60, cy + 150, cx - 90, cy + 120, cx - 96, cy + 60); // R branch
+    ctx.moveTo(cx - 6, cy + 120); ctx.bezierCurveTo(cx + 60, cy + 155, cx + 96, cy + 120, cx + 104, cy + 60); // L branch
+    ctx.stroke();
     // SAN
     ctx.beginPath();
-    ctx.arc(cx - 130, cy - 80, 8, 0, Math.PI * 2);
+    ctx.ellipse(cx - 116, cy - 82, 9, 6, -0.4, 0, Math.PI * 2);
     ctx.fillStyle = atriaContract ? '#fbbf24' : '#fde68a';
     ctx.shadowColor = '#fbbf24';
-    ctx.shadowBlur = atriaContract ? 16 : 4;
+    ctx.shadowBlur = atriaContract ? 18 : 3;
     ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#a16207';
-    ctx.stroke();
-    ctx.fillStyle = '#854d0e';
-    ctx.font = '700 11px Inter';
-    ctx.textAlign = 'left';
-    ctx.fillText('SAN', cx - 125, cy - 92);
-
+    ctx.strokeStyle = '#a16207'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#854d0e'; ctx.font = '700 10px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('SAN', cx - 116, cy - 96);
     // AVN
     ctx.beginPath();
-    ctx.arc(cx - 20, cy + 20, 7, 0, Math.PI * 2);
-    ctx.fillStyle = (p === 'pq' || p === 'qrs') && scenario !== 'avblock' ? '#dc2626' : '#fecaca';
-    ctx.fill();
-    ctx.strokeStyle = '#7f1d1d';
-    ctx.stroke();
-    ctx.fillStyle = '#7f1d1d';
-    ctx.fillText('AVN', cx - 14, cy + 26);
+    ctx.arc(cx - 6, cy - 4, 7, 0, Math.PI * 2);
+    ctx.fillStyle = avnActive ? '#f59e0b' : '#fde68a';
+    ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = avnActive ? 14 : 3;
+    ctx.fill(); ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#a16207'; ctx.stroke();
+    ctx.fillStyle = '#854d0e'; ctx.fillText('AVN', cx + 20, cy - 6);
+    ctx.textAlign = 'left';
 
-    // AV block X-mark
+    // AV block indicator
     if (scenario === 'avblock') {
       ctx.strokeStyle = '#dc2626';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(cx - 35, cy + 5);
-      ctx.lineTo(cx - 5, cy + 35);
-      ctx.moveTo(cx - 5, cy + 5);
-      ctx.lineTo(cx - 35, cy + 35);
+      ctx.moveTo(cx - 20, cy + 26); ctx.lineTo(cx + 8, cy + 54);
+      ctx.moveTo(cx + 8, cy + 26); ctx.lineTo(cx - 20, cy + 54);
       ctx.stroke();
+      ctx.fillStyle = '#dc2626'; ctx.font = '700 10px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('conduction blocked', cx - 6, cy + 70);
+      ctx.textAlign = 'left';
     }
   };
 
@@ -294,20 +370,38 @@ const CardiacCycleEcgLab: React.FC<CardiacCycleEcgLabProps> = ({ topic, onExit }
     ctx.textAlign = 'left';
   };
 
+  const soundBadge = (ctx: CanvasRenderingContext2D, x: number, y: number, title: string, sub: string, color: string, bg: string) => {
+    ctx.fillStyle = bg;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    const w = 156, h = 44;
+    ctx.beginPath();
+    ctx.moveTo(x + 10, y); ctx.arcTo(x + w, y, x + w, y + h, 10);
+    ctx.arcTo(x + w, y + h, x, y + h, 10); ctx.arcTo(x, y + h, x, y, 10);
+    ctx.arcTo(x, y, x + w, y, 10); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // pulsing sound rings
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    for (let i = 1; i <= 3; i++) {
+      ctx.globalAlpha = 0.5 - i * 0.12;
+      ctx.beginPath();
+      ctx.arc(x + 20, y + h / 2, 6 + i * 5, -Math.PI / 3, Math.PI / 3);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = color;
+    ctx.font = '800 16px Inter';
+    ctx.fillText(title, x + 40, y + 20);
+    ctx.font = '600 10px Inter';
+    ctx.fillText(sub, x + 40, y + 35);
+  };
+
   const drawSounds = (ctx: CanvasRenderingContext2D, t: number) => {
-    const x0 = 50, y0 = 250;
-    const lub = t > 0.20 && t < 0.24;
-    const dub = t > 0.40 && t < 0.44;
-    if (lub) {
-      ctx.fillStyle = 'rgba(220, 38, 38, 0.8)';
-      ctx.font = '900 36px Inter';
-      ctx.fillText('🔊 LUB', x0, y0);
-    }
-    if (dub) {
-      ctx.fillStyle = 'rgba(124, 58, 237, 0.8)';
-      ctx.font = '900 36px Inter';
-      ctx.fillText('🔊 DUB', x0 + 130, y0);
-    }
+    // S1 "lub" — AV valves shut at the start of ventricular systole
+    if (t > 0.20 && t < 0.27) soundBadge(ctx, 380, 250, 'S1 · "lub"', 'AV valves close', '#b91c1c', '#fef2f2');
+    // S2 "dub" — semilunar valves shut at the start of diastole
+    if (t > 0.40 && t < 0.47) soundBadge(ctx, 744, 250, 'S2 · "dub"', 'semilunar valves close', '#6d28d9', '#f5f3ff');
   };
 
   const advancePhase = () => {

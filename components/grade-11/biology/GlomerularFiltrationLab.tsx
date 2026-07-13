@@ -132,9 +132,9 @@ const GlomerularFiltrationLab: React.FC<GlomerularFiltrationLabProps> = ({ topic
           }
         }
       } else if (p.state === 'reabsorbed') {
-        // float up into peritubular capillary
-        p.y -= 80 * dt;
-        if (p.y < 470) continue; // gone
+        // pass down through the tubule wall into the peritubular capillary
+        p.y += 90 * dt;
+        if (p.y > 618) continue; // returned to blood
       } else if (p.state === 'urine') {
         p.x += 100 * dt;
         if (p.x > W) continue;
@@ -161,6 +161,16 @@ const GlomerularFiltrationLab: React.FC<GlomerularFiltrationLabProps> = ({ topic
     }
   };
 
+  const roundRectG = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  };
+
   const draw = () => {
     const c = canvasRef.current;
     if (!c) return;
@@ -177,123 +187,175 @@ const GlomerularFiltrationLab: React.FC<GlomerularFiltrationLabProps> = ({ topic
     ctx.fillStyle = '#475569';
     ctx.fillText('NCERT §16.2–16.3 — GFR ~125 mL/min, ~99% of 180 L/day reabsorbed', 30, 60);
 
-    // afferent arteriole
-    ctx.fillStyle = '#fecaca';
-    ctx.strokeStyle = '#b91c1c';
-    ctx.lineWidth = 2;
+    // ===== renal corpuscle =====
+    const gx = 310, gy = 232;
+    ctx.lineCap = 'round';
+    // Bowman's capsule — cup with pale capsular space (drawn first, behind tuft)
     ctx.beginPath();
-    ctx.moveTo(50, 230);
-    ctx.lineTo(200, 230);
-    ctx.lineTo(200, 200);
-    ctx.lineTo(50, 200);
+    ctx.arc(gx, gy, 108, -Math.PI * 0.62, Math.PI * 0.62, false);
+    ctx.arc(gx, gy, 90, Math.PI * 0.62, -Math.PI * 0.62, true);
     ctx.closePath();
+    ctx.fillStyle = '#eef2ff';
     ctx.fill();
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2.5;
     ctx.stroke();
-    ctx.fillStyle = '#7f1d1d';
-    ctx.font = '600 11px Inter';
-    ctx.fillText('Afferent', 70, 190);
-
-    // glomerulus
+    // capsular space fill
     ctx.beginPath();
-    ctx.arc(310, 230, 80, 0, Math.PI * 2);
-    ctx.fillStyle = '#fecaca';
+    ctx.arc(gx, gy, 90, 0, Math.PI * 2);
+    ctx.fillStyle = '#f8fafc';
     ctx.fill();
-    ctx.strokeStyle = '#b91c1c';
-    ctx.lineWidth = 3;
+
+    // afferent arteriole (WIDE — high pressure in) from the left
+    const affGrad = ctx.createLinearGradient(50, 0, gx, 0);
+    affGrad.addColorStop(0, '#f87171'); affGrad.addColorStop(1, '#dc2626');
+    ctx.strokeStyle = affGrad;
+    ctx.lineWidth = 26;
+    ctx.beginPath();
+    ctx.moveTo(48, 150);
+    ctx.quadraticCurveTo(150, 150, gx - 46, gy - 26);
     ctx.stroke();
-    // glomerular capillary loops
-    for (let i = 0; i < 8; i++) {
+    // efferent arteriole (NARROW — raises glomerular pressure) leaving upper-right
+    const effGrad = ctx.createLinearGradient(gx, 0, 560, 0);
+    effGrad.addColorStop(0, '#dc2626'); effGrad.addColorStop(1, '#ef4444');
+    ctx.strokeStyle = effGrad;
+    ctx.lineWidth = 15;
+    ctx.beginPath();
+    ctx.moveTo(gx + 44, gy - 30);
+    ctx.quadraticCurveTo(470, 150, 545, 150);
+    ctx.stroke();
+
+    // glomerular capillary tuft — tangle of looping capillaries
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(gx, gy, 84, 0, Math.PI * 2);
+    ctx.clip();
+    for (let i = 0; i < 7; i++) {
+      const off = (i - 3) * 20;
+      ctx.strokeStyle = i % 2 ? '#ef4444' : '#dc2626';
+      ctx.lineWidth = 9;
       ctx.beginPath();
-      ctx.arc(310 + (i - 4) * 8, 230 + (i % 2) * 20 - 10, 12, 0, Math.PI * 2);
-      ctx.strokeStyle = '#dc2626';
-      ctx.lineWidth = 1;
+      ctx.moveTo(gx - 70, gy + off * 0.5);
+      ctx.bezierCurveTo(gx - 20, gy + off - 40, gx + 40, gy + off + 40, gx + 70, gy + off * 0.5);
       ctx.stroke();
     }
+    ctx.restore();
+
+    ctx.lineCap = 'butt';
     ctx.fillStyle = '#7f1d1d';
     ctx.font = '700 12px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText('Glomerulus', 310, 130);
-    ctx.font = '500 10px Inter';
-    ctx.fillText('(capillary tuft)', 310, 145);
-
-    // bowman's capsule
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath();
-    ctx.arc(310, 230, 110, -Math.PI * 0.7, Math.PI * 0.7, false);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#475569';
+    ctx.fillText('Glomerulus (capillary tuft)', gx, gy - 116);
+    ctx.fillStyle = '#334155';
     ctx.font = '600 11px Inter';
-    ctx.fillText('Bowman\'s capsule', 310, 360);
+    ctx.fillText("Bowman's capsule", gx, gy + 128);
+    ctx.font = '600 10px Inter';
+    ctx.fillStyle = '#b91c1c';
+    ctx.textAlign = 'left';
+    ctx.fillText('afferent (wide)', 60, 130);
+    ctx.textAlign = 'right';
+    ctx.fillText('efferent (narrow) →', 560, 132);
     ctx.textAlign = 'left';
 
-    // efferent arteriole
-    ctx.fillStyle = '#fecaca';
-    ctx.strokeStyle = '#b91c1c';
-    ctx.beginPath();
-    ctx.moveTo(380, 200);
-    ctx.lineTo(500, 200);
-    ctx.lineTo(500, 230);
-    ctx.lineTo(380, 230);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#7f1d1d';
-    ctx.font = '600 11px Inter';
-    ctx.fillText('Efferent', 405, 190);
-
-    // PCT tube (curving)
-    ctx.fillStyle = '#fef3c7';
-    ctx.strokeStyle = '#a16207';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(420, 340);
-    ctx.lineTo(420, 400);
-    ctx.quadraticCurveTo(550, 460, 700, 430);
-    ctx.quadraticCurveTo(880, 400, 1000, 470);
-    ctx.lineTo(1100, 510);
-    ctx.lineTo(1100, 560);
-    ctx.lineTo(420, 560);
-    ctx.lineTo(420, 500);
-    ctx.quadraticCurveTo(550, 540, 700, 510);
-    ctx.quadraticCurveTo(880, 480, 1000, 550);
-    ctx.lineTo(1100, 560);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    // brush border
-    for (let x = 440; x < 1090; x += 14) {
+    // ===== PCT tubule (dimensional, with epithelial lining + brush border) =====
+    const tubeTop = 400, tubeBot = 560;
+    const tubePath = () => {
       ctx.beginPath();
-      ctx.moveTo(x, 460);
-      ctx.lineTo(x, 470);
-      ctx.strokeStyle = '#854d0e';
-      ctx.lineWidth = 1.5;
+      ctx.moveTo(420, 340);
+      ctx.lineTo(420, tubeTop);
+      ctx.quadraticCurveTo(560, tubeTop + 60, 720, tubeTop + 30);
+      ctx.quadraticCurveTo(890, tubeTop, 1010, tubeTop + 70);
+      ctx.lineTo(1100, tubeBot - 50);
+      ctx.lineTo(1100, tubeBot);
+      ctx.lineTo(420, tubeBot);
+      ctx.closePath();
+    };
+    tubePath();
+    const lumen = ctx.createLinearGradient(0, tubeTop - 20, 0, tubeBot);
+    lumen.addColorStop(0, '#fffbeb');
+    lumen.addColorStop(1, '#fde9b8');
+    ctx.fillStyle = lumen;
+    ctx.fill();
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    // epithelial cell divisions along the lower wall
+    ctx.strokeStyle = 'rgba(180,83,9,0.35)';
+    ctx.lineWidth = 1;
+    for (let x = 440; x < 1090; x += 34) {
+      ctx.beginPath();
+      ctx.moveTo(x, tubeBot);
+      ctx.lineTo(x, tubeBot - 26);
+      ctx.stroke();
+    }
+    // brush border (microvilli) along the luminal side
+    ctx.strokeStyle = '#a16207';
+    ctx.lineWidth = 1.5;
+    for (let x = 436; x < 1092; x += 8) {
+      const yb = tubeBot - 26;
+      ctx.beginPath();
+      ctx.moveTo(x, yb);
+      ctx.lineTo(x + 2, yb - 9);
       ctx.stroke();
     }
     ctx.fillStyle = '#92400e';
     ctx.font = '700 13px Inter';
-    ctx.fillText('PCT (brush border)', 720, 420);
+    ctx.textAlign = 'center';
+    ctx.fillText('PCT — brush-border epithelium (bulk reabsorption)', 720, tubeTop + 8);
+    ctx.textAlign = 'left';
 
-    // peritubular capillary
-    ctx.fillStyle = '#fecaca';
-    ctx.strokeStyle = '#dc2626';
+    // ===== peritubular capillary (shaded vessel with RBCs) =====
+    const pcap = ctx.createLinearGradient(0, 600, 0, 650);
+    pcap.addColorStop(0, '#f87171'); pcap.addColorStop(1, '#b91c1c');
+    ctx.fillStyle = pcap;
+    ctx.strokeStyle = '#991b1b';
     ctx.lineWidth = 2;
-    ctx.fillRect(420, 600, 700, 50);
-    ctx.strokeRect(420, 600, 700, 50);
-    ctx.fillStyle = '#7f1d1d';
+    roundRectG(ctx, 420, 600, 700, 50, 16);
+    ctx.fill(); ctx.stroke();
+    for (let i = 0; i < 9; i++) {
+      ctx.fillStyle = 'rgba(127,29,29,0.55)';
+      ctx.beginPath();
+      ctx.ellipse(455 + i * 74, 625, 10, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#fff';
     ctx.font = '600 11px Inter';
-    ctx.fillText('Peritubular capillary', 440, 640);
+    ctx.fillText('Peritubular capillary (reabsorbed solutes return to blood)', 440, 642);
 
     // urine outlet
-    ctx.fillStyle = '#fef3c7';
-    ctx.strokeStyle = '#a16207';
-    ctx.fillRect(1100, 510, 130, 50);
-    ctx.strokeRect(1100, 510, 130, 50);
+    ctx.fillStyle = '#fde9b8';
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 2;
+    roundRectG(ctx, 1100, tubeBot - 50, 140, 50, 8);
+    ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#92400e';
+    ctx.font = '700 12px Inter';
+    ctx.fillText('→ to loop / urine', 1112, tubeBot - 20);
+
+    // ===== particle legend (top-right) =====
+    const lx = 980, ly = 150;
+    ctx.fillStyle = 'rgba(255,255,255,0.94)';
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    roundRectG(ctx, lx, ly, 250, 132, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#0f172a';
     ctx.font = '700 11px Inter';
-    ctx.fillText('→ urine', 1130, 540);
+    ctx.fillText('What flows through', lx + 12, ly + 18);
+    (Object.keys(KIND_META) as Particle['kind'][]).forEach((k, i) => {
+      const cy = ly + 34 + i * 16;
+      ctx.fillStyle = KIND_META[k].color;
+      ctx.beginPath();
+      ctx.arc(lx + 18, cy, KIND_META[k].size + 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#334155';
+      ctx.font = '600 10px Inter';
+      const note = k === 'protein' ? 'too big — not filtered'
+        : k === 'urea' ? 'filtered, stays → urine'
+        : k === 'plasma' ? 'water — mostly reabsorbed'
+        : 'filtered, actively reabsorbed';
+      ctx.fillText(`${KIND_META[k].label} — ${note}`, lx + 32, cy + 3.5);
+    });
 
     // particles
     for (const p of particlesRef.current) {

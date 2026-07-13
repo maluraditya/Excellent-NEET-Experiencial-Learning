@@ -909,7 +909,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Plant Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_respiration_in_plants.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_electron_transport_chain.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -935,7 +935,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Sprout',
         branch: 'Plant Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_respiration_in_plants.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_plant_hormones_tropisms.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -948,7 +948,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_pulmonary_ventilation_gas_exchange.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -961,7 +961,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Droplets',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_blood_groups_coagulation.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -974,7 +974,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_cardiac_cycle_ecg.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -987,7 +987,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_glomerular_filtration_reabsorption.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1000,7 +1000,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Droplets',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_countercurrent_multiplier.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1013,7 +1013,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_sliding_filament_theory.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1026,7 +1026,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Zap',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_action_potential.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1039,7 +1039,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Zap',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_synaptic_transmission.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1052,7 +1052,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_endocrine_glands_hormones.svg',
         youtubeVideoIds: ['placeholder']
     },
     {
@@ -1065,7 +1065,7 @@ export const TOPICS_11TH: Topic[] = [
         thumbnailIcon: 'Activity',
         branch: 'Human Physiology',
         grade: '11th',
-        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
+        thumbnailUrl: '/images/thumbnails/11th-biology/thumb_hormone_action_axis.svg',
         youtubeVideoIds: ['placeholder']
     }
 ];

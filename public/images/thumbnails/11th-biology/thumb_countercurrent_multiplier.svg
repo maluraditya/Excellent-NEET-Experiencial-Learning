@@ -1,0 +1,28 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:56px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#2563eb"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">COUNTERCURRENT MULTIPLIER</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">Loop of Henle - Medullary gradient - ADH control</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="860" height="642" rx="26" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <text x="512" y="292" text-anchor="middle" class="h" fill="#1D4ED8">MEDULLARY OSMOTIC GRADIENT</text>
+  <g class="s" text-anchor="middle">
+    <rect x="112" y="342" width="800" height="92" fill="#DBEAFE"/><text x="874" y="396" fill="#1D4ED8">300</text>
+    <rect x="112" y="434" width="800" height="92" fill="#BFDBFE"/><text x="874" y="488" fill="#1D4ED8">600</text>
+    <rect x="112" y="526" width="800" height="92" fill="#93C5FD"/><text x="874" y="580" fill="#1E40AF">900</text>
+    <rect x="112" y="618" width="800" height="122" fill="#60A5FA"/><text x="874" y="688" fill="#fff">1200</text>
+  </g>
+  <path d="M366 342 C302 454 302 626 426 716" stroke="#2563EB" stroke-width="44" stroke-linecap="round" fill="none"/>
+  <path d="M426 716 C550 626 550 454 486 342" stroke="#F59E0B" stroke-width="44" stroke-linecap="round" fill="none"/>
+  <path d="M366 342 C302 454 302 626 426 716 C550 626 550 454 486 342" stroke="#0F172A" stroke-width="5" stroke-linecap="round" fill="none" opacity=".45"/>
+  <text x="272" y="514" text-anchor="middle" class="t" fill="#1D4ED8">Water out</text>
+  <path d="M344 510H286" stroke="#2563EB" stroke-width="6" marker-end="url(#arrow)"/>
+  <text x="600" y="514" text-anchor="middle" class="t" fill="#92400E">NaCl out</text>
+  <path d="M506 510H578" stroke="#F59E0B" stroke-width="6" marker-end="url(#arrow)"/>
+  <rect x="650" y="342" width="120" height="398" rx="44" fill="#ECFDF5" stroke="#047857" stroke-width="5"/>
+  <text x="710" y="554" text-anchor="middle" class="t" fill="#047857">Collecting</text>
+  <text x="710" y="582" text-anchor="middle" class="t" fill="#047857">duct</text>
+  <rect x="602" y="770" width="216" height="62" rx="20" fill="#FFF7ED" stroke="#FDBA74" stroke-width="3"/>
+  <text x="710" y="810" text-anchor="middle" class="t" fill="#C2410C">ADH: water channels</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Opposite flow plus selective permeability concentrates urine when ADH is high</text>
+</svg>

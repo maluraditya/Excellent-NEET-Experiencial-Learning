@@ -57,6 +57,12 @@ const PlantHormonesTropismsLab: React.FC<PlantHormonesTropismsLabProps> = ({ top
     setColeoptileBend(0);
   }, []);
 
+  // clear transient particles when the demonstration stage changes
+  useEffect(() => {
+    ethMolsRef.current = [];
+    auxinMolsRef.current = [];
+  }, [stage]);
+
   // animation loop
   useEffect(() => {
     const tick = (now: number) => {
@@ -89,6 +95,20 @@ const PlantHormonesTropismsLab: React.FC<PlantHormonesTropismsLabProps> = ({ top
       auxinMolsRef.current = auxinMolsRef.current
         .map(a => ({ ...a, alpha: a.alpha - dt * 0.6 }))
         .filter(a => a.alpha > 0);
+    } else if (stage === 'apical') {
+      // auxin streams DOWN the stem from an intact apex when it dominates
+      const auxinHigh = !decapitated && selectedHormone === 'auxin' && hormoneDose > 30;
+      if (auxinHigh && Math.random() < 0.7) {
+        auxinMolsRef.current.push({
+          id: ++idCounterRef.current,
+          x: 640,
+          y: 214 + Math.random() * 8,
+          alpha: 1,
+        });
+      }
+      auxinMolsRef.current = auxinMolsRef.current
+        .map(a => ({ ...a, y: a.y + 90 * dt, alpha: a.y > 540 ? a.alpha - dt * 1.2 : a.alpha }))
+        .filter(a => a.alpha > 0 && a.y < 600);
     } else if (stage === 'ripening') {
       // emit ethylene from emitting fruits
       for (const f of fruitsRef.current) {
@@ -105,19 +125,27 @@ const PlantHormonesTropismsLab: React.FC<PlantHormonesTropismsLabProps> = ({ top
           f.emitting = true;
         }
       }
-      // ethylene molecules expand
+      // ethylene molecules expand (visual gas clouds)
       ethMolsRef.current = ethMolsRef.current
         .map(e => ({ ...e, r: e.r + 80 * dt, alpha: e.alpha - dt * 0.3 }))
         .filter(e => e.alpha > 0);
-      // ripen neighbours within ethylene radius
-      const speed = bagSealed ? 2.5 : 1.2;
-      for (const e of ethMolsRef.current) {
+      // ripen neighbours by ethylene diffusion — the closer to an emitting
+      // fruit, the faster it ripens (sealed bag concentrates the gas).
+      const emitters = fruitsRef.current.filter(f => f.emitting);
+      if (emitters.length) {
+        const reach = bagSealed ? 620 : 300;      // gas spreads further when trapped
+        const rate = bagSealed ? 0.55 : 0.32;     // and ripens faster
         for (const f of fruitsRef.current) {
           if (f.ripeness >= 1) continue;
-          const d = Math.hypot(f.x - e.x, f.y - e.y);
-          if (d < e.r && d > e.r - 30) {
-            f.ripeness = Math.min(1, f.ripeness + dt * speed * 0.4);
-            if (f.ripeness >= 1) f.ripe = true;
+          let nearest = Infinity;
+          for (const e of emitters) {
+            if (e === f) continue;
+            nearest = Math.min(nearest, Math.hypot(f.x - e.x, f.y - e.y));
+          }
+          if (nearest < reach) {
+            const proximity = 1 - nearest / reach; // 0 far → 1 close
+            f.ripeness = Math.min(1, f.ripeness + dt * rate * (0.35 + proximity));
+            if (f.ripeness >= 1) { f.ripe = true; f.emitting = true; }
           }
         }
       }
@@ -137,290 +165,612 @@ const PlantHormonesTropismsLab: React.FC<PlantHormonesTropismsLabProps> = ({ top
     else drawRipening(ctx);
   };
 
-  const drawColeoptile = (ctx: CanvasRenderingContext2D) => {
-    // soil
-    ctx.fillStyle = '#fef3c7';
-    ctx.fillRect(0, 600, W, H - 600);
-    ctx.fillStyle = '#a16207';
-    ctx.font = '600 13px Inter';
-    ctx.fillText('Soil', 30, 640);
-
-    // sun
-    const sunX = 640 + sunAngle * 480;
-    const sunY = 110;
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 38, 0, Math.PI * 2);
-    ctx.fillStyle = '#fde68a';
-    ctx.shadowColor = '#fbbf24';
-    ctx.shadowBlur = 22;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    // light cone
-    ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
-    ctx.beginPath();
-    ctx.moveTo(sunX, sunY + 30);
-    ctx.lineTo(640 - 120, 600);
-    ctx.lineTo(640 + 120, 600);
-    ctx.closePath();
-    ctx.fill();
-
-    // coleoptile — curved stem
-    const baseX = 640;
-    const baseY = 600;
-    const tipX = baseX + coleoptileBend;
-    const tipY = 280;
-    ctx.strokeStyle = '#16a34a';
-    ctx.lineWidth = 28;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(baseX, baseY);
-    ctx.quadraticCurveTo(baseX + coleoptileBend * 0.5, (baseY + tipY) / 2, tipX, tipY);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
-
-    // shading cells on dark side
-    ctx.fillStyle = 'rgba(20, 83, 45, 0.4)';
-    const darkX = sunAngle > 0 ? baseX - 8 : baseX + 8;
-    for (let i = 0; i < 6; i++) {
-      ctx.fillRect(darkX - 4, baseY - 60 - i * 50, 8, 36);
-    }
-
-    // tip glow
-    ctx.beginPath();
-    ctx.arc(tipX, tipY, 18, 0, Math.PI * 2);
-    ctx.fillStyle = '#22d3ee';
-    ctx.shadowColor = '#22d3ee';
-    ctx.shadowBlur = 16;
-    ctx.globalAlpha = 0.85;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#0e7490';
-    ctx.font = '700 11px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('tip', tipX, tipY + 3);
-    ctx.textAlign = 'left';
-
-    // auxin molecules
-    for (const a of auxinMolsRef.current) {
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(8, 145, 178, ${a.alpha})`;
-      ctx.fill();
-    }
-
-    // labels
-    ctx.fillStyle = '#0e7490';
-    ctx.font = '600 14px Inter';
-    ctx.fillText('Auxin (IAA) — produced at tip, migrates DOWN the shaded side', 320, 60);
-    ctx.fillStyle = '#475569';
-    ctx.font = '500 12px Inter';
-    ctx.fillText("Darwin (1880): tip of coleoptile is the source of the 'transmittable influence' (NCERT Fig 13.10)", 320, 78);
-
-    // bend angle indicator
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 16px Inter';
-    ctx.fillText(`Bend: ${Math.round(Math.abs(coleoptileBend) / 35 * 30)}° toward light`, 30, 30);
+  // ---------- shared curve helpers (organic tapered stems) ----------
+  const quadPt = (t: number, x0: number, y0: number, x1: number, y1: number, x2: number, y2: number) => {
+    const mt = 1 - t;
+    return { x: mt * mt * x0 + 2 * mt * t * x1 + t * t * x2, y: mt * mt * y0 + 2 * mt * t * y1 + t * t * y2 };
+  };
+  const quadTan = (t: number, x0: number, y0: number, x1: number, y1: number, x2: number, y2: number) => {
+    const mt = 1 - t;
+    return { x: 2 * mt * (x1 - x0) + 2 * t * (x2 - x1), y: 2 * mt * (y1 - y0) + 2 * t * (y2 - y1) };
   };
 
-  const drawApical = (ctx: CanvasRenderingContext2D) => {
-    // ground
-    ctx.fillStyle = '#fef3c7';
-    ctx.fillRect(0, 620, W, H - 620);
-    ctx.fillStyle = '#a16207';
-    ctx.font = '600 13px Inter';
-    ctx.fillText('Soil', 30, 660);
-
-    // main stem
-    const baseX = 640;
-    const baseY = 620;
-    const apexY = decapitated ? 350 : 220;
-    ctx.strokeStyle = '#16a34a';
-    ctx.lineWidth = 16;
-    ctx.lineCap = 'round';
+  // A realistic tapered, veined leaf on a short petiole.
+  const drawLeaf = (ctx: CanvasRenderingContext2D, x: number, y: number, dir: number, size = 1, hue = '#22c55e') => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(dir > 0 ? -0.5 : 0.5 + Math.PI);
+    const L = 30 * size, Wd = 13 * size;
+    const g = ctx.createLinearGradient(0, -Wd, 0, Wd);
+    g.addColorStop(0, '#4ade80');
+    g.addColorStop(1, hue);
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX, apexY);
-    ctx.stroke();
-
-    // apical bud (or cut)
-    if (decapitated) {
-      ctx.fillStyle = '#92400e';
-      ctx.fillRect(baseX - 18, apexY - 6, 36, 6);
-      ctx.fillStyle = '#dc2626';
-      ctx.font = '700 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('✂ Decapitated', baseX, apexY - 12);
-      ctx.textAlign = 'left';
-    } else {
-      ctx.beginPath();
-      ctx.arc(baseX, apexY, 24, 0, Math.PI * 2);
-      ctx.fillStyle = selectedHormone === 'cytokinin'
-        ? '#16a34a'
-        : `rgba(8, 145, 178, ${0.35 + hormoneDose / 200})`;
-      ctx.shadowColor = '#0891b2';
-      ctx.shadowBlur = 14;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '700 10px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('apical', baseX, apexY - 2);
-      ctx.fillText('bud', baseX, apexY + 10);
-      ctx.textAlign = 'left';
-    }
-
-    // determine lateral bud activity
-    const auxinHigh = !decapitated && selectedHormone === 'auxin' && hormoneDose > 30;
-    const cytokininActive = selectedHormone === 'cytokinin' && hormoneDose > 30;
-    const lateralsBloom = decapitated || cytokininActive || (selectedHormone !== 'auxin' && !auxinHigh);
-
-    // lateral buds at three heights
-    const heights = [320, 420, 520];
-    for (const ly of heights) {
-      // bud
-      const bloom = lateralsBloom && (cytokininActive || decapitated || ly < 500);
-      const branchLen = bloom ? 90 : 28;
-      // left
-      ctx.strokeStyle = bloom ? '#16a34a' : '#86efac';
-      ctx.lineWidth = bloom ? 8 : 4;
-      ctx.beginPath();
-      ctx.moveTo(baseX - 6, ly);
-      ctx.lineTo(baseX - branchLen, ly - (bloom ? 25 : 0));
-      ctx.stroke();
-      // right
-      ctx.beginPath();
-      ctx.moveTo(baseX + 6, ly);
-      ctx.lineTo(baseX + branchLen, ly - (bloom ? 25 : 0));
-      ctx.stroke();
-      // leaves
-      if (bloom) {
-        drawLeaf(ctx, baseX - branchLen - 8, ly - 25, -1);
-        drawLeaf(ctx, baseX + branchLen + 8, ly - 25, 1);
-      } else {
-        ctx.fillStyle = '#86efac';
-        ctx.beginPath();
-        ctx.arc(baseX - branchLen - 4, ly, 5, 0, Math.PI * 2);
-        ctx.arc(baseX + branchLen + 4, ly, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // status banner
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 16px Inter';
-    if (decapitated) {
-      ctx.fillText('Apical bud removed → lateral buds bloom (apical dominance lifted)', 30, 30);
-    } else if (cytokininActive) {
-      ctx.fillText('Cytokinin antagonises auxin → laterals bloom despite intact tip', 30, 30);
-    } else if (auxinHigh) {
-      ctx.fillText('High auxin from apical bud → lateral buds suppressed', 30, 30);
-    } else {
-      ctx.fillText('Adjust hormone or decapitate to see apical dominance change', 30, 30);
-    }
-    ctx.font = '500 12px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §13.4.3.1 — decapitation widely applied in tea plantations and hedge-making', 30, 48);
-  };
-
-  const drawLeaf = (ctx: CanvasRenderingContext2D, x: number, y: number, dir: number) => {
-    ctx.fillStyle = '#16a34a';
-    ctx.beginPath();
-    ctx.ellipse(x, y, 20, 9, dir > 0 ? -0.4 : 0.4, 0, Math.PI * 2);
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(L * 0.5, -Wd, L, 0);
+    ctx.quadraticCurveTo(L * 0.5, Wd, 0, 0);
     ctx.fill();
     ctx.strokeStyle = '#15803d';
     ctx.lineWidth = 1;
     ctx.stroke();
+    // midrib + veins
+    ctx.strokeStyle = 'rgba(21,128,61,0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(2, 0);
+    ctx.lineTo(L - 2, 0);
+    for (let i = 1; i <= 3; i++) {
+      const px = (L / 4) * i;
+      ctx.moveTo(px, 0); ctx.lineTo(px - 6, -Wd * 0.5 * (1 - i / 5));
+      ctx.moveTo(px, 0); ctx.lineTo(px - 6, Wd * 0.5 * (1 - i / 5));
+    }
+    ctx.stroke();
+    ctx.restore();
   };
 
-  const drawRipening = (ctx: CanvasRenderingContext2D) => {
-    // bowl
-    ctx.fillStyle = '#e5e7eb';
-    ctx.beginPath();
-    ctx.ellipse(640, 540, 280, 50, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#f3f4f6';
-    ctx.beginPath();
-    ctx.ellipse(640, 540, 270, 40, 0, Math.PI, 2 * Math.PI);
-    ctx.fill();
+  const drawColeoptile = (ctx: CanvasRenderingContext2D) => {
+    // sky wash → white
+    const sky = ctx.createLinearGradient(0, 0, 0, 600);
+    sky.addColorStop(0, '#eff6ff');
+    sky.addColorStop(1, '#ffffff');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, 600);
 
-    // bag overlay if sealed
-    if (bagSealed) {
-      ctx.fillStyle = 'rgba(186, 230, 253, 0.5)';
-      roundRect(ctx, 350, 380, 580, 200, 30);
-      ctx.fill();
-      ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#0c4a6e';
-      ctx.font = '700 13px Inter';
-      ctx.fillText('🛍 Sealed — ethylene trapped, ripening accelerated', 360, 405);
-    }
-
-    // ethylene molecules (rings)
-    for (const e of ethMolsRef.current) {
-      ctx.strokeStyle = `rgba(217, 119, 6, ${e.alpha})`;
-      ctx.lineWidth = 2;
+    // ---- sun with rays + light cone ----
+    const sunX = 640 + sunAngle * 470;
+    const sunY = 120;
+    ctx.save();
+    ctx.translate(sunX, sunY);
+    ctx.strokeStyle = 'rgba(251,191,36,0.55)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 12; i++) {
+      ctx.rotate(Math.PI / 6);
       ctx.beginPath();
-      ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+      ctx.moveTo(46, 0);
+      ctx.lineTo(64, 0);
       ctx.stroke();
     }
-
-    // fruits
-    for (const f of fruitsRef.current) {
-      drawFruit(ctx, f);
-    }
-
-    // banner
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 16px Inter';
-    ctx.fillText('Ethylene (gaseous PGR) — fruit ripening & climacteric respiratory rise', 30, 30);
-    ctx.font = '500 12px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §13.4.3.4 — click any fruit to make it ripe. Toggle the sealed bag to trap the gas.', 30, 48);
-  };
-
-  const drawFruit = (ctx: CanvasRenderingContext2D, f: Fruit) => {
-    // colour interpolation green → yellow → red
-    let r: number, g: number, b: number;
-    if (f.ripeness < 0.5) {
-      const t = f.ripeness * 2;
-      r = Math.round(34 + (252 - 34) * t);
-      g = Math.round(197 + (211 - 197) * t);
-      b = Math.round(94 + (77 - 94) * t);
-    } else {
-      const t = (f.ripeness - 0.5) * 2;
-      r = Math.round(252 + (220 - 252) * t);
-      g = Math.round(211 + (38 - 211) * t);
-      b = Math.round(77 + (38 - 77) * t);
-    }
+    ctx.restore();
+    const sg = ctx.createRadialGradient(sunX - 8, sunY - 8, 4, sunX, sunY, 42);
+    sg.addColorStop(0, '#fffbeb');
+    sg.addColorStop(0.6, '#fde047');
+    sg.addColorStop(1, '#f59e0b');
     ctx.beginPath();
-    ctx.arc(f.x, f.y, 30, 0, Math.PI * 2);
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
+    ctx.fillStyle = sg;
+    ctx.shadowColor = '#fbbf24';
+    ctx.shadowBlur = 30;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // soft directional light cone from sun toward the seedling
+    const coneGrad = ctx.createLinearGradient(sunX, sunY, 640, 560);
+    coneGrad.addColorStop(0, 'rgba(253,224,71,0.35)');
+    coneGrad.addColorStop(1, 'rgba(253,224,71,0)');
+    ctx.fillStyle = coneGrad;
+    ctx.beginPath();
+    ctx.moveTo(sunX - 34, sunY + 20);
+    ctx.lineTo(560, 590);
+    ctx.lineTo(720, 590);
+    ctx.lineTo(sunX + 34, sunY + 20);
+    ctx.closePath();
+    ctx.fill();
+
+    // ---- soil ----
+    const soilY = 600;
+    const soil = ctx.createLinearGradient(0, soilY, 0, H);
+    soil.addColorStop(0, '#a9743f');
+    soil.addColorStop(1, '#6f4522');
+    ctx.fillStyle = soil;
+    ctx.fillRect(0, soilY, W, H - soilY);
+    ctx.fillStyle = '#c68a4e';
+    ctx.fillRect(0, soilY, W, 5);
+    ctx.fillStyle = 'rgba(60,36,16,0.35)';
+    for (let i = 0; i < 90; i++) {
+      const sx = (i * 137) % W;
+      const sy = soilY + 12 + ((i * 53) % (H - soilY - 16));
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ---- coleoptile: organic tapered sheath bending toward light ----
+    const bx = 640, by = 608;
+    const tipX = 640 + coleoptileBend, tipY = 268;
+    const cx = 640 + coleoptileBend * 0.55, cy = 440;
+    const litRight = sunAngle >= 0;
+    const N = 26;
+    const leftPts: { x: number; y: number }[] = [];
+    const rightPts: { x: number; y: number }[] = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      const p = quadPt(t, bx, by, cx, cy, tipX, tipY);
+      const tan = quadTan(t, bx, by, cx, cy, tipX, tipY);
+      const len = Math.hypot(tan.x, tan.y) || 1;
+      const nx = -tan.y / len, ny = tan.x / len;
+      const half = (30 - 15 * t) / 2;
+      leftPts.push({ x: p.x + nx * half, y: p.y + ny * half });
+      rightPts.push({ x: p.x - nx * half, y: p.y - ny * half });
+    }
+    // body path
+    ctx.beginPath();
+    ctx.moveTo(leftPts[0].x, leftPts[0].y);
+    for (let i = 1; i <= N; i++) ctx.lineTo(leftPts[i].x, leftPts[i].y);
+    for (let i = N; i >= 0; i--) ctx.lineTo(rightPts[i].x, rightPts[i].y);
+    ctx.closePath();
+    const minX = Math.min(bx, tipX) - 22, maxX = Math.max(bx, tipX) + 22;
+    const bodyGrad = ctx.createLinearGradient(minX, 0, maxX, 0);
+    if (litRight) {
+      bodyGrad.addColorStop(0, '#166534');
+      bodyGrad.addColorStop(0.5, '#22c55e');
+      bodyGrad.addColorStop(1, '#86efac');
+    } else {
+      bodyGrad.addColorStop(0, '#86efac');
+      bodyGrad.addColorStop(0.5, '#22c55e');
+      bodyGrad.addColorStop(1, '#166534');
+    }
+    ctx.fillStyle = bodyGrad;
     ctx.fill();
     ctx.strokeStyle = '#15803d';
     ctx.lineWidth = 1.5;
     ctx.stroke();
-    // stem
-    ctx.fillStyle = '#854d0e';
-    ctx.fillRect(f.x - 2, f.y - 36, 4, 8);
-    // leaf
-    ctx.fillStyle = '#16a34a';
+
+    // cell striations across the sheath (denser on lit side, elongated on shaded)
+    ctx.strokeStyle = 'rgba(20,83,45,0.30)';
+    ctx.lineWidth = 1;
+    for (let i = 2; i < N; i += 2) {
+      ctx.beginPath();
+      ctx.moveTo(leftPts[i].x, leftPts[i].y);
+      ctx.lineTo(rightPts[i].x, rightPts[i].y);
+      ctx.stroke();
+    }
+    // highlight elongated cells on the shaded side
+    const shadedPts = litRight ? leftPts : rightPts;
+    ctx.fillStyle = 'rgba(6,95,70,0.35)';
+    for (let i = 4; i < N - 2; i += 3) {
+      const a = shadedPts[i], b2 = shadedPts[i + 2];
+      ctx.beginPath();
+      ctx.ellipse((a.x + b2.x) / 2, (a.y + b2.y) / 2, 4, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // rounded coleoptile tip cap
     ctx.beginPath();
-    ctx.ellipse(f.x + 5, f.y - 34, 6, 3, -0.6, 0, Math.PI * 2);
+    ctx.ellipse(tipX, tipY, 11, 14, coleoptileBend * 0.004, 0, Math.PI * 2);
+    ctx.fillStyle = '#15803d';
     ctx.fill();
 
-    // pulse if emitting
-    if (f.emitting) {
-      ctx.strokeStyle = `rgba(217, 119, 6, ${0.4 + Math.sin(performance.now() / 200) * 0.3})`;
+    // ---- auxin (glowing cyan) accumulating on the shaded side ----
+    for (const a of auxinMolsRef.current) {
+      const rg = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, 6);
+      rg.addColorStop(0, `rgba(103,232,249,${a.alpha})`);
+      rg.addColorStop(1, `rgba(8,145,178,0)`);
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(8,145,178,${a.alpha})`;
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ---- annotations ----
+    // "light" arrow from sun toward tip
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '700 16px Inter';
+    ctx.fillText(`Bend: ${Math.round(Math.abs(coleoptileBend) / 35 * 30)}° toward light`, 30, 34);
+    // shaded-side callout
+    const calloutX = litRight ? tipX - 120 : tipX + 40;
+    ctx.fillStyle = '#0e7490';
+    ctx.font = '700 12px Inter';
+    ctx.fillText('↑ more auxin here', calloutX, 360);
+    ctx.fillStyle = '#065f46';
+    ctx.font = '600 11px Inter';
+    ctx.fillText('shaded cells elongate', calloutX, 378);
+
+    ctx.fillStyle = '#0e7490';
+    ctx.font = '600 13px Inter';
+    ctx.fillText('Auxin (IAA) made at the tip migrates down the shaded side → those cells elongate → stem bends toward light.', 300, 60);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '500 11px Inter';
+    ctx.fillText("Darwin (1880): the tip is the source of the 'transmittable influence' (NCERT Fig 13.10).", 300, 78);
+  };
+
+  const drawApical = (ctx: CanvasRenderingContext2D) => {
+    // ground + terracotta pot
+    const soilY = 600;
+    const ground = ctx.createLinearGradient(0, soilY, 0, H);
+    ground.addColorStop(0, '#f1f5f9');
+    ground.addColorStop(1, '#e2e8f0');
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, soilY, W, H - soilY);
+    const baseX = 640;
+    // pot
+    const potTop = 596, potBot = 690, potHalfTop = 92, potHalfBot = 66;
+    const potGrad = ctx.createLinearGradient(baseX - potHalfTop, 0, baseX + potHalfTop, 0);
+    potGrad.addColorStop(0, '#b45309');
+    potGrad.addColorStop(0.5, '#ea9a52');
+    potGrad.addColorStop(1, '#9a3412');
+    ctx.fillStyle = potGrad;
+    ctx.beginPath();
+    ctx.moveTo(baseX - potHalfTop, potTop);
+    ctx.lineTo(baseX + potHalfTop, potTop);
+    ctx.lineTo(baseX + potHalfBot, potBot);
+    ctx.lineTo(baseX - potHalfBot, potBot);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#7c2d12';
+    ctx.fillRect(baseX - potHalfTop - 4, potTop - 12, potHalfTop * 2 + 8, 14);
+    // soil in pot
+    ctx.fillStyle = '#5b3a1a';
+    ctx.beginPath();
+    ctx.ellipse(baseX, potTop - 4, potHalfTop - 6, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ---- main stem (tapered, slight natural sway) ----
+    const baseY = potTop - 6;
+    const apexY = decapitated ? 348 : 210;
+    const swayC = baseX + 10;
+    const N = 20;
+    const lp: { x: number; y: number }[] = [];
+    const rp: { x: number; y: number }[] = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      const p = quadPt(t, baseX, baseY, swayC, (baseY + apexY) / 2, baseX, apexY);
+      const tan = quadTan(t, baseX, baseY, swayC, (baseY + apexY) / 2, baseX, apexY);
+      const len = Math.hypot(tan.x, tan.y) || 1;
+      const nx = -tan.y / len, ny = tan.x / len;
+      const half = (18 - 9 * t) / 2;
+      lp.push({ x: p.x + nx * half, y: p.y + ny * half });
+      rp.push({ x: p.x - nx * half, y: p.y - ny * half });
+    }
+    ctx.beginPath();
+    ctx.moveTo(lp[0].x, lp[0].y);
+    for (let i = 1; i <= N; i++) ctx.lineTo(lp[i].x, lp[i].y);
+    for (let i = N; i >= 0; i--) ctx.lineTo(rp[i].x, rp[i].y);
+    ctx.closePath();
+    const stemGrad = ctx.createLinearGradient(baseX - 12, 0, baseX + 12, 0);
+    stemGrad.addColorStop(0, '#15803d');
+    stemGrad.addColorStop(0.5, '#22c55e');
+    stemGrad.addColorStop(1, '#166534');
+    ctx.fillStyle = stemGrad;
+    ctx.fill();
+    ctx.strokeStyle = '#14532d';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // determine lateral bud activity (NCERT: auxin suppresses, cytokinin/decapitation release)
+    const auxinHigh = !decapitated && selectedHormone === 'auxin' && hormoneDose > 30;
+    const cytokininActive = selectedHormone === 'cytokinin' && hormoneDose > 30;
+    const lateralsBloom = decapitated || cytokininActive || (selectedHormone !== 'auxin' && !auxinHigh);
+
+    // auxin streaming down from an intact apex when it dominates
+    if (auxinHigh) {
+      for (const a of auxinMolsRef.current) {
+        ctx.fillStyle = `rgba(8,145,178,${a.alpha * 0.9})`;
+        ctx.beginPath();
+        ctx.arc(baseX + (a.id % 2 ? 3 : -3), a.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // ---- apical bud OR cut surface ----
+    if (decapitated) {
+      ctx.fillStyle = '#a16207';
+      ctx.beginPath();
+      ctx.ellipse(baseX, apexY, 8, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#dc2626';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(f.x, f.y, 38, 0, Math.PI * 2);
+      ctx.moveTo(baseX - 16, apexY - 10);
+      ctx.lineTo(baseX + 16, apexY - 22);
+      ctx.stroke();
+      ctx.fillStyle = '#dc2626';
+      ctx.font = '700 12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('✂ decapitated', baseX, apexY - 30);
+      ctx.textAlign = 'left';
+    } else {
+      // teardrop bud with young leaves
+      const budActive = auxinHigh;
+      const budGrad = ctx.createRadialGradient(baseX - 4, apexY - 6, 2, baseX, apexY, 20);
+      budGrad.addColorStop(0, budActive ? '#67e8f9' : '#86efac');
+      budGrad.addColorStop(1, budActive ? '#0891b2' : '#16a34a');
+      ctx.fillStyle = budGrad;
+      ctx.beginPath();
+      ctx.moveTo(baseX, apexY - 26);
+      ctx.quadraticCurveTo(baseX + 15, apexY - 6, baseX, apexY + 12);
+      ctx.quadraticCurveTo(baseX - 15, apexY - 6, baseX, apexY - 26);
+      ctx.fill();
+      drawLeaf(ctx, baseX - 6, apexY - 4, -1, 0.55);
+      drawLeaf(ctx, baseX + 6, apexY - 4, 1, 0.55);
+      if (budActive) {
+        ctx.fillStyle = '#0e7490';
+        ctx.font = '700 10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('high auxin', baseX, apexY - 34);
+        ctx.textAlign = 'left';
+      }
+    }
+
+    // ---- lateral shoots at nodes ----
+    const heights = [300, 400, 500];
+    heights.forEach((ly, idx) => {
+      const bloom = lateralsBloom && (cytokininActive || decapitated || idx < 2);
+      const side = (s: -1 | 1) => {
+        const dir = s;
+        // node bump
+        ctx.fillStyle = '#166534';
+        ctx.beginPath();
+        ctx.arc(baseX + dir * 5, ly, 4, 0, Math.PI * 2);
+        ctx.fill();
+        if (bloom) {
+          // grown branch (tapered) with leaf cluster
+          const ex = baseX + dir * 92, ey = ly - 34;
+          const bl0 = { x: baseX + dir * 6, y: ly };
+          const blc = { x: baseX + dir * 55, y: ly - 8 };
+          ctx.strokeStyle = '#15803d';
+          ctx.lineWidth = 7;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(bl0.x, bl0.y);
+          ctx.quadraticCurveTo(blc.x, blc.y, ex, ey);
+          ctx.stroke();
+          ctx.lineCap = 'butt';
+          drawLeaf(ctx, ex, ey, dir, 0.95);
+          drawLeaf(ctx, ex - dir * 22, ey + 10, dir, 0.75);
+          drawLeaf(ctx, ex - dir * 10, ey - 14, dir, 0.7);
+        } else {
+          // dormant bud (small, dim)
+          ctx.fillStyle = '#86efac';
+          ctx.beginPath();
+          ctx.ellipse(baseX + dir * 12, ly - 2, 7, 4.5, dir * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#4d7c0f';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      };
+      side(-1); side(1);
+    });
+
+    // ---- status banner ----
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '700 16px Inter';
+    if (decapitated) {
+      ctx.fillText('Apical bud removed → lateral buds bloom (apical dominance lifted)', 30, 34);
+    } else if (cytokininActive) {
+      ctx.fillText('Cytokinin antagonises auxin → laterals bloom despite the intact tip', 30, 34);
+    } else if (auxinHigh) {
+      ctx.fillText('High auxin from the apical bud → lateral buds stay dormant', 30, 34);
+    } else {
+      ctx.fillText('Adjust the hormone dose or decapitate to change apical dominance', 30, 34);
+    }
+    ctx.font = '500 12px Inter';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('NCERT §13.4.3.1 — decapitation is widely applied in tea plantations and hedge-making.', 30, 52);
+  };
+
+  const drawRipening = (ctx: CanvasRenderingContext2D) => {
+    // wooden table wash
+    const table = ctx.createLinearGradient(0, 470, 0, H);
+    table.addColorStop(0, '#fef9f3');
+    table.addColorStop(1, '#f5e9db');
+    ctx.fillStyle = table;
+    ctx.fillRect(0, 470, W, H - 470);
+
+    // ---- glass bowl (back rim behind fruit, front rim over) ----
+    const bcx = 640, bcy = 512;
+    ctx.fillStyle = 'rgba(148,163,184,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(bcx, bcy, 300, 46, 0, Math.PI, 2 * Math.PI);
+    ctx.fill();
+
+    // ethylene gas clouds (soft radial puffs) — drawn behind fruit
+    for (const e of ethMolsRef.current) {
+      const rg = ctx.createRadialGradient(e.x, e.y, e.r * 0.2, e.x, e.y, Math.max(1, e.r));
+      rg.addColorStop(0, `rgba(132,204,22,${e.alpha * 0.16})`);
+      rg.addColorStop(0.7, `rgba(163,230,53,${e.alpha * 0.10})`);
+      rg.addColorStop(1, 'rgba(163,230,53,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, Math.max(1, e.r), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // fruits (sorted so back ones draw first)
+    [...fruitsRef.current].sort((a, b) => a.y - b.y).forEach(f => drawFruit(ctx, f));
+
+    // front bowl wall (glassy, semi-transparent over fruit bases)
+    const bowlGrad = ctx.createLinearGradient(bcx, bcy - 20, bcx, bcy + 90);
+    bowlGrad.addColorStop(0, 'rgba(191,219,254,0.28)');
+    bowlGrad.addColorStop(1, 'rgba(148,163,184,0.42)');
+    ctx.fillStyle = bowlGrad;
+    ctx.beginPath();
+    ctx.ellipse(bcx, bcy, 300, 46, 0, 0, Math.PI);
+    ctx.lineTo(bcx - 232, bcy);
+    ctx.ellipse(bcx, bcy + 8, 232, 90, 0, Math.PI, 0, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(100,116,139,0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(bcx, bcy, 300, 46, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // rim highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(bcx, bcy, 300, 46, 0, Math.PI * 1.05, Math.PI * 1.55);
+    ctx.stroke();
+
+    // ---- sealed bag overlay ----
+    if (bagSealed) {
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.35)';
+      roundRect(ctx, 330, 350, 620, 240, 34);
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // reflective streak
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(400, 366);
+      ctx.lineTo(460, 574);
+      ctx.stroke();
+      ctx.fillStyle = '#0c4a6e';
+      ctx.font = '700 13px Inter';
+      ctx.fillText('Sealed — ethylene trapped, ripening accelerated', 348, 375);
+    }
+
+    // ---- ripeness legend (top-right) ----
+    const lx = 928, ly = 26, lw = 320, lh = 92;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    roundRect(ctx, lx, ly, lw, lh, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '700 11px Inter';
+    ctx.fillText('Fruit colour = ripeness', lx + 12, ly + 18);
+    // gradient bar green → yellow → red
+    const barX = lx + 12, barY = ly + 28, barW = lw - 24, barH = 12;
+    const rg = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    rg.addColorStop(0, 'rgb(74,160,60)');
+    rg.addColorStop(0.5, 'rgb(250,204,21)');
+    rg.addColorStop(1, 'rgb(220,38,38)');
+    ctx.fillStyle = rg;
+    roundRect(ctx, barX, barY, barW, barH, 4);
+    ctx.fill();
+    // stage labels under the bar
+    ctx.font = '600 10px Inter';
+    ctx.fillStyle = '#166534';
+    ctx.fillText('unripe', barX, barY + barH + 14);
+    ctx.fillStyle = '#a16207';
+    ctx.textAlign = 'center';
+    ctx.fillText('ripening', barX + barW / 2, barY + barH + 14);
+    ctx.fillStyle = '#991b1b';
+    ctx.textAlign = 'right';
+    ctx.fillText('ripe', barX + barW, barY + barH + 14);
+    ctx.textAlign = 'left';
+    // overripe + ethylene keys
+    ctx.fillStyle = 'rgb(200,40,40)';
+    ctx.beginPath(); ctx.arc(barX + 6, ly + lh - 12, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(92,46,20,0.7)';
+    ctx.beginPath(); ctx.arc(barX + 4, ly + lh - 13, 1.6, 0, Math.PI * 2);
+    ctx.arc(barX + 8, ly + lh - 10, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#334155';
+    ctx.font = '600 10px Inter';
+    ctx.fillText('overripe (brown spots)', barX + 16, ly + lh - 8);
+    const eKeyX = barX + 176;
+    const erg = ctx.createRadialGradient(eKeyX, ly + lh - 12, 0, eKeyX, ly + lh - 12, 7);
+    erg.addColorStop(0, 'rgba(132,204,22,0.4)');
+    erg.addColorStop(1, 'rgba(163,230,53,0)');
+    ctx.fillStyle = erg;
+    ctx.beginPath(); ctx.arc(eKeyX, ly + lh - 12, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#334155';
+    ctx.fillText('ethylene gas', eKeyX + 12, ly + lh - 8);
+
+    // ---- banner ----
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '700 16px Inter';
+    ctx.fillText('Ethylene (gaseous PGR) — fruit ripening & the respiratory climacteric', 30, 34);
+    ctx.font = '500 12px Inter';
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('NCERT §13.4.3.4 — click any fruit to ripen it; one ripe fruit spreads ethylene to the rest. Seal the bag to trap the gas.', 30, 52);
+  };
+
+  const drawFruit = (ctx: CanvasRenderingContext2D, f: Fruit) => {
+    // green → yellow → red interpolation
+    let r: number, g: number, b: number;
+    if (f.ripeness < 0.5) {
+      const t = f.ripeness * 2;
+      r = Math.round(74 + (250 - 74) * t);
+      g = Math.round(160 + (204 - 160) * t);
+      b = Math.round(60 + (21 - 60) * t);
+    } else {
+      const t = (f.ripeness - 0.5) * 2;
+      r = Math.round(250 + (220 - 250) * t);
+      g = Math.round(204 + (38 - 204) * t);
+      b = Math.round(21 + (38 - 21) * t);
+    }
+    const base = `rgb(${r}, ${g}, ${b})`;
+    const rad = 30;
+
+    // soft contact shadow in bowl
+    ctx.fillStyle = 'rgba(51,65,85,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(f.x, f.y + rad + 4, rad * 0.85, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // apple body with two lobes + shaded gradient
+    const bodyGrad = ctx.createRadialGradient(f.x - 9, f.y - 10, 4, f.x, f.y, rad + 6);
+    bodyGrad.addColorStop(0, '#ffffff');
+    bodyGrad.addColorStop(0.18, base);
+    bodyGrad.addColorStop(1, `rgb(${Math.round(r * 0.72)}, ${Math.round(g * 0.72)}, ${Math.round(b * 0.72)})`);
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(f.x, f.y - rad + 6);
+    ctx.bezierCurveTo(f.x - rad * 1.15, f.y - rad, f.x - rad * 1.1, f.y + rad, f.x, f.y + rad * 0.92);
+    ctx.bezierCurveTo(f.x + rad * 1.1, f.y + rad, f.x + rad * 1.15, f.y - rad, f.x, f.y - rad + 6);
+    ctx.fill();
+    // top dimple
+    ctx.fillStyle = `rgb(${Math.round(r * 0.6)}, ${Math.round(g * 0.6)}, ${Math.round(b * 0.6)})`;
+    ctx.beginPath();
+    ctx.ellipse(f.x, f.y - rad + 8, 6, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // specular highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(f.x - 10, f.y - 9, 6, 9, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // brown senescence spots when overripe
+    if (f.ripeness > 0.88) {
+      ctx.fillStyle = 'rgba(92,46,20,0.6)';
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(f.x + (i - 1) * 9, f.y + 6 + (i % 2) * 6, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // stem + leaf
+    ctx.strokeStyle = '#6b3f1d';
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(f.x, f.y - rad + 6);
+    ctx.quadraticCurveTo(f.x + 3, f.y - rad - 8, f.x + 7, f.y - rad - 12);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+    ctx.save();
+    ctx.translate(f.x + 8, f.y - rad - 8);
+    ctx.rotate(-0.5);
+    const lg = ctx.createLinearGradient(0, -5, 0, 5);
+    lg.addColorStop(0, '#4ade80');
+    lg.addColorStop(1, '#16a34a');
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(9, -7, 18, 0);
+    ctx.quadraticCurveTo(9, 7, 0, 0);
+    ctx.fill();
+    ctx.restore();
+
+    // climacteric heartbeat pulse near an emitting fruit
+    if (f.emitting) {
+      const beat = 0.5 + Math.sin(performance.now() / 220) * 0.5;
+      ctx.strokeStyle = `rgba(132,204,22,${0.25 + beat * 0.5})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, rad + 6 + beat * 5, 0, Math.PI * 2);
       ctx.stroke();
     }
   };

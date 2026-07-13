@@ -66,11 +66,12 @@ const CountercurrentMultiplierLab: React.FC<CountercurrentMultiplierLabProps> = 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused, scenario, adhOverride, loopLen, countercurrentOn]);
 
-  const loopTop = 200;
-  const loopBottom = 580;
-  const descX = 480;
-  const ascX = 560;
-  const ductX = 740;
+  const loopTop = 205;
+  const loopBottom = 600;
+  const descX = 440;
+  const ascX = 540;
+  const ductX = 720;
+  const MED_X = 110, MED_W = 900, MED_Y = 150, MED_H = 500; // medulla region
 
   const step = (dt: number) => {
     spawnAccumRef.current += dt;
@@ -119,204 +120,241 @@ const CountercurrentMultiplierLab: React.FC<CountercurrentMultiplierLabProps> = 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 18px Inter';
-    ctx.fillText('Countercurrent Multiplier — Loop of Henle & Collecting Duct', 30, 40);
-    ctx.font = '500 12px Inter';
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '800 22px Inter';
+    ctx.fillText('Countercurrent Multiplier — Loop of Henle & Collecting Duct', 30, 38);
+    ctx.font = '600 13px Inter';
     ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §16.4 — medullary gradient 300 → 1200 mOsmolL⁻¹ via NaCl + urea', 30, 60);
+    ctx.fillText('NCERT §16.4 — a 300 → ' + maxOsm + ' mOsm/L medullary gradient (NaCl + urea) lets the duct concentrate urine.', 30, 60);
 
-    // medulla gradient strip on left
-    drawMedullaStrip(ctx, 150, 100, 60, 600);
-
-    // Loop of Henle
+    drawMedullaGradient(ctx);   // immersive osmotic-gradient background
     drawLoop(ctx);
-
-    // Collecting duct
     drawDuct(ctx);
-
-    // Vasa recta
     drawVasaRecta(ctx);
 
-    // beaker
-    drawBeaker(ctx);
-
-    // drops
+    // filtrate drops (colour = osmolality)
     for (const d of dropsRef.current) {
       const x = d.phase === 'desc' ? descX : d.phase === 'asc' ? ascX : ductX;
       ctx.beginPath();
-      ctx.arc(x, d.y, 6, 0, Math.PI * 2);
+      ctx.arc(x, d.y, 7, 0, Math.PI * 2);
       const sat = Math.min(1, (d.conc - 300) / 900);
-      ctx.fillStyle = `rgba(${30 + sat * 100}, ${130 - sat * 50}, ${200 - sat * 80}, 0.95)`;
+      ctx.fillStyle = `rgb(${Math.round(96 + sat * 60)}, ${Math.round(165 - sat * 90)}, ${Math.round(250 - sat * 90)})`;
       ctx.fill();
       ctx.strokeStyle = '#0c4a6e';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
 
-    // ADH meter
+    drawBeaker(ctx);
     drawAdhMeter(ctx);
+    drawLegend(ctx);
   };
 
-  const drawMedullaStrip = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => {
-    const grad = ctx.createLinearGradient(0, y, 0, y + h);
-    grad.addColorStop(0, '#dbeafe');
-    grad.addColorStop(0.5, '#60a5fa');
-    grad.addColorStop(1, countercurrentOn ? '#1e1b4b' : '#dbeafe');
+  // full medulla region with the rising osmotic gradient behind the tubules
+  const drawMedullaGradient = (ctx: CanvasRenderingContext2D) => {
+    const grad = ctx.createLinearGradient(0, MED_Y, 0, MED_Y + MED_H);
+    grad.addColorStop(0, '#eef2ff');
+    grad.addColorStop(0.35, '#93c5fd');
+    grad.addColorStop(1, countercurrentOn ? '#312e81' : '#93c5fd');
     ctx.fillStyle = grad;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(x, y, w, h);
-    // labels
-    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(MED_X, MED_Y, MED_W, MED_H);
+    // cortex band above
+    ctx.fillStyle = '#fdf2f8';
+    ctx.fillRect(MED_X, MED_Y - 42, MED_W, 42);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+    ctx.strokeRect(MED_X, MED_Y - 42, MED_W, MED_H + 42);
+    // region labels
+    ctx.fillStyle = '#9d174d'; ctx.font = '700 13px Inter';
+    ctx.fillText('CORTEX', MED_X + 10, MED_Y - 16);
+    ctx.fillStyle = '#1e3a8a'; ctx.font = '700 13px Inter';
+    ctx.fillText('OUTER MEDULLA', MED_X + 10, MED_Y + 60);
+    ctx.fillStyle = countercurrentOn ? '#e0e7ff' : '#1e3a8a';
+    ctx.fillText('INNER MEDULLA', MED_X + 10, MED_Y + MED_H - 16);
+    // osmolality axis on the far left
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#334155'; ctx.font = '700 13px Inter';
+    ctx.fillText('300', MED_X - 10, MED_Y + 6);
     ctx.font = '600 11px Inter';
-    ctx.fillText('Cortex', x + w + 6, y + 12);
-    ctx.fillText('Outer medulla', x + w + 6, y + h / 3);
-    ctx.fillText('Inner medulla', x + w + 6, y + 2 * h / 3);
-    ctx.font = '700 10px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('300 mOsm/L', x - 90, y + 12);
-    ctx.fillText(`${maxOsm} mOsm/L`, x - 90, y + h - 6);
+    ctx.fillText('mOsm/L', MED_X - 10, MED_Y + 22);
+    ctx.font = '700 13px Inter';
+    ctx.fillText(`${maxOsm}`, MED_X - 10, MED_Y + MED_H);
+    ctx.textAlign = 'left';
+    ctx.save();
+    ctx.translate(MED_X - 46, MED_Y + MED_H / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#475569'; ctx.font = '700 12px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('osmotic gradient  →  more concentrated', 0, 0);
+    ctx.restore();
+    ctx.textAlign = 'left';
+  };
+
+  // draw a tubule as wall + pale lumen along a path fn
+  const tubule = (ctx: CanvasRenderingContext2D, path: () => void, wall: string, lumen: string, outerW: number) => {
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = wall; ctx.lineWidth = outerW; path(); ctx.stroke();
+    ctx.strokeStyle = lumen; ctx.lineWidth = outerW - 12; path(); ctx.stroke();
+    ctx.lineCap = 'butt';
   };
 
   const drawLoop = (ctx: CanvasRenderingContext2D) => {
-    // descending limb
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 26;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(descX, loopTop);
-    ctx.lineTo(descX, loopBottom);
-    ctx.stroke();
-    // ascending limb
-    ctx.beginPath();
-    ctx.moveTo(ascX, loopBottom);
-    ctx.lineTo(ascX, loopTop);
-    ctx.stroke();
-    // curve at bottom
-    ctx.beginPath();
-    ctx.arc((descX + ascX) / 2, loopBottom, (ascX - descX) / 2, 0, Math.PI, false);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
+    const loopPath = () => {
+      ctx.beginPath();
+      ctx.moveTo(descX, loopTop);
+      ctx.lineTo(descX, loopBottom - (ascX - descX) / 2);
+      ctx.arc((descX + ascX) / 2, loopBottom - (ascX - descX) / 2, (ascX - descX) / 2, Math.PI, 0, true);
+      ctx.lineTo(ascX, loopTop);
+    };
+    tubule(ctx, loopPath, '#64748b', '#f8fafc', 32);
 
-    // direction arrows
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 12px Inter';
+    // labels
     ctx.textAlign = 'center';
-    ctx.fillText('↓ Descending', descX, loopTop - 10);
-    ctx.fillText('↑ Ascending', ascX, loopTop - 10);
-    ctx.font = '500 10px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('water out', descX - 50, 400);
-    ctx.fillText('NaCl out (active)', ascX + 60, 400);
-    ctx.textAlign = 'left';
+    ctx.fillStyle = '#0f172a'; ctx.font = '800 14px Inter';
+    ctx.fillText('Loop of Henle', (descX + ascX) / 2, loopTop - 52);
+    ctx.font = '700 12px Inter'; ctx.fillStyle = '#1d4ed8';
+    ctx.fillText('descending ↓', descX, loopTop - 30);
+    ctx.fillStyle = '#15803d';
+    ctx.fillText('ascending ↑', ascX, loopTop - 30);
+    ctx.font = '600 11px Inter'; ctx.fillStyle = '#1d4ed8';
+    ctx.fillText('permeable to water', descX, loopTop - 14);
+    ctx.fillStyle = '#15803d';
+    ctx.fillText('pumps out NaCl', ascX, loopTop - 14);
 
-    // permeability indicators
-    for (let i = 0; i < 8; i++) {
-      const y = loopTop + 40 + i * 60;
-      // water arrows out of descending
-      ctx.strokeStyle = '#60a5fa';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(descX - 15, y);
-      ctx.lineTo(descX - 30, y);
-      ctx.stroke();
-      // NaCl arrows out of ascending
-      ctx.strokeStyle = '#16a34a';
-      ctx.beginPath();
-      ctx.moveTo(ascX + 15, y);
-      ctx.lineTo(ascX + 30, y);
-      ctx.stroke();
+    // permeability arrows
+    for (let i = 0; i < 7; i++) {
+      const y = loopTop + 55 + i * 68;
+      if (y > loopBottom - 60) break;
+      // water OUT of descending (blue, leftward)
+      ctx.strokeStyle = '#3b82f6'; ctx.fillStyle = '#3b82f6'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(descX - 18, y); ctx.lineTo(descX - 44, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(descX - 44, y); ctx.lineTo(descX - 36, y - 4); ctx.lineTo(descX - 36, y + 4); ctx.closePath(); ctx.fill();
+      // NaCl OUT of ascending (green, rightward)
+      ctx.strokeStyle = '#16a34a'; ctx.fillStyle = '#16a34a';
+      ctx.beginPath(); ctx.moveTo(ascX + 18, y); ctx.lineTo(ascX + 44, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ascX + 44, y); ctx.lineTo(ascX + 36, y - 4); ctx.lineTo(ascX + 36, y + 4); ctx.closePath(); ctx.fill();
     }
+    ctx.textAlign = 'left';
   };
 
   const drawDuct = (ctx: CanvasRenderingContext2D) => {
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 30;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(ductX, loopTop + 30);
-    ctx.lineTo(ductX, loopBottom + 60);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 12px Inter';
+    const ductPath = () => { ctx.beginPath(); ctx.moveTo(ductX, loopTop - 30); ctx.lineTo(ductX, loopBottom + 40); };
+    tubule(ctx, ductPath, '#64748b', '#f8fafc', 36);
     ctx.textAlign = 'center';
-    ctx.fillText('Collecting', ductX, loopTop + 10);
-    ctx.fillText('Duct', ductX, loopTop + 24);
-    ctx.fillStyle = '#475569';
-    ctx.font = '500 10px Inter';
-    ctx.fillText(`ADH ${adh}%`, ductX, loopTop + 200);
-    ctx.fillText(adh > 50 ? 'permeable' : 'impermeable', ductX, loopTop + 215);
+    ctx.fillStyle = '#0f172a'; ctx.font = '800 14px Inter';
+    ctx.fillText('Collecting', ductX, loopTop - 50);
+    ctx.fillText('duct', ductX, loopTop - 34);
+    // ADH-gated water pores
+    const permeable = adh > 50;
+    for (let i = 0; i < 6; i++) {
+      const y = loopTop + 40 + i * 80;
+      if (y > loopBottom) break;
+      ctx.fillStyle = permeable ? '#3b82f6' : '#cbd5e1';
+      ctx.fillRect(ductX + 12, y - 7, 10, 14);
+      if (permeable) {
+        // water reabsorbed OUT of the duct (rightward into medulla)
+        ctx.strokeStyle = '#3b82f6'; ctx.fillStyle = '#3b82f6'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(ductX + 24, y); ctx.lineTo(ductX + 48, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ductX + 48, y); ctx.lineTo(ductX + 40, y - 4); ctx.lineTo(ductX + 40, y + 4); ctx.closePath(); ctx.fill();
+      }
+    }
+    ctx.fillStyle = permeable ? '#1d4ed8' : '#64748b'; ctx.font = '700 12px Inter';
+    ctx.fillText(permeable ? `ADH ${adh}% → water leaves → concentrated urine` : `ADH ${adh}% → wall stays sealed → dilute urine`, ductX, loopBottom + 62);
     ctx.textAlign = 'left';
   };
 
   const drawVasaRecta = (ctx: CanvasRenderingContext2D) => {
-    ctx.strokeStyle = countercurrentOn ? '#fca5a5' : '#fecaca';
-    ctx.lineWidth = 18;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(880, loopTop);
-    ctx.lineTo(880, loopBottom);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(940, loopBottom);
-    ctx.lineTo(940, loopTop);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(910, loopBottom, 30, 0, Math.PI, false);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
-    ctx.fillStyle = '#7f1d1d';
-    ctx.font = '700 11px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Vasa', 910, loopTop - 18);
-    ctx.fillText('recta', 910, loopTop - 4);
+    const vx0 = 870, vx1 = 930;
+    const path = () => {
+      ctx.beginPath();
+      ctx.moveTo(vx0, loopTop);
+      ctx.lineTo(vx0, loopBottom - 30);
+      ctx.arc((vx0 + vx1) / 2, loopBottom - 30, (vx1 - vx0) / 2, Math.PI, 0, true);
+      ctx.lineTo(vx1, loopTop);
+    };
+    tubule(ctx, path, countercurrentOn ? '#dc2626' : '#f87171', '#fee2e2', 22);
+    // RBCs flowing
+    for (let i = 0; i < 5; i++) {
+      const y = loopTop + 40 + i * 90;
+      ctx.fillStyle = '#b91c1c';
+      ctx.beginPath(); ctx.ellipse(vx0, y, 7, 4, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(vx1, y + 30, 7, 4, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = '#7f1d1d'; ctx.font = '800 14px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('Vasa recta', (vx0 + vx1) / 2, loopTop - 34);
+    ctx.font = '600 11px Inter';
+    ctx.fillText('blood loops down & up', (vx0 + vx1) / 2, loopTop - 18);
     if (!countercurrentOn) {
-      ctx.fillStyle = '#dc2626';
-      ctx.font = '700 12px Inter';
-      ctx.fillText('⚠ counter-current OFF', 910, loopTop - 35);
+      ctx.fillStyle = '#dc2626'; ctx.font = '800 13px Inter';
+      ctx.fillText('⚠ counter-current OFF —', (vx0 + vx1) / 2, loopBottom + 30);
+      ctx.fillText('gradient washed out', (vx0 + vx1) / 2, loopBottom + 46);
     }
     ctx.textAlign = 'left';
   };
 
   const drawBeaker = (ctx: CanvasRenderingContext2D) => {
-    const bx = 1020, by = 600;
-    ctx.fillStyle = '#f1f5f9';
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 2;
-    ctx.fillRect(bx, by, 130, 100);
-    ctx.strokeRect(bx, by, 130, 100);
-    const fillH = Math.min(95, urineVolume * 0.5);
+    const bx = 1040, bw = 150, by = 470, bh = 170;
+    // glass
+    ctx.fillStyle = 'rgba(226,232,240,0.4)';
+    ctx.beginPath();
+    ctx.moveTo(bx, by); ctx.lineTo(bx, by + bh - 14);
+    ctx.quadraticCurveTo(bx, by + bh, bx + 14, by + bh);
+    ctx.lineTo(bx + bw - 14, by + bh);
+    ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw, by + bh - 14);
+    ctx.lineTo(bx + bw, by); ctx.stroke();
+    // urine fill
+    const fillH = Math.min(bh - 20, urineVolume * 0.6);
     const sat = Math.min(1, (urineConc - 300) / 900);
-    ctx.fillStyle = `rgb(${250 - sat * 70}, ${220 - sat * 80}, ${30 + sat * 60})`;
-    ctx.fillRect(bx + 3, by + 100 - fillH, 124, fillH);
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Urine', bx + 65, by - 8);
-    ctx.font = '500 11px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText(`${urineConc.toFixed(0)} mOsm/L`, bx + 65, by + 120);
-    ctx.fillText(`vol ${urineVolume}`, bx + 65, by + 138);
+    const ug = ctx.createLinearGradient(0, by + bh - fillH, 0, by + bh);
+    ug.addColorStop(0, `rgb(${250 - sat * 60}, ${230 - sat * 70}, ${120 - sat * 90})`);
+    ug.addColorStop(1, `rgb(${230 - sat * 70}, ${190 - sat * 80}, ${40 + sat * 40})`);
+    ctx.fillStyle = ug;
+    ctx.fillRect(bx + 3, by + bh - fillH, bw - 6, fillH - 2);
+    ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(bx, by); ctx.lineTo(bx, by + bh - 14);
+    ctx.quadraticCurveTo(bx, by + bh, bx + 14, by + bh);
+    ctx.lineTo(bx + bw - 14, by + bh);
+    ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw, by + bh - 14);
+    ctx.lineTo(bx + bw, by); ctx.stroke();
+    ctx.fillStyle = '#0f172a'; ctx.font = '800 15px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('Urine collected', bx + bw / 2, by - 12);
+    ctx.font = '700 13px Inter'; ctx.fillStyle = '#334155';
+    ctx.fillText(`${urineConc.toFixed(0)} mOsm/L`, bx + bw / 2, by + bh + 22);
+    ctx.font = '600 12px Inter'; ctx.fillStyle = '#64748b';
+    ctx.fillText(urineConc > 800 ? 'concentrated' : urineConc < 200 ? 'very dilute' : 'moderate', bx + bw / 2, by + bh + 40);
     ctx.textAlign = 'left';
   };
 
   const drawAdhMeter = (ctx: CanvasRenderingContext2D) => {
-    const x = 230, y = 100;
-    ctx.fillStyle = '#1e293b';
+    const x = 1075, y = 150, h = 150;
+    ctx.fillStyle = '#0f172a'; ctx.font = '800 14px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('ADH', x + 15, y - 10);
+    ctx.fillStyle = '#f1f5f9'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+    ctx.fillRect(x, y, 30, h); ctx.strokeRect(x, y, 30, h);
+    const fg = ctx.createLinearGradient(0, y + h, 0, y);
+    fg.addColorStop(0, '#a78bfa'); fg.addColorStop(1, '#6d28d9');
+    ctx.fillStyle = fg;
+    ctx.fillRect(x + 2, y + h - (h * adh / 100), 26, h * adh / 100);
+    ctx.fillStyle = '#4c1d95'; ctx.font = '800 15px Inter';
+    ctx.fillText(`${adh}%`, x + 15, y + h + 22);
+    ctx.font = '600 11px Inter'; ctx.fillStyle = '#64748b';
+    ctx.fillText(SCENARIO_META[scenario].label, x + 15, y + h + 40);
+    ctx.textAlign = 'left';
+  };
+
+  const drawLegend = (ctx: CanvasRenderingContext2D) => {
+    const x = 150, y = 672, items: [string, string][] = [
+      ['#3b82f6', 'water reabsorbed'],
+      ['#16a34a', 'NaCl pumped out'],
+      ['#dc2626', 'vasa recta (blood)'],
+      ['#93c5fd', 'dilute filtrate'],
+      ['#f97316', 'concentrated filtrate'],
+    ];
     ctx.font = '700 12px Inter';
-    ctx.fillText('ADH', x, y);
-    ctx.fillStyle = '#f1f5f9';
-    ctx.strokeStyle = '#475569';
-    ctx.fillRect(x, y + 6, 22, 100);
-    ctx.strokeRect(x, y + 6, 22, 100);
-    ctx.fillStyle = '#7c3aed';
-    ctx.fillRect(x + 1, y + 106 - adh, 20, adh);
-    ctx.fillStyle = '#475569';
-    ctx.font = '600 10px Inter';
-    ctx.fillText(`${adh}%`, x, y + 120);
+    let px = x;
+    items.forEach(([c, label]) => {
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(px, y, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#334155'; ctx.fillText(label, px + 14, y + 4);
+      px += ctx.measureText(label).width + 46;
+    });
   };
 
   const graphPanel = (

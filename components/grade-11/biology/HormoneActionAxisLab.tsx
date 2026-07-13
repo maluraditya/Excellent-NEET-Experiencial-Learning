@@ -60,6 +60,7 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
   const tRef = useRef(0);
   const cascadeStepRef = useRef(0);
   const axisProgressRef = useRef(0);
+  const hormoneLevelRef = useRef(25); // blood level of the final hormone (0-100)
 
   const [paused, setPaused] = useState(false);
   const [hormone, setHormone] = useState<Hormone>('insulin');
@@ -88,11 +89,18 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
 
   const step = (dt: number) => {
     tRef.current += dt;
-    if (autoLoop) {
-      axisProgressRef.current += dt * 0.4;
-      if (axisProgressRef.current > 3.5) axisProgressRef.current = 0;
-    }
     cascadeStepRef.current = (tRef.current * 0.5) % 1;
+
+    // negative-feedback dynamics: the axis fires only while the blood level is
+    // below the set point; the hormone is then cleared, so the level oscillates.
+    const setpoint = 60;
+    const targetFails = disorder === 'goitre' || disorder === 'cretinism';   // gland can't make enough
+    const overproduce = disorder === 'gigantism' || disorder === 'acromegaly'; // feedback ignored
+    let level = hormoneLevelRef.current;
+    const axisOn = overproduce ? true : level < setpoint;
+    const production = (axisOn ? (targetFails ? 12 : 42) : 0);
+    level += (production - level * 0.5) * dt;
+    hormoneLevelRef.current = Math.max(0, Math.min(100, level));
   };
 
   const draw = () => {
@@ -103,226 +111,135 @@ const HormoneActionAxisLab: React.FC<HormoneActionAxisLabProps> = ({ topic, onEx
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 18px Inter';
-    ctx.fillText('Hormone Action & Tropic Hormone Axis', 30, 40);
-    ctx.font = '500 12px Inter';
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '800 22px Inter';
+    ctx.fillText('Hormone Feedback Regulation — how the body keeps hormones balanced', 30, 38);
+    ctx.font = '600 13px Inter';
     ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §19.4 — peptide via membrane receptor + 2nd messenger · steroid via nuclear receptor + gene expression', 30, 60);
+    ctx.fillText('NCERT §19.2 — the hypothalamus → pituitary → target-gland axis is switched off by its own product (negative feedback).', 30, 60);
 
-    drawAxisStrip(ctx);
-    drawMembraneCell(ctx, 330, 470);
-    drawNuclearCell(ctx, 950, 470);
+    drawFeedbackLoop(ctx);
+    drawHormoneGauge(ctx);
   };
 
-  const drawAxisStrip = (ctx: CanvasRenderingContext2D) => {
-    const axisInfo = AXIS_META[axis];
-    ctx.fillStyle = '#f1f5f9';
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.fillRect(50, 90, W - 100, 130);
-    ctx.strokeRect(50, 90, W - 100, 130);
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 14px Inter';
-    ctx.fillText(axisInfo.label, 70, 115);
-
-    const stepWidth = (W - 200) / axisInfo.chain.length;
-    const yLine = 170;
-    for (let i = 0; i < axisInfo.chain.length; i++) {
-      const step = axisInfo.chain[i];
-      const x = 100 + i * stepWidth;
-      // gland box
-      ctx.fillStyle = '#fff';
-      ctx.strokeStyle = '#0891b2';
-      ctx.lineWidth = 2;
-      ctx.fillRect(x, yLine - 20, stepWidth - 30, 40);
-      ctx.strokeRect(x, yLine - 20, stepWidth - 30, 40);
-      ctx.fillStyle = '#0c4a6e';
-      ctx.font = '700 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText(step.from, x + (stepWidth - 30) / 2, yLine);
-      ctx.textAlign = 'left';
-      // arrow with hormone label
-      if (i < axisInfo.chain.length - 1) {
-        const ax = x + stepWidth - 30 + 5;
-        const ay = yLine;
-        const bx = x + stepWidth - 5;
-        // active arrow during this progress phase
-        const active = axisProgressRef.current > i && axisProgressRef.current < i + 1;
-        ctx.strokeStyle = active ? '#dc2626' : '#94a3b8';
-        ctx.lineWidth = active ? 3 : 1.5;
-        ctx.beginPath();
-        ctx.moveTo(ax, ay);
-        ctx.lineTo(bx, ay);
-        ctx.stroke();
-        // arrowhead
-        ctx.beginPath();
-        ctx.moveTo(bx, ay);
-        ctx.lineTo(bx - 8, ay - 5);
-        ctx.lineTo(bx - 8, ay + 5);
-        ctx.closePath();
-        ctx.fillStyle = active ? '#dc2626' : '#94a3b8';
-        ctx.fill();
-        // hormone label
-        ctx.fillStyle = active ? '#7f1d1d' : '#475569';
-        ctx.font = active ? '700 11px Inter' : '600 11px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(step.hormone, (ax + bx) / 2, ay - 8);
-        ctx.textAlign = 'left';
-      } else {
-        // final → target
-        ctx.fillStyle = '#475569';
-        ctx.font = '600 11px Inter';
-        ctx.fillText(`→ ${step.to}`, x, yLine + 35);
-        ctx.fillText(`(${step.hormone})`, x, yLine + 50);
-      }
-    }
-
-    // disorder break indicator
-    if (disorder !== 'none') {
-      ctx.fillStyle = '#fee2e2';
-      ctx.strokeStyle = '#dc2626';
-      ctx.lineWidth = 2;
-      ctx.fillRect(W / 2 - 200, 200, 400, 18);
-      ctx.strokeRect(W / 2 - 200, 200, 400, 18);
-      ctx.fillStyle = '#991b1b';
-      ctx.font = '700 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText(`⚠ ${disorder.toUpperCase()} — axis broken (NCERT-named disorder)`, W / 2, 214);
-      ctx.textAlign = 'left';
-    }
+  const roundBox = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   };
 
-  const drawMembraneCell = (ctx: CanvasRenderingContext2D, cx: number, cy: number) => {
-    const isPep = HORMONE_META[hormone].class === 'peptide' || HORMONE_META[hormone].class === 'amine';
-    ctx.beginPath();
-    ctx.arc(cx, cy, 180, 0, Math.PI * 2);
-    ctx.fillStyle = '#ecfeff';
-    ctx.strokeStyle = '#0891b2';
-    ctx.lineWidth = 4;
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 14px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Cell (membrane receptor)', cx, cy - 160);
-    ctx.textAlign = 'left';
+  const drawFeedbackLoop = (ctx: CanvasRenderingContext2D) => {
+    const info = AXIS_META[axis];
+    const level = hormoneLevelRef.current;
+    const setpoint = 60;
+    const overproduce = disorder === 'gigantism' || disorder === 'acromegaly';
+    const axisOn = overproduce ? true : level < setpoint;
+    const feedbackOn = !axisOn;
+    const finalHormone = info.chain[2].hormone;
 
-    // nucleus
-    ctx.beginPath();
-    ctx.arc(cx, cy + 30, 40, 0, Math.PI * 2);
-    ctx.fillStyle = '#cffafe';
-    ctx.strokeStyle = '#0e7490';
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 11px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('nucleus', cx, cy + 35);
-    ctx.textAlign = 'left';
+    const axisX = 440, boxW = 250, boxH = 62, bx = axisX - boxW / 2;
+    const nodes = [
+      { label: 'Hypothalamus', sub: `releases ${info.chain[0].hormone}`, y: 132, color: '#7c3aed' },
+      { label: 'Pituitary', sub: `releases ${info.chain[1].hormone} (tropic)`, y: 288, color: '#0891b2' },
+      { label: info.chain[1].to, sub: `releases ${finalHormone}`, y: 444, color: '#dc2626' },
+      { label: 'Body tissues / blood', sub: hormoneResponse(hormone), y: 600, color: '#334155' },
+    ];
 
-    // membrane receptor
-    ctx.fillStyle = '#0891b2';
-    ctx.fillRect(cx - 8, cy - 180, 16, 20);
+    // forward stimulation arrows (⊕, down the chain)
+    for (let i = 0; i < 3; i++) {
+      const y0 = nodes[i].y + boxH, y1 = nodes[i + 1].y;
+      ctx.strokeStyle = axisOn ? '#16a34a' : '#cbd5e1';
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineWidth = axisOn ? 5 : 2.5;
+      ctx.beginPath(); ctx.moveTo(axisX, y0); ctx.lineTo(axisX, y1 - 6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(axisX, y1); ctx.lineTo(axisX - 8, y1 - 12); ctx.lineTo(axisX + 8, y1 - 12); ctx.closePath(); ctx.fill();
+      // ⊕ and hormone name
+      ctx.fillStyle = axisOn ? '#15803d' : '#94a3b8';
+      ctx.font = '800 14px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('⊕ ' + info.chain[i].hormone, axisX - 96, (y0 + y1) / 2 + 4);
+      ctx.textAlign = 'left';
+    }
 
-    if (isPep) {
-      // hormone docking
-      const t = (tRef.current * 0.6) % 1;
-      const hy = cy - 250 + t * 70;
+    // feedback inhibition arrows (⊖) from the final hormone back up
+    const fx = axisX + boxW / 2 + 70;
+    [1, 0].forEach(ti => {
+      const yTarget = nodes[ti].y + boxH / 2;
+      ctx.strokeStyle = feedbackOn ? '#dc2626' : '#e2e8f0';
+      ctx.lineWidth = feedbackOn ? 4 : 2;
       ctx.beginPath();
-      ctx.arc(cx, hy, 8, 0, Math.PI * 2);
-      ctx.fillStyle = HORMONE_META[hormone].color;
-      ctx.fill();
+      ctx.moveTo(axisX + boxW / 2 - 6, nodes[2].y + boxH / 2);
+      ctx.bezierCurveTo(fx + 60, nodes[2].y, fx + 60, yTarget, axisX + boxW / 2 + 2, yTarget);
+      ctx.stroke();
+      // ⊖ blunt head
+      ctx.strokeStyle = feedbackOn ? '#dc2626' : '#e2e8f0'; ctx.lineWidth = feedbackOn ? 4 : 2;
+      ctx.beginPath(); ctx.moveTo(axisX + boxW / 2 + 2, yTarget - 8); ctx.lineTo(axisX + boxW / 2 + 2, yTarget + 8); ctx.stroke();
+    });
+    ctx.fillStyle = feedbackOn ? '#b91c1c' : '#cbd5e1';
+    ctx.font = '800 14px Inter'; ctx.textAlign = 'center';
+    ctx.save(); ctx.translate(fx + 74, 360); ctx.rotate(Math.PI / 2);
+    ctx.fillText(`⊖ ${finalHormone} inhibits the axis (negative feedback)`, 0, 0);
+    ctx.restore();
+    ctx.textAlign = 'left';
 
-      // 2nd messengers (cyclic AMP)
-      if (t > 0.9) {
-        for (let i = 0; i < 12; i++) {
-          const ang = (i / 12) * Math.PI * 2;
-          const r = 30 + (t - 0.9) * 400;
-          ctx.beginPath();
-          ctx.arc(cx + Math.cos(ang) * r, cy - 150 + Math.sin(ang) * r, 3, 0, Math.PI * 2);
-          ctx.fillStyle = '#06b6d4';
-          ctx.fill();
-        }
-      }
-      ctx.fillStyle = '#1e293b';
-      ctx.font = '700 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('→ cyclic AMP (2nd msg)', cx, cy + 110);
-      ctx.fillText('→ enzyme cascade', cx, cy + 125);
-      ctx.fillText(`Response: ${hormoneResponse(hormone)}`, cx, cy + 140);
-      ctx.textAlign = 'left';
-    } else {
-      // greyed out
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '700 11px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('(Steroid — uses other cell)', cx, cy + 110);
-      ctx.textAlign = 'left';
-    }
+    // nodes
+    nodes.forEach(n => {
+      ctx.fillStyle = '#ffffff'; ctx.strokeStyle = n.color; ctx.lineWidth = 3;
+      roundBox(ctx, bx, n.y, boxW, boxH, 12); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = n.color; ctx.beginPath(); ctx.arc(bx + 22, n.y + boxH / 2, 9, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#0f172a'; ctx.font = '800 16px Inter'; ctx.textAlign = 'left';
+      ctx.fillText(n.label, bx + 40, n.y + 26);
+      ctx.fillStyle = '#64748b'; ctx.font = '600 11px Inter';
+      ctx.fillText(n.sub, bx + 40, n.y + 46);
+    });
+
+    // status banner
+    ctx.textAlign = 'center';
+    if (overproduce) { ctx.fillStyle = '#b91c1c'; ctx.font = '800 16px Inter';
+      ctx.fillText(`⚠ ${disorder.toUpperCase()} — pituitary over-secretes, feedback fails`, axisX, 700); }
+    else if (axisOn) { ctx.fillStyle = '#15803d'; ctx.font = '800 16px Inter';
+      ctx.fillText(`Level LOW → axis switched ON → ${finalHormone} rising`, axisX, 700); }
+    else { ctx.fillStyle = '#b91c1c'; ctx.font = '800 16px Inter';
+      ctx.fillText(`Level HIGH → ${finalHormone} feeds back → axis switched OFF`, axisX, 700); }
+    ctx.textAlign = 'left';
+
+    // legend
+    ctx.font = '700 12px Inter'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#15803d'; ctx.fillText('⊕ stimulates', 60, 130);
+    ctx.fillStyle = '#b91c1c'; ctx.fillText('⊖ inhibits', 60, 150);
   };
 
-  const drawNuclearCell = (ctx: CanvasRenderingContext2D, cx: number, cy: number) => {
-    const isSteroid = HORMONE_META[hormone].class === 'steroid' || HORMONE_META[hormone].class === 'iodo';
-    ctx.beginPath();
-    ctx.arc(cx, cy, 180, 0, Math.PI * 2);
-    ctx.fillStyle = '#fdf4ff';
-    ctx.strokeStyle = '#a21caf';
-    ctx.lineWidth = 4;
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#86198f';
-    ctx.font = '700 14px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Cell (nuclear receptor)', cx, cy - 160);
+  const drawHormoneGauge = (ctx: CanvasRenderingContext2D) => {
+    const info = AXIS_META[axis];
+    const x = 900, y = 150, w = 70, h = 470;
+    const level = hormoneLevelRef.current;
+    const setpoint = 60;
+    ctx.fillStyle = '#0f172a'; ctx.font = '800 15px Inter'; ctx.textAlign = 'center';
+    ctx.fillText(`Blood ${info.chain[2].hormone}`, x + w / 2, y - 26);
+    ctx.font = '600 12px Inter'; ctx.fillStyle = '#64748b';
+    ctx.fillText('level', x + w / 2, y - 10);
+    // tube
+    ctx.fillStyle = '#f1f5f9'; ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+    roundBox(ctx, x, y, w, h, 12); ctx.fill(); ctx.stroke();
+    // fill
+    const fillH = h * level / 100;
+    const fg = ctx.createLinearGradient(0, y + h - fillH, 0, y + h);
+    const high = level >= setpoint;
+    fg.addColorStop(0, high ? '#f87171' : '#4ade80');
+    fg.addColorStop(1, high ? '#b91c1c' : '#15803d');
+    ctx.fillStyle = fg;
+    roundBox(ctx, x + 3, y + h - fillH + 1, w - 6, fillH - 2, 10); ctx.fill();
+    // set-point line
+    const spY = y + h - h * setpoint / 100;
+    ctx.strokeStyle = '#0f172a'; ctx.setLineDash([6, 4]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x - 10, spY); ctx.lineTo(x + w + 60, spY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#0f172a'; ctx.font = '700 12px Inter'; ctx.textAlign = 'left';
+    ctx.fillText('set point', x + w + 8, spY - 6);
+    // value
+    ctx.fillStyle = high ? '#b91c1c' : '#15803d'; ctx.font = '800 20px Inter'; ctx.textAlign = 'center';
+    ctx.fillText(`${level.toFixed(0)}%`, x + w / 2, y + h + 30);
     ctx.textAlign = 'left';
-
-    // nucleus
-    ctx.beginPath();
-    ctx.arc(cx, cy + 30, 50, 0, Math.PI * 2);
-    ctx.fillStyle = isSteroid ? '#fae8ff' : '#fdf4ff';
-    ctx.strokeStyle = '#86198f';
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#86198f';
-    ctx.font = '700 11px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('nucleus + DNA', cx, cy + 35);
-    ctx.textAlign = 'left';
-
-    if (isSteroid) {
-      // hormone enters membrane and travels to nucleus
-      const t = (tRef.current * 0.6) % 1;
-      const hy = cy - 250 + t * 250;
-      ctx.beginPath();
-      ctx.arc(cx, hy, 8, 0, Math.PI * 2);
-      ctx.fillStyle = HORMONE_META[hormone].color;
-      ctx.shadowColor = HORMONE_META[hormone].color;
-      ctx.shadowBlur = 8;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      // gene activation glow when in nucleus
-      if (t > 0.7) {
-        for (let i = 0; i < 6; i++) {
-          ctx.beginPath();
-          ctx.arc(cx - 30 + i * 12, cy + 30 + Math.sin(t * Math.PI * 4 + i) * 3, 2, 0, Math.PI * 2);
-          ctx.fillStyle = '#a21caf';
-          ctx.fill();
-        }
-      }
-      ctx.fillStyle = '#1e293b';
-      ctx.font = '700 12px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('→ binds nuclear receptor', cx, cy + 110);
-      ctx.fillText('→ regulates gene expression', cx, cy + 125);
-      ctx.fillText(`Response: ${hormoneResponse(hormone)}`, cx, cy + 140);
-      ctx.textAlign = 'left';
-    } else {
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '700 11px Inter';
-      ctx.textAlign = 'center';
-      ctx.fillText('(Peptide — uses other cell)', cx, cy + 110);
-      ctx.textAlign = 'left';
-    }
   };
 
   const hormoneResponse = (h: Hormone): string => {

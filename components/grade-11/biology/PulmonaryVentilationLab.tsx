@@ -30,6 +30,7 @@ const PulmonaryVentilationLab: React.FC<PulmonaryVentilationLabProps> = ({ topic
   const lastRef = useRef<number>(0);
   const breathPhaseRef = useRef<number>(0); // 0..1 in/out
   const particlesRef = useRef<Particle[]>([]);
+  const rbcRef = useRef<{ t: number }[]>([]);
 
   const [paused, setPaused] = useState(false);
   const [tidalVolume, setTidalVolume] = useState(500); // mL
@@ -41,9 +42,43 @@ const PulmonaryVentilationLab: React.FC<PulmonaryVentilationLabProps> = ({ topic
 
   const handleReset = useCallback(() => {
     particlesRef.current = [];
+    rbcRef.current = [];
     breathPhaseRef.current = 0;
     setBreathCount(0);
   }, []);
+
+  // ---- scene layout: a blood-vessel racetrack linking lungs ↔ tissue ----
+  const LOOP = { left: 340, right: 1000, top: 300, bottom: 470 };
+  const EX_Y = (LOOP.top + LOOP.bottom) / 2;       // exchange height
+  const ALV = { x: 210, y: EX_Y };                  // alveolar cluster centre
+  const TIS = { x: 1110, y: EX_Y };                 // tissue-cell cluster centre
+  // Flow order (blood direction): up the left side (oxygenates at lungs) →
+  // across the top → down the right side (unloads at tissue) → across bottom.
+  const segLen = [
+    LOOP.bottom - LOOP.top,   // 0: left side, up
+    LOOP.right - LOOP.left,   // 1: top, →
+    LOOP.bottom - LOOP.top,   // 2: right side, down
+    LOOP.right - LOOP.left,   // 3: bottom, ←
+  ];
+  const perim = segLen.reduce((a, b) => a + b, 0);
+  const loopPoint = (t: number) => {
+    let d = ((t % 1) + 1) % 1 * perim;
+    if (d < segLen[0]) return { x: LOOP.left, y: LOOP.bottom - d };
+    d -= segLen[0];
+    if (d < segLen[1]) return { x: LOOP.left + d, y: LOOP.top };
+    d -= segLen[1];
+    if (d < segLen[2]) return { x: LOOP.right, y: LOOP.top + d };
+    d -= segLen[2];
+    return { x: LOOP.right - d, y: LOOP.bottom };
+  };
+  // oxygen fraction of blood along the loop (0 = deoxygenated, 1 = oxygenated)
+  const oxyAt = (t: number) => {
+    const tt = ((t % 1) + 1) % 1;
+    if (tt < 0.25) return tt / 0.25;          // left side: loading O₂
+    if (tt < 0.5) return 1;                    // top: oxygenated
+    if (tt < 0.75) return 1 - (tt - 0.5) / 0.25; // right side: unloading
+    return 0;                                  // bottom: deoxygenated
+  };
 
   // saturation calculation
   const alveolarPO2 = ALT_META[altitude].atmosphericPO2;
@@ -79,36 +114,49 @@ const PulmonaryVentilationLab: React.FC<PulmonaryVentilationLabProps> = ({ topic
     breathPhaseRef.current = (prevPhase + dt / period) % 1;
     if (prevPhase > 0.95 && breathPhaseRef.current < 0.05) setBreathCount(c => c + 1);
 
-    // spawn O2 particles flowing into alveolus during inspiration (0..0.5)
-    if (breathPhaseRef.current < 0.5 && Math.random() < 0.7) {
-      // O2 abundance scales with atmospheric PO2
-      if (Math.random() * 100 < alveolarPO2) {
-        particlesRef.current.push({
-          x: 280 + (Math.random() - 0.5) * 30,
-          y: 200 + (Math.random() - 0.5) * 30,
-          vx: 80 + Math.random() * 40,
-          vy: 30 + (Math.random() - 0.5) * 30,
-          kind: 'o2',
-          age: 0,
-        });
-      }
+    // circulating red blood cells around the vessel loop
+    if (rbcRef.current.length === 0) {
+      rbcRef.current = Array.from({ length: 18 }, (_, i) => ({ t: i / 18 }));
     }
-    // spawn CO2 particles leaving tissue capillary
-    if (Math.random() < 0.5) {
+    const rbcSpeed = 0.045 + breathRate / 900; // faster breathing → faster flow
+    rbcRef.current = rbcRef.current.map(r => ({ t: (r.t + dt * rbcSpeed) % 1 }));
+
+    const jitter = (n: number) => (Math.random() - 0.5) * n;
+
+    // ---- ALVEOLUS: O₂ diffuses IN (blood ← air), CO₂ diffuses OUT (air ← blood) ----
+    // O₂ inflow scales with atmospheric/alveolar PO₂ and is gated to inspiration.
+    if (breathPhaseRef.current < 0.6 && Math.random() * 100 < alveolarPO2 * 0.85) {
       particlesRef.current.push({
-        x: 920 + (Math.random() - 0.5) * 40,
-        y: 440 + (Math.random() - 0.5) * 40,
-        vx: -60 - Math.random() * 40,
-        vy: -25 + (Math.random() - 0.5) * 20,
-        kind: 'co2',
-        age: 0,
+        x: ALV.x + 40 + jitter(20), y: ALV.y + jitter(60),
+        vx: 90 + Math.random() * 30, vy: jitter(20), kind: 'o2', age: 0,
+      });
+    }
+    // CO₂ leaving the blood into the alveolus (to be exhaled)
+    if (Math.random() < 0.45) {
+      particlesRef.current.push({
+        x: LOOP.left - 10 + jitter(16), y: ALV.y + jitter(70),
+        vx: -70 - Math.random() * 30, vy: -20 + jitter(20), kind: 'co2', age: 0,
+      });
+    }
+
+    // ---- TISSUE: O₂ diffuses OUT to cells (∝ delivery), CO₂ diffuses IN from cells ----
+    if (Math.random() * 100 < Math.max(6, delivery) * 1.1) {
+      particlesRef.current.push({
+        x: LOOP.right + 10 + jitter(16), y: TIS.y + jitter(70),
+        vx: 80 + Math.random() * 30, vy: jitter(20), kind: 'o2', age: 0,
+      });
+    }
+    if (Math.random() * 100 < ACT_META[activity].tissuePCO2) {
+      particlesRef.current.push({
+        x: TIS.x - 40 + jitter(20), y: TIS.y + jitter(60),
+        vx: -85 - Math.random() * 30, vy: jitter(20), kind: 'co2', age: 0,
       });
     }
 
     // advance & cull particles
     particlesRef.current = particlesRef.current
       .map(p => ({ ...p, x: p.x + p.vx * dt, y: p.y + p.vy * dt, age: p.age + dt }))
-      .filter(p => p.age < 3 && p.x > -20 && p.x < W + 20);
+      .filter(p => p.age < 2.2 && p.x > -20 && p.x < W + 20);
   };
 
   const draw = () => {
@@ -119,170 +167,347 @@ const PulmonaryVentilationLab: React.FC<PulmonaryVentilationLabProps> = ({ topic
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    // diaphragm strip at top
-    const dia = breathPhaseRef.current < 0.5 ? breathPhaseRef.current * 2 : (1 - breathPhaseRef.current) * 2;
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(40, 60);
-    for (let x = 40; x <= 1240; x += 30) {
-      ctx.lineTo(x, 60 + Math.sin((x / 60) + dia * 0.8) * 6 * (1 - dia));
-    }
-    ctx.stroke();
-    ctx.fillStyle = '#475569';
-    ctx.font = '600 13px Inter';
-    ctx.fillText(`Breath: ${breathPhaseRef.current < 0.5 ? '⬇ Inspiration' : '⬆ Expiration'}  ·  Cycle ${breathCount}  ·  Rate ${breathRate}/min  ·  TV ${tidalVolume} mL`, 50, 40);
+    drawVessels(ctx);
+    drawThorax(ctx);
+    drawAlveolarCluster(ctx);
+    drawTissueCells(ctx);
+    drawRBCs(ctx);
+    drawDiffusion(ctx);
 
-    // Left half — alveolus
-    drawAlveolus(ctx);
-    // Right half — tissue
-    drawTissue(ctx);
-
-    // particles
-    for (const p of particlesRef.current) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-      if (p.kind === 'o2') {
-        ctx.fillStyle = `rgba(14, 165, 233, ${1 - p.age / 3})`;
-        ctx.shadowColor = '#0ea5e9';
-      } else {
-        ctx.fillStyle = `rgba(217, 119, 6, ${1 - p.age / 3})`;
-        ctx.shadowColor = '#d97706';
-      }
-      ctx.shadowBlur = 6;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // bicarbonate inset
     if (showBicarbonate) drawBicarbonateInset(ctx);
+
+    // breathing status (top, right of the thorax)
+    const inspiring = breathPhaseRef.current < 0.5;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = inspiring ? '#0369a1' : '#7c2d12';
+    ctx.font = '700 15px Inter';
+    ctx.fillText(inspiring ? 'Inspiration — diaphragm contracts & flattens, lungs expand'
+                           : 'Expiration — diaphragm relaxes & domes up, lungs recoil', 430, 46);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 12px Inter';
+    ctx.fillText(`Breaths ${breathCount}  ·  Rate ${breathRate}/min  ·  Tidal volume ${tidalVolume} mL`, 430, 66);
 
     // banner
     ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 14px Inter';
-    ctx.fillText('NCERT §14.4 — O₂ as oxyhaemoglobin · CO₂ as 70% bicarbonate + 20-25% carbamino + plasma', 50, H - 30);
-  };
-
-  const drawAlveolus = (ctx: CanvasRenderingContext2D) => {
-    // alveolus (left)
-    const ax = 280, ay = 240;
-    const inflate = breathPhaseRef.current < 0.5 ? breathPhaseRef.current * 2 : (1 - breathPhaseRef.current) * 2;
-    const scale = 1 + inflate * 0.25 * (tidalVolume / 500);
-    ctx.save();
-    ctx.translate(ax, ay);
-    ctx.scale(scale, scale);
-    ctx.beginPath();
-    ctx.arc(0, 0, 90, 0, Math.PI * 2);
-    ctx.fillStyle = '#fef3c7';
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 3;
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-    ctx.fillStyle = '#92400e';
-    ctx.font = '700 14px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Alveolus', ax, ay + 4);
-    ctx.fillStyle = '#475569';
-    ctx.font = '600 11px Inter';
-    ctx.fillText(`PO₂ ${alveolarPO2} mmHg · Sat ${alveolarSat.toFixed(0)}%`, ax, ay + 130);
-
-    // capillary around it
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 28;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(ax - 200, ay + 200);
-    ctx.bezierCurveTo(ax - 80, ay + 220, ax + 50, ay + 150, ax + 250, ay + 220);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
-
-    // Hb cells
-    drawHb(ctx, ax - 130, ay + 215, alveolarSat / 100);
-    drawHb(ctx, ax - 40, ay + 200, alveolarSat / 100);
-    drawHb(ctx, ax + 80, ay + 195, alveolarSat / 100);
-    drawHb(ctx, ax + 200, ay + 220, alveolarSat / 100);
-  };
-
-  const drawTissue = (ctx: CanvasRenderingContext2D) => {
-    const tx = 940, ty = 440;
-    ctx.fillStyle = '#fce7f3';
-    ctx.strokeStyle = '#be185d';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(tx - 100, ty - 60, 200, 120, 18) : ctx.rect(tx - 100, ty - 60, 200, 120);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = '#831843';
-    ctx.font = '700 14px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Tissue cell', tx, ty - 10);
-    ctx.font = '600 11px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText(`PO₂ ${tissuePO2} · pCO₂ ${ACT_META[activity].tissuePCO2}`, tx, ty + 20);
-
-    // capillary
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 26;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(tx - 250, ty + 140);
-    ctx.bezierCurveTo(tx - 80, ty + 150, tx + 50, ty + 90, tx + 250, ty + 140);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
-
-    drawHb(ctx, tx - 170, ty + 145, tissueSat / 100);
-    drawHb(ctx, tx - 60, ty + 130, tissueSat / 100);
-    drawHb(ctx, tx + 60, ty + 120, tissueSat / 100);
-    drawHb(ctx, tx + 180, ty + 145, tissueSat / 100);
-
-    ctx.fillStyle = '#475569';
-    ctx.font = '600 11px Inter';
-    ctx.fillText(`Hb saturation ${tissueSat.toFixed(0)}%  ·  Delivered ${delivery.toFixed(0)}%`, tx, ty + 200);
+    ctx.font = '700 13px Inter';
+    ctx.fillText('NCERT §14.4 — O₂ carried as oxyhaemoglobin · CO₂ as ~70% bicarbonate + 20–25% carbamino-Hb + ~5% plasma', 30, H - 22);
     ctx.textAlign = 'left';
   };
 
-  const drawHb = (ctx: CanvasRenderingContext2D, x: number, y: number, sat: number) => {
-    // 4 pockets
-    const pockets = Math.round(sat * 4);
-    for (let i = 0; i < 4; i++) {
-      const angle = (Math.PI / 2) * i - Math.PI / 4;
-      const px = x + Math.cos(angle) * 9;
-      const py = y + Math.sin(angle) * 9;
+  // ---- blood-vessel racetrack (colour encodes oxygenation) ----
+  const drawVessels = (ctx: CanvasRenderingContext2D) => {
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 26;
+    // left side (up): dark → bright as it oxygenates at the lungs
+    let g = ctx.createLinearGradient(0, LOOP.bottom, 0, LOOP.top);
+    g.addColorStop(0, '#7f1d1d'); g.addColorStop(1, '#ef4444');
+    ctx.strokeStyle = g;
+    ctx.beginPath(); ctx.moveTo(LOOP.left, LOOP.bottom); ctx.lineTo(LOOP.left, LOOP.top); ctx.stroke();
+    // top (oxygenated, bright)
+    ctx.strokeStyle = '#ef4444';
+    ctx.beginPath(); ctx.moveTo(LOOP.left, LOOP.top); ctx.lineTo(LOOP.right, LOOP.top); ctx.stroke();
+    // right side (down): bright → dark as it unloads at the tissue
+    g = ctx.createLinearGradient(0, LOOP.top, 0, LOOP.bottom);
+    g.addColorStop(0, '#ef4444'); g.addColorStop(1, '#7f1d1d');
+    ctx.strokeStyle = g;
+    ctx.beginPath(); ctx.moveTo(LOOP.right, LOOP.top); ctx.lineTo(LOOP.right, LOOP.bottom); ctx.stroke();
+    // bottom (deoxygenated, dark)
+    ctx.strokeStyle = '#7f1d1d';
+    ctx.beginPath(); ctx.moveTo(LOOP.right, LOOP.bottom); ctx.lineTo(LOOP.left, LOOP.bottom); ctx.stroke();
+    // inner plasma sheen
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.moveTo(LOOP.left, LOOP.bottom); ctx.lineTo(LOOP.left, LOOP.top);
+    ctx.lineTo(LOOP.right, LOOP.top); ctx.lineTo(LOOP.right, LOOP.bottom);
+    ctx.lineTo(LOOP.left, LOOP.bottom);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+
+    // flow labels
+    ctx.textAlign = 'center';
+    ctx.font = '700 12px Inter';
+    ctx.fillStyle = '#b91c1c';
+    ctx.fillText('oxygenated blood  →  to tissues', (LOOP.left + LOOP.right) / 2, LOOP.top - 14);
+    ctx.fillStyle = '#7f1d1d';
+    ctx.fillText('←  deoxygenated blood back to lungs', (LOOP.left + LOOP.right) / 2, LOOP.bottom + 24);
+    ctx.textAlign = 'left';
+  };
+
+  // ---- thorax: rib cage + lungs + animated diaphragm (the ventilation pump) ----
+  const drawThorax = (ctx: CanvasRenderingContext2D) => {
+    const cx = 210, topY = 74;
+    const inflate = breathPhaseRef.current < 0.5 ? breathPhaseRef.current * 2 : (1 - breathPhaseRef.current) * 2;
+    const infl = inflate * (tidalVolume / 500);
+    const lungH = 118 + infl * 20;
+    const lungTop = topY + 24;
+    const lungBot = lungTop + lungH;
+
+    // trachea + bronchi
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 9;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx, topY - 4);
+    ctx.lineTo(cx, lungTop + 20);
+    ctx.moveTo(cx, lungTop + 20); ctx.lineTo(cx - 26, lungTop + 40);
+    ctx.moveTo(cx, lungTop + 20); ctx.lineTo(cx + 26, lungTop + 40);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+
+    // two lungs
+    [-1, 1].forEach(side => {
+      const lx = cx + side * (34 + infl * 3);
       ctx.beginPath();
-      ctx.arc(px, py, 5, 0, Math.PI * 2);
-      ctx.fillStyle = i < pockets ? '#16a34a' : '#fecaca';
+      ctx.moveTo(cx + side * 8, lungTop + 12);
+      ctx.quadraticCurveTo(lx + side * (54 + infl * 6), lungTop + 6, lx + side * (48 + infl * 4), (lungTop + lungBot) / 2);
+      ctx.quadraticCurveTo(lx + side * (40 + infl * 4), lungBot, cx + side * 12, lungBot - 6);
+      ctx.quadraticCurveTo(cx + side * 6, (lungTop + lungBot) / 2, cx + side * 8, lungTop + 12);
+      const lg = ctx.createLinearGradient(0, lungTop, 0, lungBot);
+      lg.addColorStop(0, '#fecdd3'); lg.addColorStop(1, '#fb7185');
+      ctx.fillStyle = lg;
       ctx.fill();
-      ctx.strokeStyle = '#b91c1c';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    // rib cage (a few arcs over the lungs)
+    ctx.strokeStyle = 'rgba(148,163,184,0.65)';
+    ctx.lineWidth = 3;
+    const ribShift = infl * 6; // ribs lift on inspiration
+    for (let i = 0; i < 5; i++) {
+      const ry = lungTop + 14 + i * (lungH - 20) / 5 - ribShift;
+      ctx.beginPath();
+      ctx.moveTo(cx - 92, ry + 8);
+      ctx.quadraticCurveTo(cx, ry - 14 - ribShift, cx + 92, ry + 8);
       ctx.stroke();
     }
+
+    // diaphragm — flat on inspiration, domed up on expiration
+    const dphBase = lungBot + 14;
+    const dome = -30 * (1 - inflate); // domes UP when relaxed (expiration)
+    ctx.strokeStyle = '#9333ea';
+    ctx.fillStyle = 'rgba(147,51,234,0.10)';
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(x, y, 7, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.strokeStyle = '#7f1d1d';
+    ctx.moveTo(cx - 100, dphBase);
+    ctx.quadraticCurveTo(cx, dphBase + dome, cx + 100, dphBase);
     ctx.stroke();
+    ctx.lineTo(cx + 100, dphBase + 26);
+    ctx.lineTo(cx - 100, dphBase + 26);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#7e22ce';
+    ctx.font = '700 11px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('Diaphragm', cx, dphBase + 42);
+
+    // airflow arrow at the trachea
+    const inspiring = breathPhaseRef.current < 0.5;
+    ctx.strokeStyle = inspiring ? '#0ea5e9' : '#f97316';
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.lineWidth = 3;
+    const ay0 = topY - 30, ay1 = topY - 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + 26, inspiring ? ay0 : ay1);
+    ctx.lineTo(cx + 26, inspiring ? ay1 : ay0);
+    ctx.stroke();
+    const ahY = inspiring ? ay1 : ay0, adir = inspiring ? 1 : -1;
+    ctx.beginPath();
+    ctx.moveTo(cx + 26, ahY);
+    ctx.lineTo(cx + 21, ahY - adir * 7);
+    ctx.lineTo(cx + 31, ahY - adir * 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '700 10px Inter';
+    ctx.fillText(inspiring ? 'air in' : 'air out', cx + 54, topY - 14);
+    ctx.textAlign = 'left';
+  };
+
+  // ---- alveolar cluster (grape-like acinus) at the left exchange site ----
+  const drawAlveolarCluster = (ctx: CanvasRenderingContext2D) => {
+    const inflate = breathPhaseRef.current < 0.5 ? breathPhaseRef.current * 2 : (1 - breathPhaseRef.current) * 2;
+    const grow = 1 + inflate * 0.12 * (tidalVolume / 500);
+    // duct from the lungs down to the cluster
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(210, 250);
+    ctx.lineTo(ALV.x, ALV.y - 66);
+    ctx.stroke();
+    // sacs
+    const sacs = [[0, -54], [-42, -20], [40, -22], [-30, 34], [34, 34], [0, 66]];
+    sacs.forEach(([dx, dy]) => {
+      const sx = ALV.x + dx, sy = ALV.y + dy;
+      const r = 30 * grow;
+      const gg = ctx.createRadialGradient(sx - 8, sy - 8, 4, sx, sy, r);
+      gg.addColorStop(0, '#fff7ed');
+      gg.addColorStop(1, '#fcd9b6');
+      ctx.fillStyle = gg;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    });
+    // label + values
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#92400e';
+    ctx.font = '700 15px Inter';
+    ctx.fillText('Alveoli', ALV.x, ALV.y + 108);
+    ctx.fillStyle = '#475569';
+    ctx.font = '600 11px Inter';
+    ctx.fillText(`PO₂ ${alveolarPO2} mmHg · Hb sat ${alveolarSat.toFixed(0)}%`, ALV.x, ALV.y + 126);
+    // thin respiratory membrane hint between sacs and capillary
+    ctx.strokeStyle = 'rgba(148,163,184,0.5)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(LOOP.left - 26, LOOP.top - 6);
+    ctx.lineTo(LOOP.left - 26, LOOP.bottom + 6);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.textAlign = 'left';
+  };
+
+  // ---- body-tissue cells at the right exchange site ----
+  const drawTissueCells = (ctx: CanvasRenderingContext2D) => {
+    const cells = [[0, -46], [-40, -6], [42, -8], [-10, 40], [40, 40]];
+    cells.forEach(([dx, dy]) => {
+      const sx = TIS.x + dx, sy = TIS.y + dy;
+      const gg = ctx.createRadialGradient(sx - 8, sy - 8, 4, sx, sy, 34);
+      gg.addColorStop(0, '#fbcfe8');
+      gg.addColorStop(1, '#f472b6');
+      ctx.fillStyle = gg;
+      ctx.strokeStyle = '#be185d';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, 32, 27, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // nucleus
+      ctx.fillStyle = 'rgba(131,24,67,0.55)';
+      ctx.beginPath();
+      ctx.arc(sx + 4, sy - 2, 8, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#831843';
+    ctx.font = '700 15px Inter';
+    ctx.fillText('Body tissue cells', TIS.x, TIS.y + 104);
+    ctx.fillStyle = '#475569';
+    ctx.font = '600 11px Inter';
+    ctx.fillText(`PO₂ ${tissuePO2} · pCO₂ ${ACT_META[activity].tissuePCO2} · delivered ${delivery.toFixed(0)}%`, TIS.x, TIS.y + 122);
+    ctx.textAlign = 'left';
+  };
+
+  // ---- red blood cells flowing round the loop, colour = oxygenation ----
+  const drawRBCs = (ctx: CanvasRenderingContext2D) => {
+    for (const rbc of rbcRef.current) {
+      const p = loopPoint(rbc.t);
+      const p2 = loopPoint(rbc.t + 0.004);
+      const ang = Math.atan2(p2.y - p.y, p2.x - p.x);
+      const oxy = oxyAt(rbc.t);
+      const r = Math.round(127 + (239 - 127) * oxy);
+      const g = Math.round(29 + (68 - 29) * oxy);
+      const b = Math.round(29 + (68 - 29) * oxy);
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(ang);
+      // biconcave disc
+      const bg = ctx.createRadialGradient(-2, -2, 1, 0, 0, 11);
+      bg.addColorStop(0, `rgb(${Math.min(255, r + 40)}, ${g + 30}, ${b + 30})`);
+      bg.addColorStop(1, `rgb(${r}, ${g}, ${b})`);
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 11, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // central dimple
+      ctx.fillStyle = `rgba(${Math.round(r * 0.6)}, ${Math.round(g * 0.6)}, ${Math.round(b * 0.6)}, 0.6)`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 4, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  };
+
+  // ---- O₂ / CO₂ diffusion particles + labelled arrows at both sites ----
+  const drawDiffusion = (ctx: CanvasRenderingContext2D) => {
+    // arrows: alveolus (O₂ in ←→ CO₂ out) and tissue (O₂ out ←→ CO₂ in)
+    diffusionArrow(ctx, ALV.x + 46, ALV.y - 26, LOOP.left - 30, ALV.y - 26, '#0284c7', 'O₂ in');
+    diffusionArrow(ctx, LOOP.left - 30, ALV.y + 30, ALV.x + 46, ALV.y + 30, '#c2410c', 'CO₂ out');
+    diffusionArrow(ctx, LOOP.right + 30, TIS.y - 26, TIS.x - 46, TIS.y - 26, '#0284c7', 'O₂ to cells');
+    diffusionArrow(ctx, TIS.x - 46, TIS.y + 30, LOOP.right + 30, TIS.y + 30, '#c2410c', 'CO₂ from cells');
+
+    for (const p of particlesRef.current) {
+      const a = Math.max(0, 1 - p.age / 2.2);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      if (p.kind === 'o2') { ctx.fillStyle = `rgba(2,132,199,${a})`; ctx.shadowColor = '#0284c7'; }
+      else { ctx.fillStyle = `rgba(217,119,6,${a})`; ctx.shadowColor = '#d97706'; }
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = `rgba(255,255,255,${a * 0.9})`;
+      ctx.font = '700 6px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.kind === 'o2' ? 'O₂' : 'CO₂', p.x, p.y + 2);
+      ctx.textAlign = 'left';
+    }
+  };
+
+  const diffusionArrow = (ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color: string, label: string) => {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    const dir = Math.sign(x2 - x1) || 1;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - dir * 8, y2 - 4);
+    ctx.lineTo(x2 - dir * 8, y2 + 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '700 10px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, (x1 + x2) / 2, y1 - 6);
+    ctx.textAlign = 'left';
   };
 
   const drawBicarbonateInset = (ctx: CanvasRenderingContext2D) => {
-    const x = 540, y = 580;
-    ctx.fillStyle = '#fff7ed';
-    ctx.strokeStyle = '#d97706';
+    const x = 470, y = 560, w = 340, h = 118;
+    ctx.fillStyle = 'rgba(255,247,237,0.96)';
+    ctx.strokeStyle = '#f59e0b';
     ctx.lineWidth = 1.5;
-    ctx.fillRect(x, y, 220, 130);
-    ctx.strokeRect(x, y, 220, 130);
+    (ctx as any).roundRect ? (ctx.beginPath(), (ctx as any).roundRect(x, y, w, h, 12), ctx.fill(), ctx.stroke())
+                           : (ctx.fillRect(x, y, w, h), ctx.strokeRect(x, y, w, h));
     ctx.fillStyle = '#9a3412';
-    ctx.font = '700 12px Inter';
-    ctx.fillText('CO₂ transport pathways', x + 10, y + 18);
-    ctx.font = '600 11px Inter';
-    ctx.fillStyle = '#475569';
-    ctx.fillText('• 70% as HCO₃⁻ (carbonic anhydrase in RBC)', x + 10, y + 40);
-    ctx.fillText('• 20-25% as carbamino-Hb', x + 10, y + 60);
-    ctx.fillText('• ~5% dissolved in plasma', x + 10, y + 80);
-    ctx.font = '500 10px Inter';
+    ctx.font = '700 13px Inter';
+    ctx.fillText('How CO₂ travels in blood', x + 14, y + 22);
+    // three proportion bars
+    const rows: [string, number, string][] = [
+      ['bicarbonate (HCO₃⁻)', 70, '#0ea5e9'],
+      ['carbamino-Hb', 23, '#8b5cf6'],
+      ['dissolved in plasma', 5, '#94a3b8'],
+    ];
+    rows.forEach((r, i) => {
+      const ry = y + 38 + i * 20;
+      ctx.fillStyle = '#475569';
+      ctx.font = '600 11px Inter';
+      ctx.fillText(`${r[1]}%  ${r[0]}`, x + 130, ry + 9);
+      ctx.fillStyle = '#fde68a';
+      ctx.fillRect(x + 14, ry, 108, 12);
+      ctx.fillStyle = r[2];
+      ctx.fillRect(x + 14, ry, 108 * (r[1] / 100), 12);
+    });
     ctx.fillStyle = '#92400e';
-    ctx.fillText('CO₂ + H₂O ⇌ H₂CO₃ ⇌ HCO₃⁻ + H⁺', x + 10, y + 110);
+    ctx.font = '600 10px Inter';
+    ctx.fillText('CO₂ + H₂O ⇌ H₂CO₃ ⇌ HCO₃⁻ + H⁺   (carbonic anhydrase in RBC)', x + 14, y + h - 8);
   };
 
   const graphPanel = (

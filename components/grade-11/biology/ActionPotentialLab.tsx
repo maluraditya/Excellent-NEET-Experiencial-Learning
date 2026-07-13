@@ -11,9 +11,11 @@ type Block = 'none' | 'na' | 'k' | 'pump';
 
 // Axon segments along x: each tracks state (-70 = resting, +30 = depolarised, undershoot to -80, refractory)
 const SEGMENTS = 60;
-const AXON_X0 = 100;
-const AXON_X1 = 1180;
-const AXON_Y = 420;
+const AXON_X0 = 90;
+const AXON_X1 = 1190;
+const AXON_Y = 452;      // membrane band centre
+const BAND_H = 58;       // half-height of the membrane band (band = 394..510)
+const EXTRA_TOP = 330;   // top of the extracellular strip above the axon
 
 interface AP { startTime: number; pos: number /* segment index */ }
 
@@ -26,6 +28,34 @@ const ActionPotentialLab: React.FC<ActionPotentialLabProps> = ({ topic, onExit }
   const traceRef = useRef<number[]>([]);
   const segStateRef = useRef<number[]>(Array(SEGMENTS).fill(-70));
   const refractRef = useRef<number[]>(Array(SEGMENTS).fill(0));
+  // stable ion positions (initialised once) so ions don't teleport each frame
+  const naIonsRef = useRef<{ x: number; y: number }[]>([]);
+  const kIonsRef = useRef<{ x: number; y: number }[]>([]);
+  if (naIonsRef.current.length === 0) {
+    const rand = (seed: number) => (Math.sin(seed * 12.9898) * 43758.5453) % 1;
+    for (let i = 0; i < 54; i++) {
+      naIonsRef.current.push({
+        x: AXON_X0 + Math.abs(rand(i + 1)) * (AXON_X1 - AXON_X0),
+        y: EXTRA_TOP + 20 + Math.abs(rand(i + 7)) * (AXON_Y - BAND_H - EXTRA_TOP - 34),
+      });
+    }
+    for (let i = 0; i < 34; i++) {
+      kIonsRef.current.push({
+        x: AXON_X0 + Math.abs(rand(i + 3)) * (AXON_X1 - AXON_X0),
+        y: AXON_Y - BAND_H + 16 + Math.abs(rand(i + 5)) * (BAND_H * 2 - 32),
+      });
+    }
+  }
+
+  // membrane-potential → colour (indigo hyperpolarised · blue resting · red depolarised)
+  const vColor = (v: number, alpha = 1) => {
+    if (v < -70) return `rgba(99,102,241,${alpha})`;
+    const t = Math.max(0, Math.min(1, (v + 70) / 100));
+    const r = Math.round(147 + t * (239 - 147));
+    const g = Math.round(197 + t * (68 - 197));
+    const b = Math.round(253 + t * (68 - 253));
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
 
   const [paused, setPaused] = useState(false);
   const [block, setBlock] = useState<Block>('none');
@@ -119,7 +149,7 @@ const ActionPotentialLab: React.FC<ActionPotentialLabProps> = ({ topic, onExit }
     const rect = c.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * W;
     const y = ((e.clientY - rect.top) / rect.height) * H;
-    if (y > AXON_Y - 40 && y < AXON_Y + 40) {
+    if (y > AXON_Y - BAND_H - 30 && y < AXON_Y + BAND_H + 30) {
       const seg = Math.floor(((x - AXON_X0) / (AXON_X1 - AXON_X0)) * SEGMENTS);
       if (seg >= 0 && seg < SEGMENTS) {
         const threshold = stimStrength >= 50;
@@ -139,173 +169,306 @@ const ActionPotentialLab: React.FC<ActionPotentialLabProps> = ({ topic, onExit }
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 18px Inter';
-    ctx.fillText('Axon — Action Potential Generation & Conduction', 30, 40);
-    ctx.font = '500 12px Inter';
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '800 22px Inter';
+    ctx.fillText('Action Potential — generation & conduction along an axon', 30, 38);
+    ctx.font = '600 13px Inter';
     ctx.fillStyle = '#475569';
-    ctx.fillText('NCERT §18.3.1 — Click axon to fire AP · 3 Na⁺ out / 2 K⁺ in via Na-K pump · Na⁺ influx depolarises, K⁺ efflux repolarises', 30, 60);
+    ctx.fillText('NCERT §18.3.1 — click the axon to fire an impulse.  Na⁺ influx depolarises · K⁺ efflux repolarises · Na⁺–K⁺ pump resets the gradient.', 30, 60);
 
-    // voltage trace top
     drawVoltageTrace(ctx);
-
-    // axon
     drawAxon(ctx);
-
-    // pump animation
     drawPump(ctx);
-
-    // status
-    drawStatus(ctx);
+    drawPhasePanel(ctx);
   };
 
   const drawVoltageTrace = (ctx: CanvasRenderingContext2D) => {
-    const x0 = 80, y0 = 100, w = W - 160, h = 130;
+    const x0 = 96, y0 = 92, w = W - 200, h = 150;
+    // title (own line, above the box)
+    ctx.fillStyle = '#0c4a6e';
+    ctx.font = '800 15px Inter';
+    ctx.fillText(`Membrane potential recorded at the probe (segment ${probeSeg})`, x0, y0 - 10);
     ctx.fillStyle = '#f8fafc';
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1;
     ctx.fillRect(x0, y0, w, h);
     ctx.strokeRect(x0, y0, w, h);
+    const vy = (v: number) => y0 + h * (1 - (v + 80) / 110) * 0.9 + h * 0.05;
     // zero line
-    const zeroY = y0 + h * 0.4;
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(x0, zeroY);
-    ctx.lineTo(x0 + w, zeroY);
-    ctx.stroke();
+    ctx.strokeStyle = '#cbd5e1'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x0, vy(0)); ctx.lineTo(x0 + w, vy(0)); ctx.stroke();
+    // resting -70
+    ctx.strokeStyle = '#a3a3a3'; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(x0, vy(-70)); ctx.lineTo(x0 + w, vy(-70)); ctx.stroke();
+    // threshold -55
+    ctx.strokeStyle = '#f59e0b'; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(x0, vy(-55)); ctx.lineTo(x0 + w, vy(-55)); ctx.stroke();
     ctx.setLineDash([]);
-    // resting line at -70 mV
-    const restY = y0 + h * 0.78;
-    ctx.strokeStyle = '#a3a3a3';
-    ctx.setLineDash([2, 4]);
-    ctx.beginPath();
-    ctx.moveTo(x0, restY);
-    ctx.lineTo(x0 + w, restY);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.font = '700 12px Inter';
     ctx.fillStyle = '#475569';
-    ctx.font = '600 10px Inter';
-    ctx.fillText('+30 mV', x0 - 50, y0 + 10);
-    ctx.fillText('0', x0 - 18, zeroY + 4);
-    ctx.fillText('-70 mV', x0 - 50, restY + 4);
+    ctx.fillText('+30 mV', x0 - 62, vy(30) + 4);
+    ctx.fillText('0', x0 - 20, vy(0) + 4);
+    ctx.fillText('-70 mV', x0 - 62, vy(-70) + 4);
+    ctx.fillStyle = '#b45309';
+    ctx.fillText('-55 mV threshold', x0 + w - 118, vy(-55) - 6);
     // trace
     ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     const trace = traceRef.current;
     for (let i = 0; i < trace.length; i++) {
       const px = x0 + (i / 600) * w;
-      const v = trace[i]; // -70..+30
-      const py = y0 + h * (1 - (v + 80) / 110) * 0.9 + h * 0.05;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
+      if (i === 0) ctx.moveTo(px, vy(trace[i]));
+      else ctx.lineTo(px, vy(trace[i]));
     }
     ctx.stroke();
-    ctx.fillStyle = '#0c4a6e';
-    ctx.font = '700 14px Inter';
-    ctx.fillText(`Voltage at probe (segment ${probeSeg})`, x0 + 10, y0 - 5);
+    // phase key on its own line BELOW the box (no overlap with the title)
+    ctx.font = '700 12px Inter';
+    const phases: [string, string][] = [
+      ['#3b82f6', '1 Resting (-70 mV)'],
+      ['#ef4444', '2 Depolarisation — Na⁺ in'],
+      ['#f59e0b', '3 Repolarisation — K⁺ out'],
+      ['#6366f1', '4 Hyperpolarisation'],
+    ];
+    let px = x0;
+    const ky = y0 + h + 22;
+    phases.forEach(([c, label]) => {
+      ctx.fillStyle = c; ctx.fillRect(px, ky - 11, 14, 14);
+      ctx.fillStyle = '#334155'; ctx.fillText(label, px + 20, ky);
+      px += ctx.measureText(label).width + 56;
+    });
   };
 
   const drawAxon = (ctx: CanvasRenderingContext2D) => {
-    // axon body
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 60;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(AXON_X0, AXON_Y);
-    ctx.lineTo(AXON_X1, AXON_Y);
-    ctx.stroke();
-    ctx.lineCap = 'butt';
+    const top = AXON_Y - BAND_H, bot = AXON_Y + BAND_H;
+    const spanW = AXON_X1 - AXON_X0;
+    const wSeg = spanW / SEGMENTS;
 
-    // myelin nodes
+    // ---- extracellular fluid (outside, above) ----
+    ctx.fillStyle = '#eff6ff';
+    ctx.fillRect(AXON_X0 - 20, EXTRA_TOP, spanW + 40, top - EXTRA_TOP);
+    ctx.fillStyle = '#1d4ed8';
+    ctx.font = '800 14px Inter';
+    ctx.fillText('OUTSIDE — extracellular fluid (high Na⁺)', AXON_X0, EXTRA_TOP + 22);
+
+    // ---- axoplasm base ----
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(AXON_X0, top, spanW, bot - top);
+
+    // ---- per-segment membrane potential colour ----
+    for (let i = 0; i < SEGMENTS; i++) {
+      const x = AXON_X0 + i * wSeg;
+      ctx.fillStyle = vColor(segStateRef.current[i], 0.9);
+      ctx.fillRect(x, top, wSeg + 0.5, bot - top);
+    }
+
+    // ---- inside label ----
+    ctx.fillStyle = '#7c2d12';
+    ctx.font = '800 14px Inter';
+    ctx.fillText('INSIDE — axoplasm (high K⁺, negatively charged)', AXON_X0 + 6, bot + 26);
+
+    // ---- phospholipid bilayer (top & bottom membranes) ----
+    const bilayer = (y: number, dir: number) => {
+      ctx.fillStyle = '#94a3b8';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      for (let x = AXON_X0; x <= AXON_X1; x += 13) {
+        ctx.beginPath();
+        ctx.arc(x, y - dir * 4, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x, y - dir * 4);
+        ctx.lineTo(x, y + dir * 4);
+        ctx.stroke();
+      }
+    };
+    bilayer(top, 1);
+    bilayer(bot, -1);
+
+    // ---- myelin sheath + Nodes of Ranvier ----
     if (myelin) {
       const nodeSpacing = 8;
-      for (let i = nodeSpacing; i < SEGMENTS; i += nodeSpacing) {
-        const x = AXON_X0 + (i / SEGMENTS) * (AXON_X1 - AXON_X0);
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(x - 3, AXON_Y - 35, 6, 70);
-      }
-      // myelin sheaths
       for (let i = 0; i < SEGMENTS; i += nodeSpacing) {
-        const x = AXON_X0 + (i / SEGMENTS) * (AXON_X1 - AXON_X0);
-        const xNext = AXON_X0 + (Math.min(SEGMENTS, i + nodeSpacing - 1) / SEGMENTS) * (AXON_X1 - AXON_X0);
-        ctx.fillStyle = '#fef3c7';
+        const x = AXON_X0 + (i / SEGMENTS) * spanW;
+        const xNext = AXON_X0 + (Math.min(SEGMENTS, i + nodeSpacing - 1) / SEGMENTS) * spanW;
+        const g = ctx.createLinearGradient(0, top - 12, 0, bot + 12);
+        g.addColorStop(0, '#fde9b8'); g.addColorStop(1, '#e9b872');
+        ctx.fillStyle = g;
         ctx.strokeStyle = '#a16207';
         ctx.lineWidth = 1.5;
-        ctx.fillRect(x + 4, AXON_Y - 28, xNext - x - 8, 56);
-        ctx.strokeRect(x + 4, AXON_Y - 28, xNext - x - 8, 56);
-      }
-    }
-
-    // segment polarity colour
-    for (let i = 0; i < SEGMENTS; i++) {
-      const x0 = AXON_X0 + (i / SEGMENTS) * (AXON_X1 - AXON_X0);
-      const wSeg = (AXON_X1 - AXON_X0) / SEGMENTS;
-      const v = segStateRef.current[i];
-      const t = (v + 80) / 110; // 0..1
-      const r = Math.round(180 + t * 60);
-      const g = Math.round(180 - t * 100);
-      const b = Math.round(220 - t * 100);
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
-      ctx.fillRect(x0, AXON_Y - 28, wSeg, 56);
-    }
-
-    // ion particles (Na+ outside, K+ inside)
-    for (let i = 0; i < 30; i++) {
-      const x = AXON_X0 + Math.random() * (AXON_X1 - AXON_X0);
-      // Na+ outside (above axon)
-      ctx.beginPath();
-      ctx.arc(x, AXON_Y - 50 - Math.random() * 30, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#0ea5e9';
-      ctx.fill();
-      // K+ inside (we'll show some)
-      if (i < 15) {
         ctx.beginPath();
-        ctx.arc(x, AXON_Y + 10 + Math.random() * 15, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#f59e0b';
+        ctx.ellipse((x + xNext) / 2, AXON_Y, (xNext - x) / 2 - 4, BAND_H + 10, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
       }
+      ctx.fillStyle = '#78350f';
+      ctx.font = '700 12px Inter';
+      ctx.fillText('myelin sheath', AXON_X0 + 50, top - 12);
     }
 
-    // probe marker
-    const probeX = AXON_X0 + (probeSeg / SEGMENTS) * (AXON_X1 - AXON_X0);
-    ctx.strokeStyle = '#7c3aed';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(probeX, AXON_Y - 50);
-    ctx.lineTo(probeX, AXON_Y + 50);
-    ctx.stroke();
-    ctx.fillStyle = '#7c3aed';
-    ctx.font = '700 11px Inter';
+    // ---- stable ions ----
+    naIonsRef.current.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0ea5e9'; ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '700 8px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('Na', p.x, p.y + 3); ctx.textAlign = 'left';
+    });
+    kIonsRef.current.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#f59e0b'; ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = '700 8px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('K', p.x, p.y + 3); ctx.textAlign = 'left';
+    });
+
+    // ---- open channels + directional ion flow at the travelling wave ----
+    const depolXs: number[] = [], repolXs: number[] = [];
+    for (let i = 0; i < SEGMENTS; i++) {
+      const x = AXON_X0 + (i + 0.5) * wSeg;
+      const v = segStateRef.current[i];
+      if (v > 0) depolXs.push(x);
+      else if (refractRef.current[i] > 0 && v < -10) repolXs.push(x);
+    }
+    const mid = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    const depX = mid(depolXs), repX = mid(repolXs);
     ctx.textAlign = 'center';
-    ctx.fillText('probe', probeX, AXON_Y - 55);
+    if (depX != null) {
+      ctx.strokeStyle = '#0284c7'; ctx.fillStyle = '#0284c7'; ctx.lineWidth = 4;
+      for (let k = -1; k <= 1; k++) {
+        const ax = depX + k * 20;
+        ctx.beginPath(); ctx.moveTo(ax, top - 28); ctx.lineTo(ax, top + 22); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ax, top + 22); ctx.lineTo(ax - 6, top + 12); ctx.lineTo(ax + 6, top + 12); ctx.closePath(); ctx.fill();
+      }
+      ctx.font = '800 13px Inter';
+      ctx.fillText('Na⁺ IN', depX, top - 34);
+    }
+    if (repX != null) {
+      ctx.strokeStyle = '#d97706'; ctx.fillStyle = '#d97706'; ctx.lineWidth = 4;
+      for (let k = -1; k <= 1; k++) {
+        const ax = repX + k * 20;
+        ctx.beginPath(); ctx.moveTo(ax, top + 22); ctx.lineTo(ax, top - 28); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ax, top - 28); ctx.lineTo(ax - 6, top - 18); ctx.lineTo(ax + 6, top - 18); ctx.closePath(); ctx.fill();
+      }
+      ctx.font = '800 13px Inter';
+      ctx.fillText('K⁺ OUT', repX, top - 34);
+    }
     ctx.textAlign = 'left';
+
+    // ---- probe marker ----
+    const probeX = AXON_X0 + (probeSeg / SEGMENTS) * spanW;
+    ctx.strokeStyle = '#7c3aed';
+    ctx.setLineDash([5, 3]);
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(probeX, top - 26);
+    ctx.lineTo(probeX, bot + 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#7c3aed';
+    ctx.font = '800 13px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('probe ↓', probeX, top - 32);
+    ctx.textAlign = 'left';
+
+    // ---- membrane-potential colour key ----
+    const kx = AXON_X0 + 470, ky = bot + 20;
+    ctx.font = '700 12px Inter';
+    ([['#6366f1', 'hyperpolarised'], ['#93c5fd', 'resting −70'], ['#ef4444', 'depolarised +30']] as [string, string][]).forEach(([c, label], i) => {
+      ctx.fillStyle = c;
+      ctx.fillRect(kx + i * 240, ky, 16, 14);
+      ctx.fillStyle = '#334155';
+      ctx.fillText(label, kx + i * 240 + 22, ky + 12);
+    });
   };
 
   const drawPump = (ctx: CanvasRenderingContext2D) => {
-    const x = 1200, y = 540;
-    ctx.fillStyle = pumpActive ? '#dcfce7' : '#fee2e2';
+    // embedded in the membrane near the right end of the axon
+    const x = AXON_X1 - 70, top = AXON_Y - BAND_H, bot = AXON_Y + BAND_H;
+    // pump body straddling the membrane
+    ctx.fillStyle = pumpActive ? '#bbf7d0' : '#fecaca';
     ctx.strokeStyle = pumpActive ? '#16a34a' : '#dc2626';
     ctx.lineWidth = 2;
-    ctx.fillRect(x - 80, y - 30, 160, 60);
-    ctx.strokeRect(x - 80, y - 30, 160, 60);
+    ctx.beginPath();
+    ctx.moveTo(x - 22, top - 6);
+    ctx.lineTo(x + 22, top - 6);
+    ctx.lineTo(x + 14, bot + 6);
+    ctx.lineTo(x - 14, bot + 6);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    if (pumpActive) {
+      // 3 Na⁺ out (up)
+      ctx.strokeStyle = '#0ea5e9'; ctx.fillStyle = '#0ea5e9'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, bot); ctx.lineTo(x, top - 22); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, top - 22); ctx.lineTo(x - 4, top - 14); ctx.lineTo(x + 4, top - 14); ctx.closePath(); ctx.fill();
+      ctx.font = '700 10px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('3 Na⁺ out', x, top - 26);
+      // 2 K⁺ in (down)
+      ctx.strokeStyle = '#f59e0b'; ctx.fillStyle = '#f59e0b';
+      ctx.beginPath(); ctx.moveTo(x + 30, top); ctx.lineTo(x + 30, bot + 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + 30, bot + 20); ctx.lineTo(x + 26, bot + 12); ctx.lineTo(x + 34, bot + 12); ctx.closePath(); ctx.fill();
+      ctx.fillText('2 K⁺ in', x + 30, bot + 34);
+    }
     ctx.fillStyle = pumpActive ? '#14532d' : '#7f1d1d';
-    ctx.font = '700 12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Na-K Pump', x, y - 10);
-    ctx.font = '600 11px Inter';
-    ctx.fillText(pumpActive ? '3 Na⁺ out / 2 K⁺ in' : '⛔ DISABLED', x, y + 8);
+    ctx.font = '700 11px Inter'; ctx.textAlign = 'center';
+    ctx.fillText(pumpActive ? 'Na⁺–K⁺ pump' : '⛔ pump OFF', x, bot + 50);
     ctx.textAlign = 'left';
   };
 
-  const drawStatus = (ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = '#475569';
-    ctx.font = '600 12px Inter';
-    let msg = `${apCount} APs fired · Conduction velocity ${myelin ? 'fast (saltatory)' : 'slow (continuous)'}`;
-    if (block === 'na') msg += ' · ⛔ Na⁺ channels blocked — no AP possible';
-    if (block === 'k') msg += ' · ⛔ K⁺ channels blocked — no repolarisation';
-    if (!pumpActive) msg += ' · ⚠ Na-K pump off — gradients draining';
-    ctx.fillText(msg, 30, H - 30);
+  // large always-on panel in the lower space: current phase + steps + status
+  const drawPhasePanel = (ctx: CanvasRenderingContext2D) => {
+    const x = 96, y = 588, w = W - 192, h = 150;
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x + 14, y); ctx.arcTo(x + w, y, x + w, y + h, 14);
+    ctx.arcTo(x + w, y + h, x, y + h, 14); ctx.arcTo(x, y + h, x, y, 14);
+    ctx.arcTo(x, y, x + w, y, 14); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // current phase at the probe
+    const v = segStateRef.current[probeSeg];
+    const refr = refractRef.current[probeSeg];
+    let idx: number, name: string, color: string, desc: string;
+    if (block === 'na') { idx = 0; name = 'No impulse'; color = '#dc2626'; desc = 'Na⁺ channels are blocked — the membrane cannot depolarise, so no action potential forms.'; }
+    else if (v > -20) { idx = 1; name = 'DEPOLARISATION'; color = '#dc2626'; desc = 'Na⁺ channels are open — Na⁺ floods IN and the inside swings to about +30 mV.'; }
+    else if (refr > 0 && v <= -20) { idx = 2; name = 'REPOLARISATION'; color = '#d97706'; desc = 'Na⁺ channels shut, K⁺ channels open — K⁺ moves OUT and the potential falls back down.'; }
+    else if (v < -70) { idx = 3; name = 'HYPERPOLARISATION'; color = '#6366f1'; desc = 'K⁺ efflux briefly overshoots below −70 mV (refractory period) before the pump restores rest.'; }
+    else { idx = 0; name = 'RESTING'; color = '#2563eb'; desc = 'The Na⁺–K⁺ pump holds the inside at about −70 mV. Click the axon to fire an impulse.'; }
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#334155';
+    ctx.font = '700 14px Inter';
+    ctx.fillText('What is happening at the probe right now', x + 22, y + 30);
+    ctx.fillStyle = color;
+    ctx.font = '800 30px Inter';
+    ctx.fillText(name, x + 22, y + 68);
+    ctx.fillStyle = '#334155';
+    ctx.font = '600 15px Inter';
+    ctx.fillText(desc, x + 22, y + 98);
+
+    // status line
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 13px Inter';
+    let msg = `${apCount} impulses fired  ·  conduction: ${myelin ? 'FAST — saltatory (jumps node to node)' : 'slow — continuous'}`;
+    if (block === 'k') msg += '  ·  ⛔ K⁺ blocked — cannot repolarise';
+    if (!pumpActive) msg += '  ·  ⚠ pump off — gradients draining';
+    ctx.fillText(msg, x + 22, y + 130);
+
+    // step tracker chips (right side)
+    const steps = ['1 Resting', '2 Depolarise', '3 Repolarise', '4 Hyperpolarise'];
+    const stepCol = ['#2563eb', '#dc2626', '#d97706', '#6366f1'];
+    const cw = 150, cx0 = x + w - cw - 20;
+    steps.forEach((s, i) => {
+      const cyc = y + 22 + i * 30;
+      const on = i === idx;
+      ctx.fillStyle = on ? stepCol[i] : '#e2e8f0';
+      ctx.beginPath();
+      ctx.arc(cx0, cyc + 6, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = on ? stepCol[i] : '#94a3b8';
+      ctx.font = on ? '800 14px Inter' : '600 14px Inter';
+      ctx.fillText(s, cx0 + 16, cyc + 11);
+    });
   };
 
   const graphPanel = (

@@ -1,8 +1,10 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, BookOpen, GraduationCap, LayoutGrid, X } from 'lucide-react';
 import { Topic } from '../types';
 import TextbookContent from './TextbookContent';
+import AnnotationOverlay from './AnnotationOverlay';
 import { getInfographic } from './infographics/registry';
+import { getInfographicScenes } from './infographics/sceneRegistry';
 
 interface TopicLayoutContainerProps {
     topic: Topic;
@@ -105,8 +107,18 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 }) => {
     const [isContentOpen, setIsContentOpen] = useState(false);
     const [isInfographicOpen, setIsInfographicOpen] = useState(false);
+    const [selectedInfographicIndex, setSelectedInfographicIndex] = useState(0);
     // Explicit prop wins; otherwise fall back to the id-keyed infographic registry.
     const resolvedInfographic = InfographicComponent ?? getInfographic(topic.id);
+    // Full-screen single-image scene (new standard). Preferred over the legacy panel.
+    const resolvedScenes = getInfographicScenes(topic.id);
+    const resolvedScene = resolvedScenes[selectedInfographicIndex]?.node ?? resolvedScenes[0]?.node ?? null;
+    const hasInfographic = Boolean(resolvedScene || resolvedInfographic);
+
+    useEffect(() => {
+        setSelectedInfographicIndex(0);
+    }, [topic.id]);
+
     const usesClass11BiologyLayout = topic.grade === '11th' && topic.subject === 'Biology';
     const usesDrawerLayout = contentPanelMode === 'left-drawer';
     const resolvedSimulationAreaFlex = simulationAreaFlex ?? (
@@ -248,7 +260,7 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                     </div>
 
                     {/* Infographics toggle */}
-                    {resolvedInfographic && (
+                    {hasInfographic && (
                         <div className="flex flex-col items-center gap-1.5">
                             <button
                                 type="button"
@@ -329,8 +341,8 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                     {contentPanel}
                 </div>
 
-                {/* Infographic Drawer */}
-                {resolvedInfographic && (
+                {/* Legacy Infographic Drawer (only when no full-screen scene exists) */}
+                {!resolvedScene && resolvedInfographic && (
                     <div
                         className={`absolute ${isRightDrawer ? 'right-0 shadow-[-18px_0_45px_rgba(15,23,42,0.24)]' : 'left-0 shadow-[18px_0_45px_rgba(15,23,42,0.24)]'} top-0 h-full w-[min(92vw,520px)] bg-white text-slate-900 overflow-y-auto custom-scrollbar z-[95] transition-transform duration-300 ease-out ${
                             isInfographicOpen ? 'translate-x-0' : isRightDrawer ? 'translate-x-full' : '-translate-x-full'
@@ -351,6 +363,42 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
                         </div>
                     </div>
                 )}
+
+                {/* Full-screen single-image Infographic (new standard).
+                    Sits BELOW the floating buttons (z-[95] < z-[110]) so the Infographics
+                    toggle stays in place and a second press closes it — like Explanation. */}
+                {resolvedScene && isInfographicOpen && (
+                    <div
+                        className="absolute inset-0 z-[95] flex items-center justify-center bg-slate-50 p-3 sm:p-5 animate-in fade-in duration-200"
+                        id="tour-infographic"
+                    >
+                        {resolvedScenes.length > 1 && (
+                            <div className="absolute left-1/2 top-4 z-10 flex max-w-[min(88vw,920px)] -translate-x-1/2 items-center gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-xl backdrop-blur">
+                                {resolvedScenes.map((scene, index) => (
+                                    <button
+                                        key={scene.id}
+                                        type="button"
+                                        onClick={() => setSelectedInfographicIndex(index)}
+                                        className={`shrink-0 rounded-xl px-3 py-2 text-left text-xs font-black transition sm:px-4 ${
+                                            index === selectedInfographicIndex
+                                                ? 'bg-brand-primary text-white shadow'
+                                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                                        }`}
+                                        title={scene.description}
+                                    >
+                                        {scene.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <div className={`h-full w-full ${resolvedScenes.length > 1 ? 'pt-14' : ''}`}>
+                            {resolvedScene}
+                        </div>
+                    </div>
+                )}
+
+                {/* Smartboard scribble layer — available on every topic. */}
+                <AnnotationOverlay />
             </div>
         );
     }
@@ -425,6 +473,9 @@ const TopicLayoutContainer: React.FC<TopicLayoutContainerProps> = ({
 
                 </div>
             </div>
+
+            {/* Smartboard scribble layer — available on every topic. */}
+            <AnnotationOverlay />
         </div>
     );
 };

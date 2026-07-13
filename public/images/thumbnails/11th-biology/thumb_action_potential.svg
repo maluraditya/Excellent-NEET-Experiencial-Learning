@@ -1,0 +1,35 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.title{font-family:Arial,Helvetica,sans-serif;font-size:58px;font-weight:800;fill:#0f172a}.sub{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;fill:#64748b}.h{font-family:Arial,Helvetica,sans-serif;font-size:30px;font-weight:800}.t{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700}.s{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700}</style><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2L10 6L2 10Z" fill="#f59e0b"/></marker></defs>
+  <rect width="1024" height="1024" fill="#FCFCF8"/>
+  <text x="512" y="106" text-anchor="middle" class="title">ACTION POTENTIAL</text>
+  <text x="512" y="154" text-anchor="middle" class="sub">Na+ in - K+ out - Polarity flip - Saltatory conduction</text>
+  <rect x="48" y="198" width="928" height="780" rx="30" fill="#fff" stroke="#D9E2EC" stroke-width="4"/>
+  <rect x="82" y="236" width="860" height="286" rx="26" fill="#FFFBEB" stroke="#FDE68A" stroke-width="3"/>
+  <text x="512" y="292" text-anchor="middle" class="h" fill="#92400E">MYELINATED AXON</text>
+  <path d="M142 396 H882" stroke="#F59E0B" stroke-width="26" stroke-linecap="round"/>
+  <g fill="#DBEAFE" stroke="#1D4ED8" stroke-width="4">
+    <rect x="170" y="350" width="112" height="92" rx="42"/><rect x="350" y="350" width="112" height="92" rx="42"/><rect x="530" y="350" width="112" height="92" rx="42"/><rect x="710" y="350" width="112" height="92" rx="42"/>
+  </g>
+  <circle cx="318" cy="396" r="22" fill="#EF4444" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="498" cy="396" r="22" fill="#F97316" stroke="#C2410C" stroke-width="4"/>
+  <circle cx="678" cy="396" r="22" fill="#F59E0B" stroke="#92400E" stroke-width="4"/>
+  <path d="M318 320 C390 286 462 286 498 352" stroke="#F59E0B" stroke-width="7" fill="none" marker-end="url(#arrow)"/>
+  <path d="M498 320 C570 286 642 286 678 352" stroke="#F59E0B" stroke-width="7" fill="none" marker-end="url(#arrow)"/>
+  <text x="512" y="488" text-anchor="middle" class="t" fill="#92400E">Impulse jumps node to node</text>
+  <rect x="82" y="560" width="410" height="318" rx="26" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="3"/>
+  <text x="287" y="612" text-anchor="middle" class="h" fill="#1D4ED8">ION CHANNELS</text>
+  <g class="s" text-anchor="middle">
+    <rect x="132" y="660" width="134" height="68" rx="18" fill="#DBEAFE" stroke="#60A5FA" stroke-width="3"/><text x="199" y="702" fill="#1D4ED8">Na+ opens</text>
+    <rect x="308" y="660" width="134" height="68" rx="18" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="3"/><text x="375" y="702" fill="#BE123C">K+ opens</text>
+  </g>
+  <path d="M199 764 V816" stroke="#2563EB" stroke-width="6" marker-end="url(#arrow)"/>
+  <path d="M375 816 V764" stroke="#BE123C" stroke-width="6" marker-end="url(#arrow)"/>
+  <text x="287" y="850" text-anchor="middle" class="t" fill="#334155">Depolarize then repolarize</text>
+  <rect x="532" y="560" width="410" height="318" rx="26" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>
+  <text x="737" y="612" text-anchor="middle" class="h" fill="#334155">MEMBRANE TRACE</text>
+  <path d="M592 788 H650 C666 788 670 708 696 708 C720 708 724 820 750 820 C778 820 778 788 818 788 H886" stroke="#7C3AED" stroke-width="7" fill="none"/>
+  <line x1="592" y1="788" x2="886" y2="788" stroke="#CBD5E1" stroke-width="3"/>
+  <text x="700" y="694" text-anchor="middle" class="s" fill="#7C3AED">+30 mV</text>
+  <text x="610" y="810" class="s" fill="#64748B">-70 mV</text>
+  <text x="512" y="930" text-anchor="middle" class="t" fill="#0f172a">Threshold opens voltage-gated channels and launches a self-propagating wave</text>
+</svg>
