@@ -12,7 +12,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Measurement',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_dimensional_analysis.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['bNaRUh8T_wQ']
     },
     {
         id: 'position-velocity-acceleration-graphs',
@@ -25,7 +25,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Kinematics',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_position_velocity_acceleration_graphs.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['bqf8m7xNvLg']
     },
     {
         id: 'projectile-motion',
@@ -38,7 +38,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Kinematics',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_projectile_motion.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['d_jnEkwCA6I']
     },
     {
         id: 'static-kinetic-friction',
@@ -51,7 +51,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Dynamics',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_static_kinetic_friction.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['3EbUa5ZDybg']
     },
     {
         id: 'newtons-laws-of-motion',
@@ -64,7 +64,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Dynamics',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_newtons_laws.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['825LxfhRJrI']
     },
     {
         id: 'conservation-of-momentum',
@@ -77,7 +77,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Dynamics',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_momentum.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['IUKG1EeFrcI']
     },
     {
         id: 'work-energy-theorem',
@@ -90,7 +90,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Energy',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_work_energy.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['gvoqENvHLE0']
     },
     {
         id: 'conservation-of-angular-momentum',
@@ -103,7 +103,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Rotational',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_angular_momentum.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['ho3VQy4wO4E']
     },
     {
         id: 'centre-of-mass-torque',
@@ -116,7 +116,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Rotational',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_centre_of_mass_torque.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['ENWqHiwX32U']
     },
     {
         id: 'moment-of-inertia',
@@ -129,7 +129,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Rotational',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_moment_of_inertia.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['pTo8sAJKVkA']
     },
     {
         id: 'conservation-mechanical-energy',
@@ -142,7 +142,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Energy',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_conservation_mechanical_energy.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['BOxcFUpbydA']
     },
     {
         id: 'keplers-laws-planetary-motion',
@@ -155,7 +155,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Gravitation',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-physics/thumb_keplers_laws.png',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['jW2_H6-_72A']
     },
     {
         id: 'mechanical-properties-solids',
@@ -416,7 +416,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_electronic_configuration.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['igEGO8h3N-A']
     },
     {
         id: 'vsepr-theory',
@@ -494,7 +494,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_mole_concept.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['StxXr1SoUdw']
     },
     {
         id: 'solution-concentration-dilution',
@@ -507,7 +507,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_solution_concentration.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['V6-mlh9xRjg']
     },
     {
         id: 'periodic-trends-explorer',
@@ -520,7 +520,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Inorganic Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_periodic_trends.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['EPbyr769YXk']
     },
     {
         id: 'redox-oxidation-number',
@@ -533,7 +533,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_redox.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['OCZK3BG9fCU']
     },
     {
         id: 'weak-acid-base-ionization',
@@ -546,7 +546,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_weak_acid_base.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['V9-ztfDe1_0']
     },
     {
         id: 'hydrogen-bonding-molecular-interaction',
@@ -559,7 +559,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Physical Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_hydrogen_bonding.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['3N8aCwu4RbA']
     },
     {
         id: 'buffer-solutions',
@@ -624,7 +624,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Organic Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_purification.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['blc2hr6e5RI']
     },
     {
         id: 'structural-isomerism-molecular-properties',
@@ -637,7 +637,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Organic Chemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-chemistry/thumb_structural_isomerism.svg',
-        youtubeVideoIds: []
+        youtubeVideoIds: ['pg6GWz3zXas']
     },
     {
         id: 'ethane-conformations',
@@ -676,7 +676,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'General Biology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_binomial_nomenclature.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['EqA5hv-Qu6c']
     },
     {
         id: 'five-kingdom-classification',
@@ -689,7 +689,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'General Biology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_five_kingdom.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['2cb_HS5mSjI']
     },
     {
         id: 'algae',
@@ -702,7 +702,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Botany',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_algae.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['i9bBrCf3nhQ']
     },
     {
         id: 'bryophytes-pteridophytes',
@@ -715,7 +715,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Botany',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_bryophytes_pteridophytes.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['egetkqOSYM8']
     },
     {
         id: 'gymnosperms-angiosperms',
@@ -728,7 +728,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Botany',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_gymnosperms_angiosperms.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['oIeN8V5JDkM']
     },
     {
         id: 'animal-kingdom-non-chordates',
@@ -741,7 +741,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Zoology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_animal_kingdom_non_chordates.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['Uc-Gi7fECo8']
     },
     {
         id: 'morphology-flowering-plants',
@@ -754,7 +754,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Botany',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_morphology_flowering_plants.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['1K_G4UXc3s0']
     },
     {
         id: 'anatomy-flowering-plants',
@@ -767,7 +767,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Botany',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_anatomy_flowering_plants_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['Tl4bQEWN7cQ']
     },
     {
         id: 'animal-tissues',
@@ -780,7 +780,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Zoology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_animal_tissues.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['1i_iJBcB51I']
     },
     {
         id: 'chordata',
@@ -793,7 +793,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Zoology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_chordata.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['ZNHTKVo4QWg']
     },
     {
         id: 'frogs',
@@ -806,7 +806,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Zoology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_frogs_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['9zKOXDDcjSQ']
     },
     {
         id: 'cell-membrane-transport',
@@ -819,7 +819,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Cell Biology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_cell_membrane_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['ipa1vmQ7H_4']
     },
     {
         id: 'biomolecules',
@@ -832,7 +832,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Biochemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_biomolecules_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['rQyWJIn1HYE']
     },
     {
         id: 'enzymes',
@@ -845,7 +845,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Biochemistry',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_enzymes_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['yk14dOOvwMk']
     },
     {
         id: 'cell-cycle-regulation',
@@ -858,7 +858,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Cell Biology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_cell_cycle_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['VLJF8Pf8spw']
     },
     {
         id: 'mitosis-vs-meiosis-stages',
@@ -871,7 +871,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Cell Biology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_mitosis_meiosis_stages_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['kQu6Yfrr6j0']
     },
     {
         id: 'photosynthesis-light-reaction',
@@ -884,7 +884,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Plant Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_photosynthesis_light_reaction_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['NqCmzk4Z9LA']
     },
     {
         id: 'calvin-cycle-c3-c4-pathways',
@@ -897,7 +897,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Plant Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_calvin_cycle_c3_c4_generated.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['0UzMaoaXKaM']
     },
     {
         id: 'respiration-in-plants',
@@ -910,7 +910,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Plant Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_electron_transport_chain.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['pNzFYBA2Ofg']
     },
     {
         id: 'electron-transport-chain',
@@ -923,7 +923,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Plant Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_respiration_in_plants.png',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['LQmTKxI4Wn4']
     },
     {
         id: 'plant-hormones-tropisms',
@@ -936,7 +936,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Plant Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_plant_hormones_tropisms.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['zm1YQxzHpfM']
     },
     {
         id: 'pulmonary-ventilation-gas-exchange',
@@ -949,7 +949,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_pulmonary_ventilation_gas_exchange.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['8VUVBgfNwkQ']
     },
     {
         id: 'blood-groups-coagulation',
@@ -962,7 +962,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_blood_groups_coagulation.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['SWR98jAMkgQ']
     },
     {
         id: 'cardiac-cycle-ecg',
@@ -975,7 +975,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_cardiac_cycle_ecg.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['RYZ4daFwMa8']
     },
     {
         id: 'glomerular-filtration-reabsorption',
@@ -988,7 +988,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_glomerular_filtration_reabsorption.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['9_h0ZXx1lFw']
     },
     {
         id: 'countercurrent-multiplier',
@@ -1001,7 +1001,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_countercurrent_multiplier.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['o6EN2SF_taE']
     },
     {
         id: 'sliding-filament-theory',
@@ -1014,7 +1014,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_sliding_filament_theory.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['nTZnBdeIb5c']
     },
     {
         id: 'action-potential',
@@ -1027,7 +1027,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_action_potential.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['iBDXOt_uHTQ']
     },
     {
         id: 'synaptic-transmission',
@@ -1040,7 +1040,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_synaptic_transmission.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['cZwb8zqAPXc']
     },
     {
         id: 'endocrine-glands-hormones',
@@ -1053,7 +1053,7 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_endocrine_glands_hormones.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['SRE_SOazgVw']
     },
     {
         id: 'hormone-action-axis',
@@ -1066,6 +1066,6 @@ export const TOPICS_11TH: Topic[] = [
         branch: 'Human Physiology',
         grade: '11th',
         thumbnailUrl: '/images/thumbnails/11th-biology/thumb_hormone_action_axis.svg',
-        youtubeVideoIds: ['placeholder']
+        youtubeVideoIds: ['Rj9sx7SbJOY']
     }
 ];

@@ -37,3 +37,12 @@ original_textbook.txt
 temp_diff.txt
 review_sheets/
 metadata.json
+
+# One-off scripts and temp data
+*.csv
+*.py
+diff.txt
+pr_diff.txt
+missing_videos_plan.json
+youtube_links.json
+addFullscreen*.js
