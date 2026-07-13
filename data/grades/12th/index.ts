@@ -14,7 +14,7 @@ export const TOPICS: Topic[] = [
     description: 'Bar-magnet field lines as closed loops, the m × B torque with a live U(θ) curve, and a slab of bismuth / aluminium / iron responding to an external B₀ — dia, para, ferro on Table 5.2.',
     thumbnailIcon: 'magnet',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_magnetism_matter.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['IlbtaGL0ymU'],
     coverImage: ''
   },
   {
@@ -28,7 +28,7 @@ export const TOPICS: Topic[] = [
     description: 'Apply the right-hand rule to moving charges and current-carrying conductors, explore circular and helical trajectories, and balance crossed electric and magnetic fields in a velocity selector.',
     thumbnailIcon: 'magnet',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_moving_charges_magnetism.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['zZLix447wrU'],
     coverImage: ''
   },
   // --- PHYSICS UNIT II — CURRENT ELECTRICITY ---
@@ -43,7 +43,7 @@ export const TOPICS: Topic[] = [
     description: 'Sweep the battery on a V–I trace to see Ohmic vs non-Ohmic (resistor / filament / diode), combine real cells in series and parallel with internal r, and balance a Wheatstone bridge with a live galvanometer needle.',
     thumbnailIcon: 'zap',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_current_electricity.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['AlDeY2m3RPM'],
     coverImage: ''
   },
   // --- PHYSICS UNIT I — ELECTROSTATICS ---
@@ -58,7 +58,7 @@ export const TOPICS: Topic[] = [
     description: 'Build a live V heat-map with equipotential contours, then switch to a parallel-plate capacitor — slide a dielectric in, toggle battery, and watch C, Q, V and U respond to A, d and K.',
     thumbnailIcon: 'layers',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_electrostatic_potential_capacitance.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['8DARK51eJXY'],
     coverImage: ''
   },
   {
@@ -72,7 +72,7 @@ export const TOPICS: Topic[] = [
     description: 'Drag point charges on a white field, switch between vector arrows and field lines, and probe |E| with a +1 nC test charge — Coulomb’s 1/r² law, superposition, and the dipole field made visible.',
     thumbnailIcon: 'zap',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_electric_charges_fields.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['nN9n3quiJto'],
     coverImage: ''
   },
   // --- PHYSICS UNIT VI & VII & VIII & IX ---
@@ -157,7 +157,7 @@ export const TOPICS: Topic[] = [
     description: 'Rotate polaroids to reveal the transverse nature of light. Test Malus\' law, crossed axes, and the surprising transmission through a third middle polaroid.',
     thumbnailIcon: 'sun',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_polarisation.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['8YkfEft4p-w'],
     coverImage: ''
   },
   {
@@ -199,7 +199,7 @@ export const TOPICS: Topic[] = [
     description: 'Explore the binding-energy curve, model exponential radioactive decay and half-life, and compare energy release in nuclear fission and fusion.',
     thumbnailIcon: 'atom',
     thumbnailUrl: '/images/thumbnails/12th-physics/thumb_nuclei.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['UtZw9jfIxXM'],
     coverImage: ''
   },
   {
@@ -261,7 +261,7 @@ export const TOPICS: Topic[] = [
     description: 'Prepare solutions at different molarity and molality and watch the freezing point fall and boiling point rise live on a shared thermometer, driven by ΔT = i·K·m.',
     thumbnailIcon: 'beaker',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_colligative_properties.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['yrermv51ZMI'],
     coverImage: ''
   },
   // UNIT 1: SOLUTIONS — IDEAL VS NON-IDEAL
@@ -276,7 +276,7 @@ export const TOPICS: Topic[] = [
     description: 'Pick a binary liquid system and drag the composition slider to see the actual P–x curve bow above (positive deviation) or below (negative deviation) the dashed Raoult ideal line, with azeotrope markers for ethanol–water and HNO₃–water.',
     thumbnailIcon: 'flask',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_ideal_nonideal_solutions.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['vYa7f6WpTxk'],
     coverImage: ''
   },
   // UNIT 14: BIOMOLECULES
@@ -291,7 +291,7 @@ export const TOPICS: Topic[] = [
     description: 'Switch between the open-chain (Fischer) and cyclic (Haworth pyranose) forms of glucose, flip the α / β anomer at the anomeric carbon, and watch mutarotation interconvert them through the open chain in water.',
     thumbnailIcon: 'hexagon',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_glucose_conformations.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['6u0jHuG3kgc'],
     coverImage: ''
   },
   // UNIT 4: INORGANIC
@@ -320,7 +320,7 @@ export const TOPICS: Topic[] = [
     description: 'Explore selected 3d transition elements, showing how incomplete d-orbital filling creates variable oxidation states, why manganese has the widest range, and how oxygen or carbonyl ligands stabilise special states.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_variable_oxidation_states.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['gPHJr2xijYs'],
     coverImage: ''
   },
   // UNIT 5: COORDINATION
@@ -351,7 +351,7 @@ export const TOPICS: Topic[] = [
     description: 'Drag the concentration slider and watch Λm rise steeply for weak CH₃COOH but gently for strong KCl/NaCl/HCl — tracing the NCERT Fig 2.6 Λm vs √c plot with live α and Ka from Kohlrausch equations.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_conductance_concentration.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['C26pH8kC_Wk'],
     coverImage: ''
   },
 
@@ -367,7 +367,7 @@ export const TOPICS: Topic[] = [
     description: 'Adjust ion concentrations in Daniell, Cu-Ag, Ni-Ag or Mg-Ag cells and watch E_cell update live via E = E° − (0.059/n)logQ, with ΔrG and Kc from NCERT Eqs 2.13–2.15.',
     thumbnailIcon: 'zap',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_nernst_potential.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['sYLv5CLDgsE'],
     coverImage: ''
   },
 
@@ -383,7 +383,7 @@ export const TOPICS: Topic[] = [
     description: 'Animate zero-order ([R] = [R]₀−kt) and first-order ([R] = [R]₀e^−kt) decay curves. Watch successive half-lives shrink for zero order but stay constant for first order — NCERT Table 3.4 Eqs 3.6 and 3.14.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_rate_law_half_life.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['1MzZ12lV9rE'],
     coverImage: ''
   },
 
@@ -399,7 +399,7 @@ export const TOPICS: Topic[] = [
     description: 'Compare 1°/2°/3° alcohols in Lucas, dehydration, oxidation and Cu/573 K reactions side-by-side, and watch H-bonds explain why ethanol boils at 351 K while propane is a gas at room temperature.',
     thumbnailIcon: 'flask',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_alcohol_reactivity.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['3N8aCwu4RbA'],
     coverImage: ''
   },
 
@@ -415,7 +415,7 @@ export const TOPICS: Topic[] = [
     description: 'Compare aldehydes and ketones in nucleophilic addition, watching steric crowding and alkyl-group electron donation explain why aldehydes are generally more reactive.',
     thumbnailIcon: 'flask',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_aldehyde_ketone.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['hWmnXbfBnhc'],
     coverImage: ''
   },
   {
@@ -429,7 +429,7 @@ export const TOPICS: Topic[] = [
     description: 'Explore carboxylic acid acidity through carboxylate resonance and substituent effects, then connect the -COOH group to bicarbonate test, esterification, acid chloride formation, reduction, and decarboxylation.',
     thumbnailIcon: 'flask',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_carboxylic_acids.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['sTaI7Hir1CE'],
     coverImage: ''
   },
   {
@@ -443,7 +443,7 @@ export const TOPICS: Topic[] = [
     description: 'Compare gas-phase and aqueous-phase basicity trends of methyl and ethyl amines, then see why aniline is weaker through resonance and why pKb values reorder the amine series.',
     thumbnailIcon: 'flask',
     thumbnailUrl: '/images/thumbnails/12th-chemistry/thumb_basicity_amines.svg',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['S2qlsxDX50o'],
     coverImage: ''
   },
 
@@ -476,7 +476,7 @@ export const TOPICS: Topic[] = [
     description: 'Visualize pollen tube growth, the two fusion events of angiosperms, and how endosperm supports seed development in maize and pea.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-biology/thumb_angiosperms_double_fertilisation.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['bUjVHUf4d1I'],
     coverImage: ''
   },
   {
@@ -491,7 +491,7 @@ export const TOPICS: Topic[] = [
     description: 'Explore how pituitary FSH and LH regulate sperm formation, follicle maturation, ovulation, and reproductive hormone levels.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-biology/thumb_gametogenesis_hormonal_regulation.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['OUB92jUjsq8'],
     coverImage: ''
   },
   {
@@ -506,7 +506,7 @@ export const TOPICS: Topic[] = [
     description: 'Explore progesterone support of pregnancy, placental blood separation, Rh exposure at delivery, antibody memory, and anti-Rh prevention.',
     thumbnailIcon: 'activity',
     thumbnailUrl: '/images/thumbnails/12th-biology/thumb_pregnancy_rh_incompatibility.png',
-    youtubeVideoIds: [],
+    youtubeVideoIds: ['s-Xpa5UZAZs'],
     coverImage: ''
   }
 
